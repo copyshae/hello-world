@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hello World</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --glow: #95d5b2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(149, 213, 178, 0.45), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 90% 80%, rgba(45, 106, 79, 0.18), transparent 50%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 45%, #d8e8dc 100%);
+      overflow: hidden;
+    }
+
+    main {
+      text-align: center;
+      padding: 2rem;
+      animation: rise 0.9s ease-out both;
+    }
+
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(3rem, 12vw, 6.5rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--accent);
+    }
+
+    h1 span {
+      display: inline-block;
+      animation: wave 2.4s ease-in-out infinite;
+    }
+
+    h1 span:nth-child(2) { animation-delay: 0.08s; }
+    h1 span:nth-child(3) { animation-delay: 0.16s; }
+    h1 span:nth-child(4) { animation-delay: 0.24s; }
+    h1 span:nth-child(5) { animation-delay: 0.32s; }
+    h1 span:nth-child(6) { animation-delay: 0.4s; }
+    h1 span:nth-child(8) { animation-delay: 0.48s; }
+    h1 span:nth-child(9) { animation-delay: 0.56s; }
+    h1 span:nth-child(10) { animation-delay: 0.64s; }
+    h1 span:nth-child(11) { animation-delay: 0.72s; }
+    h1 span:nth-child(12) { animation-delay: 0.8s; }
+
+    p {
+      margin-top: 1.25rem;
+      font-size: 1.05rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: color-mix(in srgb, var(--ink) 65%, transparent);
+      animation: fade 1.2s ease-out 0.35s both;
+    }
+
+    .orb {
+      position: fixed;
+      width: 28vmax;
+      height: 28vmax;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--glow), transparent 70%);
+      opacity: 0.35;
+      pointer-events: none;
+      animation: drift 12s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    .orb-a { top: -8%; left: -6%; }
+    .orb-b {
+      bottom: -12%;
+      right: -8%;
+      animation-delay: -4s;
+      opacity: 0.25;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(1.5rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-0.12em); }
+    }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(4%, 6%) scale(1.08); }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-a" aria-hidden="true"></div>
+  <div class="orb orb-b" aria-hidden="true"></div>
+  <main>
+    <h1 aria-label="Hello World!">
+      <span>H</span><span>e</span><span>l</span><span>l</span><span>o</span>
+      <span> </span>
+      <span>W</span><span>o</span><span>r</span><span>l</span><span>d</span><span>!</span>
+    </h1>
+    <p>你的第一個網頁已就緒</p>
+  </main>
+</body>
+</html>
