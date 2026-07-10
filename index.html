@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>超級生命密碼分享</title>
+  <title>「超級生命密碼」緣來分享</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet" />
@@ -42,10 +42,10 @@
 
     h1 {
       font-family: "Instrument Serif", "Noto Serif TC", Georgia, serif;
-      font-size: clamp(2rem, 8vw, 4.5rem);
+      font-size: clamp(1.6rem, 6.5vw, 3.6rem);
       font-weight: 400;
       letter-spacing: 0.06em;
-      line-height: 1.2;
+      line-height: 1.35;
       color: var(--accent);
     }
 
@@ -54,13 +54,7 @@
       animation: wave 2.4s ease-in-out infinite;
     }
 
-    h1 span:nth-child(2) { animation-delay: 0.08s; }
-    h1 span:nth-child(3) { animation-delay: 0.16s; }
-    h1 span:nth-child(4) { animation-delay: 0.24s; }
-    h1 span:nth-child(5) { animation-delay: 0.32s; }
-    h1 span:nth-child(6) { animation-delay: 0.4s; }
-    h1 span:nth-child(7) { animation-delay: 0.48s; }
-    h1 span:nth-child(8) { animation-delay: 0.56s; }
+    h1 span:nth-child(n) { animation-delay: calc(0.08s * var(--i, 0)); }
 
     p {
       margin-top: 1.25rem;
@@ -116,10 +110,10 @@
   <div class="orb orb-a" aria-hidden="true"></div>
   <div class="orb orb-b" aria-hidden="true"></div>
   <main>
-    <h1 aria-label="超級生命密碼分享">
-      <span>超</span><span>級</span><span>生</span><span>命</span><span>密</span><span>碼</span><span>分</span><span>享</span>
+    <h1 aria-label="「超級生命密碼」緣來分享">
+      <span style="--i:0">「</span><span style="--i:1">超</span><span style="--i:2">級</span><span style="--i:3">生</span><span style="--i:4">命</span><span style="--i:5">密</span><span style="--i:6">碼</span><span style="--i:7">」</span><span style="--i:8">緣</span><span style="--i:9">來</span><span style="--i:10">分</span><span style="--i:11">享</span>
     </h1>
-    <p>歡迎來到超級生命密碼分享</p>
+    <p>「超級生命密碼」緣來分享</p>
   </main>
 </body>
 </html>
