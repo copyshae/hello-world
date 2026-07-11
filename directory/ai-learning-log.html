@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI學習日誌｜Cursor Vibe Coding 課程大綱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap {
+      max-width: 46rem;
+      margin: 0 auto;
+      padding: 2rem 1.35rem 4rem;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .nav a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.7rem, 5vw, 2.4rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 2rem 0 0.75rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; }
+    h3 {
+      font-size: 1.05rem;
+      margin: 1.25rem 0 0.5rem;
+      color: var(--ink);
+    }
+    p { margin: 0.65rem 0; color: var(--ink); }
+    p.note { color: var(--muted); margin-top: 2rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    hr { border: none; border-top: 1px solid var(--line); margin: 1.5rem 0; }
+    code {
+      font-size: 0.9em;
+      background: rgba(45, 106, 79, 0.1);
+      padding: 0.1em 0.35em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: rgba(45, 106, 79, 0.1); font-weight: 600; }
+    strong { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../">← 首頁</a>
+      <a href="./">← 學習目錄</a>
+    </nav>
+    <article>
+<h1>Cursor Vibe Coding 初學者課程大綱  </h1>
+<h2>用自然語言與 AI 對話，在 Cursor 裡做出第一個小作品</h2>
+
+<p><strong>授課對象：</strong> 完全沒寫過程式的初學者  </p>
+<p><strong>工具重點：</strong> Cursor（內建 AI 的程式編輯器 / IDE）  </p>
+<p><strong>課程目標：</strong> 學會用清楚的描述引導 AI、讀懂 AI 產出的內容、實際測試與修正，完成可展示的小專案  </p>
+<p><strong>建議時長：</strong> 8–10 堂課（每堂約 1.5–2 小時）</p>
+
+<hr />
+
+<h2>什麼是「Vibe Coding」？</h2>
+
+<p><strong>Vibe Coding</strong> 是一種開發方式：你用日常語言描述想做的事，AI 幫你寫程式，你再一起調整到可用為止。</p>
+
+<p>你<strong>不必</strong>先背語法。你<strong>需要</strong>學會這四件事：</p>
+
+<ol>
+<li>把目標說清楚  </li>
+<li>用白話讀懂 AI 寫了什麼  </li>
+<li>實際打開／執行，看結果對不對  </li>
+<li>請 AI 修正或改進</li>
+</ol>
+
+<p>本課程教的就是：在 Cursor 裡穩定地重複這個循環，讓開發體驗更流暢。</p>
+
+<hr />
+
+<h2>如何使用本大綱</h2>
+
+<ul>
+<li>請依章節順序進行；每一章都建立在前一章之上。  </li>
+<li>每一章包含：<strong>學習目標</strong>、<strong>教學重點</strong>、<strong>AI 練習</strong>、<strong>小專案</strong>、<strong>過關檢查</strong>。  </li>
+<li>鼓勵學員請 AI「用白話解釋」，而不只是「直接給完整程式」。  </li>
+<li>課堂原則：<strong>先理解，再接受</strong>。不清楚用途的程式，先問清楚再使用。  </li>
+<li>每堂課盡量讓學員帶著「能打開、能示範」的成果離開。</li>
+</ul>
+
+<hr />
+
+<h2>課程核心原則</h2>
+
+<ol>
+<li><strong>先描述，再動手</strong> — 用日常句子寫下想做什麼。  </li>
+<li><strong>每堂課都用 Cursor</strong> — 以 Chat、Inline Edit、Composer / Agent 為主要工具。  </li>
+<li><strong>把 AI 當開發夥伴</strong> — 多問「為什麼」「改了什麼」「請簡單說明」。  </li>
+<li><strong>一次只做一小步</strong> — 一次加一個功能，比一次做全部更穩。  </li>
+<li><strong>早點測試</strong> — 跑不起來是有用資訊，不是失敗。  </li>
+<li><strong>你負責方向</strong> — AI 幫忙打字與建議，最終決定權在你。</li>
+</ol>
+
+<hr />
+
+<h2>第 0 章 — 認識 Cursor 與 AI 寫程式</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>用簡單話說出「IDE 是什麼」</li>
+<li>打開 Cursor，認得畫面主要區域</li>
+<li>理解 vibe coding 與「先背語法」的差別</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li>什麼是寫程式？（給電腦清楚、可執行的指示）  </li>
+<li>什麼是 Cursor？（能寫檔案、改檔案，並用 AI 協助的編輯器）  </li>
+<li>畫面導覽：檔案列表、編輯區、終端機、AI 對話面板  </li>
+<li>建立練習資料夾，並用 Cursor 打開  </li>
+<li>安全習慣：只在練習資料夾操作；不要貼上密碼、金鑰等機密資訊  </li>
+</ol>
+
+<h3>AI 練習</h3>
+<ul>
+<li>問 AI：「用完全不懂程式的人聽得懂的方式，解釋 Cursor 是什麼。」  </li>
+<li>問 AI：「用一小段話說明什麼是 vibe coding。」  </li>
+</ul>
+
+<h3>小專案</h3>
+<ul>
+<li>在 Cursor 打開一個空資料夾，命名為 <code>my-first-project</code>  </li>
+<li>請 AI 建立一個簡單的 <code>README.md</code>，寫上自己的名字與想學什麼  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員能打開資料夾、找到 AI 對話，並用 AI 建立第一個檔案。</p>
+
+<hr />
+
+<h2>第 1 章 — 跟 AI 說話：寫出清楚的提示詞</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>寫出具體、適合初學者的提示詞（prompt）</li>
+<li>告訴 AI 自己的程度與目標</li>
+<li>分辨「模糊提示」與「清楚提示」</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li>好的提示詞通常包含：  </li>
+</ol>
+<p>   - 你是誰（初學者）  </p>
+<p>   - 你想做什麼  </p>
+<p>   - 看起來／用起來要怎樣  </p>
+<p>   - 限制條件（盡量簡單、先一個檔案等）  </p>
+<ol>
+<li>不好的提示：「做一個網站。」  </li>
+<li>更好的提示：「我是初學者。請做一個單一 HTML 頁面，包含我的名字、一段自我介紹，背景用藍色。並用白話解釋每一段在做什麼。」  </li>
+<li>追問技巧：「把字變大。」／「加一個按鈕，點了會顯示歡迎訊息。」  </li>
+<li>AI 做錯時：不要慌，把錯誤訊息或現象描述貼給 AI，請它修正  </li>
+</ol>
+
+<h3>AI 練習</h3>
+<ul>
+<li>全班一起把 3 句模糊提示改成清楚提示。  </li>
+<li>同一需求問兩次：一次模糊、一次清楚，比較結果差異。  </li>
+</ul>
+
+<h3>小專案</h3>
+<ul>
+<li>用 Chat 產生一頁自我介紹（<code>index.html</code>）  </li>
+<li>請 AI 用白話解釋每一段  </li>
+<li>再用追問改顏色與標題  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員能寫出清楚的第一句提示，以及至少一次有效追問。</p>
+
+<hr />
+
+<h2>第 2 章 — 第一個能打開的網頁（用 AI 學 HTML）</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>理解網頁就是瀏覽器能打開的檔案</li>
+<li>認得基本元素：標題、段落、圖片、連結、按鈕</li>
+<li>能在瀏覽器預覽頁面</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li>HTML 是什麼？（頁面的骨架／結構）  </li>
+<li>如何在瀏覽器打開 HTML（或使用簡易即時預覽）  </li>
+<li>請 AI 解釋它剛產生的 HTML  </li>
+<li>小改動：改文字、顏色、排版 — 先請 AI 改，再在檔案裡找到對應位置  </li>
+<li>存檔與命名習慣（例如 <code>index.html</code>）  </li>
+</ol>
+
+<h3>AI 練習</h3>
+<ul>
+<li>「像我從未寫過程式一樣，解釋這段 HTML。」  </li>
+<li>「指出哪一行控制網頁標題。」  </li>
+<li>「只改標題文字為……」  </li>
+</ul>
+
+<h3>小專案</h3>
+<p>做一頁「我喜歡的事物」：</p>
+<ul>
+<li>一個標題  </li>
+<li>三段短文或一個清單  </li>
+<li>一張圖（或佔位圖）  </li>
+<li>一個連結  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員能在瀏覽器打開頁面，並指出檔案中哪一段控制標題。</p>
+
+<hr />
+
+<h2>第 3 章 — 讓頁面更好看（用 AI 學 CSS）</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>理解 CSS 是「外觀」層（顏色、字體、間距）</li>
+<li>分得清「內容」與「長相」</li>
+<li>只改外觀時，會寫對應的提示詞</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li>CSS 是什麼？（控制看起來的樣子）  </li>
+<li>建議使用獨立的 <code>styles.css</code>（保持簡單）  </li>
+<li>常見概念：顏色、字級、margin、padding、背景  </li>
+<li>提示句型：「內容不要改，只把外觀改成……」  </li>
+<li>手機也能看：請 AI 讓頁面在手機上好讀  </li>
+</ol>
+
+<h3>AI 練習</h3>
+<ul>
+<li>請 AI 為同一頁做兩種風格（例如：安靜風／鮮明風）。  </li>
+<li>「用一句話解釋這條 CSS 規則在做什麼。」  </li>
+</ul>
+
+<h3>小專案</h3>
+<p>美化第 2 章的頁面：</p>
+<ul>
+<li>更好的字體與間距  </li>
+<li>清楚的頁首  </li>
+<li>一個醒目的按鈕  </li>
+<li>可存前後截圖，下課短暫分享  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員能請 AI 改外觀，並找到被改到的 CSS。</p>
+
+<hr />
+
+<h2>第 4 章 — Cursor 超能力：Chat、Inline Edit、Composer / Agent</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>依任務選擇合適的 Cursor AI 工具</li>
+<li>會用 Inline Edit 改「選取的那一段」</li>
+<li>理解較大任務可用 Composer / Agent，但仍要目標小而清楚</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li><strong>Chat</strong> — 提問、規劃、解釋、除錯  </li>
+<li><strong>Inline Edit（Ctrl/Cmd + K）</strong> — 只改選取範圍  </li>
+<li><strong>Composer / Agent</strong> — 跨檔案的較大任務（仍要用小步驟描述）  </li>
+<li>怎麼選：  </li>
+</ol>
+<p>   - 「這是什麼意思？」→ Chat  </p>
+<p>   - 「重寫這段按鈕區」→ Inline Edit  </p>
+<p>   - 「再加一頁並互相連結」→ Composer / Agent  </p>
+<ol>
+<li>接受／拒絕變更：先看差異（diff），不要盲目全部接受  </li>
+</ol>
+
+<h3>AI 練習</h3>
+<ul>
+<li>選取一段內容，用 Inline Edit 改樣式。  </li>
+<li>在 Chat 先只要計畫：「只列步驟，先不要程式碼。」  </li>
+</ul>
+
+<h3>小專案</h3>
+<p>把個人頁變成兩頁小網站：</p>
+<ul>
+<li>Home  </li>
+<li>About  </li>
+<li>用 AI 加上連結，再自己點開確認  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員能有意識地分別使用 Chat 與 Inline Edit。</p>
+
+<hr />
+
+<h2>第 5 章 — 加上互動（用 AI 學簡單 JavaScript）</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>理解 JavaScript 讓頁面能回應點擊與輸入</li>
+<li>用白話描述互動行為</li>
+<li>在瀏覽器測試按鈕／輸入是否有效</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li>JavaScript 是什麼？（行為／互動）  </li>
+<li>生活化例子：點按鈕 → 顯示訊息；輸入名字 → 打招呼  </li>
+<li>提示句型：「當使用者點 X，就做 Y。請保持簡單。」  </li>
+<li>如何描述問題：「我點了按鈕沒反應」＋你原本期望什麼  </li>
+<li>用白話理解瀏覽器錯誤（紅字）：請 AI 解釋  </li>
+</ol>
+
+<h3>AI 練習</h3>
+<ul>
+<li>請 AI 加一個打招呼按鈕，再請它逐行解釋新程式。  </li>
+<li>故意改錯一個名稱，再請 AI 幫你找問題。  </li>
+</ul>
+
+<h3>小專案</h3>
+<p>做「心情檢測」或「名字打招呼」：</p>
+<ul>
+<li>輸入框  </li>
+<li>按鈕  </li>
+<li>依輸入改變顯示訊息  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員能描述一個互動、請 AI 做出來，並在瀏覽器成功示範。</p>
+
+<hr />
+
+<h2>第 6 章 — 冷靜修問題（用 AI 除錯）</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>東西壞掉時有固定檢查順序</li>
+<li>會把有用資訊提供給 AI</li>
+<li>學會「一次只修一個問題」</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li>初學者除錯清單：  </li>
+</ol>
+<p>   - 有沒有存檔？  </p>
+<p>   - 瀏覽器開的是不是正確檔案？  </p>
+<p>   - 實際發生什麼？原本期望什麼？  </p>
+<p>   - 有沒有紅色錯誤訊息？  </p>
+<ol>
+<li>向 AI 求助的格式：目標／你做了什麼／你看到什麼／錯誤文字  </li>
+<li>避免「全部重寫」— 請 AI 給最小修正  </li>
+<li>先請 AI 用白話解釋錯誤，再改程式  </li>
+</ol>
+
+<h3>AI 練習</h3>
+<ul>
+<li>針對 2 個壞掉的示範頁，練習寫「好的問題回報」。  </li>
+<li>「不要重寫整個檔案。告訴我最小的修法。」  </li>
+</ul>
+
+<h3>小專案</h3>
+<ul>
+<li>拿到一個稍微壞掉的舊專案（或故意弄壞）  </li>
+<li>用清單 + AI 修到能用  </li>
+<li>寫 3 點：哪裡錯、怎麼發現、怎麼修好  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員能清楚回報問題，並套用 AI 建議的小修正。</p>
+
+<hr />
+
+<h2>第 7 章 — 從頭到尾做一個迷你 App</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>寫程式前先做小計畫</li>
+<li>把功能拆成步驟</li>
+<li>完成一個可展示的初學者作品</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li>專案規劃模板：  </li>
+</ol>
+<p>   - 給誰用？  </p>
+<p>   - 使用者能做什麼？（最多 3 個功能）  </p>
+<p>   - 需要哪些頁面／檔案？  </p>
+<ol>
+<li>建議建造順序：結構 → 外觀 → 互動 → 潤飾  </li>
+<li>先請 AI 給步驟計畫，再一步一步實作  </li>
+<li>範圍要小：能用的小作品，勝過半成品的大想法  </li>
+</ol>
+
+<h3>建議題目（擇一）</h3>
+<ul>
+<li>個人作品集首頁  </li>
+<li>簡單食譜／興趣介紹頁  </li>
+<li>待辦清單（新增／刪除）  </li>
+<li>小費計算機或單位換算  </li>
+<li>班級示範：「我們的小組介紹」小網站  </li>
+</ul>
+
+<h3>AI 練習</h3>
+<ul>
+<li>「我是初學者。請把這個專案拆成 5 步計畫。先不要寫程式。」  </li>
+<li>每一步後：「只實作第 N 步。並說明你改了什麼。」  </li>
+</ul>
+
+<h3>小專案</h3>
+<ul>
+<li>完成選定的迷你 App，讓同學不用你幫忙也能打開使用  </li>
+<li>寫簡短 <code>README.md</code>：它做什麼、怎麼打開  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員有一份可現場示範的完整小專案。</p>
+
+<hr />
+
+<h2>第 8 章 — 更流暢的 Vibe Coding 工作習慣</h2>
+
+<h3>學習目標</h3>
+<ul>
+<li>用小步、安全的方式持續開發</li>
+<li>專案資料夾保持整齊</li>
+<li>建立長期可重複的 AI 學習節奏</li>
+</ul>
+
+<h3>教學重點</h3>
+<ol>
+<li>檔案整理：清楚命名、一個專案一個資料夾  </li>
+<li>（選修）版本概念：另存副本／簡單理解「快照」  </li>
+<li>建立個人「好用提示詞清單」  </li>
+<li>學習循環：請 AI 解釋 → 自己改一小處 → 請 AI 檢查  </li>
+<li>學習誠信：AI 能協助，但展示與評量時你仍要理解自己的作品  </li>
+<li>AI 有極限：可能出錯，一定要自己測試  </li>
+</ol>
+
+<h3>AI 練習</h3>
+<ul>
+<li>建立個人 <code>prompt-cheat-sheet.md</code>，收錄 8–10 句好用提示。  </li>
+<li>「用簡單問題考我：關於我的專案問 5 題。」  </li>
+</ul>
+
+<h3>小專案</h3>
+<p>潤飾第 7 章作品：</p>
+<ul>
+<li>文字更清楚  </li>
+<li>間距更好  </li>
+<li>一項易用改善（例如更大按鈕、更清楚標籤）  </li>
+<li>準備 2 分鐘示範稿  </li>
+</ul>
+
+<h3>過關檢查</h3>
+<p>學員能示範作品，並回答「這段在做什麼？」至少兩處。</p>
+
+<hr />
+
+<h2>選修成果發表 — 秀出你做出來的東西</h2>
+
+<h3>形式</h3>
+<ul>
+<li>每人（或兩人一組）示範 3–5 分鐘  </li>
+<li>在瀏覽器展示可運作的作品  </li>
+<li>分享一句最有幫助的提示詞  </li>
+<li>分享一個用 AI 修好的問題  </li>
+</ul>
+
+<h3>可選加分方向</h3>
+<ol>
+<li>幫迷你 App 再加一個小功能  </li>
+<li>同一想法，重做更乾淨的版面  </li>
+<li>兩人一組互相協助改進（配對 vibe coding）  </li>
+</ol>
+
+<h3>成功標準</h3>
+<ul>
+<li>專案打得開、用得了  </li>
+<li>能用白話說明目標  </li>
+<li>能指出一處自己理解的 AI 協助修改  </li>
+</ul>
+
+<hr />
+
+<h2>建議每堂課流程</h2>
+
+<ol>
+<li><strong>暖身（10 分）</strong> — 打開上次作品，先做一個小成功  </li>
+<li><strong>精講（20–25 分）</strong> — 一個新觀念 + 講師在 Cursor 現場示範  </li>
+<li><strong>引導練習（25–30 分）</strong> — 跟著寫提示詞、一起操作  </li>
+<li><strong>小專案（30–40 分）</strong> — 學員獨立做／改進  </li>
+<li><strong>分享與反思（10 分）</strong> — 2–3 位學員展示；收集卡住的問題  </li>
+</ol>
+
+<hr />
+
+<h2>講師提示</h2>
+
+<ul>
+<li>投影 Cursor 畫面要夠大；一開始每個點擊都口頭說明。  </li>
+<li>把錯誤平常化：「紅字是線索，不是災難。」  </li>
+<li>鼓勵「我不會」— 那正是好的 AI 提問起點。  </li>
+<li>優先流程：<strong>計畫 → 寫碼 → 解釋 → 測試</strong>，避免一次貼超大段程式。  </li>
+<li>對零基礎學員，先停留在 <strong>HTML / CSS / 簡單 JavaScript</strong>。  </li>
+<li>若學員陷入「一直重問 AI 仍無效」，停下來一起改提示詞。  </li>
+<li>清楚的提示詞，與漂亮畫面一樣值得稱讚。  </li>
+</ul>
+
+<hr />
+
+<h2>學員入門提示詞包（可直接發放）</h2>
+
+<p>可複製後改成自己的需求：</p>
+
+<ol>
+<li>「我是完全初學者。請用白話解釋這個檔案在做什麼。」  </li>
+<li>「我想做 ___。請保持簡單。先用一個 HTML 檔。並解釋每一部分。」  </li>
+<li>「不要全部重寫。只改 ___。」  </li>
+<li>「先給我一步一步計畫，暫時不要程式碼。」  </li>
+<li>「我期望 ___，但實際看到 ___。錯誤訊息是：___。」  </li>
+<li>「像我剛學寫程式一樣解釋這個錯誤。然後給我最小的修法。」  </li>
+<li>「改善設計：間距清楚、字好讀、對比足夠。」  </li>
+<li>「只加一個功能：當使用者點 ___，就應該 ___。」  </li>
+<li>「用 5 個簡單問題考我對這個專案的理解。」  </li>
+<li>「在我上台示範前，列出我應該測試的項目。」  </li>
+</ol>
+
+<hr />
+
+<h2>輕量評量建議</h2>
+
+<table>
+<tr><th>類型</th><th>觀察重點</th></tr>
+<tr><td>提示詞能力</td><td>能把模糊需求改成清楚提示</td></tr>
+<tr><td>工具能力</td><td>會依任務使用 Chat 與 Inline Edit</td></tr>
+<tr><td>理解力</td><td>能用白話說明頁面中的 3 個部分</td></tr>
+<tr><td>除錯能力</td><td>能在 AI 協助下修好小問題</td></tr>
+<tr><td>專案成果</td><td>迷你 App 能運作，且符合自己說的目標</td></tr>
+</table>
+
+<p>通過標準：學員能用 Cursor <strong>做出、說明、改進</strong> 一個小專案 — 不是背誦語法。</p>
+
+<hr />
+
+<h2>課前準備檢查清單</h2>
+
+<ul>
+<li>[ ] 已安裝 Cursor 並完成登入  </li>
+<li>[ ] 有瀏覽器可預覽（Chrome / Edge / Firefox）  </li>
+<li>[ ] 有專用練習資料夾（例如 <code>Documents/cursor-class</code>）  </li>
+<li>[ ] （選用）截圖工具，方便前後對照分享  </li>
+<li>[ ] 已把課程檔與提示詞包发给學員  </li>
+</ul>
+
+<hr />
+
+<h2>學習路徑總覽</h2>
+
+<table>
+<tr><th>章節</th><th>主題</th><th>主要成果</th></tr>
+<tr><td>0</td><td>環境與心態</td><td>打開 Cursor；用 AI 建第一個檔案</td></tr>
+<tr><td>1</td><td>提示詞</td><td>寫清楚提示與有效追問</td></tr>
+<tr><td>2</td><td>HTML</td><td>第一個能在瀏覽器打開的網頁</td></tr>
+<tr><td>3</td><td>CSS</td><td>用 AI 美化頁面</td></tr>
+<tr><td>4</td><td>Cursor 工具</td><td>Chat、Inline Edit、Composer / Agent</td></tr>
+<tr><td>5</td><td>JavaScript</td><td>做出簡單互動</td></tr>
+<tr><td>6</td><td>除錯</td><td>冷靜用 AI 修問題</td></tr>
+<tr><td>7</td><td>迷你 App</td><td>完成端到端小專案</td></tr>
+<tr><td>8</td><td>工作習慣</td><td>建立可長期使用的 vibe coding 節奏</td></tr>
+<tr><td>成果發表</td><td>示範</td><td>展示並反思</td></tr>
+</table>
+
+<hr />
+
+<h2>課程結束後可繼續的方向</h2>
+
+<ol>
+<li>同一專案重做一次：不急著接受第一版答案，先練更好的提示詞  </li>
+<li>在 Cursor 學簡單 Git（「存檢查點」的概念）  </li>
+<li>等 HTML/CSS/JS 熟悉後，再嘗試更進階工具  </li>
+<li>組成每週小型「一起做」練習團，持續練習同一個開發循環  </li>
+</ol>
+
+<hr />
+
+<p class="note"><em>大綱結束 — 請依班級節奏調整。對零基礎學員來說，理解深度比趕進度更重要。</em></p>
+
+
+    </article>
+  </div>
+</body>
+</html>
