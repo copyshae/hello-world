@@ -201,15 +201,28 @@
     }
 
     .cta .btn-main {
-      color: var(--foam);
-      background: var(--accent);
-      border: 1px solid var(--accent);
+      color: var(--accent-deep);
+      background: linear-gradient(
+        145deg,
+        rgba(246, 250, 247, 0.92) 0%,
+        rgba(181, 214, 195, 0.78) 55%,
+        rgba(149, 213, 178, 0.7) 100%
+      );
+      border: 1px solid rgba(30, 107, 79, 0.35);
+      box-shadow: 0 8px 24px rgba(30, 107, 79, 0.12);
+      backdrop-filter: blur(6px);
     }
 
     .cta .btn-main:hover {
       transform: translateY(-2px);
-      background: var(--accent-deep);
+      color: var(--foam);
+      background: linear-gradient(
+        145deg,
+        rgba(30, 107, 79, 0.92) 0%,
+        rgba(19, 72, 54, 0.95) 100%
+      );
       border-color: var(--accent-deep);
+      box-shadow: 0 10px 28px rgba(19, 72, 54, 0.22);
     }
 
     .cta .btn-ghost {
