@@ -7,15 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://images.unsplash.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #1c2a22;
-      --muted: #516357;
-      --accent: #246049;
-      --paper: #eef5ef;
-      --line: rgba(36, 96, 73, 0.28);
-      --light: #f7fbf8;
+      --ink: #163028;
+      --muted: #4a6358;
+      --accent: #1e6b4f;
+      --accent-deep: #134836;
+      --foam: #f6faf7;
     }
 
     * {
@@ -26,100 +25,93 @@
 
     body {
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: "DM Sans", sans-serif;
+      font-family: "Manrope", sans-serif;
       color: var(--ink);
-      background: #d9e8de;
+      background: #dce9e1;
       overflow-x: hidden;
     }
 
-    /* Full-bleed learning atmosphere */
-    .backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
+    .stage {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem 1.25rem;
     }
 
-    .backdrop-photo {
+    .bg {
       position: absolute;
       inset: 0;
-      background:
-        url("https://images.unsplash.com/photo-1456513080080-7e9d11d0a24d?auto=format&fit=crop&w=1800&q=80")
-        center / cover no-repeat;
-      opacity: 0.28;
-      filter: grayscale(0.15) saturate(0.85) brightness(1.05);
-      animation: soft-pan 30s ease-in-out infinite alternate;
-      transform-origin: center;
+      overflow: hidden;
     }
 
-    .backdrop-wash {
+    .bg-photo {
+      position: absolute;
+      inset: -3%;
+      background:
+        url("https://images.unsplash.com/photo-1481627834876-b7833e1d8430?auto=format&fit=crop&w=1920&q=80")
+        center / cover no-repeat;
+      opacity: 0.34;
+      filter: saturate(0.85) brightness(1.08);
+      animation: drift 26s ease-in-out infinite alternate;
+    }
+
+    .bg-tint {
       position: absolute;
       inset: 0;
       background:
         linear-gradient(
-          165deg,
-          rgba(247, 251, 248, 0.86) 0%,
-          rgba(232, 242, 234, 0.78) 48%,
-          rgba(210, 228, 216, 0.84) 100%
+          160deg,
+          rgba(246, 250, 247, 0.88) 0%,
+          rgba(230, 241, 234, 0.78) 45%,
+          rgba(210, 228, 218, 0.82) 100%
         ),
-        repeating-linear-gradient(
-          transparent,
-          transparent 31px,
-          rgba(36, 96, 73, 0.035) 31px,
-          rgba(36, 96, 73, 0.035) 32px
+        radial-gradient(
+          ellipse 55% 45% at 50% 35%,
+          rgba(255, 255, 255, 0.35),
+          transparent 70%
         );
     }
 
-    .backdrop-edge {
-      position: absolute;
-      inset: 0;
-      box-shadow: inset 0 0 0 1px rgba(36, 96, 73, 0.08);
-      pointer-events: none;
-    }
-
-    main {
+    .panel {
       position: relative;
       z-index: 1;
-      width: min(92vw, 34rem);
+      width: min(100%, 36rem);
+      padding: clamp(2rem, 5vw, 3.2rem) clamp(1.4rem, 4vw, 2.6rem);
       text-align: center;
-      padding: clamp(1.75rem, 4vw, 2.75rem) 1.25rem;
-      animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation: rise 1s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .course-label {
-      display: inline-block;
-      margin-bottom: 1.1rem;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.22em;
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
       color: var(--accent);
-      animation: fade 1s ease-out 0.15s both;
+      animation: fade 0.9s ease 0.15s both;
     }
 
-    .course-label::after {
-      content: "";
-      display: block;
-      width: 2.4rem;
+    .divider {
+      width: 3rem;
       height: 1px;
-      margin: 0.55rem auto 0;
+      margin: 1rem auto 1.35rem;
       background: var(--accent);
+      animation: grow 0.9s ease 0.3s both;
       transform-origin: center;
-      animation: draw 1.1s ease-out 0.4s both;
     }
 
     h1 {
-      font-family: "Instrument Serif", Georgia, serif;
-      font-size: clamp(2.4rem, 9vw, 4.6rem);
-      font-weight: 400;
-      letter-spacing: 0.07em;
-      line-height: 1.22;
-      color: var(--accent);
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(2.8rem, 11vw, 5.2rem);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.15;
+      color: var(--accent-deep);
     }
 
     h1 span {
       display: inline-block;
-      animation: wave 2.5s ease-in-out infinite;
+      animation: floaty 2.8s ease-in-out infinite;
     }
 
     h1 span:nth-child(n) {
@@ -128,90 +120,71 @@
 
     .lead {
       margin: 1.2rem auto 0;
-      max-width: 22rem;
-      font-size: clamp(0.98rem, 2.3vw, 1.08rem);
+      max-width: 24rem;
+      font-size: clamp(0.98rem, 2.2vw, 1.08rem);
       font-weight: 500;
-      letter-spacing: 0.03em;
       line-height: 1.75;
+      letter-spacing: 0.02em;
       color: var(--muted);
-      animation: fade 1s ease-out 0.3s both;
+      animation: fade 1s ease 0.35s both;
     }
 
-    .study-rule {
-      width: min(100%, 14rem);
-      height: 1px;
-      margin: 1.85rem auto 0;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        var(--line) 18%,
-        var(--line) 82%,
-        transparent
-      );
-      animation: fade 1s ease-out 0.45s both;
-    }
-
-    .actions {
-      margin-top: 1.75rem;
+    .cta {
+      margin-top: 2.1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.95rem;
-      animation: fade 1s ease-out 0.55s both;
+      gap: 0.9rem;
+      animation: fade 1s ease 0.5s both;
     }
 
-    .actions a {
-      position: relative;
-      display: inline-block;
-      font-size: 1.02rem;
-      font-weight: 600;
+    .cta a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: min(100%, 15.5rem);
+      padding: 0.85rem 1.4rem;
+      font-size: 0.98rem;
+      font-weight: 700;
       letter-spacing: 0.04em;
-      color: var(--accent);
       text-decoration: none;
-      padding-bottom: 0.2rem;
+      transition: transform 0.22s ease, background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
     }
 
-    .actions a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      height: 1px;
-      background: currentColor;
-      transform: scaleX(0.35);
-      transform-origin: left center;
-      opacity: 0.55;
-      transition: transform 0.28s ease, opacity 0.28s ease;
-    }
-
-    .actions a:hover::after {
-      transform: scaleX(1);
-      opacity: 1;
-    }
-
-    .actions a.primary {
-      color: var(--light);
+    .cta .btn-main {
+      color: var(--foam);
       background: var(--accent);
-      padding: 0.72rem 1.4rem;
-      min-width: 12.5rem;
+      border: 1px solid var(--accent);
     }
 
-    .actions a.primary::after {
-      display: none;
+    .cta .btn-main:hover {
+      transform: translateY(-2px);
+      background: var(--accent-deep);
+      border-color: var(--accent-deep);
     }
 
-    .actions a.primary:hover {
-      background: #1b4d39;
+    .cta .btn-ghost {
+      color: var(--accent-deep);
+      background: transparent;
+      border: 1px solid rgba(30, 107, 79, 0.4);
     }
 
-    .actions a.secondary {
-      margin-top: 0.35rem;
-      color: var(--accent);
+    .cta .btn-ghost:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.45);
+      border-color: var(--accent);
+    }
+
+    .credit {
+      margin-top: 1.8rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: color-mix(in srgb, var(--muted) 75%, transparent);
+      animation: fade 1s ease 0.65s both;
     }
 
     @keyframes rise {
-      from { opacity: 0; transform: translateY(1.25rem); }
+      from { opacity: 0; transform: translateY(1.4rem); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -220,48 +193,52 @@
       to { opacity: 1; }
     }
 
-    @keyframes wave {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-0.1em); }
-    }
-
-    @keyframes draw {
+    @keyframes grow {
       from { transform: scaleX(0); opacity: 0; }
       to { transform: scaleX(1); opacity: 1; }
     }
 
-    @keyframes soft-pan {
-      from { transform: scale(1.02) translate(0, 0); }
-      to { transform: scale(1.06) translate(-1.2%, 0.8%); }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-0.08em); }
+    }
+
+    @keyframes drift {
+      from { transform: scale(1.04) translate(0, 0); }
+      to { transform: scale(1.1) translate(-1.5%, 1%); }
+    }
+
+    @media (max-width: 480px) {
+      .cta a { min-width: 100%; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .backdrop-photo,
+      .bg-photo,
       h1 span,
-      .course-label::after {
-        animation: none;
-      }
+      .divider { animation: none; }
     }
   </style>
 </head>
 <body>
-  <div class="backdrop" aria-hidden="true">
-    <div class="backdrop-photo"></div>
-    <div class="backdrop-wash"></div>
-    <div class="backdrop-edge"></div>
-  </div>
-
-  <main>
-    <p class="course-label">課堂學習分享</p>
-    <h1 aria-label="AI緣來分享">
-      <span style="--i:0">A</span><span style="--i:1">I</span><span style="--i:2">緣</span><span style="--i:3">來</span><span style="--i:4">分</span><span style="--i:5">享</span>
-    </h1>
-    <p class="lead">１１５０７１１完成使用 Cursor 製作的第一個網頁</p>
-    <div class="study-rule" aria-hidden="true"></div>
-    <div class="actions">
-      <a class="primary" href="https://www.youtube.com/watch?v=3RAsnOmrW-c" target="_blank" rel="noopener noreferrer">學習參考影片連結</a>
-      <a class="secondary" href="directory/">其他學習日誌</a>
+  <div class="stage">
+    <div class="bg" aria-hidden="true">
+      <div class="bg-photo"></div>
+      <div class="bg-tint"></div>
     </div>
-  </main>
+
+    <main class="panel">
+      <p class="eyebrow">Learning Share</p>
+      <div class="divider" aria-hidden="true"></div>
+      <h1 aria-label="AI緣來分享">
+        <span style="--i:0">A</span><span style="--i:1">I</span><span style="--i:2">緣</span><span style="--i:3">來</span><span style="--i:4">分</span><span style="--i:5">享</span>
+      </h1>
+      <p class="lead">１１５０７１１完成使用 Cursor 製作的第一個網頁</p>
+      <div class="cta">
+        <a class="btn-main" href="https://www.youtube.com/watch?v=3RAsnOmrW-c" target="_blank" rel="noopener noreferrer">學習參考影片連結</a>
+        <a class="btn-ghost" href="directory/">其他學習日誌</a>
+      </div>
+      <p class="credit">AI 輔助美編 × 課堂學習分享</p>
+    </main>
+  </div>
 </body>
 </html>
