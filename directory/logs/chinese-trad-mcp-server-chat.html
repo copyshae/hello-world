@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>20260713 CHINESE（繁體）和 MCP Server Chat</title>
+  <title>20260713 Chinese（繁體）和 Excel 檔拉進對話框，生出分析圖在電腦目錄中</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
@@ -104,26 +104,41 @@
       <a href="./">← 202607</a>
     </nav>
     <article>
-      <h1>20260713 CHINESE（繁體）和 MCP Server Chat</h1>
-      <p class="lead">在 Cursor 安裝繁體中文語系，並搭配 Agent／MCP Server Chat 使用。以下為本次設定截圖。</p>
+      <h1>20260713 Chinese（繁體）和 Excel 檔拉進對話框，生出分析圖在電腦目錄中</h1>
+      <p class="lead">安裝繁體中文語系後，把 Excel／CSV 拉進 Cursor 對話框，請 Agent 分析並把圖表存到本機資料夾。</p>
 
-      <h2>成果一｜Chinese（繁體）語系與 MCP Server Chat</h2>
+      <h2>成果一｜Chinese（繁體）語系</h2>
       <figure>
-        <img src="assets/result-chinese-trad-mcp-chat.png" alt="Cursor 安裝 Chinese Traditional Language Pack，並開啟 Agent Chat 與 .cursorrules.txt" />
-        <figcaption>搜尋並安裝 Chinese (Traditional) Language Pack；右側為 Agent／MCP Server Chat，中央為 <code>.cursorrules.txt</code>（Always reply in Traditional Chinese）</figcaption>
+        <img src="assets/result-chinese-trad-mcp-chat.png" alt="Cursor 安裝 Chinese Traditional Language Pack，並設定 .cursorrules.txt 以繁體中文回覆" />
+        <figcaption>安裝 Chinese (Traditional) Language Pack；規則檔 <code>.cursorrules.txt</code> 指定 Always reply in Traditional Chinese</figcaption>
       </figure>
 
-      <h2>成果二｜配息金額依計價幣別占比</h2>
+      <h2>成果二｜Excel 拉進對話框 → 分析圖存到電腦目錄</h2>
+      <p class="lead">將桌面 <code>年度收入.csv</code>（或 Excel）路徑／檔案放入對話框，請 Agent 分析並產出圖表。圖檔位置：</p>
+      <ul>
+        <li><code>C:\Users\shaej\Desktop\年度收入_分析\</code></li>
+      </ul>
+
       <figure>
-        <img src="assets/03_計價幣別占比.png" alt="配息金額依計價幣別占比圓餅圖：美元 47.9%、澳幣 25.1%、歐元 18.4%、台幣 8.6%" />
-        <figcaption>年度收入分析：配息金額依計價幣別占比（美元 47.9%／澳幣 25.1%／歐元 18.4%／台幣 8.6%）</figcaption>
+        <img src="assets/01_每月配息趨勢.png" alt="每月配息總額折線圖" />
+        <figcaption>01_每月配息趨勢.png — 每月配息總額（台幣）</figcaption>
+      </figure>
+
+      <figure>
+        <img src="assets/02_各基金配息合計.png" alt="各基金配息合計長條圖" />
+        <figcaption>02_各基金配息合計.png — 各基金配息合計（台幣）</figcaption>
+      </figure>
+
+      <figure>
+        <img src="assets/03_計價幣別占比.png" alt="配息金額依計價幣別占比圓餅圖" />
+        <figcaption>03_計價幣別占比.png — 美元 47.9%／澳幣 25.1%／歐元 18.4%／台幣 8.6%</figcaption>
       </figure>
 
       <h2>重點整理</h2>
       <ul>
-        <li>擴充功能：<strong>Chinese (Traditional) Language Pack for Visual Studio Code</strong></li>
-        <li>規則檔：<code>.cursorrules.txt</code> — 指定以繁體中文回覆</li>
-        <li>右側面板：Agent／MCP Server Chat 對話介面</li>
+        <li>語系：Chinese (Traditional) Language Pack + <code>.cursorrules.txt</code></li>
+        <li>做法：把 Excel／CSV 拉進（或貼上路徑到）對話框</li>
+        <li>產出：分析圖寫入本機目錄 <code>桌面\年度收入_分析\</code></li>
       </ul>
     </article>
   </div>
