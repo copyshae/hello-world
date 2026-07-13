@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260713 CHINESE（繁體）和 MCP Server Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap {
+      max-width: 52rem;
+      margin: 0 auto;
+      padding: 2rem 1.35rem 4rem;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .nav a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead {
+      color: var(--muted);
+      margin-bottom: 1.75rem;
+    }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    figure {
+      margin: 0 0 1.25rem;
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      background: #111;
+    }
+    figcaption {
+      margin-top: 0.55rem;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+    ul {
+      margin: 0.5rem 0 0.85rem 1.35rem;
+    }
+    li { margin: 0.3rem 0; }
+    code {
+      font-size: 0.9em;
+      background: rgba(45, 106, 79, 0.1);
+      padding: 0.1em 0.35em;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../">← 首頁</a>
+      <a href="../">← 學習日誌</a>
+      <a href="./">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260713 CHINESE（繁體）和 MCP Server Chat</h1>
+      <p class="lead">在 Cursor 安裝繁體中文語系，並搭配 Agent／MCP Server Chat 使用。以下為本次設定截圖。</p>
+
+      <h2>成果｜Chinese（繁體）語系與 MCP Server Chat</h2>
+      <figure>
+        <img src="assets/result-chinese-trad-mcp-chat.png" alt="Cursor 安裝 Chinese Traditional Language Pack，並開啟 Agent Chat 與 .cursorrules.txt" />
+        <figcaption>搜尋並安裝 Chinese (Traditional) Language Pack；右側為 Agent／MCP Server Chat，中央為 <code>.cursorrules.txt</code>（Always reply in Traditional Chinese）</figcaption>
+      </figure>
+
+      <h2>重點整理</h2>
+      <ul>
+        <li>擴充功能：<strong>Chinese (Traditional) Language Pack for Visual Studio Code</strong></li>
+        <li>規則檔：<code>.cursorrules.txt</code> — 指定以繁體中文回覆</li>
+        <li>右側面板：Agent／MCP Server Chat 對話介面</li>
+      </ul>
+    </article>
+  </div>
+</body>
+</html>
