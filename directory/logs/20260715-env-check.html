@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260715 環境檢測成果｜MCP／知識庫燈號板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0f2418;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.22);
+      --ok: #15803d;
+      --warn: #b45309;
+      --bad: #b91c1c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.4), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.62);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead, .note { color: var(--muted); margin-bottom: 0.85rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.6rem 0 0.75rem;
+      padding-top: 0.7rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.4rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+      gap: 0.75rem;
+      margin: 1rem 0 1.25rem;
+    }
+    .card {
+      padding: 1rem 1.05rem;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--line);
+    }
+    .card .lamp {
+      display: inline-block;
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+    .lamp.ok { background: var(--ok); box-shadow: 0 0 0 3px rgba(21,128,61,0.2); }
+    .lamp.warn { background: var(--warn); box-shadow: 0 0 0 3px rgba(180,83,9,0.2); }
+    .lamp.bad { background: var(--bad); box-shadow: 0 0 0 3px rgba(185,28,28,0.2); }
+    .card b { display: block; margin-top: 0.35rem; font-size: 1.05rem; color: var(--accent); }
+    .card span { font-size: 0.88rem; color: var(--muted); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1rem;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.7rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: rgba(45, 106, 79, 0.1);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .status-ok { color: var(--ok); font-weight: 600; }
+    .status-warn { color: var(--warn); font-weight: 600; }
+    .status-bad { color: var(--bad); font-weight: 600; }
+    .flow { display: grid; gap: 0.65rem; margin: 0.75rem 0 1rem; }
+    .flow-step {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      background: linear-gradient(90deg, rgba(45,106,79,0.1), rgba(255,255,255,0.9));
+      border: 1px solid var(--line);
+    }
+    .flow-num {
+      width: 2rem; height: 2rem;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--accent); color: #fff; font-weight: 600;
+    }
+    .tag {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.15rem 0.45rem;
+      border: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    .tag.done { color: var(--ok); border-color: rgba(21,128,61,0.35); }
+    .tag.next { color: var(--warn); border-color: rgba(180,83,9,0.35); }
+    .tag.wait { color: var(--muted); }
+    pre {
+      margin: 0.75rem 0 1rem;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      background: rgba(26, 31, 28, 0.92);
+      color: #e8efe6;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      border: 1px solid var(--line);
+    }
+    code {
+      font-size: 0.9em;
+      background: rgba(45, 106, 79, 0.1);
+      padding: 0.1em 0.35em;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+    a.inline { color: var(--accent); }
+    ul { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../">← 首頁</a>
+      <a href="../">← 學習日誌</a>
+      <a href="./">← 202607</a>
+      <a href="20260715-hands-on-execute.html">← 20260715 日誌</a>
+    </nav>
+    <article>
+      <h1>環境檢測成果｜MCP／知識庫燈號板</h1>
+      <p class="lead">檢測時間：2026-07-15。對照昨日四玩法「最少要有」條件，記錄本機實際狀態與已完成動作。</p>
+
+      <div class="grid">
+        <div class="card">
+          <span class="lamp ok"></span><span>Node／npx</span>
+          <b>綠燈就緒</b>
+          <span>v24.18.0／npx 11.16.0</span>
+        </div>
+        <div class="card">
+          <span class="lamp warn"></span><span>mcp-server-chart</span>
+          <b>設定已寫入</b>
+          <span>請重載 MCP 確認綠燈</span>
+        </div>
+        <div class="card">
+          <span class="lamp bad"></span><span>Bun／TalkToFigma</span>
+          <b>未安裝 Bun</b>
+          <span>玩法四暫不可用</span>
+        </div>
+        <div class="card">
+          <span class="lamp ok"></span><span>MyKnowledgeBase</span>
+          <b>資料夾已開</b>
+          <span>暫時掃描稿已清除</span>
+        </div>
+      </div>
+
+      <h2>四玩法就緒度</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>順序</th>
+            <th>玩法</th>
+            <th>最少要有</th>
+            <th>今日判定</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>畫圖表</td>
+            <td>Node + mcp-server-chart 綠燈</td>
+            <td><span class="status-warn">黃｜設定已寫入，待面板綠燈</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>長文→網頁</td>
+            <td>一份 PDF／長文 + Agent</td>
+            <td><span class="status-warn">黃｜可做，尚無正式長文檔</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>本地知識庫</td>
+            <td>資料夾 + Rules</td>
+            <td><span class="status-ok">綠｜資料夾已開；Rules 可再補</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Figma</td>
+            <td>Figma + TalkToFigma 綠燈</td>
+            <td><span class="status-bad">紅｜缺 Bun／bunx</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>今日操作流程</h2>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div>開啟 MyKnowledgeBase、對照 0714 教學頁</div>
+          <span class="tag done">完成</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div>試 CamScanner → Markdown，確認後清除暫時檔</div>
+          <span class="tag done">完成</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div>檢測 Node／Bun，寫入 mcp-server-chart 至 mcp.json</div>
+          <span class="tag done">完成</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div>Cursor MCP 面板重載 → 等綠燈 → 拖 CSV 畫圖</div>
+          <span class="tag next">下一步</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div>安裝 Bun → 接 TalkToFigma</div>
+          <span class="tag wait">待做</span>
+        </div>
+      </div>
+
+      <h2>本機 mcp.json（已寫入）</h2>
+      <pre><code>{
+  "mcpServers": {
+    "mcp-server-chart": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@antv/mcp-server-chart"]
+    }
+  }
+}</code></pre>
+      <p class="note">路徑：<code>C:\Users\shaej\.cursor\mcp.json</code>。若面板仍紅，點開詳情看 npx 實際錯誤訊息。</p>
+
+      <h2>相關連結</h2>
+      <ul>
+        <li><a class="inline" href="20260715-hands-on-execute.html">回到 20260715 日誌</a></li>
+        <li><a class="inline" href="20260714-cursor-hands-on.html">20260714 手把手步驟</a></li>
+        <li><a class="inline" href="20260714-interactive-report.html">20260714 互動網頁報告（圖表示範）</a></li>
+      </ul>
+    </article>
+  </div>
+</body>
+</html>

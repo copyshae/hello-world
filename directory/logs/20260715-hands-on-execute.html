@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260715 依昨日教學開始實作：環境檢測與 MCP 就緒</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap {
+      max-width: 52rem;
+      margin: 0 auto;
+      padding: 2rem 1.35rem 4rem;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .nav a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead {
+      color: var(--muted);
+      margin-bottom: 1.75rem;
+    }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol {
+      margin: 0.5rem 0 0.85rem 1.35rem;
+    }
+    li { margin: 0.3rem 0; }
+    code {
+      font-size: 0.9em;
+      background: rgba(45, 106, 79, 0.1);
+      padding: 0.1em 0.35em;
+    }
+    pre {
+      margin: 0.75rem 0 1rem;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      background: rgba(26, 31, 28, 0.92);
+      color: #e8efe6;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      border: 1px solid var(--line);
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1rem;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.7rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: rgba(45, 106, 79, 0.1);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .video-link {
+      margin: 1.5rem 0 0;
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+    .video-link a, a.inline {
+      color: var(--accent);
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../">← 首頁</a>
+      <a href="../">← 學習日誌</a>
+      <a href="./">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260715 依昨日教學開始實作：環境檢測與 MCP 就緒</h1>
+      <p class="lead">承接 <a class="inline" href="20260714-cursor-hands-on.html">20260714 手把手步驟</a>，今日實際檢測本機環境、寫入 <code>mcp-server-chart</code> 設定，並開啟本地知識庫資料夾試跑。詳細燈號與下一步放在成果子頁。</p>
+
+      <h2>今日做了什麼</h2>
+      <ol>
+        <li>開啟本機資料夾 <code>MyKnowledgeBase</code>（對應玩法三）。</li>
+        <li>短時間驗證 CamScanner 分享連結 → 掃描成 Markdown；確認流程後<strong>已清除</strong>暫時檔，不留在知識庫。</li>
+        <li>讀取昨日教學頁，依「建議試做順序」先查 Node／Bun／MCP。</li>
+        <li>將 Win 版 <code>mcp-server-chart</code> 寫入 <code>~/.cursor/mcp.json</code>。</li>
+        <li>建成本日誌＋連結成果子頁（環境燈號板）。</li>
+      </ol>
+
+      <h2>環境摘要</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>狀態</th>
+            <th>說明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Node／npx</td>
+            <td>就緒</td>
+            <td>Node v24.18.0 · npx 11.16.0（玩法一可用）</td>
+          </tr>
+          <tr>
+            <td>mcp-server-chart</td>
+            <td>已寫入設定</td>
+            <td>需在 Cursor MCP 面板重載後確認綠燈</td>
+          </tr>
+          <tr>
+            <td>Bun／bunx</td>
+            <td>未安裝</td>
+            <td>TalkToFigma（玩法四）會紅，需先裝 Bun</td>
+          </tr>
+          <tr>
+            <td>MyKnowledgeBase</td>
+            <td>已開資料夾</td>
+            <td>目前無留存掃描稿（已依指示清除）</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>已寫入的 MCP 設定</h2>
+      <pre><code>{
+  "mcpServers": {
+    "mcp-server-chart": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@antv/mcp-server-chart"]
+    }
+  }
+}</code></pre>
+      <p>儲存後到 Cursor → Settings → MCP，確認 <code>mcp-server-chart</code> 狀態點變綠，再拖 Excel／CSV 下指令畫圖。</p>
+
+      <h2>建議下一步（依昨日順序）</h2>
+      <ol>
+        <li>重載 MCP → 確認圖表伺服器綠燈 → 拉 CSV「做成柱狀圖」。</li>
+        <li>長文／報告 → 可視化網頁（玩法二）。</li>
+        <li>把正式 PDF／筆記放進 <code>MyKnowledgeBase</code> 並寫 Rules（玩法三）。</li>
+        <li>安裝 Bun 後再接 TalkToFigma（玩法四）。</li>
+      </ol>
+
+      <h2>生成結果</h2>
+      <p class="lead">日誌本頁放說明；環境檢測燈號與操作記錄放成果子頁。</p>
+      <ul>
+        <li>成果檔：<a class="inline" href="20260715-env-check.html">20260715-env-check.html</a>（環境燈號板・四玩法就緒度）</li>
+        <li>承接教學：<a class="inline" href="20260714-cursor-hands-on.html">20260714 手把手步驟</a></li>
+        <li>對照圖表成果：<a class="inline" href="20260714-interactive-report.html">20260714 互動網頁報告</a></li>
+      </ul>
+
+      <h2>成果一｜環境檢測燈號板</h2>
+      <p>點下方進入完整成果子頁（Node／Bun／MCP／知識庫狀態與下一步勾選）。</p>
+      <p class="video-link"><a href="20260715-env-check.html">開啟 20260715 環境檢測成果 →</a></p>
+
+      <p class="video-link">學習參考影片連結：<a href="https://www.youtube.com/watch?v=xznp6ipt5_0" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=xznp6ipt5_0</a></p>
+    </article>
+  </div>
+</body>
+</html>
