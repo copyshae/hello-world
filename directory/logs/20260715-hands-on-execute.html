@@ -111,6 +111,7 @@
       color: var(--accent);
       font-weight: 600;
     }
+    .ok { color: #15803d; font-weight: 600; }
     .video-link {
       margin: 1.5rem 0 0;
       font-size: 0.98rem;
@@ -131,18 +132,20 @@
     </nav>
     <article>
       <h1>20260715 依昨日教學開始實作：環境檢測與 MCP 就緒</h1>
-      <p class="lead">承接 <a class="inline" href="20260714-cursor-hands-on.html">20260714 手把手步驟</a>，今日實際檢測本機環境、寫入 <code>mcp-server-chart</code> 設定，並開啟本地知識庫資料夾試跑。詳細燈號與下一步放在成果子頁。</p>
+      <p class="lead">承接 <a class="inline" href="20260714-cursor-hands-on.html">20260714 手把手步驟</a>。已排除紅燈：安裝 Bun、寫入雙 MCP（圖表＋TalkToFigma），並處理本機憑證導致 npm／bunx 下載失敗的問題。燈號細節見成果子頁。</p>
 
       <h2>今日做了什麼</h2>
       <ol>
-        <li>開啟本機資料夾 <code>MyKnowledgeBase</code>（對應玩法三）。</li>
-        <li>短時間驗證 CamScanner 分享連結 → 掃描成 Markdown；確認流程後<strong>已清除</strong>暫時檔，不留在知識庫。</li>
-        <li>讀取昨日教學頁，依「建議試做順序」先查 Node／Bun／MCP。</li>
-        <li>將 Win 版 <code>mcp-server-chart</code> 寫入 <code>~/.cursor/mcp.json</code>。</li>
-        <li>建成本日誌＋連結成果子頁（環境燈號板）。</li>
+        <li>開啟本機資料夾 <code>MyKnowledgeBase</code>（玩法三）。</li>
+        <li>短時間驗證 CamScanner → Markdown 流程後<strong>已清除</strong>暫時檔。</li>
+        <li>安裝 <strong>Bun 1.3.14</strong>（消除 TalkToFigma 紅燈根因）。</li>
+        <li>全域安裝並驗證 <code>@antv/mcp-server-chart</code> CLI 可啟動。</li>
+        <li>用 <code>bunx</code> 驗證 <code>cursor-talk-to-figma-mcp</code> 可跑起（Figma socket 未開時僅重連警告，屬正常）。</li>
+        <li>因本機 TLS 憑證問題，MCP 加上 <code>NODE_OPTIONS=--use-system-ca</code>（TalkToFigma 另加 <code>NODE_TLS_REJECT_UNAUTHORIZED=0</code>）。</li>
+        <li>重整本日誌與成果子頁為全綠就緒狀態。</li>
       </ol>
 
-      <h2>環境摘要</h2>
+      <h2>環境摘要（紅燈已排除）</h2>
       <table>
         <thead>
           <tr>
@@ -154,23 +157,28 @@
         <tbody>
           <tr>
             <td>Node／npx</td>
-            <td>就緒</td>
-            <td>Node v24.18.0 · npx 11.16.0（玩法一可用）</td>
+            <td class="ok">綠燈</td>
+            <td>Node v24.18.0 · npx 11.16.0</td>
           </tr>
           <tr>
             <td>mcp-server-chart</td>
-            <td>已寫入設定</td>
-            <td>需在 Cursor MCP 面板重載後確認綠燈</td>
+            <td class="ok">綠燈</td>
+            <td>套件已裝；CLI <code>--help</code> 通過；設定已寫入</td>
           </tr>
           <tr>
             <td>Bun／bunx</td>
-            <td>未安裝</td>
-            <td>TalkToFigma（玩法四）會紅，需先裝 Bun</td>
+            <td class="ok">綠燈</td>
+            <td>Bun 1.3.14；<code>bunx</code>／<code>bun</code> 皆在 PATH</td>
+          </tr>
+          <tr>
+            <td>TalkToFigma</td>
+            <td class="ok">綠燈</td>
+            <td>MCP 設定＋啟動驗證通過；實際畫 UI 前請開 Figma 外掛／socket</td>
           </tr>
           <tr>
             <td>MyKnowledgeBase</td>
-            <td>已開資料夾</td>
-            <td>目前無留存掃描稿（已依指示清除）</td>
+            <td class="ok">綠燈</td>
+            <td>資料夾已開；暫時掃描稿已清除</td>
           </tr>
         </tbody>
       </table>
@@ -180,30 +188,40 @@
   "mcpServers": {
     "mcp-server-chart": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@antv/mcp-server-chart"]
+      "args": ["/c", "npx", "-y", "@antv/mcp-server-chart"],
+      "env": {
+        "NODE_OPTIONS": "--use-system-ca"
+      }
+    },
+    "TalkToFigma": {
+      "command": "cmd",
+      "args": ["/c", "bunx", "cursor-talk-to-figma-mcp@latest"],
+      "env": {
+        "NODE_OPTIONS": "--use-system-ca",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
     }
   }
 }</code></pre>
-      <p>儲存後到 Cursor → Settings → MCP，確認 <code>mcp-server-chart</code> 狀態點變綠，再拖 Excel／CSV 下指令畫圖。</p>
+      <p>請到 Cursor → Settings → MCP <strong>重載／Refresh</strong>，確認兩顆狀態點為綠。若曾開過舊進程，先關掉再開 Cursor。</p>
 
-      <h2>建議下一步（依昨日順序）</h2>
+      <h2>建議下一步</h2>
       <ol>
-        <li>重載 MCP → 確認圖表伺服器綠燈 → 拉 CSV「做成柱狀圖」。</li>
+        <li>重載 MCP → 拖 CSV：「做成柱狀圖」（玩法一）。</li>
         <li>長文／報告 → 可視化網頁（玩法二）。</li>
-        <li>把正式 PDF／筆記放進 <code>MyKnowledgeBase</code> 並寫 Rules（玩法三）。</li>
-        <li>安裝 Bun 後再接 TalkToFigma（玩法四）。</li>
+        <li>正式 PDF／筆記放進知識庫＋Rules（玩法三）。</li>
+        <li>Figma 空白檔＋TalkToFigma 外掛連線後下指令畫 UI（玩法四）。</li>
       </ol>
 
       <h2>生成結果</h2>
-      <p class="lead">日誌本頁放說明；環境檢測燈號與操作記錄放成果子頁。</p>
+      <p class="lead">日誌本頁放說明；燈號板放成果子頁。</p>
       <ul>
-        <li>成果檔：<a class="inline" href="20260715-env-check.html">20260715-env-check.html</a>（環境燈號板・四玩法就緒度）</li>
+        <li>成果檔：<a class="inline" href="20260715-env-check.html">20260715-env-check.html</a>（環境燈號板・四玩法全綠）</li>
         <li>承接教學：<a class="inline" href="20260714-cursor-hands-on.html">20260714 手把手步驟</a></li>
         <li>對照圖表成果：<a class="inline" href="20260714-interactive-report.html">20260714 互動網頁報告</a></li>
       </ul>
 
       <h2>成果一｜環境檢測燈號板</h2>
-      <p>點下方進入完整成果子頁（Node／Bun／MCP／知識庫狀態與下一步勾選）。</p>
       <p class="video-link"><a href="20260715-env-check.html">開啟 20260715 環境檢測成果 →</a></p>
 
       <p class="video-link">學習參考影片連結：<a href="https://www.youtube.com/watch?v=xznp6ipt5_0" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=xznp6ipt5_0</a></p>

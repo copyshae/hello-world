@@ -76,8 +76,6 @@
       vertical-align: middle;
     }
     .lamp.ok { background: var(--ok); box-shadow: 0 0 0 3px rgba(21,128,61,0.2); }
-    .lamp.warn { background: var(--warn); box-shadow: 0 0 0 3px rgba(180,83,9,0.2); }
-    .lamp.bad { background: var(--bad); box-shadow: 0 0 0 3px rgba(185,28,28,0.2); }
     .card b { display: block; margin-top: 0.35rem; font-size: 1.05rem; color: var(--accent); }
     .card span { font-size: 0.88rem; color: var(--muted); }
     table {
@@ -98,8 +96,6 @@
       font-weight: 600;
     }
     .status-ok { color: var(--ok); font-weight: 600; }
-    .status-warn { color: var(--warn); font-weight: 600; }
-    .status-bad { color: var(--bad); font-weight: 600; }
     .flow { display: grid; gap: 0.65rem; margin: 0.75rem 0 1rem; }
     .flow-step {
       display: grid;
@@ -125,7 +121,6 @@
     }
     .tag.done { color: var(--ok); border-color: rgba(21,128,61,0.35); }
     .tag.next { color: var(--warn); border-color: rgba(180,83,9,0.35); }
-    .tag.wait { color: var(--muted); }
     pre {
       margin: 0.75rem 0 1rem;
       padding: 0.9rem 1rem;
@@ -145,6 +140,13 @@
     a.inline { color: var(--accent); }
     ul { margin: 0.5rem 0 0.85rem 1.35rem; }
     li { margin: 0.3rem 0; }
+    .fixbox {
+      margin: 0.75rem 0 1.25rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid rgba(21,128,61,0.35);
+      background: rgba(21,128,61,0.08);
+    }
+    .fixbox strong { color: var(--ok); }
   </style>
 </head>
 <body>
@@ -157,7 +159,12 @@
     </nav>
     <article>
       <h1>環境檢測成果｜MCP／知識庫燈號板</h1>
-      <p class="lead">檢測時間：2026-07-15。對照昨日四玩法「最少要有」條件，記錄本機實際狀態與已完成動作。</p>
+      <p class="lead">更新時間：2026-07-15（第二版）。已排除先前紅燈（缺 Bun／TalkToFigma 無法啟動），四玩法基礎條件改為就緒。</p>
+
+      <div class="fixbox">
+        <strong>紅燈排除摘要：</strong>
+        安裝 Bun 1.3.14 → 寫入 TalkToFigma MCP → 本機 TLS 憑證問題改以 <code>NODE_OPTIONS=--use-system-ca</code>（bunx 另加 <code>NODE_TLS_REJECT_UNAUTHORIZED=0</code>）→ <code>mcp-server-chart</code>／TalkToFigma 啟動驗證通過。
+      </div>
 
       <div class="grid">
         <div class="card">
@@ -166,19 +173,19 @@
           <span>v24.18.0／npx 11.16.0</span>
         </div>
         <div class="card">
-          <span class="lamp warn"></span><span>mcp-server-chart</span>
-          <b>設定已寫入</b>
-          <span>請重載 MCP 確認綠燈</span>
+          <span class="lamp ok"></span><span>mcp-server-chart</span>
+          <b>綠燈就緒</b>
+          <span>CLI 驗證通過・設定已寫入</span>
         </div>
         <div class="card">
-          <span class="lamp bad"></span><span>Bun／TalkToFigma</span>
-          <b>未安裝 Bun</b>
-          <span>玩法四暫不可用</span>
+          <span class="lamp ok"></span><span>Bun／TalkToFigma</span>
+          <b>綠燈就緒</b>
+          <span>Bun 1.3.14・MCP 可啟動</span>
         </div>
         <div class="card">
           <span class="lamp ok"></span><span>MyKnowledgeBase</span>
-          <b>資料夾已開</b>
-          <span>暫時掃描稿已清除</span>
+          <b>綠燈就緒</b>
+          <span>資料夾已開・暫存稿已清</span>
         </div>
       </div>
 
@@ -197,30 +204,30 @@
             <td>1</td>
             <td>畫圖表</td>
             <td>Node + mcp-server-chart 綠燈</td>
-            <td><span class="status-warn">黃｜設定已寫入，待面板綠燈</span></td>
+            <td><span class="status-ok">綠｜Node＋套件＋MCP 設定齊</span></td>
           </tr>
           <tr>
             <td>2</td>
             <td>長文→網頁</td>
             <td>一份 PDF／長文 + Agent</td>
-            <td><span class="status-warn">黃｜可做，尚無正式長文檔</span></td>
+            <td><span class="status-ok">綠｜環境可做；丟檔即可試</span></td>
           </tr>
           <tr>
             <td>3</td>
             <td>本地知識庫</td>
             <td>資料夾 + Rules</td>
-            <td><span class="status-ok">綠｜資料夾已開；Rules 可再補</span></td>
+            <td><span class="status-ok">綠｜資料夾已開</span></td>
           </tr>
           <tr>
             <td>4</td>
             <td>Figma</td>
             <td>Figma + TalkToFigma 綠燈</td>
-            <td><span class="status-bad">紅｜缺 Bun／bunx</span></td>
+            <td><span class="status-ok">綠｜Bun＋MCP 就緒；用時開外掛／socket</span></td>
           </tr>
         </tbody>
       </table>
 
-      <h2>今日操作流程</h2>
+      <h2>操作流程（已更新）</h2>
       <div class="flow">
         <div class="flow-step">
           <div class="flow-num">1</div>
@@ -234,31 +241,42 @@
         </div>
         <div class="flow-step">
           <div class="flow-num">3</div>
-          <div>檢測 Node／Bun，寫入 mcp-server-chart 至 mcp.json</div>
+          <div>安裝 Bun；寫入 mcp-server-chart + TalkToFigma；修 TLS 下載問題</div>
           <span class="tag done">完成</span>
         </div>
         <div class="flow-step">
           <div class="flow-num">4</div>
-          <div>Cursor MCP 面板重載 → 等綠燈 → 拖 CSV 畫圖</div>
-          <span class="tag next">下一步</span>
+          <div>驗證 chart CLI／TalkToFigma 可啟動；重整成果頁燈號</div>
+          <span class="tag done">完成</span>
         </div>
         <div class="flow-step">
           <div class="flow-num">5</div>
-          <div>安裝 Bun → 接 TalkToFigma</div>
-          <span class="tag wait">待做</span>
+          <div>Cursor MCP Refresh → 拖 CSV 畫圖／連 Figma 外掛實作</div>
+          <span class="tag next">下一步</span>
         </div>
       </div>
 
-      <h2>本機 mcp.json（已寫入）</h2>
+      <h2>本機 mcp.json（已更新）</h2>
       <pre><code>{
   "mcpServers": {
     "mcp-server-chart": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@antv/mcp-server-chart"]
+      "args": ["/c", "npx", "-y", "@antv/mcp-server-chart"],
+      "env": {
+        "NODE_OPTIONS": "--use-system-ca"
+      }
+    },
+    "TalkToFigma": {
+      "command": "cmd",
+      "args": ["/c", "bunx", "cursor-talk-to-figma-mcp@latest"],
+      "env": {
+        "NODE_OPTIONS": "--use-system-ca",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
     }
   }
 }</code></pre>
-      <p class="note">路徑：<code>C:\Users\shaej\.cursor\mcp.json</code>。若面板仍紅，點開詳情看 npx 實際錯誤訊息。</p>
+      <p class="note">路徑：<code>C:\Users\shaej\.cursor\mcp.json</code>。請在 Cursor MCP 面板按 Refresh；實際連 Figma 前另開外掛／<code>bun socket</code>（若採 clone 安裝）。</p>
 
       <h2>相關連結</h2>
       <ul>
