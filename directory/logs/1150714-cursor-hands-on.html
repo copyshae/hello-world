@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>1150714 讀取影音檔可手把手步驟</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap {
+      max-width: 52rem;
+      margin: 0 auto;
+      padding: 2rem 1.35rem 4rem;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .nav a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead {
+      color: var(--muted);
+      margin-bottom: 1.75rem;
+    }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 1.1rem 0 0.5rem;
+    }
+    ul, ol {
+      margin: 0.5rem 0 0.85rem 1.35rem;
+    }
+    li { margin: 0.3rem 0; }
+    code {
+      font-size: 0.9em;
+      background: rgba(45, 106, 79, 0.1);
+      padding: 0.1em 0.35em;
+    }
+    pre {
+      margin: 0.75rem 0 1rem;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      background: rgba(26, 31, 28, 0.92);
+      color: #e8efe6;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      border: 1px solid var(--line);
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1rem;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.7rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: rgba(45, 106, 79, 0.1);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .video-link {
+      margin: 1.5rem 0 0;
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+    .video-link a {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    a.inline {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../">← 首頁</a>
+      <a href="../">← 學習日誌</a>
+      <a href="./">← 202607</a>
+    </nav>
+    <article>
+      <h1>1150714 讀取影音檔可手把手步驟</h1>
+      <p class="lead">依影片《小白用 Cursor 的 4 大實用玩法》整理可直接跟做的步驟。稍後若有修改指示，會直接更新本頁。</p>
+
+      <h2>準備：安裝與漢化</h2>
+      <ol>
+        <li>到 <a class="inline" href="https://cursor.com" target="_blank" rel="noopener noreferrer">Cursor 官網</a> 下載安裝（Windows／Mac／Linux）。</li>
+        <li>用 Google／GitHub／ChatGPT 等帳號登入。</li>
+        <li>左上角 <strong>Extensions</strong> → 搜尋 <code>Chinese</code> → 安裝中文語言包 → 重載，介面變中文。</li>
+      </ol>
+      <p>紅燈常見原因：點開 MCP 詳情看實際指令；<code>mcp-server-chart</code> 要有 <strong>Node／npx</strong>，<code>TalkToFigma</code> 要有 <strong>Bun／bunx</strong>，沒裝好會一直紅。</p>
+
+      <h2>玩法一：一句話把 Excel／CSV 畫成圖表</h2>
+      <p class="lead">目的：用 MCP 自動產生柱狀圖、流程圖、詞雲等。</p>
+      <ol>
+        <li>GitHub 開啟 <a class="inline" href="https://github.com/antvis/mcp-server-chart" target="_blank" rel="noopener noreferrer">antvis/mcp-server-chart</a>。</li>
+        <li>複製專案裡的 MCP 伺服器設定。</li>
+        <li>Cursor → <strong>Settings → MCP</strong> → 貼上設定並儲存。</li>
+        <li>等左側狀態點變<strong>綠色</strong>再開始。</li>
+        <li>把 Excel／CSV 拖進對話框，說需求，例如：「幫我把這些銷售數據做成柱狀圖」。</li>
+        <li>Cursor 會呼叫 <code>mcp-server-chart</code>；不滿意再用口令改（顏色、版面等）。</li>
+        <li>進階可請它做互動網頁報告、流程圖、詞雲。</li>
+      </ol>
+      <h3>Win 參考設定</h3>
+      <pre><code>{
+  "mcpServers": {
+    "mcp-server-chart": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@antv/mcp-server-chart"]
+    }
+  }
+}</code></pre>
+
+      <h2>玩法二：長文／報告 → 可視化網頁</h2>
+      <p class="lead">目的：先看結構清楚的 HTML，再讀原文。</p>
+      <ol>
+        <li>把文章／研究報告上傳到 Cursor。</li>
+        <li>選編程能力強的模型（影片提到如 Claude 系列）。</li>
+        <li>請它解析並做成結構清晰的可視化網頁（含摘要、圖表、層次排版）。</li>
+        <li>可再要求：「一鍵生成 HTML，我下載後直接打開預覽」。</li>
+        <li>不滿意就繼續調排版／配色。</li>
+        <li>想要同款風格：把參考網頁連結貼進對話，請它模仿重做並優化體驗。</li>
+      </ol>
+      <p>適用：專案彙報、交接文檔、個人知識整理。</p>
+
+      <h2>玩法三：本地知識庫（兩步）</h2>
+      <p class="lead">目的：優先翻你自己的資料寫報告；不夠再上網補。</p>
+      <h3>步驟 A：建資料夾並用 Cursor 打開</h3>
+      <ol>
+        <li>在電腦建資料夾，例如 <code>MyKnowledgeBase</code>。</li>
+        <li>把 PDF／文檔／筆記丟進去。</li>
+        <li>Cursor → <strong>Open Folder</strong> 打開這個資料夾。</li>
+      </ol>
+      <h3>步驟 B：寫 Rules（告訴 AI 怎麼查）</h3>
+      <ol>
+        <li><strong>先</strong>在本地資料夾搜相關內容。</li>
+        <li>本地沒結果再<strong>在線搜尋</strong>補充。</li>
+        <li>複雜任務自動呼叫 Sequential Thinking 這類工具，把任務拆小步。</li>
+      </ol>
+      <h3>試用範例</h3>
+      <p>對 Cursor 說：「寫一份未成年人網絡保護相關法規研究。」預期：先搜本地 → 拆子任務 → 不夠再上網 → 輸出報告（私密資料留本機）。</p>
+
+      <h2>玩法四：Cursor + TalkToFigma 做 UI</h2>
+      <p class="lead">目的：用嘴巴在 Figma 裡加元件、快速出原型。</p>
+      <ol>
+        <li>在 Figma 開一個空白設計檔。</li>
+        <li>安裝並連上 <a class="inline" href="https://github.com/grab/cursor-talk-to-figma-mcp" target="_blank" rel="noopener noreferrer">TalkToFigma</a> MCP／外掛；狀態綠燈再繼續。</li>
+        <li>在 Cursor 用自然語言下指令（例如加按鈕、整頁電商首頁）。</li>
+        <li>Cursor 透過 MCP 在 Figma 建 Frame、導航、間距與示意內容。</li>
+      </ol>
+      <h3>MCP 側常見設定（需 Bun）</h3>
+      <pre><code>{
+  "mcpServers": {
+    "TalkToFigma": {
+      "command": "bunx",
+      "args": ["cursor-talk-to-figma-mcp@latest"]
+    }
+  }
+}</code></pre>
+
+      <h2>建議試做順序</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>順序</th>
+            <th>玩法</th>
+            <th>最少要有</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>畫圖表</td>
+            <td>Node + mcp-server-chart 綠燈</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>長文→網頁</td>
+            <td>一份 PDF／長文 + Agent 對話</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>本地知識庫</td>
+            <td>資料夾 + Rules</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Figma</td>
+            <td>Figma + TalkToFigma 綠燈</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>先把 MCP 弄成綠燈，再貼資料下指令，最不容易卡關。</p>
+
+      <p class="video-link">學習參考影片連結：<a href="https://www.youtube.com/watch?v=xznp6ipt5_0" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=xznp6ipt5_0</a></p>
+    </article>
+  </div>
+</body>
+</html>
