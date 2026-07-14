@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MARU.｜居家器物選物</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1614;
+      --muted: #6f655c;
+      --sand: #ebe4da;
+      --clay: #b45309;
+      --clay-deep: #92400e;
+      --foam: #f7f3ee;
+      --line: rgba(26, 22, 20, 0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Outfit", sans-serif;
+      color: var(--ink);
+      background: var(--foam);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    .backbar {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      padding: 0.75rem 1.25rem;
+      background: rgba(247, 243, 238, 0.92);
+      border-bottom: 1px solid var(--line);
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .backbar a { color: var(--clay-deep); }
+    .backbar a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+
+    /* —— Hero: one composition, brand first, full-bleed —— */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      min-height: 100vh;
+      display: grid;
+      align-items: end;
+      color: #faf6f1;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(180deg, rgba(26,22,20,0.15) 0%, rgba(26,22,20,0.55) 55%, rgba(26,22,20,0.88) 100%),
+        url("https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=1800&q=80") center / cover no-repeat;
+      transform: scale(1.06);
+      animation: heroDrift 16s ease-in-out infinite alternate;
+    }
+    .hero-inner {
+      width: min(40rem, 100%);
+      padding: 2.5rem 1.5rem 3.25rem;
+      animation: rise 0.9s ease-out both;
+    }
+    .brand {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(3.2rem, 12vw, 5.5rem);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 0.95;
+      margin-bottom: 0.85rem;
+    }
+    .hero h2 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.15rem, 3.2vw, 1.55rem);
+      font-weight: 500;
+      max-width: 18ch;
+      line-height: 1.35;
+      margin-bottom: 0.65rem;
+    }
+    .hero p {
+      font-size: 1rem;
+      color: rgba(250, 246, 241, 0.82);
+      max-width: 28ch;
+      margin-bottom: 1.35rem;
+    }
+    .cta {
+      display: inline-flex;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+    .cta a {
+      display: inline-block;
+      padding: 0.75rem 1.35rem;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+    .cta a:hover { transform: translateY(-2px); }
+    .cta-main {
+      background: var(--clay);
+      color: #fffaf5;
+    }
+    .cta-main:hover { background: var(--clay-deep); }
+    .cta-sub {
+      border: 1px solid rgba(250,246,241,0.55);
+      color: #fffaf5;
+    }
+    .cta-sub:hover { background: rgba(250,246,241,0.1); }
+
+    section {
+      padding: 3.5rem 1.4rem;
+      max-width: 56rem;
+      margin: 0 auto;
+    }
+    section h3 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.5rem, 3.5vw, 2rem);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    section .sub {
+      color: var(--muted);
+      margin-bottom: 1.75rem;
+      max-width: 36ch;
+    }
+    .story {
+      display: grid;
+      gap: 1.5rem;
+    }
+    @media (min-width: 720px) {
+      .story {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+        gap: 2.5rem;
+      }
+    }
+    .story-visual {
+      min-height: 16rem;
+      background:
+        linear-gradient(160deg, rgba(26,22,20,0.2), rgba(26,22,20,0.05)),
+        url("https://images.unsplash.com/photo-1600585154340-0ef3c08aac86?auto=format&fit=crop&w=1200&q=80") center / cover no-repeat;
+      animation: fadeUp 1s ease-out 0.15s both;
+    }
+    .story-copy { animation: fadeUp 1s ease-out 0.28s both; }
+    .story-copy p { color: var(--muted); margin-top: 0.65rem; }
+
+    .rail {
+      display: grid;
+      gap: 1.25rem;
+    }
+    @media (min-width: 640px) {
+      .rail { grid-template-columns: repeat(3, 1fr); }
+    }
+    .item {
+      padding-top: 0.25rem;
+      border-top: 1px solid var(--line);
+    }
+    .item strong {
+      display: block;
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 500;
+      font-size: 1.15rem;
+      margin: 0.65rem 0 0.25rem;
+    }
+    .item span { color: var(--muted); font-size: 0.92rem; }
+    .item img {
+      width: 100%;
+      height: 11rem;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.92);
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 2rem 1.4rem 3rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .footer .brand-mini {
+      font-family: "Fraunces", Georgia, serif;
+      color: var(--ink);
+      font-size: 1.35rem;
+      margin-bottom: 0.35rem;
+    }
+
+    @keyframes heroDrift {
+      from { transform: scale(1.06) translateY(0); }
+      to { transform: scale(1.1) translateY(-1.5%); }
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(1.2rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(0.8rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="backbar">
+    <a href="20260715-env-check.html">← 成果子頁</a>
+    <a href="20260715-figma-button.html">← 加按鈕產出</a>
+    <a href="20260715-hands-on-execute.html">20260715 日誌</a>
+  </div>
+
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <p class="brand">MARU.</p>
+      <h2>桌上留一圈溫度</h2>
+      <p>手作器皿與日常木物，挑選值得長伴的居家物件。</p>
+      <div class="cta">
+        <a class="cta-main" href="#picks">逛本季選物</a>
+        <a class="cta-sub" href="#about">認識品牌</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="about">
+    <div class="story">
+      <div class="story-visual" role="img" aria-label="木質餐桌與器皿氛圍"></div>
+      <div class="story-copy">
+        <h3>慢一點的置物節奏</h3>
+        <p class="sub">器物應被摸過、用過，才記得住。</p>
+        <p>MARU. 從陶土與木紋出發，只上架耐看、好收納、能天天拿起來的東西——不是季節情緒的快時尚貨架。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="picks">
+    <h3>本季手感</h3>
+    <p class="sub">三件入口器物，從早餐桌開始。</p>
+    <div class="rail">
+      <article class="item">
+        <img src="https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=800&q=80" alt="象牙白釉咖啡杯" />
+        <strong>乳白釉杯</strong>
+        <span>NT$ 680 · 單品</span>
+      </article>
+      <article class="item">
+        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80" alt="淺木色置物盤" />
+        <strong>淺橡置物盤</strong>
+        <span>NT$ 1,240 · 限量</span>
+      </article>
+      <article class="item">
+        <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80" alt="亞麻靠墊與沙發角落" />
+        <strong>亞麻靠墊套</strong>
+        <span>NT$ 890 · 兩色</span>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="brand-mini">MARU.</div>
+    <p>20260715 TalkToFigma 口令示範產出｜整頁電商首頁</p>
+  </footer>
+</body>
+</html>
