@@ -14,6 +14,9 @@
       --accent: #2d6a4f;
       --muted: #4a5c52;
       --line: rgba(45, 106, 79, 0.2);
+      --danger: #b91c1c;
+      --warn: #b45309;
+      --ok: #15803d;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -70,6 +73,12 @@
       border-top: 1px solid var(--line);
     }
     h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    h3 {
+      font-size: 1.05rem;
+      color: var(--accent);
+      margin: 1.25rem 0 0.6rem;
+      font-weight: 600;
+    }
     ul, ol {
       margin: 0.5rem 0 0.85rem 1.35rem;
     }
@@ -96,12 +105,88 @@
       color: var(--accent);
       font-weight: 600;
     }
-    .ok { color: #15803d; font-weight: 600; }
+    .ok { color: var(--ok); font-weight: 600; }
+    .bad { color: var(--danger); font-weight: 600; }
     a.inline, .video-link a {
       color: var(--accent);
       word-break: break-all;
     }
     .video-link { margin-top: 1.5rem; }
+    .chart-block {
+      margin: 1rem 0 1.5rem;
+      padding: 1rem 0.85rem 0.75rem;
+      background: rgba(255,255,255,0.65);
+      border: 1px solid var(--line);
+    }
+    .chart-caption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.55rem;
+    }
+    .chart-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .swatch {
+      width: 0.7rem;
+      height: 0.7rem;
+      display: inline-block;
+    }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45, 106, 79, 0.08);
+      font-size: 0.95rem;
+    }
+    .callout.warn {
+      border-left-color: var(--warn);
+      background: rgba(180, 83, 9, 0.08);
+    }
+    .callout.danger {
+      border-left-color: var(--danger);
+      background: rgba(185, 28, 28, 0.08);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin: 0.85rem 0 1.1rem;
+    }
+    @media (min-width: 640px) {
+      .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    .stat {
+      padding: 0.75rem 0.8rem;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--line);
+    }
+    .stat .v {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.25rem;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+    .stat .v.bad { color: var(--danger); }
+    .stat .l {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
   </style>
 </head>
 <body>
@@ -113,55 +198,165 @@
     </nav>
     <article>
       <h1>20260716 Cursor Rules、Excel MCP 投資分析與優先順序表</h1>
-      <p class="lead">延續 Cursor 規則／CamScanner／Excel MCP；並用 Excel MCP 與 Python 解析 <code>MY.xlsx</code>，產出獲利前十檔、優先投資順序，寫回桌面「投資」資料夾。</p>
+      <p class="lead">延續 Cursor 規則／CamScanner／Excel MCP；並用 Excel MCP 與 Python 解析 <code>MY.xlsx</code>，產出獲利前十檔、優先投資順序與圖形分析，寫回桌面「投資」資料夾。</p>
 
       <h2>今日工作大要</h2>
       <ol>
-        <li>精煉 Cursor AI 提示詞，改走專案 <code>.cursor/rules/*.mdc</code>（User Rules 雲端同步常失敗）。</li>
+        <li>精煉 Cursor AI 提示詞，改走專案 <code>.cursor/rules/*.mdc</code>。</li>
         <li>CamScanner 分享 API → OCR → <code>MyKnowledgeBase</code>。</li>
-        <li>安裝 <code>excel-mcp-server</code>，讓 Cursor 可讀寫 <code>.xlsx</code>。</li>
-        <li>安裝 Cursor Excel 預覽擴充（XLSX Viewer／Office Viewer／Excel Viewer）。</li>
-        <li>解析 <code>Desktop/投資/MY.xlsx</code>：持倉、追蹤、交易損益、紅利；做圖表與集中度風險判讀。</li>
-        <li>依已實現獲利／勝率篩出優質基金十檔，排出優先投資順序。</li>
-        <li>產出交付檔 <code>Desktop/投資/投資優先順序.xlsx</code>（三個工作表）。</li>
+        <li>安裝 <code>excel-mcp-server</code> 與 Excel 預覽擴充。</li>
+        <li>解析 <code>Desktop/投資/MY.xlsx</code>：持倉結構、交易損益、紅利與集中度。</li>
+        <li>依已實現獲利篩出優質十檔，排出優先投資順序並做圖形分析。</li>
+        <li>產出 <code>Desktop/投資/投資優先順序.xlsx</code>。</li>
       </ol>
 
-      <h2>一｜Cursor Rules（專案規則）</h2>
+      <h2>一｜Cursor Rules／CamScanner／Excel MCP</h2>
       <ul>
-        <li>路徑：<code>.cursor/rules/no-high-level-fluff.mdc</code>（Always Apply）</li>
-        <li>要點：繁體中文；改碼給差分；禁止高層次空話。</li>
+        <li>規則：<code>.cursor/rules/no-high-level-fluff.mdc</code>（繁中、差分、禁空話）</li>
+        <li>知識庫：<code>C:\Users\shaej\MyKnowledgeBase</code></li>
+        <li>擴充：XLSX Viewer／Office Viewer／Excel Viewer</li>
+        <li>注意：交易損益 used range 異常大時，MCP 易超时；改 Python 限欄讀取較穩</li>
       </ul>
 
-      <h2>二｜CamScanner → 知識庫</h2>
-      <ul>
-        <li>分享頁為 SPA；改打 <code>query_share_info_with_link</code>／<code>query_ocr_list</code> 取 OCR。</li>
-        <li>本機：<code>C:\Users\shaej\MyKnowledgeBase</code></li>
-      </ul>
+      <h2>二｜MY.xlsx 投資概況</h2>
+      <div class="stats">
+        <div class="stat"><div class="v">23</div><div class="l">持有檔數</div></div>
+        <div class="stat"><div class="v">801,463</div><div class="l">市值約（台幣）</div></div>
+        <div class="stat"><div class="v bad">-76,037</div><div class="l">未實現損益</div></div>
+        <div class="stat"><div class="v bad">-8.67%</div><div class="l">報酬率</div></div>
+      </div>
+      <p>已完成交易約 58 筆，勝率約 76%，已實現約 <span class="ok">+20,549</span>。賣出紀律不錯，但長抱黃金／原物料造成未實現虧損。</p>
 
-      <h2>三｜Excel MCP 與擴充</h2>
-      <ul>
-        <li>MCP：<code>excel-mcp-server</code> 寫入 <code>~/.cursor/mcp.json</code>。</li>
-        <li>擴充：<code>muhammad-ahmad.xlsx-viewer</code>、<code>cweijan.vscode-office</code>、<code>grapecity.gc-excelviewer</code>。</li>
-        <li>注意：部分工作表 used range 異常大（如交易損益至 XEY），需限欄／限列或改用 Python 解析。</li>
-      </ul>
+      <h2>三｜投資建議圖形分析</h2>
+      <p class="lead" style="margin-bottom:0.75rem">以下圖表依 <code>MY.xlsx</code> 解析結果繪製（資料時點約為這次分析）。</p>
 
-      <h2>四｜MY.xlsx 投資分析（本段重點）</h2>
-      <p>來源檔：<code>c:\Users\shaej\Desktop\投資\MY.xlsx</code></p>
-      <table>
-        <thead>
-          <tr><th>指標</th><th>結果</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>持有檔數</td><td>23</td></tr>
-          <tr><td>成本／市值（約）</td><td>877,500／801,463 台幣</td></tr>
-          <tr><td>未實現損益</td><td>約 -76,037（-8.67%）</td></tr>
-          <tr><td>結構風險</td><td>黃金／原物料市值占比約八成以上</td></tr>
-          <tr><td>已完成交易</td><td>約 58 筆；勝率約 76%；已實現約 +20,549</td></tr>
-        </tbody>
-      </table>
-      <p>結論：賣出紀律不錯，但長抱黃金／原物料造成未實現虧損與集中度風險；不宜再加碼黃金主題。</p>
+      <h3>3.1 主題市值配置（集中度風險）</h3>
+      <div class="chart-block">
+        <svg class="chart-svg" viewBox="0 0 640 260" role="img" aria-label="主題市值配置橫條圖">
+          <text x="8" y="22" fill="#2d6a4f" font-size="14" font-family="DM Sans,sans-serif">市值占比（台幣）</text>
+          <!-- gold ~85.8% of 801463 = 687542 -->
+          <text x="8" y="58" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">黃金/原物料</text>
+          <rect x="110" y="44" width="470" height="20" fill="#b91c1c" opacity="0.85" />
+          <text x="588" y="58" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">85.8%</text>
 
-      <h2>五｜依獲利篩出的優先十檔</h2>
+          <text x="8" y="98" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">債券/收益</text>
+          <rect x="110" y="84" width="46" height="20" fill="#2d6a4f" opacity="0.85" />
+          <text x="164" y="98" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">8.5%</text>
+
+          <text x="8" y="138" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">科技/AI</text>
+          <rect x="110" y="124" width="14" height="20" fill="#40916c" opacity="0.85" />
+          <text x="132" y="138" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">2.5%</text>
+
+          <text x="8" y="178" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">台股</text>
+          <rect x="110" y="164" width="12" height="20" fill="#74c69d" opacity="0.9" />
+          <text x="130" y="178" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">2.2%</text>
+
+          <text x="8" y="218" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">其他股票</text>
+          <rect x="110" y="204" width="7" height="20" fill="#95d5b2" opacity="0.9" />
+          <text x="125" y="218" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">1.1%</text>
+
+          <line x1="110" y1="40" x2="110" y2="230" stroke="rgba(45,106,79,0.25)" />
+        </svg>
+        <p class="chart-caption">Source: MY.xlsx 目前基金持有 · 黃金/原物料約 687,542／總市值 801,463</p>
+      </div>
+      <div class="callout danger">
+        <strong>風險判讀：</strong>單一主題占比超過八成。未實現虧損幾乎來自黃金／原物料。建議把該主題壓到總資產 25%–35%，再建立收益成長與科技衛星。
+      </div>
+
+      <h3>3.2 各主題未實現損益</h3>
+      <div class="chart-block">
+        <svg class="chart-svg" viewBox="0 0 640 220" role="img" aria-label="各主題未實現損益">
+          <text x="8" y="22" fill="#2d6a4f" font-size="14" font-family="DM Sans,sans-serif">未實現損益（台幣，負值向左）</text>
+          <!-- zero line at x=400; scale: 70958 -> 280px -->
+          <line x1="400" y1="40" x2="400" y2="200" stroke="rgba(45,106,79,0.35)" stroke-dasharray="4 3" />
+          <text x="392" y="215" fill="#4a5c52" font-size="10" font-family="DM Sans,sans-serif">0</text>
+
+          <text x="8" y="68" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">黃金/原物料</text>
+          <rect x="120" y="54" width="280" height="18" fill="#b91c1c" opacity="0.8" />
+          <text x="8" y="88" fill="#b91c1c" font-size="11" font-family="DM Sans,sans-serif">≈ -70,958</text>
+
+          <text x="8" y="118" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">債券/收益</text>
+          <rect x="388" y="104" width="12" height="18" fill="#b45309" opacity="0.85" />
+          <text x="408" y="118" fill="#b45309" font-size="11" font-family="DM Sans,sans-serif">≈ -3,124</text>
+
+          <text x="8" y="158" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">科技/AI</text>
+          <rect x="396" y="144" width="4" height="18" fill="#b45309" opacity="0.7" />
+          <text x="408" y="158" fill="#4a5c52" font-size="11" font-family="DM Sans,sans-serif">≈ -1,054</text>
+
+          <text x="8" y="188" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">台股／其他</text>
+          <rect x="397" y="174" width="3" height="18" fill="#b45309" opacity="0.6" />
+          <text x="408" y="188" fill="#4a5c52" font-size="11" font-family="DM Sans,sans-serif">約 -900</text>
+        </svg>
+        <p class="chart-caption">幾乎所有未實現虧損壓在黃金/原物料主題</p>
+      </div>
+
+      <h3>3.3 依已實現獲利：優先投資順位（前 8）</h3>
+      <div class="chart-block">
+        <svg class="chart-svg" viewBox="0 0 680 300" role="img" aria-label="優先基金已實現損益長條圖">
+          <text x="8" y="22" fill="#2d6a4f" font-size="14" font-family="DM Sans,sans-serif">已實現損益（台幣）· 越高越優先考慮（仍需搭配風險上限）</text>
+          <!-- max 9805 -> 420px width starting at x=150 -->
+          <g font-family="DM Sans,sans-serif" font-size="11" fill="#1a1f1c">
+            <text x="8" y="56">1 B20073 安聯收益成長AM</text>
+            <rect x="200" y="42" width="145" height="18" fill="#2d6a4f" /><text x="352" y="55">+3,374</text>
+
+            <text x="8" y="88">2 B09460 貝萊德世界科技</text>
+            <rect x="200" y="74" width="86" height="18" fill="#40916c" /><text x="293" y="87">+2,004</text>
+
+            <text x="8" y="120">3 B38075 百達機器人</text>
+            <rect x="200" y="106" width="84" height="18" fill="#40916c" /><text x="291" y="119">+1,962</text>
+
+            <text x="8" y="152">4 B20186 安聯收益成長AMg7</text>
+            <rect x="200" y="138" width="115" height="18" fill="#2d6a4f" /><text x="322" y="151">+2,685</text>
+
+            <text x="8" y="184">5 B33197 高盛III邊境債</text>
+            <rect x="200" y="170" width="420" height="18" fill="#b45309" /><text x="628" y="183">+9,805</text>
+
+            <text x="8" y="216">6 B09325 貝萊德入息</text>
+            <rect x="200" y="202" width="56" height="18" fill="#74c69d" /><text x="263" y="215">+1,312</text>
+
+            <text x="8" y="248">7 B15343 氣候變遷</text>
+            <rect x="200" y="234" width="145" height="18" fill="#52b788" /><text x="352" y="247">+3,384</text>
+
+            <text x="8" y="280">8 B19186 瑞銀收益股票</text>
+            <rect x="200" y="266" width="26" height="18" fill="#95d5b2" /><text x="233" y="279">+596</text>
+          </g>
+        </svg>
+        <div class="legend">
+          <span><i class="swatch" style="background:#2d6a4f"></i>核心／收益成長</span>
+          <span><i class="swatch" style="background:#40916c"></i>科技成長衛星</span>
+          <span><i class="swatch" style="background:#b45309"></i>高報酬但限額（邊境債）</span>
+          <span><i class="swatch" style="background:#74c69d"></i>入息／主題衛星</span>
+        </div>
+        <p class="chart-caption">B33197 獲利最高，但新興／邊境債＋澳幣風險高 → 優先序排第 5並設 8%–12% 上限；實際加碼順序以「穩定收益＋拉開黃金相關」為先。</p>
+      </div>
+
+      <h3>3.4 建議行動：減黃金、輪入獲利實證類型</h3>
+      <div class="chart-block">
+        <svg class="chart-svg" viewBox="0 0 640 200" role="img" aria-label="配置再平衡示意">
+          <text x="8" y="22" fill="#2d6a4f" font-size="14" font-family="DM Sans,sans-serif">配置示意：現況 vs 目標區間（非保證報酬）</text>
+          <text x="8" y="55" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">現況：黃金/原物料</text>
+          <rect x="160" y="42" width="430" height="16" fill="#b91c1c" opacity="0.75" />
+          <text x="598" y="54" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">~86%</text>
+
+          <text x="8" y="95" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">目標：黃金/原物料</text>
+          <rect x="160" y="82" width="150" height="16" fill="#b45309" opacity="0.75" />
+          <text x="320" y="94" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">20–30%</text>
+
+          <text x="8" y="135" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">目標：收益成長+科技</text>
+          <rect x="160" y="122" width="230" height="16" fill="#2d6a4f" opacity="0.85" />
+          <text x="400" y="134" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">約 35–45%+</text>
+
+          <text x="8" y="175" fill="#1a1f1c" font-size="12" font-family="DM Sans,sans-serif">目標：債／防禦＋其他</text>
+          <rect x="160" y="162" width="160" height="16" fill="#74c69d" opacity="0.9" />
+          <text x="330" y="174" fill="#1a1f1c" font-size="11" font-family="DM Sans,sans-serif">其餘分散</text>
+        </svg>
+        <p class="chart-caption">資金輪動方向：減黃金重複曝險 → B20073／B09460／B38075 等有獲利實證標的；B33197 限額配置。</p>
+      </div>
+      <div class="callout warn">
+        <strong>投資建議摘要：</strong>優先 1–3 建立「安聯收益成長 + 科技／機器人」；第 5 的邊境債用想買／想賣價波段做、控上限；第 9–10（印尼債單筆、黃金）暫緩加碼。
+      </div>
+
+      <h2>四｜優先十檔一覽</h2>
       <table>
         <thead>
           <tr>
@@ -177,37 +372,24 @@
           <tr><td>6</td><td>B09325</td><td>貝萊德全球智慧數據入息</td><td>入息衛星</td></tr>
           <tr><td>7</td><td>B15343</td><td>富蘭克林全球氣候變遷</td><td>主題衛星</td></tr>
           <tr><td>8</td><td>B19186</td><td>瑞銀全球收益股票</td><td>小部位驗證</td></tr>
-          <tr><td>9</td><td>A05069</td><td>元大新興印尼債</td><td>低優先（僅 1 筆）</td></tr>
+          <tr><td>9</td><td>A05069</td><td>元大新興印尼債</td><td>低優先</td></tr>
           <tr><td>10</td><td>B09086</td><td>貝萊德世界黃金 A2 歐元</td><td>暫緩加碼</td></tr>
         </tbody>
       </table>
-      <p>交付檔：<code>c:\Users\shaej\Desktop\投資\投資優先順序.xlsx</code>（工作表：優先投資順序／篩選說明／建議行動）。</p>
+      <p>交付檔：<code>c:\Users\shaej\Desktop\投資\投資優先順序.xlsx</code></p>
 
-      <h2>完成狀態</h2>
-      <table>
-        <thead>
-          <tr><th>項目</th><th>狀態</th><th>說明</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>專案 Rules</td><td class="ok">完成</td><td><code>no-high-level-fluff.mdc</code></td></tr>
-          <tr><td>CamScanner OCR</td><td class="ok">打通</td><td>進 MyKnowledgeBase</td></tr>
-          <tr><td>Excel MCP</td><td class="ok">已安裝並實測</td><td>讀 MY.xlsx、產出建議表</td></tr>
-          <tr><td>投資優先順序.xlsx</td><td class="ok">已寫入投資資料夾</td><td>十檔排序＋行動摘要</td></tr>
-        </tbody>
-      </table>
-
-      <h2>學到的要點</h2>
+      <h2>五｜學到的要點</h2>
       <ul>
-        <li>歷史勝率高 ≠ 持倉結構健康；要同時看集中度與未實現損益來源。</li>
-        <li>「優質基金」應以你帳戶真實已實現獲利排序，再疊配置上限，避免單一主題過重。</li>
-        <li>Excel 異常 used range 會拖垮 MCP；Python／限範圍讀取較穩。</li>
+        <li>勝率高 ≠ 持倉健康；要同時看集中度與未實現損益來源。</li>
+        <li>優質基金應用帳戶<strong>真實已實現獲利</strong>排序，再疊配置上限。</li>
+        <li>圖形能一眼看出「獲利最大的不見得該最先重壓」（例如 B33197）。</li>
       </ul>
 
       <h2>建議下一步</h2>
       <ol>
-        <li>依 <code>投資優先順序.xlsx</code> 第 1–5 順位設想買價，分批配置。</li>
-        <li>減碼黃金／原物料重複檔，釋出資金輪入收益成長與科技衛星。</li>
-        <li>把 chart／TalkToFigma／excel 合併進同一份 <code>mcp.json</code> 並 Refresh。</li>
+        <li>依優先序 1–5 設想買價，分批配置。</li>
+        <li>減黃金／原物料重複檔，輪入收益成長與科技衛星。</li>
+        <li>把多個 MCP 合併進同一份 <code>mcp.json</code> 並 Refresh。</li>
       </ol>
 
       <h2>相關連結</h2>
@@ -217,6 +399,7 @@
       </ul>
 
       <p class="video-link">學習參考：<a href="https://www.youtube.com/watch?v=xznp6ipt5_0" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=xznp6ipt5_0</a></p>
+      <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">圖表與建議依個人歷史成交推估，非未來績效保證，亦不構成投資顧問或買賣要約。</p>
     </article>
   </div>
 </body>
