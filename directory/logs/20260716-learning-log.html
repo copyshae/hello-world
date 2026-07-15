@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>20260716 Cursor Rules、CamScanner OCR、Excel MCP 改表</title>
+  <title>20260716 Cursor Rules、Excel MCP 投資分析與優先順序表</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
@@ -79,21 +79,6 @@
       background: rgba(45, 106, 79, 0.1);
       padding: 0.1em 0.35em;
     }
-    pre {
-      margin: 0.75rem 0 1rem;
-      padding: 0.9rem 1rem;
-      overflow-x: auto;
-      background: rgba(26, 31, 28, 0.92);
-      color: #e8efe6;
-      font-size: 0.85rem;
-      line-height: 1.5;
-      border: 1px solid var(--line);
-    }
-    pre code {
-      background: none;
-      padding: 0;
-      color: inherit;
-    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -127,104 +112,111 @@
       <a href="./">← 202607</a>
     </nav>
     <article>
-      <h1>20260716 Cursor Rules、CamScanner OCR、Excel MCP 改表</h1>
-      <p class="lead">延續近幾日 Cursor 工作流實作：把「要實際程式碼／不要空談」寫進規則、釐清 Pages 404、從 CamScanner 分享鏈拉 OCR，並裝上 Excel MCP 讓 Cursor AI 直接改表。</p>
+      <h1>20260716 Cursor Rules、Excel MCP 投資分析與優先順序表</h1>
+      <p class="lead">延續 Cursor 規則／CamScanner／Excel MCP；並用 Excel MCP 與 Python 解析 <code>MY.xlsx</code>，產出獲利前十檔、優先投資順序，寫回桌面「投資」資料夾。</p>
 
       <h2>今日工作大要</h2>
       <ol>
-        <li>精煉 Cursor AI 提示詞（繁中回覆、改碼只貼差分、禁止高層次空話），並寫入專案規則。</li>
-        <li>排查 Settings → User Rules「Failed to add rule」紅字：改走專案 <code>.cursor/rules/*.mdc</code>。</li>
-        <li>確認 GitHub Pages 對 <code>directory/logs/*.html</code> 的 404 多為佈署延遲，檔案在遠端且之後可開。</li>
-        <li>建立本機 <code>MyKnowledgeBase</code>；用 CamScanner 分享 API 拉清單與 OCR，彙整筆記。</li>
-        <li>安裝 <code>excel-mcp-server</code>，寫入 <code>~/.cursor/mcp.json</code>，讓 Cursor AI 可讀寫 <code>.xlsx</code>。</li>
+        <li>精煉 Cursor AI 提示詞，改走專案 <code>.cursor/rules/*.mdc</code>（User Rules 雲端同步常失敗）。</li>
+        <li>CamScanner 分享 API → OCR → <code>MyKnowledgeBase</code>。</li>
+        <li>安裝 <code>excel-mcp-server</code>，讓 Cursor 可讀寫 <code>.xlsx</code>。</li>
+        <li>安裝 Cursor Excel 預覽擴充（XLSX Viewer／Office Viewer／Excel Viewer）。</li>
+        <li>解析 <code>Desktop/投資/MY.xlsx</code>：持倉、追蹤、交易損益、紅利；做圖表與集中度風險判讀。</li>
+        <li>依已實現獲利／勝率篩出優質基金十檔，排出優先投資順序。</li>
+        <li>產出交付檔 <code>Desktop/投資/投資優先順序.xlsx</code>（三個工作表）。</li>
       </ol>
 
       <h2>一｜Cursor Rules（專案規則）</h2>
-      <p>因 User Rules 雲端同步常失敗，改放專案檔（Always Apply）：</p>
       <ul>
-        <li>路徑：<code>.cursor/rules/no-high-level-fluff.mdc</code></li>
-        <li>要點：一律繁體中文；改碼只給變更＋前後幾行上下文；要修正／解釋就給實際內容，不給「你可以這樣做……」空教學。</li>
+        <li>路徑：<code>.cursor/rules/no-high-level-fluff.mdc</code>（Always Apply）</li>
+        <li>要點：繁體中文；改碼給差分；禁止高層次空話。</li>
       </ul>
-      <p>User Rules 若仍要加：登出再登入、Network Diagnostics、關 VPN；失敗就繼續用專案 <code>.mdc</code>。</p>
 
       <h2>二｜CamScanner → 知識庫</h2>
       <ul>
-        <li>分享頁是 SPA，HTML 幾乎無內容；改打 <code>d82.intsig.net/sync/query_share_info_with_link</code> 取文件清單。</li>
-        <li>OCR：<code>POST /query_ocr_list?encrypt_id=…&amp;doc_id=…</code>（<code>doc_id</code> 為去掉 <code>.jdoc</code> 的檔名）。</li>
-        <li>本機目錄：<code>C:\Users\shaej\MyKnowledgeBase</code>，目標是把多份掃描稿整理成單一 Markdown／筆記檔。</li>
+        <li>分享頁為 SPA；改打 <code>query_share_info_with_link</code>／<code>query_ocr_list</code> 取 OCR。</li>
+        <li>本機：<code>C:\Users\shaej\MyKnowledgeBase</code></li>
       </ul>
 
-      <h2>三｜Excel MCP（讓 AI 改表）</h2>
-      <p>目標：在 Cursor Chat 直接讀寫 <code>.xlsx</code>（不需開 Excel 桌面版共編）。</p>
+      <h2>三｜Excel MCP 與擴充</h2>
       <ul>
-        <li>套件：<code>excel-mcp-server</code>（<a class="inline" href="https://github.com/haris-musa/excel-mcp-server" target="_blank" rel="noopener noreferrer">haris-musa/excel-mcp-server</a>）</li>
-        <li>啟動：<code>python -m excel_mcp stdio</code></li>
-        <li>設定檔：<code>C:\Users\shaej\.cursor\mcp.json</code></li>
+        <li>MCP：<code>excel-mcp-server</code> 寫入 <code>~/.cursor/mcp.json</code>。</li>
+        <li>擴充：<code>muhammad-ahmad.xlsx-viewer</code>、<code>cweijan.vscode-office</code>、<code>grapecity.gc-excelviewer</code>。</li>
+        <li>注意：部分工作表 used range 異常大（如交易損益至 XEY），需限欄／限列或改用 Python 解析。</li>
       </ul>
-      <pre><code>{
-  "mcpServers": {
-    "excel": {
-      "command": "C:\\Users\\shaej\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
-      "args": ["-m", "excel_mcp", "stdio"]
-    }
-  }
-}</code></pre>
-      <ol>
-        <li>完全重開 Cursor。</li>
-        <li>Settings → MCP，確認 <code>excel</code> 綠燈。</li>
-        <li>用 Cursor 打開含 <code>.xlsx</code> 的資料夾。</li>
-        <li>Chat 下指令，例如：「讀 Sheet1 前 20 列」「B 欄加總寫進總計列」。</li>
-      </ol>
-      <p>注意：改表前先關閉 Excel 中同一個檔；重要檔先備份。若已有 chart／TalkToFigma 等 MCP，請合併進同一個 <code>mcp.json</code>，不要只留 excel 一顆。</p>
 
-      <h2>成果對照</h2>
+      <h2>四｜MY.xlsx 投資分析（本段重點）</h2>
+      <p>來源檔：<code>c:\Users\shaej\Desktop\投資\MY.xlsx</code></p>
+      <table>
+        <thead>
+          <tr><th>指標</th><th>結果</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>持有檔數</td><td>23</td></tr>
+          <tr><td>成本／市值（約）</td><td>877,500／801,463 台幣</td></tr>
+          <tr><td>未實現損益</td><td>約 -76,037（-8.67%）</td></tr>
+          <tr><td>結構風險</td><td>黃金／原物料市值占比約八成以上</td></tr>
+          <tr><td>已完成交易</td><td>約 58 筆；勝率約 76%；已實現約 +20,549</td></tr>
+        </tbody>
+      </table>
+      <p>結論：賣出紀律不錯，但長抱黃金／原物料造成未實現虧損與集中度風險；不宜再加碼黃金主題。</p>
+
+      <h2>五｜依獲利篩出的優先十檔</h2>
       <table>
         <thead>
           <tr>
-            <th>項目</th>
-            <th>狀態</th>
-            <th>說明</th>
+            <th>優先序</th><th>代碼</th><th>基金（簡）</th><th>角色</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>專案 Rules</td>
-            <td class="ok">完成</td>
-            <td><code>no-high-level-fluff.mdc</code> alwaysApply</td>
-          </tr>
-          <tr>
-            <td>User Rules UI</td>
-            <td>可跳過</td>
-            <td>雲端 Failed to add rule → 用專案規則即可</td>
-          </tr>
-          <tr>
-            <td>CamScanner OCR 流程</td>
-            <td class="ok">打通</td>
-            <td>API 清單＋OCR；內容進 MyKnowledgeBase</td>
-          </tr>
-          <tr>
-            <td>Excel MCP</td>
-            <td class="ok">已安裝</td>
-            <td>重開 Cursor 後驗綠燈即可改表</td>
-          </tr>
+          <tr><td>1</td><td>B20073</td><td>安聯收益成長 AM</td><td>核心收益</td></tr>
+          <tr><td>2</td><td>B09460</td><td>貝萊德世界科技 A10</td><td>成長衛星</td></tr>
+          <tr><td>3</td><td>B38075</td><td>百達機器人科技</td><td>成長衛星</td></tr>
+          <tr><td>4</td><td>B20186</td><td>安聯收益成長 AMg7</td><td>收益衛星（勿摊平）</td></tr>
+          <tr><td>5</td><td>B33197</td><td>高盛 III 邊境債（澳幣對沖）</td><td>高報酬衛星（限額）</td></tr>
+          <tr><td>6</td><td>B09325</td><td>貝萊德全球智慧數據入息</td><td>入息衛星</td></tr>
+          <tr><td>7</td><td>B15343</td><td>富蘭克林全球氣候變遷</td><td>主題衛星</td></tr>
+          <tr><td>8</td><td>B19186</td><td>瑞銀全球收益股票</td><td>小部位驗證</td></tr>
+          <tr><td>9</td><td>A05069</td><td>元大新興印尼債</td><td>低優先（僅 1 筆）</td></tr>
+          <tr><td>10</td><td>B09086</td><td>貝萊德世界黃金 A2 歐元</td><td>暫緩加碼</td></tr>
+        </tbody>
+      </table>
+      <p>交付檔：<code>c:\Users\shaej\Desktop\投資\投資優先順序.xlsx</code>（工作表：優先投資順序／篩選說明／建議行動）。</p>
+
+      <h2>完成狀態</h2>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>狀態</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>專案 Rules</td><td class="ok">完成</td><td><code>no-high-level-fluff.mdc</code></td></tr>
+          <tr><td>CamScanner OCR</td><td class="ok">打通</td><td>進 MyKnowledgeBase</td></tr>
+          <tr><td>Excel MCP</td><td class="ok">已安裝並實測</td><td>讀 MY.xlsx、產出建議表</td></tr>
+          <tr><td>投資優先順序.xlsx</td><td class="ok">已寫入投資資料夾</td><td>十檔排序＋行動摘要</td></tr>
         </tbody>
       </table>
 
+      <h2>學到的要點</h2>
+      <ul>
+        <li>歷史勝率高 ≠ 持倉結構健康；要同時看集中度與未實現損益來源。</li>
+        <li>「優質基金」應以你帳戶真實已實現獲利排序，再疊配置上限，避免單一主題過重。</li>
+        <li>Excel 異常 used range 會拖垮 MCP；Python／限範圍讀取較穩。</li>
+      </ul>
+
       <h2>建議下一步</h2>
       <ol>
-        <li>把 chart／TalkToFigma／excel 三顆 MCP 合併進同一份 <code>mcp.json</code> 並 Refresh。</li>
-        <li>丟一份實際 <code>.xlsx</code> 給 Cursor，驗讀寫一輪。</li>
-        <li>把正式掃描 PDF／OCR Markdown 固定進知識庫＋掛 Rules。</li>
+        <li>依 <code>投資優先順序.xlsx</code> 第 1–5 順位設想買價，分批配置。</li>
+        <li>減碼黃金／原物料重複檔，釋出資金輪入收益成長與科技衛星。</li>
+        <li>把 chart／TalkToFigma／excel 合併進同一份 <code>mcp.json</code> 並 Refresh。</li>
       </ol>
 
       <h2>相關連結</h2>
       <ul>
         <li>承接：<a class="inline" href="20260715-hands-on-execute.html">20260715 環境檢測與 MCP 就緒</a></li>
-        <li>Pages 成果例：<a class="inline" href="20260714-interactive-report.html">20260714 互動報告</a></li>
         <li>學習日誌目錄：<a class="inline" href="./">202607</a></li>
       </ul>
 
-      <p class="video-link">學習參考（延續同一工作流影片）：<a href="https://www.youtube.com/watch?v=xznp6ipt5_0" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=xznp6ipt5_0</a></p>
+      <p class="video-link">學習參考：<a href="https://www.youtube.com/watch?v=xznp6ipt5_0" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=xznp6ipt5_0</a></p>
     </article>
   </div>
 </body>
