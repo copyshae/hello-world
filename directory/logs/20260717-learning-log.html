@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260717 Cursor 雙機協作與本機檔案系統歸檔</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+      --warn: #b45309;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .callout.warn { border-left-color: var(--warn); background: rgba(180,83,9,0.08); }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../">← 首頁</a>
+      <a href="../">← 學習日誌</a>
+      <a href="./">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260717 Cursor 雙機協作與本機檔案系統歸檔</h1>
+      <p class="lead">承接雙機工作需求：家用筆電與上班電腦都裝 Cursor，共用檔放 OneDrive、隱私檔留本機 D:。今日以 Cursor Agent 實作「掃描改名 → 桌面／下載／文件／圖片歸檔 → 桌面圖示整理」，並寫下可重複使用的原則。</p>
+
+      <h2>一｜今日核心目標</h2>
+      <ol>
+        <li>解決「每天搬筆電、插拔線材」：改為雲端共用＋本機隱私分流。</li>
+        <li>掃描檔改成可搜尋檔名：<code>YYYY-MM-DD_代表性名稱.副檔名</code>。</li>
+        <li>清空雜亂桌面／下載／文件／圖片，系統歸檔到 D:（財務不上雲）。</li>
+      </ol>
+
+      <h2>二｜雙機＋隱私架構（原則）</h2>
+      <table>
+        <thead>
+          <tr><th>類型</th><th>放置位置</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>證件、存摺、財務、家庭</td>
+            <td><code>D:\私人\</code></td>
+            <td>不上 OneDrive；僅本機（筆電）處理</td>
+          </tr>
+          <tr>
+            <td>學校／家中要共同處理</td>
+            <td><code>OneDrive\共同檔案\</code></td>
+            <td>兩邊 Cursor 開同一路徑即可</td>
+          </tr>
+          <tr>
+            <td>桌面／下載／文件／圖片歸檔</td>
+            <td><code>D:\桌面歸檔\</code>、<code>D:\下載歸檔\</code>、<code>D:\文件歸檔\</code>、<code>D:\圖片歸檔\</code></td>
+            <td>本機大容量整理；原位置留捷徑回指</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <strong>實作提醒：</strong>上班電腦安裝 Cursor + 同一 OneDrive 帳號；共同專案只開 <code>共同檔案</code>，不要把整個 <code>D:\私人</code> 同步上雲。
+      </div>
+
+      <h2>三｜今日實作大要</h2>
+      <h3>1. 資料夾骨架</h3>
+      <ul>
+        <li><code>D:\私人\掃描檔</code>、<code>證件合約</code>、<code>財務</code>、<code>家庭</code></li>
+        <li><code>OneDrive\共同檔案\學校</code>、<code>家務文件</code>、<code>掃描檔_共用</code></li>
+      </ul>
+
+      <h3>2. 掃描檔改名與分流</h3>
+      <ul>
+        <li>讀取影像／PDF 內容後改名（會考試題、活動門票、證書、退款通知等）。</li>
+        <li>敏感檔（證件、存摺、申請表）→ <code>D:\私人</code>；可共用掃描 → <code>共同檔案\掃描檔_共用</code>。</li>
+        <li>清除「待確認」檔名；桌面招生宣導重複檔刪除（與共同區雜湊相同）。</li>
+      </ul>
+
+      <h3>3. 桌面系統歸檔</h3>
+      <ul>
+        <li>財務／家庭 → <code>D:\私人</code>；學校公務、天圓文化、影音、未命名、舊桌面備份 → <code>D:\桌面歸檔</code>。</li>
+        <li>格式工廠 → <code>D:\工具軟體</code>。</li>
+        <li>桌面整理為 <code>1_快速存取</code>、<code>2_常用軟體</code>；Explorer 重啟＋對齊格線／自動排列。</li>
+      </ul>
+
+      <h3>4. 下載・文件・圖片搬到 D:</h3>
+      <ul>
+        <li><strong>下載</strong>：已清空；約 34 GB 分到教科書 ISO、安裝程式、影音、學校、財務等。</li>
+        <li><strong>文件</strong>：學校／天圓／應用程式資料等進 <code>D:\文件歸檔</code>。</li>
+        <li><strong>圖片</strong>：已本機化部分約 3700+ 檔進 <code>D:\圖片歸檔</code>。</li>
+      </ul>
+      <div class="callout warn">
+        <strong>未完成：</strong>OneDrive「僅雲端」占位檔（文件約 180+、圖片約 1200+）需先在資料夾右鍵「一律保留在此裝置上」下載後，才能繼續搬移。錯誤訊息常見為「雲端檔案提供者未執行」。
+      </div>
+
+      <h2>四｜學到的技術點</h2>
+      <ol>
+        <li><strong>Agent 可當檔案管家</strong>：讀圖辨識內容 → 建議檔名 → 搬移／改名；大批量前先預覽較安全。</li>
+        <li><strong>隱私分流要先定規則</strong>：否則「整理」容易把敏感檔誤丟進雲端共用資料夾。</li>
+        <li><strong>OneDrive 占位檔 ≠ 本機檔</strong>：robocopy／Move-Item 對 ReparsePoint 會失敗；需先 pin／水合。</li>
+        <li><strong>桌面圖示</strong>：清登錄 IconPos、設 FFlags、重啟 Explorer，比只送 LVM_ARRANGE 更穩。</li>
+        <li><strong>命名即搜尋</strong>：日期在前＋關鍵詞，之後用檔案總管搜尋比翻資料夾快。</li>
+      </ol>
+
+      <h2>五｜明日可接續</h2>
+      <ul>
+        <li>OneDrive 恢復後，補搬剩餘雲端圖片／文件。</li>
+        <li>上班電腦安裝 Cursor，驗證 <code>共同檔案</code> 同步與開啟。</li>
+        <li>清理 <code>D:\下載歸檔\未命名待整理</code>、<code>空白掃描頁</code> 等低價值檔。</li>
+      </ul>
+
+      <h2>六｜連結</h2>
+      <ul>
+        <li>學習日誌目錄：<a class="inline" href="./">202607</a></li>
+        <li>前一日：<a class="inline" href="20260716-learning-log.html">20260716 合併收益優質十檔</a></li>
+        <li>Pages 線上頁：<a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260717-learning-log.html">copyshae.github.io … /20260717-learning-log.html</a></li>
+      </ul>
+      <p class="note">本日誌只記錄方法與路徑原則，不含證件號碼、帳號等個資。</p>
+    </article>
+  </div>
+</body>
+</html>
