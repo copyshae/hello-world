@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>20260718 知識庫歸檔與今日實作桌面跑馬燈</title>
+  <title>20260718 知識庫歸檔與雙跑馬燈設計</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
@@ -79,8 +79,8 @@
       <a href="./index.html">← 202607</a>
     </nav>
     <article>
-      <h1>20260718 知識庫歸檔與今日實作桌面跑馬燈</h1>
-      <p class="lead">今日兩條主線：一是個人知識庫（講座活動報導）持續歸檔與書目更新；二是用 Cursor 做出「桌面立即可見」的每日實作跑馬燈——墨青書院視覺、每日抽四則、右上角 X 關閉、桌面只留帶日期的文字檔。</p>
+      <h1>20260718 知識庫歸檔與雙跑馬燈設計</h1>
+      <p class="lead">今日三條主線：持續歸檔個人知識庫；完成底部「今日實作」跑馬燈；再設計頂部「今日行程」跑馬燈，串接 Google 日曆、定時同步、安全解鎖與快速開啟日曆。</p>
 
       <h2>一｜今日核心目標</h2>
       <ul>
@@ -130,14 +130,39 @@
         <li>摘取要點：一句一事、今晚可做，勝過長篇勵志。</li>
       </ul>
 
-      <h2>四｜明日可接續</h2>
+      <h2>四｜今日行程跑馬燈設計</h2>
+      <p>路徑：<code>MyKnowledgeBase\今日行程\</code>。沿用桌面跑馬燈的操作概念，改成螢幕頂部的暮金色行程列，與底部「今日實作」同時存在。</p>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>設計與做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>資料來源</td><td>讀取 Google 日曆私密 iCal；私密網址只保存在本機設定，不寫入公開日誌或 GitHub</td></tr>
+          <tr><td>同步</td><td>每 15 分鐘更新今日行程；開始前 30 分鐘標示「即將」</td></tr>
+          <tr><td>視覺</td><td>螢幕頂部置頂、暮金色系；左側顯示「今日行程」與日期，中央勻速捲動行程</td></tr>
+          <tr><td>操作</td><td>右上 <strong>X</strong> 關閉；其下「日」按鈕直接開啟 Google 日曆；Esc 亦可關閉</td></tr>
+          <tr><td>安全</td><td>開啟前輸入本機密碼；僅保存 PBKDF2 雜湊，不保存明文；可重設密碼</td></tr>
+          <tr><td>桌面檔</td><td>只保留 <code>今日行程-YYYY-MM-DD.txt</code>，換日自動移除前一天</td></tr>
+          <tr><td>排錯</td><td>修正舊週期事件 COUNT 誤判，避免過期活動被列入今日；修正「日」字按鈕裁切</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">最終形成「上方看行程、下方看實作」的雙跑馬燈：一條提醒今天要去哪裡，一條提醒今天要實踐什麼。</div>
+      <h3 style="margin:1rem 0 0.5rem;font-size:1rem;color:var(--accent);">本次技術重點</h3>
+      <ul>
+        <li>iCal 週期事件需正確處理 <code>COUNT</code>／<code>UNTIL</code>，不能把多年以前的活動延伸到今天。</li>
+        <li>中文小字在 WinForms Button 可能被 GDI 裁切；改用固定上下兩格與自繪字形較可靠。</li>
+        <li>公開紀錄只寫方法，不寫私密 iCal 網址、密碼雜湊或實際私人行程。</li>
+      </ul>
+
+      <h2>五｜明日可接續</h2>
       <ul>
         <li>工作排程器：每天早上自動跑 <code>update-ticker.ps1</code>；登入時開跑馬燈。</li>
+        <li>持續觀察 Google 日曆週期事件、跨日事件與全天事件顯示是否正確。</li>
         <li>補收錄：2026-07-25～26 檳城「信任愛 編程人生 光耀新程」。</li>
         <li>從講座摘要批次擴充 <code>tips.json</code> 要點庫。</li>
       </ul>
 
-      <h2>五｜連結</h2>
+      <h2>六｜連結</h2>
       <ul>
         <li>學習日誌目錄：<a class="inline" href="./index.html">202607</a></li>
         <li>前一日：<a class="inline" href="./20260717-learning-log.html">20260717 雙機協作與本機歸檔</a></li>
