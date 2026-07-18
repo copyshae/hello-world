@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260718 遠端保全與 Bitwarden 密碼管理</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="./index.html">← 202607</a>
+      <a href="./20260718-learning-log.html">← 同日｜跑馬燈篇</a>
+      <a href="./20260718-archive-index.html">← 收錄索引</a>
+    </nav>
+    <article>
+      <h1>20260718 遠端保全與 Bitwarden 密碼管理</h1>
+      <p class="lead">本日後段主線：讓 Cursor／知識庫努力在「電腦壞了」後仍可接續——Git 遠端備份、災難復原通則，以及用 Bitwarden＋Google Authenticator 保管私人機密。</p>
+
+      <h2>一｜今日核心目標</h2>
+      <ul>
+        <li>知識庫第一次完整推上私人 GitHub，避免本機單點故障。</li>
+        <li>把「主動 commit／push、機密不進庫」寫成各專案通則。</li>
+        <li>選定並完成 Bitwarden：三筆關鍵機密、手機驗證器 2FA、復原碼存檔。</li>
+      </ul>
+
+      <h2>二｜遠端保全（Git）</h2>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>遠端倉庫</td><td>私人庫 <code>copyshae/super-life-code</code>（首次 commit＋push）</td></tr>
+          <tr><td>專案規則</td><td><code>.cursor/rules/disaster-recovery.mdc</code>；並設 Cursor User Rule</td></tr>
+          <tr><td>機密隔離</td><td><code>今日行程/auth.json</code>、<code>config.json</code>、ICS 快取等維持 gitignore</td></tr>
+          <tr><td>收錄索引</td><td>日期｜索引頁已上線 hello-world Pages</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">通則重點：有實質產出後主動 commit＋push；結論寫進文件，不只留在聊天。</div>
+
+      <h2>三｜Bitwarden 密碼管理器</h2>
+      <p>選定免費雲端版 Bitwarden（跨 Windows／iPhone；適合存登入與安全筆記）。</p>
+      <table>
+        <thead>
+          <tr><th>已完成</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>帳號＋三筆</td><td>今日行程解鎖密碼、私人日曆 ICS、GitHub</td></tr>
+          <tr><td>兩步驟登入</td><td>驗證器已啟用；手機用 <strong>Google Authenticator</strong> 產生 6 碼</td></tr>
+          <tr><td>復原碼</td><td>已下載存檔（弄丟手機時用）</td></tr>
+          <tr><td>之後怎麼存</td><td>網站帳密用「登入」；備註型機密用「備註」；銀行帳密可存（建議搭配銀行本身驗證）</td></tr>
+        </tbody>
+      </table>
+      <h3 style="margin:1rem 0 0.5rem;font-size:1rem;color:var(--accent);">學到的操作點</h3>
+      <ul>
+        <li>Bitwarden「密碼庫」App 的「＋」是存帳密，不是掃帳號 2FA；帳號 2FA 要用 <strong>Authenticator／Google Authenticator</strong>。</li>
+        <li>「驗證碼」欄位填 <strong>6 位數字</strong>，不要貼粉紅長串金鑰。</li>
+        <li>系統相機掃 QR 通常不會自動加入驗證器；要在驗證器 App 內掃或「輸入設定密鑰」。</li>
+        <li>金鑰／QR／6 碼勿貼到聊天；若曾外洩，可停用後重開 2FA 換新金鑰。</li>
+      </ul>
+
+      <h2>四｜換機復原口訣</h2>
+      <ol>
+        <li><code>git clone</code> 知識庫遠端倉庫</li>
+        <li>登入 Bitwarden（主密碼＋Authenticator 6 碼）還原行程密碼與 ICS</li>
+        <li>同一 Cursor 帳號登入帶回 User Rules</li>
+      </ol>
+
+      <h2>五｜連結</h2>
+      <ul>
+        <li>同日上午日誌：<a class="inline" href="./20260718-learning-log.html">知識庫歸檔與桌面跑馬燈</a></li>
+        <li>收錄索引：<a class="inline" href="./20260718-archive-index.html">日期｜索引</a></li>
+        <li>Pages 本頁：<a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260718-backup-bitwarden-learning-log.html">copyshae.github.io … /20260718-backup-bitwarden-learning-log.html</a></li>
+        <li>本機清單：<code>工作日誌/密碼管理器入門清單.md</code></li>
+      </ul>
+      <p class="note">本頁不記載任何真實密碼、ICS 私密網址或復原碼；僅記錄方法與完成狀態。</p>
+    </article>
+  </div>
+</body>
+</html>
