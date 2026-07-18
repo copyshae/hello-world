@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260718 知識庫歸檔與今日實作桌面跑馬燈</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+      --warn: #b45309;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260718 知識庫歸檔與今日實作桌面跑馬燈</h1>
+      <p class="lead">今日兩條主線：一是個人知識庫（講座活動報導）持續歸檔與書目更新；二是用 Cursor 做出「桌面立即可見」的每日實作跑馬燈——墨青書院視覺、每日抽四則、右上角 X 關閉、桌面只留帶日期的文字檔。</p>
+
+      <h2>一｜今日核心目標</h2>
+      <ul>
+        <li>把貼上的長文／報導依知識庫規則歸檔（系列 → 年 → 講記｜心得｜報導）。</li>
+        <li>讓學習要點「跳出編輯器」：每天幾則可行動短句，以底部置頂跑馬燈顯示。</li>
+        <li>桌面產物規則清楚：只留有日期檔；換日刪前一天；可關閉再開。</li>
+      </ul>
+
+      <h2>二｜知識庫歸檔大要</h2>
+      <p>工作區：本機 <code>MyKnowledgeBase</code>。經典書與講座活動分線，勿混資料夾。</p>
+      <table>
+        <thead>
+          <tr><th>系列／主題</th><th>今日處理</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>擁有愛・幸福吉祥人間現</td><td>2023-12-25 黃金聖誕與師有約 實況報導</td></tr>
+          <tr><td>珍惜愛・為你註標幸福記號</td><td>新建系列；2023-02-11 愛在穹蒼雲端演唱會</td></tr>
+          <tr><td>天圓有愛・公益</td><td>2025 捐血、檳城消防車捐贈等</td></tr>
+          <tr><td>擁有愛・黃金人生晶彩登</td><td>2025-03-15 黃金音樂盛宴</td></tr>
+          <tr><td>幸福經營成就・蜜之歌・富麗人生</td><td>2025-08-21 愛與感恩（與 08-14 分篇）</td></tr>
+          <tr><td>奪標</td><td>2025-01-23 校園推廣・明道中學</td></tr>
+          <tr><td>信任愛・黃金新程</td><td>2026-03-14／03-15 已收；07-25～26 檳城待補</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">每篇含 frontmatter（series、year、date、doc_type、title、tags…）；並更新系列 README、<code>sources.md</code>、根目錄 <code>catalog.md</code>／<code>catalog.json</code>。</div>
+
+      <h2>三｜桌面跑馬燈實作</h2>
+      <p>路徑：<code>MyKnowledgeBase\每日實作\</code>；啟動捷徑指向 <code>launch-daily-marquee.cmd</code>（避開中文路徑打不開）。</p>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>顯示</td><td>WinForms 底部置頂窗；左「今日實作」、右上角 <strong>X</strong> 關閉；Esc 亦可</td></tr>
+          <tr><td>視覺</td><td>墨青書院：墨青底＋青瓷分隔＋淡銅短標（見 <code>DESIGN.md</code>）</td></tr>
+          <tr><td>內容</td><td><code>tips.json</code>：短標 2–4 字＋一句可行動；每日抽 4 則（日期種子，同日固定）</td></tr>
+          <tr><td>更新</td><td><code>update-ticker.ps1</code> → <code>ticker.json</code>／<code>ticker.html</code></td></tr>
+          <tr><td>桌面檔</td><td>只留 <code>今日實作-YYYY-MM-DD.txt</code>；換日刪前一天；不產無日期檔</td></tr>
+          <tr><td>重開</td><td>雙擊 <code>今日實作跑馬燈.lnk</code>；若已開則叫到最前；僵死後會清掉再啟</td></tr>
+        </tbody>
+      </table>
+      <h3 style="margin:1rem 0 0.5rem;font-size:1rem;color:var(--accent);">學到的技術點</h3>
+      <ul>
+        <li>瀏覽器 app 模式不如 WinForms 穩定「貼在桌面」；置頂＋工作區底部更可靠。</li>
+        <li>PowerShell 腳本含中文時需 UTF-8 BOM；捷徑宜指向 ASCII 路徑的 <code>.cmd</code>。</li>
+        <li>單實例用 Mutex：再開時應「叫到最前」，不要只跳訊息卻看不到。</li>
+        <li>摘取要點：一句一事、今晚可做，勝過長篇勵志。</li>
+      </ul>
+
+      <h2>四｜明日可接續</h2>
+      <ul>
+        <li>工作排程器：每天早上自動跑 <code>update-ticker.ps1</code>；登入時開跑馬燈。</li>
+        <li>補收錄：2026-07-25～26 檳城「信任愛 編程人生 光耀新程」。</li>
+        <li>從講座摘要批次擴充 <code>tips.json</code> 要點庫。</li>
+      </ul>
+
+      <h2>五｜連結</h2>
+      <ul>
+        <li>學習日誌目錄：<a class="inline" href="./index.html">202607</a></li>
+        <li>前一日：<a class="inline" href="./20260717-learning-log.html">20260717 雙機協作與本機歸檔</a></li>
+        <li>Pages 線上頁：<a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260718-learning-log.html">copyshae.github.io … /20260718-learning-log.html</a></li>
+      </ul>
+      <p class="note">本日誌記錄方法與工具路徑原則；知識庫正文仍在本機 MyKnowledgeBase，未整庫上傳。</p>
+    </article>
+  </div>
+</body>
+</html>
