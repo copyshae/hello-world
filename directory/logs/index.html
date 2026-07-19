@@ -73,12 +73,70 @@
       line-height: 1.6;
     }
 
+    .search-box {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .search-box label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1px solid rgba(45, 106, 79, 0.28);
+      background: rgba(255, 255, 255, 0.75);
+      color: var(--ink);
+      font: inherit;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-box input::placeholder {
+      color: #7a8d82;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+    }
+
+    .search-meta {
+      font-size: 0.88rem;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+
     .dir-list {
       list-style: none;
-      margin-top: 2.5rem;
+      margin-top: 1.25rem;
       display: flex;
       flex-direction: column;
       gap: 0.85rem;
+    }
+
+    .dir-list li[hidden] {
+      display: none;
+    }
+
+    .empty-hint {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1rem 1.15rem;
+      border: 1px dashed rgba(45, 106, 79, 0.35);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.45);
+      font-size: 0.95rem;
+    }
+
+    .empty-hint.show {
+      display: block;
     }
 
     .dir-list a {
@@ -122,7 +180,19 @@
     </nav>
     <h1>202607</h1>
     <p class="lead">選擇下方學習日誌，分享當日所學的成果和學習參考的影片連結</p>
-    <ul class="dir-list">
+    <div class="search-box">
+      <label for="log-search">搜尋日誌</label>
+      <input
+        id="log-search"
+        type="search"
+        placeholder="輸入日期、關鍵字，例如：PIN、Bitwarden、跑馬燈"
+        autocomplete="off"
+        enterkeyhint="search"
+      />
+      <p class="search-meta" id="search-meta" aria-live="polite"></p>
+    </div>
+    <p class="empty-hint" id="empty-hint">沒有符合的日誌，換個關鍵字試試。</p>
+    <ul class="dir-list" id="log-list">
       <li>
         <a href="20260719-chrome-quick-login.html">
           20260719 Chrome 常用網址啟動器（PIN／分群／自動登入）
@@ -186,5 +256,37 @@
       </li>
     </ul>
   </div>
+  <script>
+    (function () {
+      var input = document.getElementById("log-search");
+      var list = document.getElementById("log-list");
+      var meta = document.getElementById("search-meta");
+      var empty = document.getElementById("empty-hint");
+      if (!input || !list) return;
+
+      var items = Array.prototype.slice.call(list.querySelectorAll("li"));
+      var total = items.length;
+
+      function applyFilter() {
+        var q = (input.value || "").trim().toLowerCase();
+        var shown = 0;
+        items.forEach(function (li) {
+          var text = (li.textContent || "").toLowerCase();
+          var match = !q || text.indexOf(q) !== -1;
+          li.hidden = !match;
+          if (match) shown += 1;
+        });
+        if (!q) {
+          meta.textContent = "共 " + total + " 篇";
+        } else {
+          meta.textContent = "找到 " + shown + "／" + total + " 篇";
+        }
+        empty.classList.toggle("show", shown === 0);
+      }
+
+      input.addEventListener("input", applyFilter);
+      applyFilter();
+    })();
+  </script>
 </body>
 </html>
