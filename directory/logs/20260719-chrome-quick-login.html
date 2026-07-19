@@ -92,7 +92,7 @@
     </nav>
     <article>
       <h1>20260719 Chrome 常用網址啟動器（PIN／分群／自動登入）</h1>
-      <p class="lead">用 Cursor 做一個桌面中文小工具：輸入 4–6 位 PIN 解鎖 → 依群組點選常用網址 → 以 Chrome 開啟，並倒數後模擬鍵盤自動填帳密；網站可上移／下移排序。帳密加密存在本機，不寫進公開倉庫。</p>
+      <p class="lead">用 Cursor 做桌面中文小工具「常用網址啟動器」：PIN 解鎖、分群、Chrome 開啟、自動填密、上下排序；並完成換機同步流程與「工作電腦一次貼上」提示詞。另在 hello-world 的 202607 目錄加上搜尋框。</p>
 
       <h2>一｜今日核心目標</h2>
       <ul>
@@ -100,9 +100,11 @@
         <li>用 PIN 解鎖後才看得到／用得到帳密。</li>
         <li>點選後開 Chrome；可自動輸入帳密，也可只複製。</li>
         <li>網站清單可上下排序；順序寫回加密金庫。</li>
+        <li>把程式＋已打好的網址，安全同步到有 Cursor 的工作電腦。</li>
+        <li>學習日誌 202607 目錄可搜尋關鍵字。</li>
       </ul>
 
-      <h2>二｜工作大要</h2>
+      <h2>二｜工作大要（啟動器）</h2>
       <table>
         <thead>
           <tr><th>項目</th><th>做法</th></tr>
@@ -119,6 +121,28 @@
         </tbody>
       </table>
       <div class="callout">正確流程是「解鎖 → 選網站 → 開啟並自動填密」，不要把帳密寫進捷徑、.bat 或網址參數。</div>
+
+      <h2>二‧二｜工作大要（換機／工作電腦）</h2>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>程式怎麼搬</td><td>工作電腦 <code>git clone</code> 私有庫（或已有則 <code>git pull</code>）</td></tr>
+          <tr><td>網址／帳密怎麼搬</td><td>本機跑 <code>打包換機.ps1</code> → 桌面產生 <code>ChromeQuickLogin-vault-*.zip</code>（內含 <code>vault.dat</code>＋<code>meta.json</code>）→ USB／私密雲端帶走</td></tr>
+          <tr><td>為什麼分開</td><td>金庫刻意不進 Git；程式可上雲，密文檔只走私密管道</td></tr>
+          <tr><td>PIN</td><td>兩台必須同一組；忘記無法還原</td></tr>
+          <tr><td>一次貼上提示詞</td><td>專案內 <code>工作電腦安裝提示詞.md</code>：整段貼到工作電腦 Cursor，自動 clone、還原 data、建 venv、建捷徑</td></tr>
+          <tr><td>還原位置</td><td><code>Desktop\ChromeQuickLogin\data\</code> 放成對的兩個檔後，雙擊 <code>啟動.bat</code>／捷徑驗證</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">換機口訣：程式走 Git｜金庫走 zip｜PIN 自己記｜提示詞貼 Cursor。</div>
+
+      <h2>二‧三｜工作大要（學習日誌站）</h2>
+      <ul>
+        <li>本篇日誌上傳兩張成果截圖，並掛到 202607 目錄與首頁跑馬燈。</li>
+        <li>202607 目錄頁（<code>directory/logs/index.html</code>）新增搜尋框：依日期／關鍵字即時篩選日誌列表。</li>
+      </ul>
 
       <h2>三｜使用步驟（實作成果）</h2>
       <ol>
@@ -146,12 +170,15 @@
         <li>真正「任意網站一鍵登入」很難做穩；倒數＋焦點在帳號欄再模擬鍵盤，比硬塞表單可靠。</li>
         <li>排序只要改 list 順序並重新加密寫回即可，不必另建排序欄位。</li>
         <li>Windows 部分環境對中文 <code>.lnk</code> 檔名會失敗，捷徑改用英文檔名較穩。</li>
+        <li>換機要「程式／資料分離」：clone 拿程式，zip 拿加密金庫；漏拷 <code>meta.json</code> 會解不開。</li>
+        <li>把安裝步驟寫成給 Cursor 的提示詞，比在工作電腦重記指令更省事。</li>
       </ul>
 
       <h2>六｜連結</h2>
       <ul>
         <li>前一日：<a class="inline" href="./20260718-backup-bitwarden-learning-log.html">20260718 遠端保全與 Bitwarden</a></li>
-        <li>程式私有庫：<a class="inline" href="https://github.com/copyshae/ChromeQuickLogin">ChromeQuickLogin</a></li>
+        <li>程式私有庫：<a class="inline" href="https://github.com/copyshae/ChromeQuickLogin">ChromeQuickLogin</a>（內含 <code>工作電腦安裝提示詞.md</code>、<code>打包換機.ps1</code>）</li>
+        <li>202607 目錄（含搜尋）：<a class="inline" href="./index.html">directory/logs/</a>｜線上 <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/">Pages</a></li>
         <li>Pages 本頁：<a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260719-chrome-quick-login.html">copyshae.github.io … /20260719-chrome-quick-login.html</a></li>
       </ul>
       <p class="note">截圖僅展示介面；實際帳密與 PIN 不會出現在本公開日誌。</p>
