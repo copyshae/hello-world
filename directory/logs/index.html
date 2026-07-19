@@ -179,7 +179,7 @@
       <a href="../">← 學習日誌</a>
     </nav>
     <h1>202607</h1>
-    <p class="lead">選擇下方學習日誌，分享當日所學的成果和學習參考的影片連結</p>
+    <p class="lead">選擇下方學習日誌，分享當日所學的成果和學習參考的影片連結（由新到舊排列）</p>
     <div class="search-box">
       <label for="log-search">搜尋日誌</label>
       <input
@@ -200,46 +200,15 @@
         </a>
       </li>
       <li>
-        <a href="ai-learning-log.html">
-          20260711 Turbo C++ 的課程大綱產出
-        </a>
-      </li>
-      <li>
-        <a href="article-to-script-ai-video.html">
-          20260712 文章轉腳本，生成AI美女教學視頻
-        </a>
-      </li>
-      <li>
-        <a href="chinese-trad-mcp-server-chat.html">
-          20260713 Chinese（繁體）和 Excel 檔拉進對話框，生出分析圖在電腦目錄中
-        </a>
-      </li>
-      <li>
-        <a href="20260714-cursor-hands-on.html">
-          20260714 讀取影音檔成可手把手步驟再執行
-        </a>
-      </li>
-      <li>
-        <a href="20260715-hands-on-execute.html">
-          20260715 依昨日教學開始實作：環境檢測與 MCP 就緒
-        </a>
-      </li>
-      <li>
-        <a href="20260716-learning-log.html">
-          20260716 合併收益（損益＋利息）優質十檔與建議占比
-          <span>每檔後方附占比＋加碼策略｜線上 https://copyshae.github.io/hello-world/directory/logs/20260716-learning-log.html</span>
-        </a>
-      </li>
-      <li>
-        <a href="20260717-learning-log.html">
-          20260717 Cursor 雙機協作與本機檔案系統歸檔
-          <span>隱私本機／共用上雲｜掃描改名｜桌面下載文件圖片歸檔｜線上 https://copyshae.github.io/hello-world/directory/logs/20260717-learning-log.html</span>
-        </a>
-      </li>
-      <li>
         <a href="20260718-learning-log.html">
           20260718 知識庫歸檔與雙跑馬燈設計
           <span>今日實作＋今日行程｜Google 日曆同步｜密碼保護｜線上 https://copyshae.github.io/hello-world/directory/logs/20260718-learning-log.html</span>
+        </a>
+      </li>
+      <li>
+        <a href="20260718-backup-bitwarden-learning-log.html">
+          20260718 遠端保全與 Bitwarden 密碼管理
+          <span>災難復原通則｜首次 Git 備份｜2FA｜線上 https://copyshae.github.io/hello-world/directory/logs/20260718-backup-bitwarden-learning-log.html</span>
         </a>
       </li>
       <li>
@@ -249,9 +218,40 @@
         </a>
       </li>
       <li>
-        <a href="20260718-backup-bitwarden-learning-log.html">
-          20260718 遠端保全與 Bitwarden 密碼管理
-          <span>災難復原通則｜首次 Git 備份｜2FA｜線上 https://copyshae.github.io/hello-world/directory/logs/20260718-backup-bitwarden-learning-log.html</span>
+        <a href="20260717-learning-log.html">
+          20260717 Cursor 雙機協作與本機檔案系統歸檔
+          <span>隱私本機／共用上雲｜掃描改名｜桌面下載文件圖片歸檔｜線上 https://copyshae.github.io/hello-world/directory/logs/20260717-learning-log.html</span>
+        </a>
+      </li>
+      <li>
+        <a href="20260716-learning-log.html">
+          20260716 合併收益（損益＋利息）優質十檔與建議占比
+          <span>每檔後方附占比＋加碼策略｜線上 https://copyshae.github.io/hello-world/directory/logs/20260716-learning-log.html</span>
+        </a>
+      </li>
+      <li>
+        <a href="20260715-hands-on-execute.html">
+          20260715 依昨日教學開始實作：環境檢測與 MCP 就緒
+        </a>
+      </li>
+      <li>
+        <a href="20260714-cursor-hands-on.html">
+          20260714 讀取影音檔成可手把手步驟再執行
+        </a>
+      </li>
+      <li>
+        <a href="chinese-trad-mcp-server-chat.html">
+          20260713 Chinese（繁體）和 Excel 檔拉進對話框，生出分析圖在電腦目錄中
+        </a>
+      </li>
+      <li>
+        <a href="article-to-script-ai-video.html">
+          20260712 文章轉腳本，生成AI美女教學視頻
+        </a>
+      </li>
+      <li>
+        <a href="ai-learning-log.html">
+          20260711 Turbo C++ 的課程大綱產出
         </a>
       </li>
     </ul>
@@ -262,10 +262,30 @@
       var list = document.getElementById("log-list");
       var meta = document.getElementById("search-meta");
       var empty = document.getElementById("empty-hint");
-      if (!input || !list) return;
+      if (!list) return;
+
+      function dateKey(li) {
+        var text = (li.textContent || "").replace(/\s+/g, " ");
+        var m = text.match(/20\d{6}/);
+        var href = "";
+        var a = li.querySelector("a");
+        if (a) href = a.getAttribute("href") || "";
+        // 同日多篇：日期為主，檔名為輔（新到舊、同日依檔名）
+        return (m ? m[0] : "00000000") + "|" + href;
+      }
 
       var items = Array.prototype.slice.call(list.querySelectorAll("li"));
+      items.sort(function (a, b) {
+        var ka = dateKey(a);
+        var kb = dateKey(b);
+        if (ka < kb) return 1;
+        if (ka > kb) return -1;
+        return 0;
+      });
+      items.forEach(function (li) { list.appendChild(li); });
+
       var total = items.length;
+      if (!input || !meta || !empty) return;
 
       function applyFilter() {
         var q = (input.value || "").trim().toLowerCase();
@@ -277,7 +297,7 @@
           if (match) shown += 1;
         });
         if (!q) {
-          meta.textContent = "共 " + total + " 篇";
+          meta.textContent = "共 " + total + " 篇｜由新到舊";
         } else {
           meta.textContent = "找到 " + shown + "／" + total + " 篇";
         }
