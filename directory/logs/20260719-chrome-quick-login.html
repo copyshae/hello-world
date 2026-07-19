@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260719 Chrome 常用網址啟動器（PIN／分群／自動登入）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+    figure { margin: 1rem 0 1.25rem; }
+    figure img {
+      display: block;
+      width: 100%;
+      max-width: 52rem;
+      border: 1px solid var(--line);
+      background: #111;
+    }
+    figcaption {
+      margin-top: 0.45rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260719 Chrome 常用網址啟動器（PIN／分群／自動登入）</h1>
+      <p class="lead">用 Cursor 做一個桌面中文小工具：輸入 4–6 位 PIN 解鎖 → 依群組點選常用網址 → 以 Chrome 開啟，並倒數後模擬鍵盤自動填帳密；網站可上移／下移排序。帳密加密存在本機，不寫進公開倉庫。</p>
+
+      <h2>一｜今日核心目標</h2>
+      <ul>
+        <li>從桌面快速開啟常用網站，並分群（例如「個人」「公司」）。</li>
+        <li>用 PIN 解鎖後才看得到／用得到帳密。</li>
+        <li>點選後開 Chrome；可自動輸入帳密，也可只複製。</li>
+        <li>網站清單可上下排序；順序寫回加密金庫。</li>
+      </ul>
+
+      <h2>二｜工作大要</h2>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>專案位置</td><td>本機 <code>Desktop\ChromeQuickLogin</code>；桌面捷徑 <code>ChromeQuickLogin.lnk</code></td></tr>
+          <tr><td>介面</td><td>Python + Tkinter，繁體中文；解鎖畫面／主畫面分群分頁</td></tr>
+          <tr><td>加密</td><td>PIN（4–6 位）→ PBKDF2 衍生金鑰 → Fernet 加密 <code>data/vault.dat</code></td></tr>
+          <tr><td>瀏覽器</td><td>固定找本機 Chrome 路徑開啟網址</td></tr>
+          <tr><td>自動登入</td><td>倒數約 4 秒 → 使用者點帳號欄 → SendInput 模擬：帳號 → Tab → 密碼 → Enter</td></tr>
+          <tr><td>排序</td><td>選取網站後「上移／下移」或 <code>Alt+↑</code>／<code>Alt+↓</code>；未選網站時可移動群組分頁</td></tr>
+          <tr><td>安全</td><td><code>data/</code> 列入 <code>.gitignore</code>；公開日誌不放 PIN、帳密、私人網址參數</td></tr>
+          <tr><td>遠端備份</td><td>私有倉庫 <a class="inline" href="https://github.com/copyshae/ChromeQuickLogin">github.com/copyshae/ChromeQuickLogin</a>（僅程式，不含金庫）</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">正確流程是「解鎖 → 選網站 → 開啟並自動填密」，不要把帳密寫進捷徑、.bat 或網址參數。</div>
+
+      <h2>三｜使用步驟（實作成果）</h2>
+      <ol>
+        <li>雙擊桌面 <code>ChromeQuickLogin</code>。</li>
+        <li>首次設定 4–6 位數字 PIN（忘記無法還原）。</li>
+        <li>「新增群組／新增網站」建立清單與帳密。</li>
+        <li>選網站 →「開啟並自動登入」（或雙擊）。</li>
+        <li>Chrome 開啟後倒數期間，點一下帳號欄，等待自動輸入。</li>
+        <li>要用貼上模式：取消勾選自動輸入，或按「只開啟／複製」。</li>
+      </ol>
+
+      <h2>四｜成果截圖</h2>
+      <figure>
+        <img src="./assets/20260719-chrome-launcher-pin.png" alt="常用網址啟動器：PIN 解鎖畫面" />
+        <figcaption>圖 1｜PIN 解鎖畫面（顯示已找到本機 Chrome 路徑）</figcaption>
+      </figure>
+      <figure>
+        <img src="./assets/20260719-chrome-launcher-main.png" alt="常用網址啟動器：分群清單與上移下移" />
+        <figcaption>圖 2｜解鎖後主畫面：分群分頁、自動輸入選項、上移／下移排序</figcaption>
+      </figure>
+
+      <h2>五｜學到的技術點</h2>
+      <ul>
+        <li>短 PIN 只適合搭配本機 Windows 登入鎖；金庫檔本身不可推上公開遠端。</li>
+        <li>真正「任意網站一鍵登入」很難做穩；倒數＋焦點在帳號欄再模擬鍵盤，比硬塞表單可靠。</li>
+        <li>排序只要改 list 順序並重新加密寫回即可，不必另建排序欄位。</li>
+        <li>Windows 部分環境對中文 <code>.lnk</code> 檔名會失敗，捷徑改用英文檔名較穩。</li>
+      </ul>
+
+      <h2>六｜連結</h2>
+      <ul>
+        <li>前一日：<a class="inline" href="./20260718-backup-bitwarden-learning-log.html">20260718 遠端保全與 Bitwarden</a></li>
+        <li>程式私有庫：<a class="inline" href="https://github.com/copyshae/ChromeQuickLogin">ChromeQuickLogin</a></li>
+        <li>Pages 本頁：<a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260719-chrome-quick-login.html">copyshae.github.io … /20260719-chrome-quick-login.html</a></li>
+      </ul>
+      <p class="note">截圖僅展示介面；實際帳密與 PIN 不會出現在本公開日誌。</p>
+    </article>
+  </div>
+</body>
+</html>
