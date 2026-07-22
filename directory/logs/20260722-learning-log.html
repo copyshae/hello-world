@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260722 Visio 掃地／教室圖改 115 學年與班級輪替</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260722 Visio 掃地／教室圖改 115 學年與班級輪替</h1>
+      <p class="lead">用 Cursor 搭配本機 Microsoft Visio，批次改「掃地區域／教室分佈」圖：檔名與圖上文字從 113 學年改為 115 學年，並將班級編號做 1→2→3→1 輪替（橫式與直式皆處理）。</p>
+
+      <h2>一｜今日核心目標</h2>
+      <ul>
+        <li>開啟桌面 Visio 檔，並與 Cursor 左右並排，改完立刻在 Visio 看到結果。</li>
+        <li>檔名與圖內「113 學年」改為「115 學年」。</li>
+        <li>班級編號輪替：1＊＊→2＊＊、2＊＊→3＊＊、3＊＊→1＊＊。</li>
+        <li>直書（數字中間有換行）也要同一規則，不能只改橫式。</li>
+      </ul>
+
+      <h2>二｜工作大要</h2>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>檔案</td><td>桌面 <code>113學年掃地區域分配圖(底定).vsd</code> → 更名 <code>115學年掃地區域分配圖(底定).vsd</code></td></tr>
+          <tr><td>開啟方式</td><td>本機 <code>VISIO.EXE</code> 開啟；PowerShell 將 Cursor 靠左、Visio 靠右並排</td></tr>
+          <tr><td>學年文字</td><td>經 Visio COM：標題「113學年」→「115學年」；右邊直行獨立「113」→「115」</td></tr>
+          <tr><td>橫式班級</td><td>掃描圖形文字中的三碼班級（如 101／201／301），一次循環替換；約 118 處</td></tr>
+          <tr><td>直式班級</td><td>直書常寫成 <code>1⏎0⏎8</code> 這類「數字被換行拆開」；另寫規則只改有分隔的直式，避免把已改過的橫式再轉一次；約 35 處</td></tr>
+          <tr><td>刻意不改</td><td>學年標記 <code>115</code>；尺寸標註（如 <code>100mm</code>、<code>119mm</code>）</td></tr>
+          <tr><td>附帶標籤</td><td>「美術／體育／舞蹈／特教班」等文字裡的班級碼一併輪替（例如 特教班 210→310）</td></tr>
+          <tr><td>存檔</td><td>每次批次改完後 <code>ActiveDocument.Save()</code>，結果直接顯示在右側 Visio</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">輪替口訣：一年級碼變二年級、二年級變三年級、三年級回到一年級；橫式連寫與直式換行要分開處理，才不會漏改或重複改。</div>
+
+      <h2>三｜技術做法（摘要）</h2>
+      <ol>
+        <li>PowerShell 取得執行中的 Visio：<code>GetActiveObject('Visio.Application')</code>。</li>
+        <li>遞迴走訪頁面所有 Shape（含群組子圖形），讀 <code>Characters.Text</code>。</li>
+        <li>學年：字串取代 <code>113學年</code>→<code>115學年</code>；右側直行以 Shape ID 精準改數字。</li>
+        <li>橫式班級：正則 <code>(?&lt;![0-9])([123])(\d{2})(?![0-9])</code>，首位 1→2、2→3、3→1（同一輪映射，不會互相覆蓋）。</li>
+        <li>直式班級：允許數字之間有空白／換行；僅當「非三碼連寫」時才替換，保留原本換行排版。</li>
+      </ol>
+
+      <h2>四｜學到的技術點</h2>
+      <ul>
+        <li>Cursor 無法內嵌即時預覽 <code>.vsd</code>；要「改完立刻看」最穩是 Visio 本體並排。</li>
+        <li>Visio 直書班級常不是 <code>108</code> 一個字串，而是 <code>1</code>、<code>0</code>、<code>8</code> 中間夾換行；只做一般 Find/Replace 會漏。</li>
+        <li>三向輪替（1→2→3→1）必須一次映射，不可先全改 1→2 再改 2→3，否則會連改錯。</li>
+        <li>二次處理直式時，要跳過「已是連寫且改過」的橫式，否則會再轉一輪。</li>
+        <li>學校圖上常混有尺寸 <code>mm</code>、學年 <code>115</code>，批次規則要設排除條件。</li>
+      </ul>
+
+      <h2>五｜連結</h2>
+      <ul>
+        <li>前一篇：<a class="inline" href="./20260719-chrome-quick-login.html">20260719 Chrome 常用網址啟動器</a></li>
+        <li>202607 目錄（含搜尋）：<a class="inline" href="./index.html">directory/logs/</a>｜線上 <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/">Pages</a></li>
+        <li>Pages 本頁：<a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260722-learning-log.html">copyshae.github.io … /20260722-learning-log.html</a></li>
+      </ul>
+      <p class="note">Visio 原檔留在本機桌面，未上傳公開倉庫；本頁只記錄作法與注意事項。</p>
+    </article>
+  </div>
+</body>
+</html>
