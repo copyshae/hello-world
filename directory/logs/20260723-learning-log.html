@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260723 導師名單・廁所次數・Visio 掃區大小</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260723 導師名單・廁所次數・Visio 掃區大小</h1>
+      <p class="lead">今日主線：掃描 PDF 做成班級導師 Excel，對照全年累計與廁所打掃次數；並從 Visio 掃地圖量化各班掃區大小，供新增兩班時騰區參考。（不含桌面圖示排列操作。）</p>
+
+      <h2>一｜今日核心目標</h2>
+      <ul>
+        <li>掃描全能王 PDF → 僅「班級／導師」Excel，並依 101→201→301 排序。</li>
+        <li>第二份 PDF 對照「全年累計」，依導師姓名併入；近形異字確認同人後補齊。</li>
+        <li>兩次班級代號換算合併 → 廁所打掃次數，再併入導師表；各年級全年累計由高到低另存。</li>
+        <li>Visio 掃地圖讀出相對面積，產出全校／各年級由大到小兩份表。</li>
+      </ul>
+
+      <h2>二｜工作大要</h2>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>做法與結果</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>導師名單 OCR</td>
+            <td>來源 <code>掃描全能王 2026-7-23 09.54.pdf</code>（掃描圖）。RapidOCR＋人工核對姓名。產出僅兩欄：班級、導師（101–111、201–212、301–311）。</td>
+          </tr>
+          <tr>
+            <td>全年累計併入</td>
+            <td>對照 <code>…10.01.pdf</code>。依<strong>導師姓名</strong>對應全年累計（非依班級）。無同名則空白。</td>
+          </tr>
+          <tr>
+            <td>姓名定稿</td>
+            <td>正確名以導師名單為準：蕭秀綿／鄭雅霙／蔡佩悌 與對照檔近形字為同人並補累計；導師正確寫法為<strong>施榮鍾</strong>。</td>
+          </tr>
+          <tr>
+            <td>廁所打掃次數</td>
+            <td>兩批班級「首位加一／加二」結果合併計次 → <code>打掃廁所次數統計.xlsx</code>；再依班級併入導師表「廁所打掃次數」欄。</td>
+          </tr>
+          <tr>
+            <td>各年級排序</td>
+            <td><code>115學年度班級導師_各年級全年累計排序.xlsx</code>：一／二／三年級分開，全年累計高→低（無資料排該年級最後）。</td>
+          </tr>
+          <tr>
+            <td>新增兩班騰區</td>
+            <td>討論結論：從<strong>掃區較大、負擔較重</strong>的區域騰出給新班，避免削到本就輕的班。</td>
+          </tr>
+          <tr>
+            <td>Visio 掃區大小</td>
+            <td>讀 <code>114學年掃地區域分配圖1140808.vsd</code> 有填色圖形面積加總。產出全校／各年級「由大至小」兩份 Excel（相對面積＋區塊數＋最大單塊）。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        對照原則：全年累計跟「人」走（導師姓名）；廁所次數跟「班」走（班級代號）。新增班騰區則看「區大、負擔重」。
+      </div>
+
+      <h2>三｜學到的技術點</h2>
+      <ul>
+        <li>掃描 PDF 常無文字層，需 OCR；姓名近形（錦／綿、娣／悌、鍾／鐘）要對圖核對，不能只信自動辨識。</li>
+        <li>合併欄位前先想清楚鍵：累計用姓名、次數用班級，鍵選錯會整表錯位。</li>
+        <li>班級「首位加 N」可快速模擬升年級後的班碼，再統計次數。</li>
+        <li>Visio <code>Application</code> ProgID 在本機可能異常，改用 <code>InvisibleApp</code>＋檔案複本可避開鎖定；面積用填色 Shape 加總較能代表負責掃區。</li>
+        <li>Excel 正開啟時無法覆寫，可另存新檔名再請使用者關閉後合併。</li>
+      </ul>
+
+      <h2>四｜桌面產出檔（本機）</h2>
+      <ul>
+        <li><code>115學年度班級導師名單.xlsx</code></li>
+        <li><code>115學年度班級導師名單_含全年累計.xlsx</code></li>
+        <li><code>115學年度班級導師名單_含全年累計_廁所.xlsx</code></li>
+        <li><code>115學年度班級導師_各年級全年累計排序.xlsx</code></li>
+        <li><code>打掃廁所次數統計.xlsx</code></li>
+        <li><code>掃地區域大小_全校由大至小.xlsx</code></li>
+        <li><code>掃地區域大小_各年級由大至小.xlsx</code></li>
+      </ul>
+
+      <h2>五｜連結</h2>
+      <ul>
+        <li>前一篇：<a class="inline" href="20260722-learning-log.html">20260722 Visio 掃地／教室圖改 115 學年與班級輪替</a></li>
+        <li>知識庫工作大要：本機 <code>MyKnowledgeBase/工作日誌/2026-07-23-工作大要.md</code></li>
+        <li>202607 目錄：<a class="inline" href="./index.html">directory/logs/</a></li>
+        <li>Pages 本頁：<a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260723-learning-log.html">copyshae.github.io … /20260723-learning-log.html</a></li>
+      </ul>
+      <p class="note">掃描 PDF、Visio 原檔與含導師姓名之 Excel 留在本機桌面／私人知識庫；本公開日誌只記作法與結論，不上傳原檔。</p>
+    </article>
+  </div>
+</body>
+</html>
