@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260724 Visio 掃地圖精確改色與一步檢查點</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260724 Visio 掃地圖精確改色與一步檢查點</h1>
+      <p class="lead">今日主線：114 學年掃地區域圖以 Visio COM 改底色／圖層／門口 110；從「整圖掃射」踩坑，收斂成一次一處、可檔案級回復／往前的檢查點流程。</p>
+
+      <h2>一｜今日核心目標</h2>
+      <ul>
+        <li>自強樓紅框文字方塊依年級補底色（1xx 藍／2xx 橘／3xx 綠）。</li>
+        <li>門口、中正路二段、戶外 110 對照原檔補回填色與字。</li>
+        <li>解決「Undo 不可靠」：每步存檢查點，可穩定回復或往前。</li>
+        <li>訂出精確改圖約定，避免再耗一天在鄰近形狀誤改。</li>
+      </ul>
+
+      <h2>二｜踩坑與補救</h2>
+      <table>
+        <thead>
+          <tr><th>問題</th><th>結果／補救</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>COM 整圖 SendToBack／改透明度</td>
+            <td>常改錯鄰近物件；改為一次一處、先報 Shape ID 再改</td>
+          </tr>
+          <tr>
+            <td>Visio 難手動編輯</td>
+            <td>恢復 <code>Interactive=True</code>；關掉輔助唯讀檔；必要時另存「請用這份手動改」</td>
+          </tr>
+          <tr>
+            <td>存檔後 Undo 失效</td>
+            <td>改用檔案級檢查點（整份 .vsd 快照）做回復／往前</td>
+          </tr>
+          <tr>
+            <td>多開 Visio／多檔</td>
+            <td>用 <code>GetObject(path)</code>；注意「複製 (1)」與主檔是不同路徑</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>三｜年級底色慣例（自強樓紅框）</h2>
+      <table>
+        <thead>
+          <tr><th>班號</th><th>底色</th><th>備註</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1xx（如 101）</td><td>淡藍</td><td>例 <code>RGB(219,238,243)</code>／AccentColor4</td></tr>
+          <tr><td>2xx（如 207、210、205）</td><td>橘／桃</td><td>例 AccentColor5；底色應在框線內，勿蓋線</td></tr>
+          <tr><td>3xx（如 304、305）</td><td>淡綠</td><td>對齊同欄已上色文字方塊</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">缺底色時優先開 <code>FillPattern=1</code> 並對齊同輩 Shape 的填色公式；若原檔有窄條底色（如直書 205），對照原檔幾何縮在框內。</div>
+
+      <h2>四｜一步檢查點（可回復／往前）</h2>
+      <p>工作區：知識庫 <code>MyKnowledgeBase\_visio_work\</code>；檢查點在桌面（大檔不進 Git）。</p>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>位置／用法</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>腳本</td>
+            <td><code>visio_step.py</code>：<code>save</code>／<code>back</code>／<code>forward</code>／<code>list</code>／<code>goto N</code></td>
+          </tr>
+          <tr>
+            <td>一鍵</td>
+            <td>桌面 <code>visio一步.ps1</code>：存檔／回復／往前／列表</td>
+          </tr>
+          <tr>
+            <td>檢查點目錄</td>
+            <td><code>桌面\Visio檢查點_114掃地\</code>（含 <code>index.json</code>）</td>
+          </tr>
+          <tr>
+            <td>工作檔</td>
+            <td><code>桌面\…1140808_可編修.vsd</code>（若開「複製 (1)」則改的是複本）</td>
+          </tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>改圖前：<code>save 改XXX前</code>；確認後：<code>save 改XXX後</code>。</li>
+        <li>使用者說「回復／往前」用腳本，勿狂按 Visio Undo。</li>
+        <li>Skill <code>visio-school-map</code> 已寫入「一步檢查點」節；提示詞見 <a class="inline" href="prompts/visio-edit-prompt.md">prompts/visio-edit-prompt.md</a>。</li>
+      </ul>
+
+      <h2>五｜其他進度摘要</h2>
+      <ul>
+        <li>左檔曾同步「已更新班號」；覆蓋前備份留在桌面。</li>
+        <li>門口／中正路二段／戶外 110：對照原檔補填色與字色。</li>
+        <li>戶外淡藍小塊：對齊外圍色、必要時等大淡藍遮罩覆蓋；注意圖層與「選錯 Shape ID」。</li>
+      </ul>
+
+      <h2>六｜之後約定（精簡）</h2>
+      <ol>
+        <li>一次只改一個明確目標（截圖框選或使用者點選）。</li>
+        <li>先報 Shape ID／現況→目標，再寫入。</li>
+        <li>禁止整圖層級掃射；底色小塊以手動為主、腳本為輔。</li>
+        <li>收工確認可點選、拖曳、改填色；重要步驟進檢查點。</li>
+      </ol>
+
+      <h2>七｜最後備註：參考圖示修圖</h2>
+      <div class="callout">
+        後續修 Visio 掃地圖時，以<strong>畫面圖示／截圖紅框</strong>為準：先對齊使用者標出的位置與鄰近色塊／圖層，再改 Shape；勿只憑記憶或猜 ID。底色、遮罩、SendToBack 等都應對照當下可見的參考圖示確認。
+      </div>
+
+      <p class="note">
+        本機對照：知識庫 <code>工作日誌/2026-07-24-工作大要.md</code>、<code>工作日誌/2026-07-25-工作大要.md</code>（檢查點）。
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260724-learning-log.html">https://copyshae.github.io/hello-world/directory/logs/20260724-learning-log.html</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
