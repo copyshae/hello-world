@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260725 Visio 一步檢查點與對色指令</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260725 Visio 一步檢查點與對色指令</h1>
+      <p class="lead">昨日主線：檔案級檢查點讓改圖可穩定回復／往前；戶外白縫補色後，收斂出「跟樣色同色」才對得準的指令方式。</p>
+
+      <h2>一｜今日核心目標</h2>
+      <ul>
+        <li>Visio Undo 不可靠 → 用整份 <code>.vsd</code> 檢查點做 <code>save</code>／<code>back</code>／<code>forward</code>。</li>
+        <li>114 掃地圖繼續修：學年 115、紅框年級底色、戶外 101～110 白縫補滿融合。</li>
+        <li>訂出對色指令：以選取或色樣圖為準，勿盲調「再深一點」。</li>
+      </ul>
+
+      <h2>二｜一步檢查點（可回復／往前）</h2>
+      <table>
+        <thead>
+          <tr><th>項目</th><th>位置／用法</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>腳本</td>
+            <td><code>MyKnowledgeBase\_visio_work\visio_step.py</code>：<code>save</code>／<code>back</code>／<code>forward</code>／<code>list</code>／<code>goto N</code></td>
+          </tr>
+          <tr>
+            <td>一鍵</td>
+            <td>桌面 <code>visio一步.ps1</code>：存檔／回復／往前／列表</td>
+          </tr>
+          <tr>
+            <td>檢查點目錄</td>
+            <td><code>桌面\Visio檢查點_114掃地\</code>（含 <code>index.json</code>；大檔不進 Git）</td>
+          </tr>
+          <tr>
+            <td>工作檔</td>
+            <td><code>桌面\114學年掃地區域分配圖1140808_可編修.vsd</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>改前：<code>save 改XXX前</code>；確認後：<code>save 改XXX後</code>。</li>
+        <li>使用者說「回復／往前」用腳本，勿狂按 Visio Undo。</li>
+        <li>Skill <code>visio-school-map</code> 已寫入「一步檢查點」節。</li>
+      </ul>
+
+      <h2>三｜戶外白縫與學年</h2>
+      <ul>
+        <li>標題／右側學年數字：<strong>114 → 115</strong>。</li>
+        <li>戶外白縫相關 Shape 例：<code>255</code>／<code>256</code>／<code>257</code>，遮罩 <code>4716</code>；去框線、補滿。</li>
+        <li>AccentColor4 階梯（由淺到深）曾試過：tint 80→60→40→20→純色→shade…；盲調難對上周圍。</li>
+      </ul>
+
+      <h2>四｜怎麼下指令才對得上色</h2>
+      <table>
+        <thead>
+          <tr><th>指令</th><th>效果</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Visio 點選正確格 →「已選取，跟選取同色」</td>
+            <td>最穩：複製該 Shape 的 Fill 公式</td>
+          </tr>
+          <tr>
+            <td>貼色塊圖 →「跟這同色」</td>
+            <td>從圖取 RGB 後套上（例 <code>RGB(183,221,232)</code>＝AccentColor4 60%）</td>
+          </tr>
+          <tr>
+            <td>「再深一點／繼續／深 N 階」</td>
+            <td>只能一階一階試，容易過深或過淺</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        可貼提示詞：<br />
+        「紅框白塊要跟周圍同色。先列出旁 2～3 個有填色 Shape ID；我點選樣色後，複製該格 Fill 塗上並補滿融合。不要自己猜深淺。」
+      </div>
+
+      <h2>五｜之後約定（精簡）</h2>
+      <ol>
+        <li>一次一處：截圖紅框或使用者點選。</li>
+        <li>對色先指定樣色來源（選取／色樣），再寫入。</li>
+        <li>每步進檢查點；回復用腳本。</li>
+        <li>確認 ActiveDocument 路徑（可編修 vs 複製）。</li>
+      </ol>
+
+      <p class="note">
+        本機對照：知識庫 <code>工作日誌/2026-07-25-工作大要.md</code>。
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260725-learning-log.html">https://copyshae.github.io/hello-world/directory/logs/20260725-learning-log.html</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
