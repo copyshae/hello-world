@@ -79,7 +79,7 @@
     </nav>
     <article>
       <h1>20260728 學習日誌快捷詞全域化</h1>
-      <p class="lead">今日主線：把 hello-world 學習日誌相關操作整理成全域快捷詞，讓任何專案都能直接推工作大要、開日誌列表、開學習日誌首頁，並支援換機安裝。</p>
+      <p class="lead">今日主線：把 hello-world 學習日誌相關操作整理成全域快捷詞，讓任何專案都能直接推工作大要、開日誌列表、開學習日誌首頁；並支援換機安裝與一句話 <code>裝快捷詞</code> 更新。</p>
 
       <h2>一｜這次加了哪些快捷詞</h2>
       <table>
@@ -99,6 +99,10 @@
             <td><code>日誌首頁</code>／<code>學習日誌首頁</code>／<code>開首頁</code></td>
             <td>開啟學習日誌首頁：<code>/directory/</code></td>
           </tr>
+          <tr>
+            <td><code>裝快捷詞</code></td>
+            <td>執行 <code>install-push-log-shortcut.ps1</code>，把全域 skill／rule 同步到本機 <code>%USERPROFILE%\.cursor\</code></td>
+          </tr>
         </tbody>
       </table>
 
@@ -106,17 +110,18 @@
       <ul>
         <li>正式定義寫進 hello-world 倉庫：<code>.cursor/skills/push-learning-log/SKILL.md</code>、<code>.cursor/rules/push-learning-log.mdc</code>。</li>
         <li>另做一支安裝腳本：<code>install-push-log-shortcut.ps1</code>。</li>
-        <li>每台電腦只要跑一次安裝腳本，就會複製到使用者層級的 <code>%USERPROFILE%\.cursor\skills\</code> 與 <code>%USERPROFILE%\.cursor\rules\</code>。</li>
+        <li>提示詞表：<code>directory/logs/prompts/push-learning-log.md</code>。</li>
+        <li>每台電腦只要跑一次安裝腳本（或打 <code>裝快捷詞</code>），就會複製到使用者層級的 <code>%USERPROFILE%\.cursor\skills\</code> 與 <code>%USERPROFILE%\.cursor\rules\</code>。</li>
       </ul>
 
       <h2>三｜換機時怎麼裝</h2>
       <ol>
         <li><code>git clone</code> 或 <code>git pull</code> hello-world。</li>
-        <li>在倉庫根目錄執行：<code>powershell -ExecutionPolicy Bypass -File .\install-push-log-shortcut.ps1</code></li>
+        <li>任意專案對話打 <code>裝快捷詞</code>；或在倉庫根目錄執行：<code>powershell -ExecutionPolicy Bypass -File .\install-push-log-shortcut.ps1</code></li>
         <li>重新開 Cursor 對話後，在任何專案直接輸入快捷詞即可。</li>
       </ol>
       <div class="callout">
-        之後若倉庫裡的快捷詞規則更新，另一台電腦再跑一次安裝腳本即可同步。
+        之後若倉庫裡的快捷詞規則更新，另一台電腦再打一次 <code>裝快捷詞</code>（或重跑安裝腳本）即可同步。
       </div>
 
       <h2>四｜這次收斂出的規則</h2>
@@ -124,6 +129,12 @@
         <li>學習日誌內容只寫工作大要，不寫密碼、vault、個資、學生名冊。</li>
         <li>日期可指定，例如 <code>推日誌 0728</code>。</li>
         <li>Git 沒有設定使用者時，用環境變數帶入 <code>copyshae</code> 與 GitHub noreply 信箱，不改全域 git config。</li>
+      </ul>
+
+      <h2>五｜同日其他歸檔</h2>
+      <ul>
+        <li>請假證明 PDF 合併流程 → <a class="inline" href="20260726-learning-log.html">20260726</a></li>
+        <li>本機清整恢復效能 → <a class="inline" href="20260727-learning-log.html">20260727</a></li>
       </ul>
 
       <p class="note">
