@@ -1,0 +1,16 @@
+---
+description: 短語「推日誌」等 → 將工作大要推上 hello-world 學習日誌（全域捷徑）
+alwaysApply: true
+---
+
+# 推學習日誌捷徑
+
+使用者只要說下列任一短語（可加日期），就執行「把本對話剛完成工作大要寫入並推送 GitHub `copyshae/hello-world` 學習日誌」。**不限目前開啟哪個專案。**
+
+- 推日誌
+- 上日誌
+- 收工推日誌
+- 工作大要推 hello-world
+- 推到 github hello world
+
+細節依 skill `push-learning-log`。指定日期時（如「改成 0727」）以使用者指定為準。
