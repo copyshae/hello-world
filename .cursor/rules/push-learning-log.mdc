@@ -14,6 +14,10 @@ alwaysApply: true
 - **日誌首頁**／**學習日誌首頁**／**開首頁** → 開啟  
   https://copyshae.github.io/hello-world/directory/
 
+## 安裝／更新快捷詞
+
+- **裝快捷詞** → 執行 hello-world 的安裝腳本，更新本機全域 Cursor 規則與 skill
+
 ## 推送工作大要
 
 - **推日誌**／**上日誌**／**收工推日誌**

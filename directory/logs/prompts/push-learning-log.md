@@ -9,6 +9,12 @@
 | `連日誌`／`連上學習日誌`／`開日誌` | [當月學習日誌列表](https://copyshae.github.io/hello-world/directory/logs/) |
 | `日誌首頁`／`學習日誌首頁`／`開首頁` | [學習日誌首頁](https://copyshae.github.io/hello-world/directory/) |
 
+## 安裝／更新快捷詞
+
+| 短語 | 用途 |
+|------|------|
+| `裝快捷詞` | 執行安裝腳本，把這套全域快捷詞更新到本機 Cursor |
+
 ## 推送工作大要
 
 | 短語 | 用途 |

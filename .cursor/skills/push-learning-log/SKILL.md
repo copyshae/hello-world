@@ -3,7 +3,7 @@ name: push-learning-log
 description: >-
   hello-world 學習日誌捷徑：推送工作大要，或開啟線上學習日誌／學習日誌首頁。
   觸發「推日誌」「上日誌」「收工推日誌」「工作大要推 hello-world」「推到 github hello world」、
-  「連日誌」「連上學習日誌」「開日誌」「日誌首頁」「學習日誌首頁」「開首頁」時立刻使用。適用任何專案。
+  「連日誌」「連上學習日誌」「開日誌」「日誌首頁」「學習日誌首頁」「開首頁」「裝快捷詞」時立刻使用。適用任何專案。
 ---
 
 # 學習日誌捷徑（hello-world）
@@ -19,7 +19,15 @@ description: >-
 
 Windows 例：`Start-Process "https://…"`
 
-## B｜推送工作大要
+## B｜安裝／更新快捷詞（本機）
+
+使用者說 `裝快捷詞` 時：
+
+1. 找到 hello-world 倉庫根目錄。
+2. 執行：`powershell -ExecutionPolicy Bypass -File .\install-push-log-shortcut.ps1`
+3. 回覆安裝完成，提醒「重新開一個 Cursor 對話」。
+
+## C｜推送工作大要
 
 ### 觸發短語
 
