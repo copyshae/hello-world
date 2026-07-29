@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260728 學習日誌快捷詞全域化</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260728 學習日誌快捷詞全域化</h1>
+      <p class="lead">今日主線：把 hello-world 學習日誌相關操作整理成全域快捷詞，讓任何專案都能直接推工作大要、開日誌列表、開學習日誌首頁，並支援換機安裝。</p>
+
+      <h2>一｜這次加了哪些快捷詞</h2>
+      <table>
+        <thead>
+          <tr><th>短語</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>推日誌</code>／<code>上日誌</code>／<code>收工推日誌</code></td>
+            <td>把本對話剛完成的工作大要寫進 hello-world 學習日誌並推上 GitHub</td>
+          </tr>
+          <tr>
+            <td><code>連日誌</code>／<code>連上學習日誌</code>／<code>開日誌</code></td>
+            <td>開啟當月學習日誌列表：<code>/directory/logs/</code></td>
+          </tr>
+          <tr>
+            <td><code>日誌首頁</code>／<code>學習日誌首頁</code>／<code>開首頁</code></td>
+            <td>開啟學習日誌首頁：<code>/directory/</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>二｜全專案、跨電腦的做法</h2>
+      <ul>
+        <li>正式定義寫進 hello-world 倉庫：<code>.cursor/skills/push-learning-log/SKILL.md</code>、<code>.cursor/rules/push-learning-log.mdc</code>。</li>
+        <li>另做一支安裝腳本：<code>install-push-log-shortcut.ps1</code>。</li>
+        <li>每台電腦只要跑一次安裝腳本，就會複製到使用者層級的 <code>%USERPROFILE%\.cursor\skills\</code> 與 <code>%USERPROFILE%\.cursor\rules\</code>。</li>
+      </ul>
+
+      <h2>三｜換機時怎麼裝</h2>
+      <ol>
+        <li><code>git clone</code> 或 <code>git pull</code> hello-world。</li>
+        <li>在倉庫根目錄執行：<code>powershell -ExecutionPolicy Bypass -File .\install-push-log-shortcut.ps1</code></li>
+        <li>重新開 Cursor 對話後，在任何專案直接輸入快捷詞即可。</li>
+      </ol>
+      <div class="callout">
+        之後若倉庫裡的快捷詞規則更新，另一台電腦再跑一次安裝腳本即可同步。
+      </div>
+
+      <h2>四｜這次收斂出的規則</h2>
+      <ul>
+        <li>學習日誌內容只寫工作大要，不寫密碼、vault、個資、學生名冊。</li>
+        <li>日期可指定，例如 <code>推日誌 0728</code>。</li>
+        <li>Git 沒有設定使用者時，用環境變數帶入 <code>copyshae</code> 與 GitHub noreply 信箱，不改全域 git config。</li>
+      </ul>
+
+      <p class="note">
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260728-learning-log.html">https://copyshae.github.io/hello-world/directory/logs/20260728-learning-log.html</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
