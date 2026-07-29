@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260729 多檔合併請假證明 PDF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--line); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: rgba(45,106,79,0.1); color: var(--accent); font-weight: 600; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 202607</a>
+    </nav>
+    <article>
+      <h1>20260729 多檔合併請假證明 PDF</h1>
+      <p class="lead">今日主線：把公文 PDF、批核紀錄 PDF、實施計畫 DOCX 合成一份請假證明；Word COM 卡住後改走 LibreOffice＋pypdf。</p>
+
+      <h2>一｜產出</h2>
+      <ul>
+        <li>檔名：<code>115學年健康檢查員增能研習請假證明.pdf</code>（本機衛生組資料夾，不上雲）。</li>
+        <li>頁序：公文 2 頁 → 批核紀錄 1 頁 → 實施計畫（DOCX 轉 PDF）1 頁，共 4 頁。</li>
+      </ul>
+
+      <h2>二｜做法（可重跑）</h2>
+      <ol>
+        <li>三檔先複製到 ASCII 暫存目錄（避免中文路徑在指令列亂碼）。</li>
+        <li>DOCX→PDF：<code>soffice --headless --convert-to pdf</code>（LibreOffice）。</li>
+        <li>合併：Python <code>pypdf.PdfWriter</code> 依序加頁後寫出。</li>
+        <li>再複製回原資料夾並用目標中文檔名。</li>
+      </ol>
+      <div class="callout">
+        Word <code>ExportAsFixedFormat</code> 可能無回應；有 LibreOffice 時優先 headless 轉檔較穩。
+      </div>
+
+      <h2>三｜踩過的坑</h2>
+      <table>
+        <thead>
+          <tr><th>現象</th><th>處理</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PowerShell／Python 夾帶中文路徑變亂碼</td>
+            <td>暫存用英文檔名；最後再用 .NET <code>File.Copy</code> 寫回中文路徑</td>
+          </tr>
+          <tr>
+            <td>Word COM <code>SaveAs([ref]…)</code> 型別錯誤／整段卡住</td>
+            <td>改 LibreOffice；卡住時結束 WINWORD 行程</td>
+          </tr>
+          <tr>
+            <td><code>soffice</code> 第一次看似沒產出</td>
+            <td>用 <code>Start-Process -Wait</code> 並看 stdout；確認產生 <code>3_plan.pdf</code> 再 merge</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>四｜之後可複用指令骨架</h2>
+      <ul>
+        <li>轉檔：<code>soffice --headless --norestore --convert-to pdf --outdir &lt;tmpdir&gt; &lt;plan.docx&gt;</code></li>
+        <li>合併：讀多個 PDF → <code>PdfWriter.add_page</code> → <code>write</code></li>
+      </ul>
+
+      <p class="note">
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260729-learning-log.html">https://copyshae.github.io/hello-world/directory/logs/20260729-learning-log.html</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
