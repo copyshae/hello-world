@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260806 學習日誌・班導名單入 Visio 掃區圖</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+    </nav>
+    <article>
+      <h1>20260806 班導名單入 Visio 掃區圖</h1>
+      <p class="lead">今日主線：從掃描表抽出班級／導師對照表，再批次寫進 115 學年掃地區域分配圖的彩色班號區；腳本收進 ChromeQuickLogin，之後可重跑。字級微調來回不列入本篇。</p>
+
+      <h2>一｜掃描表 → Excel 對照</h2>
+      <ul>
+        <li>桌面掃描 PDF（影像層）取出「班級」「導師」兩欄。</li>
+        <li>產出 Excel（約 34 班），供後續 Visio 對照使用。</li>
+      </ul>
+
+      <h2>二｜彩色班號區自動標導師</h2>
+      <ul>
+        <li>規則：有彩色底色、文字為班號 → 加上導師名；教室同尺寸且無底色的班號格不加。</li>
+        <li>橫式色塊：同一行 <code>班號＋導師</code>。</li>
+        <li>直式色塊：每字斷行、段後距為 0、行距適切緊接；文字置中於色塊。</li>
+        <li>另存新檔，不覆寫原 <code>.vsd</code>。</li>
+      </ul>
+      <div class="callout">
+        實作重點：直式若誤把段後距設成大點數，會看起來像「上下被拉開」；應維持 <code>SpAfter=0</code>，並先設字級再設行距。
+      </div>
+
+      <h2>三｜工具與入庫</h2>
+      <ul>
+        <li>ChromeQuickLogin：<code>attach_visio_teachers.ps1</code>（及掃描／驗證輔助腳本）、<code>VISIO_TOOLS.md</code> 說明。</li>
+        <li>對照可經 <code>class_teacher_map.json</code> 由 Excel 匯出後餵給腳本（本機產物、不提交機密）。</li>
+        <li>變更已 commit／push 至 ChromeQuickLogin。</li>
+      </ul>
+
+      <h2>四｜收尾</h2>
+      <ul>
+        <li>依需求清空桌面全部 <code>.vsd</code>（測試產出與舊稿），避免版本混雜。</li>
+      </ul>
+
+      <p class="note">
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260806-learning-log.html">https://copyshae.github.io/hello-world/directory/logs/20260806-learning-log.html</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
