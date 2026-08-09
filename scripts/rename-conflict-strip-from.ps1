@@ -1,14 +1,14 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  將 _搬移衝突 內檔名的 fromE / fromPrivate 等英文及其後文字刪去（預設 Dry-run）。
+  將 _搬移衝突 內「檔名／資料夾名」的 fromE / fromPrivate 等英文及其後文字刪去（預設 Dry-run）。
 
 .DESCRIPTION
   例：
-    報告_fromE_20260809123456789.pdf      → 報告.pdf
-    掃描_fromPrivate_20260809123456789.pdf → 掃描.pdf
+    報告_fromE_20260809123456789.pdf → 報告.pdf
+    10402_fromE_20260809160546951    → 10402   （資料夾也改）
   - 範圍：E:\ 底下名為 _搬移衝突 / 搬移衝突 的目錄樹
-  - 已符合目標名則略過；改名衝突時加 _2、_3
+  - 檔案與資料夾都處理；由深到淺改名
   - 預設 Dry-run；加 -Execute 才 Rename-Item
 
 .EXAMPLE
@@ -40,7 +40,6 @@ function Test-UnderSkipped([string]$full) {
 
 function Get-CleanBase([string]$baseName) {
   $s = $baseName
-  # 優先：_fromE_… / _fromPrivate_… / -fromE…
   if ($s -match '(?i)[_-]from') {
     $s = $s -replace '(?i)[_-]from[A-Za-z0-9].*$', ''
   } elseif ($s -match '(?i)from[A-Za-z]') {
@@ -62,7 +61,7 @@ function Get-UniqueName([string]$dir, [string]$fileName) {
     $candidate = '{0}_{1}{2}' -f $base, $i, $ext
     if (-not (Test-Path -LiteralPath (Join-Path $dir $candidate))) { return $candidate }
   }
-  throw "無法產生唯一檔名: $fileName"
+  throw "無法產生唯一名稱: $fileName"
 }
 
 Write-Host ("Mode: {0}" -f ($(if ($Execute) { 'EXECUTE' } else { 'DRY-RUN（加 -Execute 才會真的改名）' })))
@@ -83,30 +82,51 @@ if ($roots.Count -eq 0) {
 
 $candidates = New-Object System.Collections.Generic.List[object]
 foreach ($root in $roots) {
-  Get-ChildItem -LiteralPath $root -Recurse -File -Force -ErrorAction SilentlyContinue | ForEach-Object {
-    $clean = Get-CleanBase $_.BaseName
+  # 檔案 + 資料夾都收（不含 _搬移衝突 根本身）
+  Get-ChildItem -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+    if ($_.FullName.Equals($root, [StringComparison]::OrdinalIgnoreCase)) { return }
+    $baseName = if ($_.PSIsContainer) { $_.Name } else { $_.BaseName }
+    $clean = Get-CleanBase $baseName
     if ($null -eq $clean) { return }
-    $newName = $clean + $_.Extension
+    $newName = if ($_.PSIsContainer) { $clean } else { $clean + $_.Extension }
     if ($newName -eq $_.Name) { return }
     $unique = Get-UniqueName $_.DirectoryName $newName
     $candidates.Add([pscustomobject]@{
-      Source  = $_.FullName
-      Dir     = $_.DirectoryName
-      Old     = $_.Name
-      New     = $unique
+      Source = $_.FullName
+      Dir    = $_.DirectoryName
+      Old    = $_.Name
+      New    = $unique
+      IsDir  = [bool]$_.PSIsContainer
+      Depth  = $_.FullName.Length
     }) | Out-Null
   }
 }
 
-Write-Host ("Candidates: {0}" -f $candidates.Count)
+# 由深到淺，避免先改上層導致子路徑失效
+$ordered = $candidates | Sort-Object Depth -Descending
+
+Write-Host ("Candidates: {0}（含資料夾）" -f @($ordered).Count)
 $renamed = 0
 $err = 0
-foreach ($c in $candidates) {
-  Write-Host ("[RENAME] {0} -> {1}" -f $c.Old, $c.New)
-  Write-Host ("         {0}" -f $c.Source)
+foreach ($c in $ordered) {
+  $kind = if ($c.IsDir) { 'DIR' } else { 'FILE' }
+  Write-Host ("[RENAME {0}] {1} -> {2}" -f $kind, $c.Old, $c.New)
+  Write-Host ("             {0}" -f $c.Source)
   if (-not $Execute) { continue }
   try {
-    Rename-Item -LiteralPath $c.Source -NewName $c.New -Force
+    if (-not (Test-Path -LiteralPath $c.Source)) {
+      Write-Warning ("來源已不存在（可能上層已改名）: {0}" -f $c.Source)
+      continue
+    }
+    # 若上層已被改名，用目前實際父路徑
+    $parent = Split-Path -Parent $c.Source
+    if (-not (Test-Path -LiteralPath $parent)) {
+      Write-Warning ("父目錄不存在: {0}" -f $parent)
+      $err++
+      continue
+    }
+    $unique = Get-UniqueName $parent $c.New
+    Rename-Item -LiteralPath $c.Source -NewName $unique -Force
     $renamed++
   } catch {
     $err++
