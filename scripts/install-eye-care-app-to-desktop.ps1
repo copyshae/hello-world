@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  把「護眼提醒」安裝到桌面：用 VBS 靜音啟動（不會閃黑色視窗）。
+  把「護眼提醒」安裝到桌面：VBS 靜音啟動（不閃黑窗）；路徑用英文資料夾較穩。
 #>
 $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -11,11 +11,19 @@ if (-not (Test-Path -LiteralPath $src)) {
 }
 
 $desk = [Environment]::GetFolderPath('Desktop')
-$appDir = Join-Path $desk '護眼提醒'
+# 用英文資料夾，避免 .cmd / .vbs 編碼把中文路徑弄壞
+$appDir = Join-Path $desk 'EyeCareReminder'
 New-Item -ItemType Directory -Force -Path $appDir | Out-Null
-Copy-Item -LiteralPath $src -Destination (Join-Path $appDir 'eye-care-reminder-app.ps1') -Force
+$appPs1 = Join-Path $appDir 'eye-care-reminder-app.ps1'
+Copy-Item -LiteralPath $src -Destination $appPs1 -Force
 
+# 若舊的中文資料夾有 reminders.json，搬過來
+$oldDir = Join-Path $desk '護眼提醒'
 $jsonPath = Join-Path $appDir 'reminders.json'
+$oldJson = Join-Path $oldDir 'reminders.json'
+if ((-not (Test-Path -LiteralPath $jsonPath)) -and (Test-Path -LiteralPath $oldJson)) {
+  Copy-Item -LiteralPath $oldJson -Destination $jsonPath -Force
+}
 if (Test-Path -LiteralPath $jsonPath) {
   try {
     $cfg = Get-Content -LiteralPath $jsonPath -Encoding UTF8 -Raw | ConvertFrom-Json
@@ -24,43 +32,48 @@ if (Test-Path -LiteralPath $jsonPath) {
   } catch {}
 }
 
-# VBS：視窗樣式 0 = 完全隱藏黑色主控台
-$vbs = Join-Path $appDir '啟動護眼提醒.vbs'
-$ps1Esc = (Join-Path $appDir 'eye-care-reminder-app.ps1') -replace '\\', '\\'
+# VBS（ASCII 安全：路徑只有英文）
 $vbsBody = @"
 Set sh = CreateObject("WScript.Shell")
-ps1 = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName) & "\eye-care-reminder-app.ps1"
+desk = sh.SpecialFolders("Desktop")
+ps1 = desk & "\EyeCareReminder\eye-care-reminder-app.ps1"
 cmd = "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & ps1 & """"
 sh.Run cmd, 0, False
 "@
+$vbs = Join-Path $appDir 'launch.vbs'
 Set-Content -LiteralPath $vbs -Value $vbsBody -Encoding ASCII
-
-# 桌面主捷徑：VBS（不閃黑窗）
 $deskVbs = Join-Path $desk '護眼提醒.vbs'
-Copy-Item -LiteralPath $vbs -Destination $deskVbs -Force
+Set-Content -LiteralPath $deskVbs -Value $vbsBody -Encoding ASCII
 
-# 除錯用 CMD（會顯示黑窗，出錯可 pause）
-$dbg = Join-Path $appDir '除錯啟動.cmd'
-@(
+# 除錯 CMD：寫死英文路徑
+$dbgLines = @(
   '@echo off'
   'chcp 65001 >nul'
-  'cd /d "%~dp0"'
-  'echo 正在啟動（除錯模式，看得到黑窗）...'
-  'powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0eye-care-reminder-app.ps1"'
+  "cd /d `"%USERPROFILE%\Desktop\EyeCareReminder`""
+  'echo Current folder:'
+  'cd'
+  'dir /b'
   'echo.'
-  'echo 視窗已關閉。若剛才有紅字，請拍照。'
+  'echo Starting app...'
+  'powershell -NoProfile -ExecutionPolicy Bypass -File "%USERPROFILE%\Desktop\EyeCareReminder\eye-care-reminder-app.ps1"'
+  'echo.'
+  'echo If you saw red errors, take a photo. Press any key.'
   'pause'
-) | Set-Content -LiteralPath $dbg -Encoding ASCII
-
+)
+$dbg = Join-Path $appDir 'debug.cmd'
+$dbgLines | Set-Content -LiteralPath $dbg -Encoding ASCII
 $deskDbg = Join-Path $desk '護眼提醒-除錯.cmd'
-Copy-Item -LiteralPath $dbg -Destination $deskDbg -Force
+$dbgLines | Set-Content -LiteralPath $deskDbg -Encoding ASCII
 
-# 移除容易閃黑窗的舊 cmd 捷徑（若存在）
-$oldCmd = Join-Path $desk '護眼提醒.cmd'
-if (Test-Path -LiteralPath $oldCmd) {
-  Remove-Item -LiteralPath $oldCmd -Force -ErrorAction SilentlyContinue
+foreach ($old in @(
+    (Join-Path $desk '護眼提醒.cmd')
+  )) {
+  if (Test-Path -LiteralPath $old) {
+    Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue
+  }
 }
 
-Write-Host "已安裝到: $appDir"
-Write-Host "請雙擊桌面「護眼提醒.vbs」（不會閃黑色視窗）"
-Write-Host "若設定視窗沒出現，再雙擊「護眼提醒-除錯.cmd」看錯誤"
+Write-Host "Installed to: $appDir"
+Write-Host "Script: $appPs1"
+Write-Host "Double-click Desktop: 護眼提醒.vbs"
+Write-Host "Debug: 護眼提醒-除錯.cmd"
