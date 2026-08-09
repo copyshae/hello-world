@@ -33,14 +33,14 @@ function Ensure-Dir([string]$p) {
 }
 
 # 公司目錄骨架（可增設）
+# 天圓／弟子規／身心靈／超級生命密碼改由 move-super-life-code.ps1 → E:\超級生命密碼
 $companySubs = @(
-  '天圓文化', '公文合約', '財務報銷', '掃描檔', '_搬移衝突', '_搬移日誌'
+  '公文合約', '財務報銷', '掃描檔', '_搬移衝突', '_搬移日誌'
 )
 foreach ($s in $companySubs) { Ensure-Dir (Join-Path $CompanyRoot $s) }
 
 # 名稱關鍵字 → 目的子目錄（先匹配先生效）；未命中子規則但命中「公司」則放根層
 $rules = @(
-  @{ Re = '天圓|文化事業|太陽盛德'; Dest = '天圓文化' },
   @{ Re = '公文|合約|契約|勞保|健保投保|離職|到職|人事'; Dest = '公文合約' },
   @{ Re = '報銷|請款|發票|收據|薪資條|扣繳'; Dest = '財務報銷' },
   @{ Re = '掃描|scan'; Dest = '掃描檔' },
@@ -49,6 +49,9 @@ $rules = @(
 
 # 私人分類骨架與工具目錄：不整包當「公司」搬走
 $privateSkeletonRe = '^(財務|家庭|證件合約|掃描檔|車禍事故|密碼與金鑰|醫療健康|_搬移衝突|_搬移日誌|_搬移)'
+
+# 修行／天圓類留給 E:\超級生命密碼，公司腳本略過
+$superLifeSkipRe = '超級生命密碼|生命密碼|天圓|鳴馨|文化事業|太陽盛德|弟子規|身心靈|修行|滋養研究'
 
 function Resolve-CompanyDest([string]$name) {
   foreach ($r in $rules) {
@@ -61,6 +64,7 @@ function Should-Skip([System.IO.FileSystemInfo]$item) {
   if ($item.FullName.StartsWith($CompanyRoot, [StringComparison]::OrdinalIgnoreCase)) { return $true }
   $name = $item.Name
   if ($name -match $privateSkeletonRe) { return $true }
+  if ($name -match $superLifeSkipRe) { return $true }
   return $false
 }
 
@@ -86,6 +90,7 @@ function Add-Candidate([string]$source, [string]$destDir, [string]$reason, [bool
 $nestedCompany = Join-Path $PrivateRoot '公司'
 if (Test-Path -LiteralPath $nestedCompany) {
   Get-ChildItem -LiteralPath $nestedCompany -Force | ForEach-Object {
+    if ($_.Name -match $superLifeSkipRe) { return }
     $sub = Resolve-CompanyDest $_.Name
     if ($null -eq $sub) { $sub = '' }
     if ($sub -and $_.PSIsContainer -and ($_.Name -eq $sub)) {
@@ -128,7 +133,6 @@ Get-ChildItem -LiteralPath $PrivateRoot -Recurse -Force -ErrorAction SilentlyCon
   if ($null -eq $hitName) { return }
 
   # 只搬「命中那一層」的頂層項目，避免同一樹重複搬子項
-  # 例如 私人\家庭\天圓文化\x → 搬 家庭\天圓文化 整包
   $idx = [array]::IndexOf($parts, $hitName)
   if ($idx -lt 0) { return }
   $topRel = ($parts[0..$idx] -join '\')
@@ -145,7 +149,7 @@ Get-ChildItem -LiteralPath $PrivateRoot -Recurse -Force -ErrorAction SilentlyCon
     $mid = Resolve-CompanyDest $hitName
     if ($null -ne $mid) { $destSub = $mid }
   }
-  # 來源資料夾名已與分類同名時，直接放到 E:\公司，避免 天圓文化\天圓文化
+  # 來源資料夾名已與分類同名時，直接放到 E:\公司，避免 公文合約\公文合約
   if ($destSub -and $topItem.PSIsContainer -and ($topItem.Name -eq $destSub)) {
     $destDir = $CompanyRoot
   } elseif ($destSub) {
@@ -187,7 +191,7 @@ foreach ($c in $candidates) {
     Ensure-Dir $c.DestDir
     if (Test-Path -LiteralPath $dest) {
       $destItem = Get-Item -LiteralPath $dest -Force
-      # 目的已是資料夾（含預建骨架）：合併內容，避免 天圓文化 → 天圓文化 假衝突
+      # 目的已是資料夾（含預建骨架）：合併內容，避免同名骨架假衝突
       if ($c.IsDir -and $destItem.PSIsContainer) {
         Get-ChildItem -LiteralPath $c.Source -Force | ForEach-Object {
           $childDest = Join-Path $dest $_.Name
