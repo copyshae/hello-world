@@ -99,7 +99,7 @@ foreach ($item in $items) {
   # 略過純日誌文字可跟著走；空殼分類夾也搬／合併
   $destDir = Resolve-Dest $item.Name
 
-  # 若是學校骨架子夾（學年資料等），整包進 私人\從學校移入\原名
+  # 若是學校骨架子夾（學年資料等），整包進 E:\從學校移入\原名
   if ($item.PSIsContainer -and ($item.Name -match '^(學年資料|衛生健促|科展科學營|試題教案|請假|打掃區域|其他學校|_搬移衝突|_搬移日誌)$')) {
     $destDir = $schoolIngest
   }
