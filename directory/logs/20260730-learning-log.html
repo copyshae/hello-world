@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260730 學習日誌・E 碟整理與 Google 備份</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+    </nav>
+    <article>
+      <h1>20260730 E 碟整理與 Google 備份</h1>
+      <p class="lead">今日主線：外接碟 E: 結構整理入庫腳本化；Google Drive（G:）備份到 E:；Google 相簿改走 Takeout 打包下載。</p>
+
+      <h2>一｜E: 目錄整理</h2>
+      <ul>
+        <li>公司資料併入學校後清空公司殼層；再把學校內容分到既有歸檔／超級生命密碼等兄弟目錄。</li>
+        <li>不重建 <code>E:\私人</code>：原私人子資料夾維持在 E: 根目錄。</li>
+        <li>衝突檔名去掉 <code>_fromE_</code>／<code>_fromPrivate_</code>；未命名檔依 0717 規則改名；空的搬移日誌資料夾清掉。</li>
+        <li>PowerShell 5.1 腳本需 UTF-8 BOM；本機執行前先確認 <code>scripts\</code> 已 <code>git pull</code> 到正確分支。</li>
+      </ul>
+
+      <h2>二｜Google Drive → E:</h2>
+      <ul>
+        <li>來源：桌面版掛載的 <code>G:</code>（常見 <code>我的雲端硬碟</code>／<code>My Drive</code>）。</li>
+        <li>目的：<code>E:\google_drive</code>（本機亦見 <code>E:\GOOGLE_DRIVE</code>）。</li>
+        <li>腳本 <code>backup-google-drive-to-e.ps1</code>：預設 dry-run，加 <code>-Execute</code> 才用 robocopy 複製；不加鏡像刪除。</li>
+        <li>串流模式可能拷不到未下載檔；大備份可重跑續傳。</li>
+      </ul>
+
+      <h2>三｜Google 相簿 → E:\GOOGLE相簿</h2>
+      <ul>
+        <li>相簿不是 Drive，不能直接從 G: 複製。</li>
+        <li>曾試 rclone（免安裝版放桌面 <code>hello-world-tools\tools\rclone</code>）；需先完成 <code>gphotos</code> 授權，否則會報找不到 remote。</li>
+        <li>授權不順時改用 Google Takeout：只勾「Google 相簿」，等待打包郵件後下載 zip，解壓到 <code>E:\GOOGLE相簿</code>。</li>
+      </ul>
+      <div class="callout">
+        雲端 agent 讀不到本機 E:／G:；實際複製與授權都必須在本機 PowerShell 完成。本機若缺腳本，可從 GitHub raw 下載到 <code>Desktop\hello-world-tools</code>。
+      </div>
+
+      <h2>四｜入庫</h2>
+      <ul>
+        <li>相關腳本與說明收在 hello-world 的 <code>scripts\</code>（含 Drive 備份、相簿 bootstrap／rclone、學校清空等）。</li>
+        <li>變更走功能分支與 PR，學習日誌本篇獨立推送。</li>
+      </ul>
+
+      <p class="note">
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260730-learning-log.html">https://copyshae.github.io/hello-world/directory/logs/20260730-learning-log.html</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
