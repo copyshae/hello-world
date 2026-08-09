@@ -4,10 +4,11 @@
   將 _搬移衝突 內「檔名／資料夾名」的 fromE / fromPrivate 等英文及其後文字刪去（預設 Dry-run）。
 
 .DESCRIPTION
-  例：
-    報告_fromE_20260809123456789.pdf → 報告.pdf
-    10402_fromE_20260809160546951    → 10402   （資料夾也改）
-  - 範圍：E:\ 底下名為 _搬移衝突 / 搬移衝突 的目錄樹
+  常見兩種：
+    報告_fromE_20260809123456789.pdf           → 報告.pdf
+    嘉獎名單.xls_fromE_20260809160544254       → 嘉獎名單.xls
+    10402_fromE_20260809160546951              → 10402
+  - 範圍：E:\ 底下 _搬移衝突 / 搬移衝突
   - 檔案與資料夾都處理；由深到淺改名
   - 預設 Dry-run；加 -Execute 才 Rename-Item
 
@@ -38,22 +39,29 @@ function Test-UnderSkipped([string]$full) {
   return $false
 }
 
-function Get-CleanBase([string]$baseName) {
-  $s = $baseName
-  if ($s -match '(?i)[_-]from') {
-    $s = $s -replace '(?i)[_-]from[A-Za-z0-9].*$', ''
-  } elseif ($s -match '(?i)from[A-Za-z]') {
-    $s = $s -replace '(?i)from[A-Za-z][A-Za-z0-9_].*$', ''
+function Get-CleanName([string]$name) {
+  # 對完整名稱動手：
+  #   a.xls_fromE_時間戳     → a.xls
+  #   a_fromE_時間戳.pdf     → a.pdf
+  #   資料夾_fromE_時間戳    → 資料夾
+  if ($name -notmatch '(?i)[_-]?from') { return $null }
+
+  $s2 = $null
+  if ($name -match '(?i)^(.*)([_-]from[A-Za-z]+[_-]?\d+)(\.[A-Za-z0-9]{1,16})?$') {
+    $s2 = $Matches[1] + $(if ($Matches[3]) { $Matches[3] } else { '' })
+  } elseif ($name -match '(?i)[_-]from') {
+    $s2 = $name -replace '(?i)[_-]from[A-Za-z0-9].*$', ''
   } else {
-    return $null
+    $s2 = $name -replace '(?i)from[A-Za-z][A-Za-z0-9_].*$', ''
   }
-  $s = $s.TrimEnd('_', '-', ' ', '.')
-  if ([string]::IsNullOrWhiteSpace($s)) { return $null }
-  return $s
+
+  $s2 = $s2.TrimEnd('_', '-', ' ')
+  if ([string]::IsNullOrWhiteSpace($s2)) { return $null }
+  if ($s2 -eq $name) { return $null }
+  return $s2
 }
 
 function Get-ParentDir([System.IO.FileSystemInfo]$item) {
-  # 檔案才有 DirectoryName；資料夾要用 Parent / Split-Path
   if (-not $item.PSIsContainer) {
     if (-not [string]::IsNullOrWhiteSpace($item.DirectoryName)) {
       return $item.DirectoryName
@@ -64,19 +72,13 @@ function Get-ParentDir([System.IO.FileSystemInfo]$item) {
     }
   }
   $parent = Split-Path -Parent $item.FullName
-  if ([string]::IsNullOrWhiteSpace($parent)) {
-    return $null
-  }
+  if ([string]::IsNullOrWhiteSpace($parent)) { return $null }
   return $parent
 }
 
 function Get-UniqueName([string]$dir, [string]$fileName) {
-  if ([string]::IsNullOrWhiteSpace($dir)) {
-    throw '父目錄路徑是空的'
-  }
-  if ([string]::IsNullOrWhiteSpace($fileName)) {
-    throw '新檔名是空的'
-  }
+  if ([string]::IsNullOrWhiteSpace($dir)) { throw '父目錄路徑是空的' }
+  if ([string]::IsNullOrWhiteSpace($fileName)) { throw '新檔名是空的' }
   $dest = Join-Path -Path $dir -ChildPath $fileName
   if (-not (Test-Path -LiteralPath $dest)) { return $fileName }
   $base = [System.IO.Path]::GetFileNameWithoutExtension($fileName)
@@ -91,6 +93,7 @@ function Get-UniqueName([string]$dir, [string]$fileName) {
 
 Write-Host ("Mode: {0}" -f ($(if ($Execute) { 'EXECUTE' } else { 'DRY-RUN（加 -Execute 才會真的改名）' })))
 Write-Host ("DriveRoot: {0}" -f $DriveRoot)
+Write-Host '規則: 刪去檔名後的 _fromE_時間戳 / _fromPrivate_時間戳（例：a.xls_fromE_123 → a.xls）'
 
 $roots = @(Get-ChildItem -LiteralPath $DriveRoot -Recurse -Directory -Force -ErrorAction SilentlyContinue |
   Where-Object {
@@ -117,15 +120,11 @@ foreach ($root in $roots) {
     if ($null -eq $_) { return }
     if ([string]::IsNullOrWhiteSpace($_.FullName)) { return }
     if ($_.FullName.Equals($root, [StringComparison]::OrdinalIgnoreCase)) { return }
+    if ([string]::IsNullOrWhiteSpace($_.Name)) { return }
 
-    $baseName = if ($_.PSIsContainer) { $_.Name } else { $_.BaseName }
-    if ([string]::IsNullOrWhiteSpace($baseName)) { return }
-
-    $clean = Get-CleanBase $baseName
-    if ($null -eq $clean) { return }
-
-    $newName = if ($_.PSIsContainer) { $clean } else { $clean + $_.Extension }
-    if ([string]::IsNullOrWhiteSpace($newName)) { return }
+    # 用完整 Name，才能處理「.xls_fromE_時間戳」
+    $newName = Get-CleanName $_.Name
+    if ($null -eq $newName) { return }
     if ($newName -eq $_.Name) { return }
 
     $parent = Get-ParentDir $_
@@ -148,13 +147,13 @@ foreach ($root in $roots) {
 
 $ordered = @($candidates | Sort-Object Depth -Descending)
 
-Write-Host ("Candidates: {0}（含資料夾）" -f $ordered.Count)
+Write-Host ("Candidates: {0}（含資料夾與檔案）" -f $ordered.Count)
 $renamed = 0
 $err = 0
 foreach ($c in $ordered) {
   $kind = if ($c.IsDir) { 'DIR' } else { 'FILE' }
-  Write-Host ("[RENAME {0}] {1} -> {2}" -f $kind, $c.Old, $c.New)
-  Write-Host ("             {0}" -f $c.Source)
+  Write-Host ("[RENAME {0}] {1}" -f $kind, $c.Old)
+  Write-Host ("          -> {0}" -f $c.New)
   if (-not $Execute) { continue }
   try {
     if (-not (Test-Path -LiteralPath $c.Source)) {
