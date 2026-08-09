@@ -13,7 +13,8 @@
   powershell -ExecutionPolicy Bypass -File .\eye-care-reminder-app.ps1
 #>
 param(
-  [string]$DataDir = ''
+  [string]$DataDir = '',
+  [string]$SyncDir = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -29,8 +30,17 @@ if (-not (Test-Path -LiteralPath $DataDir)) {
   New-Item -ItemType Directory -Force -Path $DataDir | Out-Null
 }
 $script:DataDir = $DataDir
-$script:ConfigPath = Join-Path $DataDir 'reminders.json'
-$script:StatePath = Join-Path $DataDir 'state.json'
+
+# 設定可放 OneDrive 同步；「已提醒過」狀態只留本機，避免兩台搶同一 state
+if (-not [string]::IsNullOrWhiteSpace($SyncDir)) {
+  New-Item -ItemType Directory -Force -Path $SyncDir | Out-Null
+  $script:ConfigPath = Join-Path $SyncDir 'reminders.json'
+} else {
+  $script:ConfigPath = Join-Path $DataDir 'reminders.json'
+}
+$localStateDir = Join-Path $env:LOCALAPPDATA 'EyeCareReminder'
+New-Item -ItemType Directory -Force -Path $localStateDir | Out-Null
+$script:StatePath = Join-Path $localStateDir 'state.json'
 
 function New-DefaultConfig {
   return [ordered]@{
@@ -390,7 +400,7 @@ $btnOpenFolder = New-Object System.Windows.Forms.Button
 $btnOpenFolder.Text = '開啟資料夾'
 $btnOpenFolder.Location = New-Object System.Drawing.Point(720, 500)
 $btnOpenFolder.Size = New-Object System.Drawing.Size(140, 42)
-$btnOpenFolder.Add_Click({ Start-Process explorer.exe $script:DataDir })
+$btnOpenFolder.Add_Click({ Start-Process explorer.exe (Split-Path -Parent $script:ConfigPath) })
 
 $status = New-Object System.Windows.Forms.Label
 $status.Text = '提示：改完按「套用這筆」→「開始提醒」。僅供提醒，用藥請依醫師指示。'
