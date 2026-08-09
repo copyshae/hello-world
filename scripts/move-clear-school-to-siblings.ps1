@@ -32,25 +32,9 @@ if (-not (Test-Path -LiteralPath $SchoolRoot)) {
   exit 0
 }
 
-$privateRoot = Join-Path $DriveRoot '私人'
 $superRoot = Join-Path $DriveRoot '超級生命密碼'
-
-# 若 E:\私人 不在，嘗試找出被改名／搬走的「私人」；找不到就重建空的 E:\私人
-if (-not (Test-Path -LiteralPath $privateRoot)) {
-  Write-Host '警告：沒有 E:\私人，正在搜尋…'
-  $foundPrivate = @(Get-ChildItem -LiteralPath $DriveRoot -Recurse -Directory -Force -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -eq '私人' } | Select-Object -First 5)
-  if ($foundPrivate.Count -gt 0) {
-    Write-Host '找到名為「私人」的路徑：'
-    foreach ($f in $foundPrivate) { Write-Host ("  {0}" -f $f.FullName) }
-    $privateRoot = $foundPrivate[0].FullName
-    Write-Host ("將使用: {0}" -f $privateRoot)
-  } else {
-    Write-Host '未找到「私人」資料夾 → 將在 E:\ 重建 E:\私人'
-  }
-}
-
-$privateIngest = Join-Path $privateRoot '從學校移入'
+# 不重建 E:\私人；其餘學校內容放到同層 E:\從學校移入
+$schoolIngest = Join-Path $DriveRoot '從學校移入'
 
 function Ensure-Dir([string]$p) {
   if (-not (Test-Path -LiteralPath $p)) {
@@ -84,13 +68,13 @@ function Resolve-Dest([string]$name) {
   if ($name -match '身心靈|修行|滋養研究|人生成長實作') {
     return (Join-Path $superRoot '身心靈修行')
   }
-  # 其餘學校內容 → 私人\從學校移入
-  return $privateIngest
+  # 其餘學校內容 → E:\從學校移入（同層，不經私人）
+  return $schoolIngest
 }
 
 Write-Host ("Mode: {0}" -f ($(if ($Execute) { 'EXECUTE' } else { 'DRY-RUN' })))
 Write-Host ("SchoolRoot: {0}" -f $SchoolRoot)
-Write-Host '規則: 超碼／天圓／弟子規 → E:\超級生命密碼\… ；其餘 → E:\私人\從學校移入'
+Write-Host '規則: 超碼／天圓／弟子規 → E:\超級生命密碼\… ；其餘 → E:\從學校移入（不重建私人）'
 Write-Host ''
 
 # 同層目錄一覽
@@ -99,12 +83,11 @@ Get-ChildItem -LiteralPath $DriveRoot -Force -ErrorAction SilentlyContinue |
   Where-Object { $_.PSIsContainer } |
   ForEach-Object { Write-Host ("  {0}" -f $_.Name) }
 
-Ensure-Dir $privateRoot
 Ensure-Dir $superRoot
 foreach ($s in @('超級生命密碼', '天圓文化', '弟子規', '身心靈修行')) {
   Ensure-Dir (Join-Path $superRoot $s)
 }
-Ensure-Dir $privateIngest
+Ensure-Dir $schoolIngest
 
 $items = @(Get-ChildItem -LiteralPath $SchoolRoot -Force -ErrorAction SilentlyContinue)
 Write-Host ("E:\學校 第一層項目: {0}" -f $items.Count)
@@ -118,7 +101,7 @@ foreach ($item in $items) {
 
   # 若是學校骨架子夾（學年資料等），整包進 私人\從學校移入\原名
   if ($item.PSIsContainer -and ($item.Name -match '^(學年資料|衛生健促|科展科學營|試題教案|請假|打掃區域|其他學校|_搬移衝突|_搬移日誌)$')) {
-    $destDir = $privateIngest
+    $destDir = $schoolIngest
   }
 
   Ensure-Dir $destDir

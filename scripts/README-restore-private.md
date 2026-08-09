@@ -1,13 +1,12 @@
-# 恢復 E:\私人（子目錄被提到 E:\ 同層時）
+# 關於 E:\私人
 
-當 `E:\私人` 已刪、底下的「財務／備份／影音歸檔…」出現在 `E:\` 根層：
+依目前需求：**不要重建 `E:\私人`**。  
+原私人子目錄（財務／備份／影音歸檔等）維持在 `E:\` 同層即可。
+
+`restore-private-root-on-e.ps1` 請**不要執行**（那支會重建私人）。
+
+清空學校請用：
 
 ```powershell
-cd $env:USERPROFILE\Desktop\hello-world
-git pull
-powershell -ExecutionPolicy Bypass -File .\scripts\restore-private-root-on-e.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\restore-private-root-on-e.ps1 -Execute
+powershell -ExecutionPolicy Bypass -File .\scripts\move-clear-school-to-siblings.ps1 -Execute
 ```
-
-會重建 `E:\私人`，並把根層那些原子目錄移回去。  
-不搬：`學校`、`超級生命密碼`、系統資料夾。
