@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  一鍵整理 E:\：超級生命密碼 → 學校 → 公司 → 公司併入學校並清空（預設 Dry-run）。
+  一鍵整理 E:\：超級生命密碼 → 學校 → 公司 → 公司併入學校 → 清空白搬移資料夾（預設 Dry-run）。
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\scripts\organize-e-drive.ps1
@@ -71,11 +71,17 @@ Invoke-Step 'move-company-from-private.ps1' @(
 )
 
 Write-Host ""
-Write-Host "======== 4/4 E:\公司 → 併入學校並清空 ========"
+Write-Host "======== 4/5 E:\公司 → 併入學校並清空 ========"
 Invoke-Step 'move-clear-e-company.ps1' @(
   '-DriveRoot', $DriveRoot,
   '-CompanyRoot', (Join-Path $DriveRoot '公司'),
   '-SchoolRoot', (Join-Path $DriveRoot '學校')
+)
+
+Write-Host ""
+Write-Host "======== 5/5 清除搬移日誌／衝突內空白資料夾 ========"
+Invoke-Step 'clear-empty-move-folders.ps1' @(
+  '-DriveRoot', $DriveRoot
 )
 
 Write-Host ""
