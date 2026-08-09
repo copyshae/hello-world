@@ -103,4 +103,4 @@ if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) {
 Write-Host ''
 Write-Host '======== 完成後 E:\ 第一層 ========'
 Get-ChildItem -LiteralPath $DriveRoot -Force | Select-Object Mode, LastWriteTime, Name | Format-Table -AutoSize
-Write-Host '請在檔案總管按 F5。應看到：私人、學校、超級生命密碼、公司（若有匹配）。'
+Write-Host '請在檔案總管按 F5。應看到：私人、學校、超級生命密碼（公司已併入學校並清空）。'

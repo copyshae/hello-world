@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  一鍵整理 E:\：超級生命密碼 → 學校 → 公司（預設 Dry-run）。
+  一鍵整理 E:\：超級生命密碼 → 學校 → 公司 → 公司併入學校並清空（預設 Dry-run）。
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\scripts\organize-e-drive.ps1
@@ -64,10 +64,18 @@ Invoke-Step 'move-school-from-private.ps1' @(
 )
 
 Write-Host ""
-Write-Host "======== 3/3 公司 ========"
+Write-Host "======== 3/4 公司（私人→E:\公司） ========"
 Invoke-Step 'move-company-from-private.ps1' @(
   '-PrivateRoot', (Join-Path $DriveRoot '私人'),
   '-CompanyRoot', (Join-Path $DriveRoot '公司')
+)
+
+Write-Host ""
+Write-Host "======== 4/4 E:\公司 → 併入學校並清空 ========"
+Invoke-Step 'move-clear-e-company.ps1' @(
+  '-DriveRoot', $DriveRoot,
+  '-CompanyRoot', (Join-Path $DriveRoot '公司'),
+  '-SchoolRoot', (Join-Path $DriveRoot '學校')
 )
 
 Write-Host ""
@@ -79,6 +87,5 @@ if (-not $Execute) {
   Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\organize-e-drive.ps1 -Execute"
 } else {
   Write-Host "已執行搬移。請在檔案總管按 F5 重新整理 E:\ 。"
-  Write-Host "應看到：私人、學校、超級生命密碼、公司（若有匹配項目）。"
-  Write-Host "E:\私人\公司 若已搬空會被清除；目的地 E:\公司 會保留。"
+  Write-Host "應看到：私人、學校、超級生命密碼（不應再有「公司」；公司內容已併入學校）。"
 }

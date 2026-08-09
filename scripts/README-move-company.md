@@ -26,14 +26,20 @@ powershell -ExecutionPolicy Bypass -File .\scripts\move-company-from-private.ps1
 | 刪檔 | 真資料只搬不刪；**搬空後會清除 `E:\私人\公司`**（不再留空殼） |
 | 日誌 | `E:\公司\_搬移日誌\move-company_*.txt` |
 
-## 只清公司空殼（移動已做完時）
+## 只清私人\公司空殼
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\clear-private-company-folder.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\clear-private-company-folder.ps1 -Execute
 ```
 
-不會刪 `E:\公司`（目的地）。若 `私人\公司` 還有殘留要連刪，加 `-Force`。
+## E:\公司 併入學校並刪除
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\move-clear-e-company.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\move-clear-e-company.ps1 -Execute
+```
+
+詳見 `README-move-clear-e-company.md`。
 
 ## 與其他腳本的關係
 
