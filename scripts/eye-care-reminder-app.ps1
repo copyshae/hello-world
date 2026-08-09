@@ -41,9 +41,9 @@ function New-DefaultConfig {
       @{ id = [guid]::NewGuid().ToString('n'); enabled = $true; kind = 'daily'; time = '18:00'; everyMinutes = 0; windowStart = '07:30'; windowEnd = '17:00'; title = '晚餐・點眼藥水'; message = "1) 晚餐`n2) 點眼藥水"; autoCloseSeconds = 0 }
       @{ id = [guid]::NewGuid().ToString('n'); enabled = $true; kind = 'daily'; time = '21:00'; everyMinutes = 0; windowStart = '07:30'; windowEnd = '17:00'; title = '晚上・益生菌'; message = '請服用益生菌'; autoCloseSeconds = 0 }
       @{ id = [guid]::NewGuid().ToString('n'); enabled = $true; kind = 'daily'; time = '22:00'; everyMinutes = 0; windowStart = '07:30'; windowEnd = '17:00'; title = '睡前・點眼藥水'; message = '睡前點眼藥水，關閉螢幕休息'; autoCloseSeconds = 0 }
-      @{ id = [guid]::NewGuid().ToString('n'); enabled = $true; kind = 'interval'; time = ''; everyMinutes = 20; windowStart = '07:30'; windowEnd = '17:00'; title = '用眼短休息'; message = "停下螢幕約 20 秒`n看向遠處或閉眼放鬆"; autoCloseSeconds = 25 }
+      @{ id = [guid]::NewGuid().ToString('n'); enabled = $true; kind = 'interval'; time = ''; everyMinutes = 20; windowStart = '07:30'; windowEnd = '17:00'; title = '用眼短休息'; message = "停下螢幕約 20 秒`n看向遠處或閉眼放鬆"; autoCloseSeconds = 0 }
       @{ id = [guid]::NewGuid().ToString('n'); enabled = $true; kind = 'interval'; time = ''; everyMinutes = 60; windowStart = '07:30'; windowEnd = '17:00'; title = '用眼長休息'; message = "離開螢幕約 5 分鐘`n遠眺／走動，勿滑手機"; autoCloseSeconds = 0 }
-      @{ id = [guid]::NewGuid().ToString('n'); enabled = $true; kind = 'interval'; time = ''; everyMinutes = 60; windowStart = '07:30'; windowEnd = '17:00'; title = '飲水提醒'; message = '請喝一杯水'; autoCloseSeconds = 20 }
+      @{ id = [guid]::NewGuid().ToString('n'); enabled = $true; kind = 'interval'; time = ''; everyMinutes = 60; windowStart = '07:30'; windowEnd = '17:00'; title = '飲水提醒'; message = '請喝一杯水'; autoCloseSeconds = 0 }
     )
   }
 }
@@ -64,7 +64,12 @@ function Load-Config {
     return $cfg
   }
   try {
-    return (Get-Content -LiteralPath $script:ConfigPath -Encoding UTF8 -Raw | ConvertFrom-Json)
+    $cfg = Get-Content -LiteralPath $script:ConfigPath -Encoding UTF8 -Raw | ConvertFrom-Json
+    # 舊設定若有自動關閉，一律改為 0（避免一閃而過）
+    foreach ($it in @($cfg.items)) {
+      $it.autoCloseSeconds = 0
+    }
+    return $cfg
   } catch {
     $cfg = Convert-ToPlain (New-DefaultConfig)
     Save-Config $cfg
@@ -84,7 +89,22 @@ function Save-State($st) {
 }
 
 function Show-Popup([string]$Title, [string]$Message, [int]$AutoCloseSeconds) {
+  # 為避免一閃而過：不自動關閉，必須按「知道了」
+  $null = $AutoCloseSeconds
+
+  # 先用系統對話框（最不容易錯過），再顯示大字視窗
+  [System.Media.SystemSounds]::Exclamation.Play()
+  Start-Sleep -Milliseconds 120
+  [System.Media.SystemSounds]::Exclamation.Play()
+  [void][System.Windows.Forms.MessageBox]::Show(
+    $Message,
+    $Title,
+    [System.Windows.Forms.MessageBoxButtons]::OK,
+    [System.Windows.Forms.MessageBoxIcon]::Exclamation
+  )
+
   $form = New-Object System.Windows.Forms.Form
+  $script:popupForm = $form
   $form.Text = $Title
   $form.StartPosition = 'CenterScreen'
   $form.FormBorderStyle = 'FixedDialog'
@@ -92,54 +112,53 @@ function Show-Popup([string]$Title, [string]$Message, [int]$AutoCloseSeconds) {
   $form.MinimizeBox = $false
   $form.TopMost = $true
   $form.ShowInTaskbar = $true
-  $form.Size = New-Object System.Drawing.Size(580, 360)
-  $form.BackColor = [System.Drawing.Color]::FromArgb(250, 250, 245)
+  $form.TopLevel = $true
+  $form.Size = New-Object System.Drawing.Size(640, 420)
+  $form.BackColor = [System.Drawing.Color]::FromArgb(255, 252, 230)
 
   $h = New-Object System.Windows.Forms.Label
   $h.Text = $Title
-  $h.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 22, [System.Drawing.FontStyle]::Bold)
-  $h.ForeColor = [System.Drawing.Color]::FromArgb(20, 70, 50)
+  $h.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 26, [System.Drawing.FontStyle]::Bold)
+  $h.ForeColor = [System.Drawing.Color]::FromArgb(120, 40, 0)
   $h.Location = New-Object System.Drawing.Point(24, 18)
-  $h.Size = New-Object System.Drawing.Size(520, 42)
+  $h.Size = New-Object System.Drawing.Size(580, 48)
 
   $b = New-Object System.Windows.Forms.Label
   $b.Text = $Message
-  $b.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 16)
-  $b.Location = New-Object System.Drawing.Point(24, 70)
-  $b.Size = New-Object System.Drawing.Size(520, 160)
+  $b.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 18)
+  $b.ForeColor = [System.Drawing.Color]::Black
+  $b.Location = New-Object System.Drawing.Point(24, 80)
+  $b.Size = New-Object System.Drawing.Size(580, 200)
+
+  $hint = New-Object System.Windows.Forms.Label
+  $hint.Text = '不會自動關閉，請按「知道了」'
+  $hint.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 12)
+  $hint.ForeColor = [System.Drawing.Color]::FromArgb(90, 70, 40)
+  $hint.Location = New-Object System.Drawing.Point(24, 290)
+  $hint.Size = New-Object System.Drawing.Size(360, 28)
 
   $ok = New-Object System.Windows.Forms.Button
   $ok.Text = '知道了'
-  $ok.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 14, [System.Drawing.FontStyle]::Bold)
-  $ok.Size = New-Object System.Drawing.Size(140, 48)
-  $ok.Location = New-Object System.Drawing.Point(400, 250)
-  $ok.BackColor = [System.Drawing.Color]::FromArgb(30, 100, 70)
+  $ok.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 16, [System.Drawing.FontStyle]::Bold)
+  $ok.Size = New-Object System.Drawing.Size(160, 52)
+  $ok.Location = New-Object System.Drawing.Point(440, 300)
+  $ok.BackColor = [System.Drawing.Color]::FromArgb(180, 60, 20)
   $ok.ForeColor = [System.Drawing.Color]::White
   $ok.FlatStyle = 'Flat'
-  $ok.Add_Click({ $form.Close() })
+  $ok.DialogResult = [System.Windows.Forms.DialogResult]::OK
+  $form.AcceptButton = $ok
 
-  $timerLabel = New-Object System.Windows.Forms.Label
-  $timerLabel.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 12)
-  $timerLabel.Location = New-Object System.Drawing.Point(24, 260)
-  $timerLabel.Size = New-Object System.Drawing.Size(350, 32)
+  $form.Controls.AddRange(@($h, $b, $hint, $ok))
+  $form.Add_Shown({
+      $f = $script:popupForm
+      $f.WindowState = 'Normal'
+      $f.TopMost = $true
+      $f.Activate()
+      $f.BringToFront()
+      [void]$f.Focus()
+    })
 
-  $form.Controls.AddRange(@($h, $b, $ok, $timerLabel))
-  [System.Media.SystemSounds]::Asterisk.Play()
-
-  if ($AutoCloseSeconds -gt 0) {
-    $script:popupLeft = $AutoCloseSeconds
-    $timerLabel.Text = ("{0} 秒後自動關閉" -f $script:popupLeft)
-    $t = New-Object System.Windows.Forms.Timer
-    $t.Interval = 1000
-    $t.Add_Tick({
-        $script:popupLeft--
-        if ($script:popupLeft -le 0) { $t.Stop(); $form.Close() }
-        else { $timerLabel.Text = ("{0} 秒後自動關閉" -f $script:popupLeft) }
-      })
-    $t.Start()
-  }
-
-  [void]$form.ShowDialog($script:mainForm)
+  [void]$form.ShowDialog()
 }
 
 function Parse-Hm([string]$hm) {
@@ -274,9 +293,6 @@ function Read-EditorToItem($existingId) {
   $kind = if ($cmbKind.SelectedIndex -eq 1) { 'interval' } else { 'daily' }
   $every = 0
   [void][int]::TryParse($txtEvery.Text, [ref]$every)
-  $auto = 0
-  if ($kind -eq 'interval' -and $every -le 30) { $auto = 25 }
-  elseif ($kind -eq 'interval') { $auto = 0 }
   return [pscustomobject]@{
     id               = $(if ($existingId) { $existingId } else { [guid]::NewGuid().ToString('n') })
     enabled          = [bool]$chkEnabled.Checked
@@ -287,7 +303,7 @@ function Read-EditorToItem($existingId) {
     windowEnd        = $(if ($txtWinEnd.Text.Trim()) { $txtWinEnd.Text.Trim() } else { '17:00' })
     title            = $(if ($txtTitle.Text.Trim()) { $txtTitle.Text.Trim() } else { '提醒' })
     message          = $txtMsg.Text
-    autoCloseSeconds = $auto
+    autoCloseSeconds = 0
   }
 }
 
@@ -469,4 +485,14 @@ $mainForm.Controls.AddRange(@(
 Refresh-List
 if ($list.Items.Count -gt 0) { $list.SelectedIndex = 0 }
 
-[void]$mainForm.ShowDialog()
+try {
+  [void]$mainForm.ShowDialog()
+} catch {
+  [void][System.Windows.Forms.MessageBox]::Show(
+    ("程式錯誤：{0}" -f $_.Exception.Message),
+    '護眼提醒',
+    [System.Windows.Forms.MessageBoxButtons]::OK,
+    [System.Windows.Forms.MessageBoxIcon]::Error
+  )
+  throw
+}
