@@ -9,8 +9,8 @@ alwaysApply: true
 
 ## 開啟網頁
 
-- **連日誌**／**連上學習日誌**／**開日誌** → 開啟  
-  https://copyshae.github.io/hello-world/directory/logs/
+- **連日誌**／**連上學習日誌**／**開日誌** → 開啟當月列表（目前  
+  https://copyshae.github.io/hello-world/directory/202608/ ；202607 仍在 `directory/logs/`）
 - **日誌首頁**／**學習日誌首頁**／**開首頁** → 開啟  
   https://copyshae.github.io/hello-world/directory/
 

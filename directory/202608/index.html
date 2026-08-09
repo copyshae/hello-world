@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>202608｜學習日誌</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(149, 213, 178, 0.45), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 90% 80%, rgba(45, 106, 79, 0.18), transparent 50%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 45%, #d8e8dc 100%);
+    }
+
+    .wrap {
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+      animation: rise 0.8s ease-out both;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .nav a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .nav a:hover {
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.6rem, 5vw, 2.2rem);
+      font-weight: 400;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+    }
+
+    .lead {
+      margin-top: 0.75rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .search-box {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .search-box label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1px solid rgba(45, 106, 79, 0.28);
+      background: rgba(255, 255, 255, 0.75);
+      color: var(--ink);
+      font: inherit;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-box input::placeholder {
+      color: #7a8d82;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+    }
+
+    .search-meta {
+      font-size: 0.88rem;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+
+    .dir-list {
+      list-style: none;
+      margin-top: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .dir-list li[hidden] {
+      display: none;
+    }
+
+    .empty-hint {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1rem 1.15rem;
+      border: 1px dashed rgba(45, 106, 79, 0.35);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.45);
+      font-size: 0.95rem;
+    }
+
+    .empty-hint.show {
+      display: block;
+    }
+
+    .dir-list a {
+      display: block;
+      padding: 1.15rem 1.35rem;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(45, 106, 79, 0.22);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.15rem;
+      letter-spacing: 0.03em;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .dir-list a:hover {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .dir-list a span {
+      display: block;
+      margin-top: 0.35rem;
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(1rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../">← 回到首頁</a>
+      <a href="../">← 學習日誌</a>
+    </nav>
+    <h1>202608</h1>
+    <p class="lead">選擇下方學習日誌，分享當日所學的成果和學習參考的影片連結（由新到舊排列）</p>
+    <div class="search-box">
+      <label for="log-search">搜尋日誌</label>
+      <input
+        id="log-search"
+        type="search"
+        placeholder="輸入日期、關鍵字"
+        autocomplete="off"
+        enterkeyhint="search"
+      />
+      <p class="search-meta" id="search-meta" aria-live="polite"></p>
+    </div>
+    <p class="empty-hint" id="empty-hint">還沒有 202608 的日誌；用「推日誌」新增後會出現在這裡。</p>
+    <ul class="dir-list" id="log-list">
+    </ul>
+  </div>
+  <script>
+    (function () {
+      var input = document.getElementById("log-search");
+      var list = document.getElementById("log-list");
+      var meta = document.getElementById("search-meta");
+      var empty = document.getElementById("empty-hint");
+      if (!list) return;
+
+      var items = Array.prototype.slice.call(list.querySelectorAll("li"));
+
+      function applyFilter() {
+        var q = (input && input.value ? input.value : "").trim().toLowerCase();
+        var shown = 0;
+        items.forEach(function (li) {
+          var text = (li.textContent || "").toLowerCase();
+          var ok = !q || text.indexOf(q) !== -1;
+          li.hidden = !ok;
+          if (ok) shown += 1;
+        });
+        if (meta) {
+          meta.textContent = items.length
+            ? (q ? "顯示 " + shown + " / " + items.length + " 篇" : items.length + " 篇")
+            : "";
+        }
+        if (empty) {
+          empty.classList.toggle("show", items.length === 0 || shown === 0);
+          if (items.length === 0) {
+            empty.textContent = "還沒有 202608 的日誌；用「推日誌」新增後會出現在這裡。";
+          } else if (shown === 0) {
+            empty.textContent = "沒有符合的日誌，換個關鍵字試試。";
+          }
+        }
+      }
+
+      if (input) {
+        input.addEventListener("input", applyFilter);
+      }
+      applyFilter();
+    })();
+  </script>
+</body>
+</html>

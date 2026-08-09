@@ -6,7 +6,7 @@
 
 | 短語 | 開啟 |
 |------|------|
-| `連日誌`／`連上學習日誌`／`開日誌` | [當月學習日誌列表](https://copyshae.github.io/hello-world/directory/logs/) |
+| `連日誌`／`連上學習日誌`／`開日誌` | [當月列表 202608](https://copyshae.github.io/hello-world/directory/202608/)（七月仍在 [logs](https://copyshae.github.io/hello-world/directory/logs/)） |
 | `日誌首頁`／`學習日誌首頁`／`開首頁` | [學習日誌首頁](https://copyshae.github.io/hello-world/directory/) |
 
 ## 安裝／更新快捷詞
@@ -25,7 +25,9 @@
 | `推日誌 0727` | 指定月日（當年） |
 | `工作大要推 hello-world` | 完整說法 |
 
-寫入：https://github.com/copyshae/hello-world → `directory/logs/`
+寫入：https://github.com/copyshae/hello-world  
+- `202607` → `directory/logs/`  
+- `202608` 起 → `directory/YYYYMM/`（例：`directory/202608/`）
 
 ## 換機／新電腦（做一次）
 
