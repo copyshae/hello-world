@@ -1,12 +1,15 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  從 E:\私人 找出學校相關資料夾／檔案，搬到上層 E:\學校。
+  將學校相關資料夾／檔案整理到 E:\學校（第一層）。
 
 .DESCRIPTION
-  - 只搬移，不刪檔；目的資料夾已存在則合併；檔名衝突進 _搬移衝突。
+  來源（依序）：
+    1) E:\私人（深度 1～3）
+    2) E:\文件歸檔\學校（整包內容合併進 E:\學校）
+    3) E:\ 根層、文件／桌面／下載歸檔中名稱命中學校關鍵字者
+  - 只搬移，不刪檔；目的已存在則合併；檔名衝突進 _搬移衝突。
   - 預設 DryRun；加上 -Execute 才真正 Move-Item。
-  - 略過私人骨架、公司／超級生命密碼相關關鍵字（那些另有腳本）。
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\scripts\move-school-from-private.ps1
@@ -14,6 +17,7 @@
 #>
 [CmdletBinding()]
 param(
+  [string]$DriveRoot = 'E:\',
   [string]$PrivateRoot = 'E:\私人',
   [string]$SchoolRoot = 'E:\學校',
   [switch]$Execute
@@ -35,7 +39,6 @@ $schoolSubs = @(
 )
 foreach ($s in $schoolSubs) { Ensure-Dir (Join-Path $SchoolRoot $s) }
 
-# 先匹配先生效
 $rules = @(
   @{ Re = '^(school|\d{3}學年school)$|學年school|\d{3}學年'; Dest = '學年資料' },
   @{ Re = '衛生|健促|健康促進'; Dest = '衛生健促' },
@@ -46,11 +49,9 @@ $rules = @(
   @{ Re = '學校|班級|教室|導師|數學|國文|英文|自然|社會|綜合|彰安|科任|配課|課表|導師費|班親'; Dest = '其他學校' }
 )
 
-# 私人骨架不整包搬走
 $privateSkeletonRe = '^(財務|家庭|證件合約|掃描檔|車禍事故|密碼與金鑰|醫療健康|公司|超級生命密碼|_搬移衝突|_搬移日誌|_搬移)$'
-
-# 留給其他腳本
 $otherScriptSkipRe = '超級生命密碼|生命密碼|天圓|鳴馨|文化事業|太陽盛德|弟子規|身心靈|修行|滋養研究|公司|上班|職場|辦公|報銷|請款'
+$archiveSkipRe = '^(備份|工具軟體|私人|公司|學校|超級生命密碼|影音歸檔|圖片歸檔|System Volume Information|\$RECYCLE\.BIN|_搬移衝突|_搬移日誌)$'
 
 function Resolve-SchoolDest([string]$name) {
   if ($name -match $otherScriptSkipRe) { return $null }
@@ -82,15 +83,15 @@ function Get-DepthRelative([string]$full, [string]$root) {
   return ($rel -split '[\\/]').Count
 }
 
-function Should-Skip([System.IO.FileSystemInfo]$item) {
-  if (Test-UnderPath $item.FullName $SchoolRoot) { return $true }
-  if ($item.Name -match $privateSkeletonRe) { return $true }
-  if ($item.Name -match $otherScriptSkipRe) { return $true }
+function Should-SkipName([string]$name) {
+  if ($name -match $privateSkeletonRe) { return $true }
+  if ($name -match $otherScriptSkipRe) { return $true }
+  if ($name -match $archiveSkipRe) { return $true }
   return $false
 }
 
-if (-not (Test-Path -LiteralPath $PrivateRoot)) {
-  throw "找不到私人根目錄: $PrivateRoot（請在本機 Windows、外接碟已插入時執行）"
+if (-not (Test-Path -LiteralPath $DriveRoot)) {
+  throw "找不到磁碟: $DriveRoot（請在本機 Windows、外接碟已插入時執行）"
 }
 Ensure-Dir $SchoolRoot
 
@@ -108,54 +109,113 @@ function Add-Candidate([string]$source, [string]$destDir, [string]$reason, [bool
   })
 }
 
-$maxDepth = 3
-Get-ChildItem -LiteralPath $PrivateRoot -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
-  $depth = Get-DepthRelative $_.FullName $PrivateRoot
-  if ($depth -lt 1 -or $depth -gt $maxDepth) { return }
-  if (Should-Skip $_) { return }
-
-  $rootNorm = $PrivateRoot.TrimEnd('\', '/')
-  $relPath = $_.FullName.Substring($rootNorm.Length).TrimStart('\', '/')
-  $parts = $relPath -split '[\\/]'
-
-  $hitName = $null
-  foreach ($p in $parts) {
-    if ($p -match $privateSkeletonRe) { continue }
-    if ($p -match $otherScriptSkipRe) { continue }
-    if ($null -ne (Resolve-SchoolDest $p)) { $hitName = $p; break }
-  }
-  if ($null -eq $hitName) { return }
-
-  $idx = [array]::IndexOf($parts, $hitName)
-  if ($idx -lt 0) { return }
-  $topRel = ($parts[0..$idx] -join '\')
-  $topFull = Join-Path $PrivateRoot $topRel
-  if (-not (Test-Path -LiteralPath $topFull)) { return }
-
-  $topItem = Get-Item -LiteralPath $topFull -Force
-  if (Should-Skip $topItem) { return }
-
-  $destSub = Resolve-SchoolDest $topItem.Name
+function Register-Hit([System.IO.FileSystemInfo]$item, [string]$hitName, [string]$reasonPrefix) {
+  $destSub = Resolve-SchoolDest $item.Name
   if ($null -eq $destSub) { $destSub = Resolve-SchoolDest $hitName }
-  if ($null -eq $destSub) { return }
+  if ($null -eq $destSub) { $destSub = '其他學校' }
 
-  if ($topItem.PSIsContainer -and ($topItem.Name -eq $destSub)) {
+  if ($item.PSIsContainer -and ($item.Name -eq $destSub)) {
     $destDir = $SchoolRoot
   } else {
     $destDir = Join-Path $SchoolRoot $destSub
   }
-  Add-Candidate $topItem.FullName $destDir ("name->$hitName") $topItem.PSIsContainer
+  Add-Candidate $item.FullName $destDir ("$reasonPrefix->$hitName") $item.PSIsContainer
+}
+
+function Scan-Tree([string]$root, [int]$minDepth, [int]$maxDepth, [string]$reasonPrefix) {
+  if (-not (Test-Path -LiteralPath $root)) {
+    Write-Host "SKIP missing: $root"
+    return
+  }
+
+  Get-ChildItem -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+    if (Test-UnderPath $_.FullName $SchoolRoot) { return }
+    $depth = Get-DepthRelative $_.FullName $root
+    if ($depth -lt $minDepth -or $depth -gt $maxDepth) { return }
+    if (Should-SkipName $_.Name) { return }
+
+    $rootNorm = $root.TrimEnd('\', '/')
+    $relPath = $_.FullName.Substring($rootNorm.Length).TrimStart('\', '/')
+    if ([string]::IsNullOrEmpty($relPath)) { return }
+    $parts = $relPath -split '[\\/]'
+
+    $hitName = $null
+    foreach ($p in $parts) {
+      if (Should-SkipName $p) { continue }
+      if ($null -ne (Resolve-SchoolDest $p)) { $hitName = $p; break }
+    }
+    if ($null -eq $hitName) { return }
+
+    $idx = [array]::IndexOf($parts, $hitName)
+    if ($idx -lt 0) { return }
+    $topRel = ($parts[0..$idx] -join '\')
+    $topFull = Join-Path $root $topRel
+    if (-not (Test-Path -LiteralPath $topFull)) { return }
+
+    $topItem = Get-Item -LiteralPath $topFull -Force
+    if (Should-SkipName $topItem.Name) { return }
+    if (Test-UnderPath $topItem.FullName $SchoolRoot) { return }
+
+    Register-Hit $topItem $hitName $reasonPrefix
+  }
+}
+
+# 1) 私人
+Scan-Tree $PrivateRoot 1 3 '私人'
+
+# 2) 既有「文件歸檔\學校」：把內容直接併入 E:\學校（依名稱分類；分不出則放其他學校）
+$legacySchool = Join-Path (Join-Path $DriveRoot '文件歸檔') '學校'
+if (Test-Path -LiteralPath $legacySchool) {
+  Write-Host "Found legacy: $legacySchool"
+  Get-ChildItem -LiteralPath $legacySchool -Force -ErrorAction SilentlyContinue | ForEach-Object {
+    if (Should-SkipName $_.Name) { return }
+    $destSub = Resolve-SchoolDest $_.Name
+    if ($null -eq $destSub) { $destSub = '其他學校' }
+    if ($_.PSIsContainer -and ($_.Name -eq $destSub)) {
+      $destDir = $SchoolRoot
+    } else {
+      $destDir = Join-Path $SchoolRoot $destSub
+    }
+    Add-Candidate $_.FullName $destDir '文件歸檔\學校\to-school' $_.PSIsContainer
+  }
+  # 空殼也移到日誌區（不刪）
+  Add-Candidate $legacySchool (Join-Path $SchoolRoot '_搬移日誌') 'empty-shell-文件歸檔\學校' $true
+}
+
+# 3) E:\ 根層
+Get-ChildItem -LiteralPath $DriveRoot -Force -ErrorAction SilentlyContinue | ForEach-Object {
+  if (Test-UnderPath $_.FullName $SchoolRoot) { return }
+  if (Should-SkipName $_.Name) { return }
+  $destSub = Resolve-SchoolDest $_.Name
+  if ($null -eq $destSub) { return }
+  Register-Hit $_ $_.Name 'E-root'
+}
+
+# 4) 其他歸檔樹
+foreach ($name in @('文件歸檔', '桌面歸檔', '下載歸檔')) {
+  $r = Join-Path $DriveRoot $name
+  # 文件歸檔\學校 已在步驟 2 處理，Scan-Tree 會因子項名稱再命中；用 seen 去重
+  Scan-Tree $r 1 3 $name
 }
 
 $logDir = Join-Path $SchoolRoot '_搬移日誌'
 Ensure-Dir $logDir
 $logPath = Join-Path $logDir ("move-school_{0}.txt" -f (Get-Date -Format 'yyyyMMdd_HHmmss'))
 $log = New-Object System.Collections.Generic.List[string]
-$log.Add(("mode={0} private={1} school={2}" -f ($(if ($Execute) { 'EXECUTE' } else { 'DRYRUN' }), $PrivateRoot, $SchoolRoot)))
+$log.Add(("mode={0} drive={1} school={2}" -f ($(if ($Execute) { 'EXECUTE' } else { 'DRYRUN' }), $DriveRoot, $SchoolRoot)))
 $log.Add(("candidates={0}" -f $candidates.Count))
 
 Write-Host ("Mode: {0}" -f ($(if ($Execute) { 'EXECUTE' } else { 'DRY-RUN（加 -Execute 才會真的搬）' })))
+Write-Host ("SchoolRoot: {0}" -f $SchoolRoot)
 Write-Host ("Candidates: {0}" -f $candidates.Count)
+
+if ($candidates.Count -eq 0) {
+  Write-Host ""
+  Write-Host "沒有找到可搬的學校項目。請在本機檢查："
+  Write-Host "  Get-ChildItem E:\私人"
+  Write-Host "  Get-ChildItem E:\文件歸檔\學校 -ErrorAction SilentlyContinue"
+  Write-Host "  Get-ChildItem E:\文件歸檔 -Recurse -Depth 2 | Where-Object Name -Match '學校|試題|衛生|科展|請假'"
+}
 
 $moved = 0
 $skipped = 0
@@ -163,6 +223,9 @@ $conflicted = 0
 
 foreach ($c in $candidates) {
   $name = Split-Path -Leaf $c.Source
+  if ($c.Reason -eq 'empty-shell-文件歸檔\學校') {
+    $name = '_已清空_原文件歸檔學校'
+  }
   $dest = Join-Path $c.DestDir $name
   $line = "[{0}] {1} -> {2} ({3})" -f $(if ($c.IsDir) { 'DIR' } else { 'FILE' }), $c.Source, $dest, $c.Reason
   Write-Host $line
@@ -180,7 +243,7 @@ foreach ($c in $candidates) {
           if (Test-Path -LiteralPath $childDest) {
             $conflictDir = Join-Path $SchoolRoot '_搬移衝突'
             Ensure-Dir $conflictDir
-            $alt = Join-Path $conflictDir ($_.Name + '_fromPrivate_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
+            $alt = Join-Path $conflictDir ($_.Name + '_fromE_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
             Move-Item -LiteralPath $_.FullName -Destination $alt -Force
             $conflicted++
             $log.Add("MERGE-CONFLICT $($_.FullName) -> $alt")
@@ -199,7 +262,7 @@ foreach ($c in $candidates) {
       }
       $conflictDir = Join-Path $SchoolRoot '_搬移衝突'
       Ensure-Dir $conflictDir
-      $dest = Join-Path $conflictDir ($name + '_fromPrivate_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
+      $dest = Join-Path $conflictDir ($name + '_fromE_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
       $conflicted++
       $log.Add("CONFLICT -> $dest")
     }
@@ -219,6 +282,7 @@ if ($Execute) {
   Write-Host ""
   Write-Host "moved=$moved conflicted=$conflicted err=$skipped"
   Write-Host "log=$logPath"
+  Write-Host "請重新開啟 E:\學校 查看子目錄。"
 } else {
   Write-Host ""
   Write-Host "Dry-run 結束。確認列表無誤後執行："
