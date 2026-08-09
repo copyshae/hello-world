@@ -116,14 +116,20 @@ function Register-Hit([System.IO.FileSystemInfo]$item, [string]$hitName, [string
 }
 
 function Scan-Tree([string]$root, [int]$minDepth, [int]$maxDepth, [string]$reasonPrefix) {
-  if (-not (Test-Path -LiteralPath $root)) { return }
+  if (-not (Test-Path -LiteralPath $root)) {
+    Write-Host "SKIP missing: $root"
+    return
+  }
+  Write-Host ("SCAN {0} depth {1}..{2}" -f $root, $minDepth, $maxDepth)
 
   Get-ChildItem -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+    if ($null -eq $_ -or [string]::IsNullOrWhiteSpace($_.FullName)) { return }
     if (Test-UnderPath $_.FullName $TargetRoot) { return }
 
     $depth = Get-DepthRelative $_.FullName $root
     if ($depth -lt $minDepth -or $depth -gt $maxDepth) { return }
-    if ($_.Name -match $skipNameRe) { return }
+    # 骨架名本身不登記，但其下子孫仍會以其他 pipeline 項目掃到
+    if ($_.Name -match $skipRegisterRe -and ($null -eq (Resolve-DestSub $_.Name))) { return }
 
     $rootNorm = $root.TrimEnd('\', '/')
     if ($_.FullName.TrimEnd('\', '/').Equals($rootNorm, [StringComparison]::OrdinalIgnoreCase)) { return }
@@ -136,7 +142,8 @@ function Scan-Tree([string]$root, [int]$minDepth, [int]$maxDepth, [string]$reaso
 
     $hitName = $null
     foreach ($p in $parts) {
-      if ($p -match $skipNameRe) { continue }
+      # 路徑中的「備份」等只跳過該節，繼續看後面有沒有弟子規／天圓
+      if ($p -match $skipRegisterRe -and ($null -eq (Resolve-DestSub $p))) { continue }
       if ($null -ne (Resolve-DestSub $p)) { $hitName = $p; break }
     }
     if ($null -eq $hitName) { return }
@@ -148,7 +155,7 @@ function Scan-Tree([string]$root, [int]$minDepth, [int]$maxDepth, [string]$reaso
     if (-not (Test-Path -LiteralPath $topFull)) { return }
 
     $topItem = Get-Item -LiteralPath $topFull -Force
-    if ($topItem.Name -match $skipNameRe) { return }
+    if ($topItem.Name -match $skipRegisterRe -and ($null -eq (Resolve-DestSub $topItem.Name))) { return }
     if (Test-UnderPath $topItem.FullName $TargetRoot) { return }
 
     Register-Hit $topItem $hitName $reasonPrefix
@@ -165,21 +172,16 @@ Get-ChildItem -LiteralPath $DriveRoot -Force -ErrorAction SilentlyContinue | For
   Register-Hit $_ $_.Name 'E-root'
 }
 
-# 2) 優先：E:\私人、E:\學校（含其下歸檔／其他學校／搬移衝突等）
+# 2) 優先：E:\私人、E:\學校（含備份深處，例如 私人\備份\…\弟子規）
 $privateRoot = Join-Path $DriveRoot '私人'
 $schoolRoot = Join-Path $DriveRoot '學校'
+$privateBackup = Join-Path $privateRoot '備份'
 Write-Host '======== 掃描 E:\私人 ========'
-if (Test-Path -LiteralPath $privateRoot) {
-  Scan-Tree $privateRoot 1 6 '私人'
-} else {
-  Write-Host 'SKIP missing: E:\私人'
-}
+Scan-Tree $privateRoot 1 8 '私人'
+Write-Host '======== 掃描 E:\私人\備份（加深）========'
+Scan-Tree $privateBackup 1 8 '私人\備份'
 Write-Host '======== 掃描 E:\學校 ========'
-if (Test-Path -LiteralPath $schoolRoot) {
-  Scan-Tree $schoolRoot 1 6 '學校'
-} else {
-  Write-Host 'SKIP missing: E:\學校'
-}
+Scan-Tree $schoolRoot 1 8 '學校'
 
 # 3) 可選：其他歸檔樹
 if ($AllArchives) {
