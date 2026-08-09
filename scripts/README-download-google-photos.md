@@ -1,32 +1,29 @@
 ﻿# 下載 Google 相簿 → E:\GOOGLE相簿
 
-Google 相簿**不是** `G:` Google Drive。
+## 建議：一次貼上（不依賴舊腳本）
 
-## 最快（本機已有 hello-world-tools）
+```powershell
+$dir = "$env:USERPROFILE\Desktop\hello-world-tools\scripts"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+# 防快取
+$url = "https://raw.githubusercontent.com/copyshae/hello-world/cursor/move-company-from-private-f39f/scripts/bootstrap-google-photos-to-e.ps1?t=$(Get-Random)"
+Invoke-WebRequest -Uri $url -OutFile "$dir\bootstrap-google-photos-to-e.ps1" -UseBasicParsing
+powershell -ExecutionPolicy Bypass -File "$dir\bootstrap-google-photos-to-e.ps1"
+```
+
+會自動：
+1. 下載免安裝 `rclone.exe` 到 `Desktop\hello-world-tools\tools\rclone\`
+2. 開 `rclone config`（名稱填 `gphotos`，選 Google Photos）
+3. 下載到 `E:\GOOGLE相簿\全部媒體` 與 `相簿`
+
+## 或分步腳本
 
 ```powershell
 cd $env:USERPROFILE\Desktop\hello-world-tools
-
-# 重新抓最新腳本
-$base = "https://raw.githubusercontent.com/copyshae/hello-world/cursor/move-company-from-private-f39f/scripts"
-Invoke-WebRequest -Uri "$base/download-google-photos-to-e.ps1" -OutFile ".\scripts\download-google-photos-to-e.ps1" -UseBasicParsing
-
-# 下載免安裝 rclone + 瀏覽器授權 + 下載相簿
-powershell -ExecutionPolicy Bypass -File .\scripts\download-google-photos-to-e.ps1 -InstallRclone -Setup
+$url = "https://raw.githubusercontent.com/copyshae/hello-world/cursor/move-company-from-private-f39f/scripts/download-google-photos-to-e.ps1?t=$(Get-Random)"
+Invoke-WebRequest -Uri $url -OutFile ".\scripts\download-google-photos-to-e.ps1" -UseBasicParsing
+powershell -ExecutionPolicy Bypass -File .\scripts\download-google-photos-to-e.ps1 -Setup
 powershell -ExecutionPolicy Bypass -File .\scripts\download-google-photos-to-e.ps1 -Execute
 ```
 
-`-InstallRclone` 會把 `rclone.exe` 放到：
-
-`Desktop\hello-world-tools\tools\rclone\rclone.exe`
-
-（不依賴系統 PATH，可避開 winget 裝完仍找不到的問題）
-
-## 目錄
-
-- `E:\GOOGLE相簿\全部媒體`
-- `E:\GOOGLE相簿\相簿`
-
-## 替代：Google Takeout
-
-https://takeout.google.com/ → 只勾「Google 相簿」→ 解壓到 `E:\GOOGLE相簿`
+（已改為**不走 winget**；缺少 rclone 時直接下載 zip）
