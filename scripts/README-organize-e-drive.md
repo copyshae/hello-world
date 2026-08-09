@@ -4,8 +4,20 @@
 
 ## 步驟（請開 PowerShell，不要只開資料夾）
 
+雲端 Agent **無法** 代你搬本機 `E:\`，必須在這台 Windows 執行。
+
 1. 鍵盤 `Win + X` → 選 **Windows PowerShell** 或 **終端機**
-2. 貼上（`hello-world` 路徑請改成你的）：
+2. **推薦一鍵**（自動找倉庫、pull、預覽；加 `-Execute` 會再問一次 Y 才搬）：
+
+```powershell
+cd $env:USERPROFILE\Desktop\hello-world
+git pull
+git checkout cursor/move-company-from-private-f39f
+powershell -ExecutionPolicy Bypass -File .\scripts\run-organize-local.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\run-organize-local.ps1 -Execute
+```
+
+3. 或手動分步：
 
 ```powershell
 cd $env:USERPROFILE\Desktop\hello-world
