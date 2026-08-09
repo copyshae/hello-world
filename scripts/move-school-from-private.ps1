@@ -261,7 +261,7 @@ foreach ($c in $candidates) {
           if (Test-Path -LiteralPath $childDest) {
             $conflictDir = Join-Path $SchoolRoot '_搬移衝突'
             Ensure-Dir $conflictDir
-            $alt = Join-Path $conflictDir ($_.Name + '_fromE_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
+            $alt = Join-Path $conflictDir ($_.Name + '_衝突_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
             Move-Item -LiteralPath $_.FullName -Destination $alt -Force
             $conflicted++
             $log.Add("MERGE-CONFLICT $($_.FullName) -> $alt")
@@ -280,7 +280,7 @@ foreach ($c in $candidates) {
       }
       $conflictDir = Join-Path $SchoolRoot '_搬移衝突'
       Ensure-Dir $conflictDir
-      $dest = Join-Path $conflictDir ($name + '_fromE_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
+      $dest = Join-Path $conflictDir ($name + '_衝突_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
       $conflicted++
       $log.Add("CONFLICT -> $dest")
     }

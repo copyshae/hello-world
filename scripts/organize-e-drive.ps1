@@ -79,7 +79,13 @@ Invoke-Step 'move-clear-e-company.ps1' @(
 )
 
 Write-Host ""
-Write-Host "======== 5/5 清除搬移日誌／衝突內空白資料夾 ========"
+Write-Host "======== 5/6 搬移衝突檔名去掉 fromE 等後綴 ========"
+Invoke-Step 'rename-conflict-strip-from.ps1' @(
+  '-DriveRoot', $DriveRoot
+)
+
+Write-Host ""
+Write-Host "======== 6/6 清除搬移日誌／衝突內空白資料夾 ========"
 Invoke-Step 'clear-empty-move-folders.ps1' @(
   '-DriveRoot', $DriveRoot
 )
