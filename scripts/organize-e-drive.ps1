@@ -80,4 +80,5 @@ if (-not $Execute) {
 } else {
   Write-Host "已執行搬移。請在檔案總管按 F5 重新整理 E:\ 。"
   Write-Host "應看到：私人、學校、超級生命密碼、公司（若有匹配項目）。"
+  Write-Host "E:\私人\公司 若已搬空會被清除；目的地 E:\公司 會保留。"
 }

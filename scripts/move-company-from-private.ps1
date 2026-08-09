@@ -105,8 +105,8 @@ if (Test-Path -LiteralPath $nestedCompany) {
     }
     Add-Candidate $_.FullName $destDir 'private\公司\to-company' $_.PSIsContainer
   }
-  # 搬完內容後，空的「私人\公司」也排程移走（改名放日誌區，不刪）
-  Add-Candidate $nestedCompany (Join-Path $CompanyRoot '_搬移日誌') 'empty-shell-private\公司' $true
+  # 搬完內容後，清除「私人\公司」空殼（刪除，不留在 E:\）
+  Add-Candidate $nestedCompany $CompanyRoot 'remove-shell-private\公司' $true
 }
 
 # 2) 掃私人底下（深度有限）：名稱命中公司關鍵字的項目
@@ -177,12 +177,32 @@ $moved = 0
 $skipped = 0
 $conflicted = 0
 
+$removedShells = 0
+
 foreach ($c in $candidates) {
   $name = Split-Path -Leaf $c.Source
-  # 私人\公司 空殼：改名標記後放日誌區，避免與真資料混淆
-  if ($c.Reason -eq 'empty-shell-private\公司') {
-    $name = '_已清空_原私人公司資料夾'
+
+  # 私人\公司 空殼：搬完後直接刪除
+  if ($c.Reason -eq 'remove-shell-private\公司') {
+    $line = "[REMOVE] {0} ({1})" -f $c.Source, $c.Reason
+    Write-Host $line
+    $log.Add($line)
+    if (-not $Execute) { continue }
+    try {
+      if (Test-Path -LiteralPath $c.Source) {
+        Remove-Item -LiteralPath $c.Source -Recurse -Force
+        $removedShells++
+        $log.Add("REMOVED $($c.Source)")
+        Write-Host "已清除: $($c.Source)"
+      }
+    } catch {
+      $skipped++
+      $log.Add("ERR-REMOVE $($c.Source) :: $($_.Exception.Message)")
+      Write-Warning $_.Exception.Message
+    }
+    continue
   }
+
   $dest = Join-Path $c.DestDir $name
   $line = "[{0}] {1} -> {2} ({3})" -f $(if ($c.IsDir) { 'DIR' } else { 'FILE' }), $c.Source, $dest, $c.Reason
   Write-Host $line
@@ -210,11 +230,18 @@ foreach ($c in $candidates) {
             $log.Add("MERGE $($_.FullName) -> $childDest")
           }
         }
-        # 來源空殼不刪：改放到日誌區標記
-        $shellDest = Join-Path (Join-Path $CompanyRoot '_搬移日誌') ('_已合併_' + $name + '_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
+        # 合併後來源空殼直接刪除
         if (Test-Path -LiteralPath $c.Source) {
-          Move-Item -LiteralPath $c.Source -Destination $shellDest -Force
-          $log.Add("MERGED-SHELL -> $shellDest")
+          $left = @(Get-ChildItem -LiteralPath $c.Source -Force -ErrorAction SilentlyContinue)
+          if ($left.Count -eq 0) {
+            Remove-Item -LiteralPath $c.Source -Force
+            $removedShells++
+            $log.Add("REMOVED-EMPTY-SOURCE $($c.Source)")
+          } else {
+            Remove-Item -LiteralPath $c.Source -Recurse -Force
+            $removedShells++
+            $log.Add("REMOVED-SOURCE-RECURSE $($c.Source)")
+          }
         }
         $moved++
         continue
@@ -234,15 +261,36 @@ foreach ($c in $candidates) {
   }
 }
 
+# 搬移結束後再清一次：若 E:\私人\公司 仍在且無內容則刪
+function Clear-PrivateCompanyShell {
+  $shell = Join-Path $PrivateRoot '公司'
+  if (-not (Test-Path -LiteralPath $shell)) { return }
+  $left = @(Get-ChildItem -LiteralPath $shell -Force -ErrorAction SilentlyContinue)
+  $line = "post-clear private\公司 leftover={0}" -f $left.Count
+  Write-Host $line
+  $log.Add($line)
+  if (-not $Execute) { return }
+  if ($left.Count -eq 0) {
+    Remove-Item -LiteralPath $shell -Force
+    $script:removedShells++
+    $log.Add("REMOVED $shell")
+    Write-Host "已清除: $shell"
+  } else {
+    Write-Warning "E:\私人\公司 尚有 $($left.Count) 項，未強制刪除。請檢查後再清。"
+  }
+}
+Clear-PrivateCompanyShell
+
 if ($Execute) {
   Ensure-Dir $logDir
-  $log.Add("done moved=$moved conflicted=$conflicted err=$skipped")
+  $log.Add("done moved=$moved conflicted=$conflicted err=$skipped removedShells=$removedShells")
   $log | Set-Content -LiteralPath $logPath -Encoding UTF8
   Write-Host ""
-  Write-Host "moved=$moved conflicted=$conflicted err=$skipped"
+  Write-Host "moved=$moved conflicted=$conflicted err=$skipped removedShells=$removedShells"
   Write-Host "log=$logPath"
 } else {
   Write-Host ""
   Write-Host "Dry-run 結束。確認列表無誤後執行："
   Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\move-company-from-private.ps1 -Execute"
+  Write-Host "Execute 後會清除已搬空的 E:\私人\公司。"
 }

@@ -23,8 +23,17 @@ powershell -ExecutionPolicy Bypass -File .\scripts\move-company-from-private.ps1
 | 目的 | `E:\公司\`（公文合約／財務報銷／掃描檔） |
 | 匹配 | 名稱含 `公司`、`上班`、`公文`、`報銷` 等 |
 | 略過 | 私人骨架；天圓／弟子規／生命密碼（`move-super-life-code.ps1`）；學校類（`move-school-from-private.ps1`） |
-| 刪檔 | **不刪**；目的資料夾已存在則**合併內容**；檔名衝突才進 `_搬移衝突` |
+| 刪檔 | 真資料只搬不刪；**搬空後會清除 `E:\私人\公司`**（不再留空殼） |
 | 日誌 | `E:\公司\_搬移日誌\move-company_*.txt` |
+
+## 只清公司空殼（移動已做完時）
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\clear-private-company-folder.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\clear-private-company-folder.ps1 -Execute
+```
+
+不會刪 `E:\公司`（目的地）。若 `私人\公司` 還有殘留要連刪，加 `-Force`。
 
 ## 與其他腳本的關係
 
