@@ -162,19 +162,27 @@ Get-ChildItem -LiteralPath $DriveRoot -Force -ErrorAction SilentlyContinue | For
   Register-Hit $_ $_.Name 'E-root'
 }
 
-# 2) 常見歸檔樹（有限深度）
+# 2) 常見歸檔樹（加深：私人\文件歸檔\天圓… 常在深度 3～4）
 $scanRoots = @(
   (Join-Path $DriveRoot '私人'),
+  (Join-Path $DriveRoot '學校'),
   (Join-Path $DriveRoot '公司'),
   (Join-Path $DriveRoot '文件歸檔'),
   (Join-Path $DriveRoot '影音歸檔'),
   (Join-Path $DriveRoot '圖片歸檔'),
   (Join-Path $DriveRoot '桌面歸檔'),
-  (Join-Path $DriveRoot '下載歸檔')
+  (Join-Path $DriveRoot '下載歸檔'),
+  (Join-Path (Join-Path $DriveRoot '私人') '文件歸檔'),
+  (Join-Path (Join-Path $DriveRoot '私人') '影音歸檔'),
+  (Join-Path (Join-Path $DriveRoot '私人') '圖片歸檔'),
+  (Join-Path (Join-Path $DriveRoot '私人') '桌面歸檔'),
+  (Join-Path (Join-Path $DriveRoot '私人') '下載歸檔')
 )
 foreach ($r in $scanRoots) {
-  $label = Split-Path -Leaf $r
-  Scan-Tree $r 1 3 $label
+  if (-not (Test-Path -LiteralPath $r)) { continue }
+  $label = $r.Substring($DriveRoot.TrimEnd('\').Length).TrimStart('\')
+  if ([string]::IsNullOrWhiteSpace($label)) { $label = Split-Path -Leaf $r }
+  Scan-Tree $r 1 5 $label
 }
 
 $logDir = Join-Path $TargetRoot '_搬移日誌'
