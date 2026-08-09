@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   在 E:\ 建立第一層「超級生命密碼」，並將相關資料夾／檔案移入。

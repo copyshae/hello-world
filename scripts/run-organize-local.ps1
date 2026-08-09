@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   本機一鍵：找到 hello-world → pull → checkout → 預覽 → 確認後整理 E:\

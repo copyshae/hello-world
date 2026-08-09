@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   從 E:\私人 找出公司類資料夾／檔案，搬到上層 E:\公司。

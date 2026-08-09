@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   一鍵整理 E:\：超級生命密碼 → 學校 → 公司（預設 Dry-run）。

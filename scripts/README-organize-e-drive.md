@@ -6,6 +6,9 @@
 
 雲端 Agent **無法** 代你搬本機 `E:\`，必須在這台 Windows 執行。
 
+腳本已存成 **UTF-8 BOM**（給 Windows PowerShell 5.1）。若出現「未預期的語彙基元／字串遺漏結尾」，請先 `git pull` 再跑。
+
+
 1. 鍵盤 `Win + X` → 選 **Windows PowerShell** 或 **終端機**
 2. **推薦一鍵**（自動找倉庫、pull、預覽；加 `-Execute` 會再問一次 Y 才搬）：
 

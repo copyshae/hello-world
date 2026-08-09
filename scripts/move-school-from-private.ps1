@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   將學校相關資料夾／檔案整理到 E:\學校（第一層）。
