@@ -17,10 +17,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+try {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
-[System.Windows.Forms.Application]::SetCompatibleTextRenderingDefault($false)
 
 if ([string]::IsNullOrWhiteSpace($DataDir)) {
   $DataDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -485,14 +485,21 @@ $mainForm.Controls.AddRange(@(
 Refresh-List
 if ($list.Items.Count -gt 0) { $list.SelectedIndex = 0 }
 
-try {
-  [void]$mainForm.ShowDialog()
+[void]$mainForm.ShowDialog()
+
 } catch {
-  [void][System.Windows.Forms.MessageBox]::Show(
-    ("程式錯誤：{0}" -f $_.Exception.Message),
-    '護眼提醒',
-    [System.Windows.Forms.MessageBoxButtons]::OK,
-    [System.Windows.Forms.MessageBoxIcon]::Error
-  )
-  throw
+  try {
+    Add-Type -AssemblyName System.Windows.Forms -ErrorAction SilentlyContinue
+    [void][System.Windows.Forms.MessageBox]::Show(
+      ("啟動失敗（不會一閃就沒）：`n`n{0}" -f $_.Exception.Message),
+      '護眼提醒',
+      [System.Windows.Forms.MessageBoxButtons]::OK,
+      [System.Windows.Forms.MessageBoxIcon]::Error
+    )
+  } catch {
+    # 最後手段：寫入桌面錯誤檔
+    $errFile = Join-Path ([Environment]::GetFolderPath('Desktop')) '護眼提醒-錯誤.txt'
+    Set-Content -LiteralPath $errFile -Value $_.Exception.ToString() -Encoding UTF8
+  }
+  exit 1
 }
