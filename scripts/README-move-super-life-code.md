@@ -31,4 +31,5 @@ powershell -ExecutionPolicy Bypass -File .\scripts\move-super-life-code.ps1 -Exe
 
 1. `move-private-from-backup.ps1`（備份 → 私人）
 2. `move-super-life-code.ps1`（天圓／弟子規／修行 → 超級生命密碼）
-3. `move-company-from-private.ps1`（其餘公司檔 → 公司；已不含天圓類）
+3. `move-school-from-private.ps1`（學校類 → 學校）
+4. `move-company-from-private.ps1`（其餘公司檔 → 公司）

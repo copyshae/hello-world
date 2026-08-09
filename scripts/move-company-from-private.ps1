@@ -50,8 +50,9 @@ $rules = @(
 # 私人分類骨架與工具目錄：不整包當「公司」搬走
 $privateSkeletonRe = '^(財務|家庭|證件合約|掃描檔|車禍事故|密碼與金鑰|醫療健康|_搬移衝突|_搬移日誌|_搬移)'
 
-# 修行／天圓類留給 E:\超級生命密碼，公司腳本略過
+# 修行／天圓類留給 E:\超級生命密碼；學校類留給 E:\學校
 $superLifeSkipRe = '超級生命密碼|生命密碼|天圓|鳴馨|文化事業|太陽盛德|弟子規|身心靈|修行|滋養研究'
+$schoolSkipRe = '^(school|\d{3}學年school)$|學年school|\d{3}學年|衛生組|健促|健康促進|科展|科學營|試題|教案|公開課|請假|打掃|掃地|教室分佈|學校|班級|教室|彰安|配課|課表|班親'
 
 function Resolve-CompanyDest([string]$name) {
   foreach ($r in $rules) {
@@ -65,6 +66,7 @@ function Should-Skip([System.IO.FileSystemInfo]$item) {
   $name = $item.Name
   if ($name -match $privateSkeletonRe) { return $true }
   if ($name -match $superLifeSkipRe) { return $true }
+  if ($name -match $schoolSkipRe) { return $true }
   return $false
 }
 
@@ -91,6 +93,7 @@ $nestedCompany = Join-Path $PrivateRoot '公司'
 if (Test-Path -LiteralPath $nestedCompany) {
   Get-ChildItem -LiteralPath $nestedCompany -Force | ForEach-Object {
     if ($_.Name -match $superLifeSkipRe) { return }
+    if ($_.Name -match $schoolSkipRe) { return }
     $sub = Resolve-CompanyDest $_.Name
     if ($null -eq $sub) { $sub = '' }
     if ($sub -and $_.PSIsContainer -and ($_.Name -eq $sub)) {

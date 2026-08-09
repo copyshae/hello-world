@@ -46,7 +46,7 @@ $rules = @(
 )
 
 # 不整包搬走的私人骨架／工具名
-$skipNameRe = '^(財務|家庭|證件合約|掃描檔|車禍事故|密碼與金鑰|醫療健康|公司|備份|工具軟體|桌面歸檔|下載歸檔|文件歸檔|圖片歸檔|影音歸檔|_搬移衝突|_搬移日誌|_搬移|System Volume Information|\$RECYCLE\.BIN)$'
+$skipNameRe = '^(財務|家庭|證件合約|掃描檔|車禍事故|密碼與金鑰|醫療健康|公司|學校|備份|工具軟體|桌面歸檔|下載歸檔|文件歸檔|圖片歸檔|影音歸檔|_搬移衝突|_搬移日誌|_搬移|System Volume Information|\$RECYCLE\.BIN)$'
 
 function Resolve-DestSub([string]$name) {
   foreach ($r in $rules) {
