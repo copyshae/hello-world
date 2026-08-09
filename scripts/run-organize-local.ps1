@@ -82,9 +82,13 @@ if (-not $Execute) {
 
 if (-not $SkipConfirm) {
   Write-Host ''
-  $ans = Read-Host '確認要真正搬移 E:\ 嗎？輸入 Y 繼續'
-  if ($ans -ne 'Y' -and $ans -ne 'y') {
-    Write-Host '已取消，未搬移。'
+  Write-Host '接下來會真正搬移檔案。請只輸入一個字母 Y 後按 Enter（也可輸入 YES / 是）。'
+  $ans = (Read-Host '確認搬移？').Trim()
+  $ok = @('Y', 'y', 'YES', 'Yes', 'yes', '是') -contains $ans
+  if (-not $ok) {
+    Write-Host "已取消（你輸入的是「$ans」）。未搬移。"
+    Write-Host '若要略過詢問，可改跑：'
+    Write-Host "  powershell -ExecutionPolicy Bypass -File `"$PSCommandPath`" -Execute -SkipConfirm"
     exit 0
   }
 }
