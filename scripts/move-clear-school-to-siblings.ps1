@@ -1,19 +1,19 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  將 E:\學校 內所有內容歸類到同層其他目錄（超級生命密碼／從學校移入等），並清空學校目錄。
+  將 E:\學校 內檔案搬到合適的同層目錄，並清空學校（不重建私人）。
 
 .DESCRIPTION
-  目的同層（E:\ 第一層；不重建 E:\私人）：
-    - 超碼／生命密碼／天圓／弟子規／身心靈 → E:\超級生命密碼\（對應子夾）
-    - 其餘 → E:\從學校移入（同層新資料夾）
-  搬完後刪除空的 E:\學校（含殘留則 -Force 才整包刪）。
-  預設 Dry-run；加 -Execute 才搬／刪。
+  - 超碼／天圓／弟子規／身心靈 → E:\超級生命密碼\…
+  - 影音類名稱／影音骨架 → E:\影音歸檔（若存在）否則 E:\從學校移入\影音
+  - 圖片類 → E:\圖片歸檔（若存在）
+  - 文件／學年／試題／衛生等學校公務 → E:\文件歸檔\學校（若有文件歸檔）否則 E:\從學校移入
+  - 其餘 → E:\從學校移入
+  預設 Dry-run；-Execute 才搬；搬空後刪 E:\學校（殘留加 -Force）
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\scripts\move-clear-school-to-siblings.ps1
   powershell -ExecutionPolicy Bypass -File .\scripts\move-clear-school-to-siblings.ps1 -Execute
-  powershell -ExecutionPolicy Bypass -File .\scripts\move-clear-school-to-siblings.ps1 -Execute -Force
 #>
 [CmdletBinding()]
 param(
@@ -33,10 +33,14 @@ if (-not (Test-Path -LiteralPath $SchoolRoot)) {
 }
 
 $superRoot = Join-Path $DriveRoot '超級生命密碼'
-# 不重建 E:\私人；其餘學校內容放到同層 E:\從學校移入
-$schoolIngest = Join-Path $DriveRoot '從學校移入'
+$ingestRoot = Join-Path $DriveRoot '從學校移入'
+$docRoot = Join-Path $DriveRoot '文件歸檔'
+$avRoot = Join-Path $DriveRoot '影音歸檔'
+$imgRoot = Join-Path $DriveRoot '圖片歸檔'
+$deskRoot = Join-Path $DriveRoot '桌面歸檔'
 
 function Ensure-Dir([string]$p) {
+  if ([string]::IsNullOrWhiteSpace($p)) { return }
   if (-not (Test-Path -LiteralPath $p)) {
     if ($Execute) { New-Item -ItemType Directory -Path $p -Force | Out-Null }
     Write-Host "MKDIR $p"
@@ -55,29 +59,49 @@ function Get-UniqueDest([string]$dir, [string]$name) {
   throw "無法唯一命名: $name"
 }
 
-function Resolve-Dest([string]$name) {
-  if ($name -match '天圓|鳴馨|太陽盛德|文化事業') {
-    return (Join-Path $superRoot '天圓文化')
+function Resolve-Dest([System.IO.FileSystemInfo]$item) {
+  $name = $item.Name
+  $ext = if ($item.PSIsContainer) { '' } else { $item.Extension.ToLowerInvariant() }
+
+  # 1) 超碼體系
+  if ($name -match '天圓|鳴馨|太陽盛德|文化事業') { return (Join-Path $superRoot '天圓文化') }
+  if ($name -match '弟子規|弟子歸') { return (Join-Path $superRoot '弟子規') }
+  if ($name -match '超級生命密碼|生命密碼|超碼') { return (Join-Path $superRoot '超級生命密碼') }
+  if ($name -match '身心靈|修行|滋養研究|人生成長實作') { return (Join-Path $superRoot '身心靈修行') }
+
+  # 2) 影音
+  if ($name -match '影音|影片|歌曲|音樂|錄音' -or $ext -in @('.mp4', '.mkv', '.avi', '.mov', '.mp3', '.wav', '.m4a', '.wmv')) {
+    if (Test-Path -LiteralPath $avRoot) { return $avRoot }
+    return (Join-Path $ingestRoot '影音')
   }
-  if ($name -match '弟子規|弟子歸') {
-    return (Join-Path $superRoot '弟子規')
+
+  # 3) 圖片
+  if ($name -match '圖片|相片|照片' -or $ext -in @('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tif', '.webp')) {
+    if (Test-Path -LiteralPath $imgRoot) { return $imgRoot }
+    return (Join-Path $ingestRoot '圖片')
   }
-  if ($name -match '超級生命密碼|生命密碼|超碼') {
-    return (Join-Path $superRoot '超級生命密碼')
+
+  # 4) 學校公務／文件
+  if ($name -match '學年|試題|教案|衛生|健促|科展|請假|打掃|掃地|教室|班級|學校|課表|配課|彰安|文件|公文|掃描' -or
+      $name -match '^(學年資料|衛生健促|科展科學營|試題教案|請假|打掃區域|其他學校|_搬移衝突|_搬移日誌)$' -or
+      $ext -in @('.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf', '.txt')) {
+    if (Test-Path -LiteralPath $docRoot) { return (Join-Path $docRoot '學校') }
+    return $ingestRoot
   }
-  if ($name -match '身心靈|修行|滋養研究|人生成長實作') {
-    return (Join-Path $superRoot '身心靈修行')
+
+  # 5) 桌面相關
+  if ($name -match '桌面' -and (Test-Path -LiteralPath $deskRoot)) {
+    return $deskRoot
   }
-  # 其餘學校內容 → E:\從學校移入（同層，不經私人）
-  return $schoolIngest
+
+  return $ingestRoot
 }
 
 Write-Host ("Mode: {0}" -f ($(if ($Execute) { 'EXECUTE' } else { 'DRY-RUN' })))
 Write-Host ("SchoolRoot: {0}" -f $SchoolRoot)
-Write-Host '規則: 超碼／天圓／弟子規 → E:\超級生命密碼\… ；其餘 → E:\從學校移入（不重建私人）'
+Write-Host '規則: 超碼→超級生命密碼；影音/圖片→對應歸檔（若有）；學校文件→文件歸檔\學校 或 從學校移入；不重建私人'
 Write-Host ''
 
-# 同層目錄一覽
 Write-Host '======== E:\ 同層目錄 ========'
 Get-ChildItem -LiteralPath $DriveRoot -Force -ErrorAction SilentlyContinue |
   Where-Object { $_.PSIsContainer } |
@@ -87,7 +111,8 @@ Ensure-Dir $superRoot
 foreach ($s in @('超級生命密碼', '天圓文化', '弟子規', '身心靈修行')) {
   Ensure-Dir (Join-Path $superRoot $s)
 }
-Ensure-Dir $schoolIngest
+Ensure-Dir $ingestRoot
+if (Test-Path -LiteralPath $docRoot) { Ensure-Dir (Join-Path $docRoot '學校') }
 
 $items = @(Get-ChildItem -LiteralPath $SchoolRoot -Force -ErrorAction SilentlyContinue)
 Write-Host ("E:\學校 第一層項目: {0}" -f $items.Count)
@@ -96,17 +121,8 @@ $moved = 0
 $err = 0
 
 foreach ($item in $items) {
-  # 略過純日誌文字可跟著走；空殼分類夾也搬／合併
-  $destDir = Resolve-Dest $item.Name
-
-  # 若是學校骨架子夾（學年資料等），整包進 E:\從學校移入\原名
-  if ($item.PSIsContainer -and ($item.Name -match '^(學年資料|衛生健促|科展科學營|試題教案|請假|打掃區域|其他學校|_搬移衝突|_搬移日誌)$')) {
-    $destDir = $schoolIngest
-  }
-
+  $destDir = Resolve-Dest $item
   Ensure-Dir $destDir
-
-  # 目的已有同名資料夾 → 合併子項
   $dest = Join-Path $destDir $item.Name
   Write-Host ("[{0}] {1}" -f ($(if ($item.PSIsContainer) { 'DIR' } else { 'FILE' }), $item.FullName))
   Write-Host ("     -> {0}" -f $dest)
@@ -135,7 +151,6 @@ foreach ($item in $items) {
 }
 
 Write-Host ''
-# 清空學校
 $left = @()
 if (Test-Path -LiteralPath $SchoolRoot) {
   $left = @(Get-ChildItem -LiteralPath $SchoolRoot -Force -ErrorAction SilentlyContinue)
@@ -148,9 +163,9 @@ if ($Execute) {
     Write-Host '已刪除空的 E:\學校'
   } elseif ($Force) {
     Remove-Item -LiteralPath $SchoolRoot -Recurse -Force
-    Write-Host '已 -Force 刪除 E:\學校（含殘留）'
+    Write-Host '已 -Force 刪除 E:\學校'
   } else {
-    Write-Host '尚有殘留，未刪 E:\學校。確認後可加 -Force：'
+    Write-Host '尚有殘留。可加 -Force 刪除資料夾：'
     Write-Host '  powershell -ExecutionPolicy Bypass -File .\scripts\move-clear-school-to-siblings.ps1 -Execute -Force'
     foreach ($x in $left) { Write-Host ("  LEFT {0}" -f $x.FullName) }
   }
