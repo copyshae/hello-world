@@ -186,13 +186,38 @@ foreach ($c in $candidates) {
   try {
     Ensure-Dir $c.DestDir
     if (Test-Path -LiteralPath $dest) {
+      $destItem = Get-Item -LiteralPath $dest -Force
+      # 目的已是資料夾（含預建骨架）：合併內容，避免 天圓文化 → 天圓文化 假衝突
+      if ($c.IsDir -and $destItem.PSIsContainer) {
+        Get-ChildItem -LiteralPath $c.Source -Force | ForEach-Object {
+          $childDest = Join-Path $dest $_.Name
+          if (Test-Path -LiteralPath $childDest) {
+            $conflictDir = Join-Path $CompanyRoot '_搬移衝突'
+            Ensure-Dir $conflictDir
+            $alt = Join-Path $conflictDir ($_.Name + '_fromPrivate_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
+            Move-Item -LiteralPath $_.FullName -Destination $alt -Force
+            $conflicted++
+            $log.Add("MERGE-CONFLICT $($_.FullName) -> $alt")
+          } else {
+            Move-Item -LiteralPath $_.FullName -Destination $childDest -Force
+            $log.Add("MERGE $($_.FullName) -> $childDest")
+          }
+        }
+        # 來源空殼不刪：改放到日誌區標記
+        $shellDest = Join-Path (Join-Path $CompanyRoot '_搬移日誌') ('_已合併_' + $name + '_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
+        if (Test-Path -LiteralPath $c.Source) {
+          Move-Item -LiteralPath $c.Source -Destination $shellDest -Force
+          $log.Add("MERGED-SHELL -> $shellDest")
+        }
+        $moved++
+        continue
+      }
       $conflictDir = Join-Path $CompanyRoot '_搬移衝突'
       Ensure-Dir $conflictDir
-      $dest = Join-Path $conflictDir ($name + '_fromPrivate_' + (Get-Date -Format 'yyyyMMddHHmmss'))
+      $dest = Join-Path $conflictDir ($name + '_fromPrivate_' + (Get-Date -Format 'yyyyMMddHHmmssfff'))
       $conflicted++
       $log.Add("CONFLICT -> $dest")
     }
-    # 若是空殼且裡面可能還有殘件，仍整包 Move
     Move-Item -LiteralPath $c.Source -Destination $dest -Force
     $moved++
   } catch {
