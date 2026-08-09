@@ -1,0 +1,14 @@
+﻿{
+  "dayStart": "07:30",
+  "dayEnd": "17:00",
+  "lunchTime": "12:00",
+  "dinnerTime": "18:00",
+  "probioticTime": "21:00",
+  "bedtimeDropsTime": "22:00",
+  "eyeRestEveryMinutes": 20,
+  "eyeRestSeconds": 20,
+  "longEyeRestEveryMinutes": 60,
+  "longEyeRestMinutes": 5,
+  "waterEveryMinutes": 60,
+  "notes": "時程可改；用藥劑量請依醫師指示，本設定只做提醒不開藥囑。"
+}
