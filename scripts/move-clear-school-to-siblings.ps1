@@ -35,6 +35,22 @@ if (-not (Test-Path -LiteralPath $SchoolRoot)) {
 
 $privateRoot = Join-Path $DriveRoot '私人'
 $superRoot = Join-Path $DriveRoot '超級生命密碼'
+
+# 若 E:\私人 不在，嘗試找出被改名／搬走的「私人」；找不到就重建空的 E:\私人
+if (-not (Test-Path -LiteralPath $privateRoot)) {
+  Write-Host '警告：沒有 E:\私人，正在搜尋…'
+  $foundPrivate = @(Get-ChildItem -LiteralPath $DriveRoot -Recurse -Directory -Force -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -eq '私人' } | Select-Object -First 5)
+  if ($foundPrivate.Count -gt 0) {
+    Write-Host '找到名為「私人」的路徑：'
+    foreach ($f in $foundPrivate) { Write-Host ("  {0}" -f $f.FullName) }
+    $privateRoot = $foundPrivate[0].FullName
+    Write-Host ("將使用: {0}" -f $privateRoot)
+  } else {
+    Write-Host '未找到「私人」資料夾 → 將在 E:\ 重建 E:\私人'
+  }
+}
+
 $privateIngest = Join-Path $privateRoot '從學校移入'
 
 function Ensure-Dir([string]$p) {
