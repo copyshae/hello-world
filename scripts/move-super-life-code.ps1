@@ -18,6 +18,8 @@
 param(
   [string]$DriveRoot = 'E:\',
   [string]$TargetRoot = 'E:\超級生命密碼',
+  # 預設只掃私人＋學校（符合「私人以及學校中…移到超級生命密碼」）
+  [switch]$AllArchives,
   [switch]$Execute
 )
 
@@ -162,27 +164,38 @@ Get-ChildItem -LiteralPath $DriveRoot -Force -ErrorAction SilentlyContinue | For
   Register-Hit $_ $_.Name 'E-root'
 }
 
-# 2) 常見歸檔樹（加深：私人\文件歸檔\天圓… 常在深度 3～4）
-$scanRoots = @(
-  (Join-Path $DriveRoot '私人'),
-  (Join-Path $DriveRoot '學校'),
-  (Join-Path $DriveRoot '公司'),
-  (Join-Path $DriveRoot '文件歸檔'),
-  (Join-Path $DriveRoot '影音歸檔'),
-  (Join-Path $DriveRoot '圖片歸檔'),
-  (Join-Path $DriveRoot '桌面歸檔'),
-  (Join-Path $DriveRoot '下載歸檔'),
-  (Join-Path (Join-Path $DriveRoot '私人') '文件歸檔'),
-  (Join-Path (Join-Path $DriveRoot '私人') '影音歸檔'),
-  (Join-Path (Join-Path $DriveRoot '私人') '圖片歸檔'),
-  (Join-Path (Join-Path $DriveRoot '私人') '桌面歸檔'),
-  (Join-Path (Join-Path $DriveRoot '私人') '下載歸檔')
-)
-foreach ($r in $scanRoots) {
-  if (-not (Test-Path -LiteralPath $r)) { continue }
-  $label = $r.Substring($DriveRoot.TrimEnd('\').Length).TrimStart('\')
-  if ([string]::IsNullOrWhiteSpace($label)) { $label = Split-Path -Leaf $r }
-  Scan-Tree $r 1 5 $label
+# 2) 優先：E:\私人、E:\學校（含其下歸檔／其他學校／搬移衝突等）
+$privateRoot = Join-Path $DriveRoot '私人'
+$schoolRoot = Join-Path $DriveRoot '學校'
+Write-Host '======== 掃描 E:\私人 ========'
+if (Test-Path -LiteralPath $privateRoot) {
+  Scan-Tree $privateRoot 1 6 '私人'
+} else {
+  Write-Host 'SKIP missing: E:\私人'
+}
+Write-Host '======== 掃描 E:\學校 ========'
+if (Test-Path -LiteralPath $schoolRoot) {
+  Scan-Tree $schoolRoot 1 6 '學校'
+} else {
+  Write-Host 'SKIP missing: E:\學校'
+}
+
+# 3) 可選：其他歸檔樹
+if ($AllArchives) {
+  Write-Host '======== 掃描其他歸檔（-AllArchives）========'
+  $extraRoots = @(
+    (Join-Path $DriveRoot '公司'),
+    (Join-Path $DriveRoot '文件歸檔'),
+    (Join-Path $DriveRoot '影音歸檔'),
+    (Join-Path $DriveRoot '圖片歸檔'),
+    (Join-Path $DriveRoot '桌面歸檔'),
+    (Join-Path $DriveRoot '下載歸檔')
+  )
+  foreach ($r in $extraRoots) {
+    if (-not (Test-Path -LiteralPath $r)) { continue }
+    $label = Split-Path -Leaf $r
+    Scan-Tree $r 1 5 $label
+  }
 }
 
 $logDir = Join-Path $TargetRoot '_搬移日誌'
@@ -195,6 +208,12 @@ $log.Add(("candidates={0}" -f $candidates.Count))
 Write-Host ("Mode: {0}" -f ($(if ($Execute) { 'EXECUTE' } else { 'DRY-RUN（加 -Execute 才會真的搬）' })))
 Write-Host ("Target: {0}" -f $TargetRoot)
 Write-Host ("Candidates: {0}" -f $candidates.Count)
+
+if ($candidates.Count -eq 0) {
+  Write-Host ''
+  Write-Host '沒有找到可搬項目。可在本機檢查：'
+  Write-Host "  Get-ChildItem E:\私人,E:\學校 -Recurse -Depth 4 -Force -ErrorAction SilentlyContinue | Where-Object { `$_.Name -match '超級生命密碼|生命密碼|天圓|弟子規|鳴馨|太陽盛德' } | Select-Object -ExpandProperty FullName"
+}
 
 $moved = 0
 $skipped = 0
