@@ -5,8 +5,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
@@ -708,6 +710,369 @@ def build_class_learning_report(out_dir: Path) -> Path:
     return md_path
 
 
+
+# ----- 練習回傳閉環：批閱 → 針對回饋 → 調題再練 → 分數進步 -----
+
+RETURN_EXTS = {".pdf", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp"}
+
+
+def history_path(work_dir: Path, sid: str) -> Path:
+    return work_dir / "練習歷程" / f"{sid}-歷程.json"
+
+
+def load_history(work_dir: Path, sid: str) -> dict:
+    p = history_path(work_dir, sid)
+    if p.exists():
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {
+        "studentId": sid,
+        "goal": "針對問題點練到穩定掌握（建議正確率達目標分數）",
+        "targetScore": 80,
+        "attempts": [],
+    }
+
+
+def save_history(work_dir: Path, data: dict) -> Path:
+    sid = str(data.get("studentId", "00")).zfill(2)
+    data["studentId"] = sid
+    p = history_path(work_dir, sid)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return p
+
+
+def parse_return_round(stem: str, sid: str) -> int | None:
+    """Parse round from 05-R01 / 05-第2次 / 05_3 / 05-2."""
+    s = stem
+    if sid and s.startswith(sid):
+        s = s[len(sid) :]
+    s = s.lstrip("-_")
+    m = re.search(r"[Rr]0*(\d+)", s)
+    if m:
+        return int(m.group(1))
+    m = re.search(r"第\s*(\d+)\s*次", s)
+    if m:
+        return int(m.group(1))
+    m = re.fullmatch(r"(\d+)", s)
+    if m:
+        return int(m.group(1))
+    return None
+
+
+def list_return_files(work_dir: Path, sid: str = "") -> list[dict]:
+    ret = work_dir / "練習回傳"
+    ret.mkdir(parents=True, exist_ok=True)
+    rows: list[dict] = []
+    for p in sorted(ret.iterdir()):
+        if not p.is_file() or p.suffix.lower() not in RETURN_EXTS:
+            continue
+        file_sid = None
+        m = re.match(r"^(\d{1,3})", p.stem)
+        if m:
+            file_sid = m.group(1).zfill(2)
+        if sid and file_sid != sid.zfill(2):
+            continue
+        rnd = parse_return_round(p.stem, file_sid or "") if file_sid else None
+        rows.append({"studentId": file_sid or "", "round": rnd, "path": p, "name": p.name})
+    return rows
+
+
+def next_return_round(work_dir: Path, sid: str) -> int:
+    hist = load_history(work_dir, sid)
+    used = {int(a.get("round", 0)) for a in hist.get("attempts", [])}
+    for r in list_return_files(work_dir, sid):
+        if r["round"]:
+            used.add(int(r["round"]))
+    n = 1
+    while n in used:
+        n += 1
+    return n
+
+
+def progress_text_table(data: dict) -> str:
+    lines = ["| 次數 | 分數 | 百分比 | 問題點摘要 |", "|------|------|--------|------------|"]
+    for a in data.get("attempts", []):
+        pp = (a.get("problemPoints") or "—").replace("\n", " ")
+        if len(pp) > 40:
+            pp = pp[:40] + "…"
+        lines.append(
+            f"| R{int(a.get('round', 0)):02d} | {a.get('score')}/{a.get('maxScore')} | "
+            f"{a.get('percent')}% | {pp} |"
+        )
+    if len(data.get("attempts", [])) >= 2:
+        first = data["attempts"][0].get("percent") or 0
+        last = data["attempts"][-1].get("percent") or 0
+        delta = round(float(last) - float(first), 1)
+        sign = "+" if delta >= 0 else ""
+        lines.append("")
+        lines.append(f"進步幅度（首次→最近）：{sign}{delta} 百分點")
+    return "\n".join(lines)
+
+
+def write_progress_html(work_dir: Path, sid: str) -> Path:
+    data = load_history(work_dir, sid)
+    target = float(data.get("targetScore") or 80)
+    bars = []
+    for a in data.get("attempts", []):
+        pct = float(a.get("percent") or 0)
+        w = max(0, min(100, pct))
+        color = "#2a7a4b" if pct >= target else "#c97820"
+        bars.append(
+            f"<div class='row'><span class='lab'>R{int(a.get('round', 0)):02d}</span>"
+            f"<div class='bar'><i style='width:{w}%;background:{color}'></i></div>"
+            f"<span class='pct'>{pct}%（{a.get('score')}/{a.get('maxScore')}）</span></div>"
+            f"<p class='pp'><strong>問題點：</strong>{_esc(a.get('problemPoints') or '—')}</p>"
+            f"<p class='fb'>{_esc(a.get('feedback') or '')}</p>"
+        )
+    delta_note = ""
+    atts = data.get("attempts") or []
+    if len(atts) >= 2:
+        delta = round(float(atts[-1].get("percent") or 0) - float(atts[0].get("percent") or 0), 1)
+        sign = "+" if delta >= 0 else ""
+        delta_note = f"<p class='delta'>進步幅度（首次→最近）：<strong>{sign}{delta}</strong> 百分點</p>"
+
+    latest = atts[-1] if atts else None
+    status = "已達標，可維持挑戰／伸展" if latest and latest.get("goalMet") else "尚未達標，請依下一輪練習繼續"
+    html = f"""<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>座號 {sid} 練習歷程</title>
+<style>
+  body {{ font-family: "Microsoft JhengHei", sans-serif; margin: 16px; background: #f7f4ef; color: #222; }}
+  h1 {{ color: #143d2e; font-size: 1.3rem; }}
+  .goal {{ background: #e7f2ea; padding: 10px 12px; border-radius: 6px; }}
+  .row {{ display: flex; align-items: center; gap: 8px; margin: 10px 0 4px; }}
+  .lab {{ width: 2.4rem; font-weight: 700; }}
+  .bar {{ flex: 1; height: 14px; background: #ddd; border-radius: 7px; overflow: hidden; }}
+  .bar i {{ display: block; height: 100%; }}
+  .pct {{ width: 7.5rem; font-size: 0.9rem; }}
+  .pp, .fb {{ margin: 0 0 12px; font-size: 0.95rem; }}
+  .delta {{ color: #1a5f3f; }}
+</style>
+</head>
+<body>
+<h1>座號 {sid}｜練習回饋與分數進步</h1>
+<p class="goal"><strong>學習目標：</strong>{_esc(data.get('goal') or '')}<br>
+<strong>目標分數：</strong>{target}%　｜　<strong>狀態：</strong>{_esc(status)}</p>
+{delta_note}
+{''.join(bars) if bars else '<p>（尚無回傳批閱紀錄）</p>'}
+<p style="color:#666;font-size:0.85rem">每次回饋都會對準問題點說明，並依結果調整下一輪題目，直到達成目標。</p>
+</body>
+</html>
+"""
+    out = work_dir / "練習歷程" / f"{sid}-歷程.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(html, encoding="utf-8")
+    dig = work_dir / "數位練習"
+    dig.mkdir(parents=True, exist_ok=True)
+    (dig / f"{sid}-歷程.html").write_text(html, encoding="utf-8")
+    return out
+
+
+def publish_next_practice(work_dir: Path, sid: str, practice: str, after_round: int) -> None:
+    dig = work_dir / "數位練習"
+    dig.mkdir(parents=True, exist_ok=True)
+    fake = "## 依程度自學／補救練習\n" + practice
+    q, a = split_practice_questions_answers(fake)
+    if not q.strip():
+        q = practice
+    title_q = f"座號 {sid}｜第 {after_round + 1} 輪練習題（依上回問題點調整）"
+    write_mobile_html(title_q, q, dig / f"{sid}-練習題.html", is_answer=False)
+    (dig / f"{sid}-練習題.txt").write_text(f"{title_q}\n\n{q}\n", encoding="utf-8")
+    if a.strip():
+        write_mobile_html(
+            f"座號 {sid}｜第 {after_round + 1} 輪解答（做完再看）",
+            a,
+            dig / f"{sid}-練習解答.html",
+            is_answer=True,
+        )
+    msg = (
+        f"【數學練習｜座號{sid}｜第{after_round + 1}輪】\n"
+        f"這輪依你上一輪問題點調整題目。\n"
+        f"請先開「{sid}-練習題.html」做完，再看解答。\n"
+        f"也可看「{sid}-歷程.html」了解分數進步。\n"
+        f"做完請回傳 PDF 或圖檔，檔名：{sid}-R{after_round + 1:02d}.jpg（或 .pdf）"
+    )
+    (dig / f"{sid}-LINE訊息.txt").write_text(msg + "\n", encoding="utf-8")
+
+
+def publish_goal_met(work_dir: Path, sid: str, attempt: dict) -> None:
+    dig = work_dir / "數位練習"
+    dig.mkdir(parents=True, exist_ok=True)
+    body = (
+        f"本輪分數 {attempt.get('percent')}%，已達學習目標。\n\n"
+        f"問題點回顧：\n{attempt.get('problemPoints') or '—'}\n\n"
+        "可選做伸展挑戰，或等待下一單元。請看歷程頁了解進步。"
+    )
+    write_mobile_html(
+        f"座號 {sid}｜已達標（可選伸展）",
+        body,
+        dig / f"{sid}-練習題.html",
+        is_answer=False,
+    )
+    msg = (
+        f"【數學練習｜座號{sid}】已達標（{attempt.get('percent')}%）\n"
+        f"請看「{sid}-歷程.html」的分數進步。若想挑戰可再跟老師要伸展題。"
+    )
+    (dig / f"{sid}-LINE訊息.txt").write_text(msg + "\n", encoding="utf-8")
+
+
+def append_attempt(
+    work_dir: Path,
+    sid: str,
+    *,
+    round_no: int,
+    source_file: str,
+    score: float,
+    max_score: float,
+    problem_points: str,
+    feedback: str,
+    next_practice: str,
+    goal: str = "",
+    target_score: float | None = None,
+    goal_met: bool | None = None,
+) -> dict:
+    data = load_history(work_dir, sid)
+    if goal:
+        data["goal"] = goal
+    if target_score is not None:
+        data["targetScore"] = target_score
+    pct = round(100.0 * score / max_score, 1) if max_score else 0.0
+    target = float(data.get("targetScore") or 80)
+    if goal_met is None:
+        goal_met = pct >= target
+    attempt = {
+        "round": int(round_no),
+        "file": source_file,
+        "score": score,
+        "maxScore": max_score,
+        "percent": pct,
+        "problemPoints": problem_points.strip(),
+        "feedback": feedback.strip(),
+        "nextPractice": next_practice.strip(),
+        "goalMet": bool(goal_met),
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+    }
+    attempts = [a for a in data.get("attempts", []) if int(a.get("round", -1)) != int(round_no)]
+    attempts.append(attempt)
+    attempts.sort(key=lambda a: int(a.get("round", 0)))
+    data["attempts"] = attempts
+    save_history(work_dir, data)
+
+    hist_dir = work_dir / "練習歷程"
+    hist_dir.mkdir(parents=True, exist_ok=True)
+    md = hist_dir / f"{sid}-回饋-R{int(round_no):02d}.md"
+    md.write_text(
+        "\n".join(
+            [
+                f"# 練習回饋｜座號 {sid}｜第 {round_no} 次",
+                "",
+                f"- 回傳檔：{source_file}",
+                f"- 分數：{score}/{max_score}（{pct}%）",
+                f"- 目標：{data.get('goal', '')}（目標分數 {target}）",
+                f"- 是否達成目標：{'是' if goal_met else '否（請依下一輪練習再練）'}",
+                f"- 時間：{attempt['time']}",
+                "",
+                "## 問題點（本輪針對說明）",
+                problem_points.strip() or "（無）",
+                "",
+                "## 回饋說明",
+                feedback.strip() or "（無）",
+                "",
+                "## 分數進步",
+                progress_text_table(data),
+                "",
+                "## 下一輪適切練習（達標前繼續）",
+                next_practice.strip() or "（已達標或尚未擬定）",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    write_progress_html(work_dir, sid)
+    if next_practice.strip() and not goal_met:
+        publish_next_practice(work_dir, sid, next_practice.strip(), round_no)
+    elif goal_met:
+        publish_goal_met(work_dir, sid, attempt)
+
+    return data
+
+
+def write_return_guide(work_dir: Path) -> Path:
+    path = work_dir / "數位發放與回傳說明.txt"
+    text = """數位發放／回傳路徑建議（方便、可抓取批閱）
+========================================
+
+【先講清楚：LINE 群組還是？】
+- 發放／公告：用「LINE 班級群組」最方便（貼連結或練習說明）。
+- 回傳作業圖／PDF：請用「LINE 個別傳老師」，或 Classroom／雲端回傳夾。
+  不要讓全班把照片塞進群組（洗版、難對座號、難批次抓取）。
+
+【常用組合】
+A) 快又省事（多數班級）
+   發：LINE 班級群組　＋　回：LINE 個別傳老師 → 另存到「練習回傳\\05-R01.jpg」
+B) 長期整齊
+   發＋回：Google Classroom（下載繳交檔進「練習回傳」）
+C) 雲端兩夾
+   發放夾給學生看、回傳夾上傳；同步到本機「練習回傳」
+
+【其他】
+- 學校 LMS／email：最後一樣匯入「練習回傳」即可被批閱程式抓取
+- 沒有裝置：只印「列印專用\\需列印座號」那些人
+
+【閉環】
+發練習 → 回傳 PDF/圖 → 批閱（Cursor／人工）→
+針對問題點回饋＋分數 → 調下一輪題 → 再練 → 達標；
+每次回饋含分數進步（練習歷程）
+
+【回傳檔名】
+05-R01.pdf / 05-R02.jpg / 05-第1次.png 皆可
+
+程式內可按「工具選擇」勾選／改偏好，隨時換組合。
+"""
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def build_pending_returns_list(work_dir: Path) -> Path:
+    """List return files not yet recorded in history."""
+    lines = [
+        "# 待批閱回傳清單",
+        "",
+        "把學生 PDF／圖檔放進 `練習回傳\\`（檔名：座號-R01.pdf）。",
+        "",
+    ]
+    pending = []
+    for r in list_return_files(work_dir):
+        sid = r["studentId"]
+        if not sid:
+            continue
+        hist = load_history(work_dir, sid)
+        done_files = {str(a.get("file", "")) for a in hist.get("attempts", [])}
+        done_rounds = {int(a.get("round", -1)) for a in hist.get("attempts", [])}
+        if r["name"] in done_files:
+            continue
+        if r["round"] is not None and int(r["round"]) in done_rounds:
+            continue
+        pending.append(r)
+        lines.append(
+            f"- 座號 {sid}｜{r['name']}"
+            + (f"｜建議第 {r['round']} 次" if r["round"] else "")
+        )
+    if not pending:
+        lines.append("- （目前無待批回傳，或皆已記入歷程）")
+    out = work_dir / "練習歷程" / "待批閱回傳清單.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return out
+
+
 def apply_clarifications(work_dir: Path) -> int:
     """Append teacher clarifications / re-transcript notes into student md files."""
     out_dir = work_dir / "輸出"
@@ -763,6 +1128,21 @@ def main() -> int:
     ap.add_argument("--class-report", action="store_true", help="build class learning report for mentors/parents")
     ap.add_argument("--digital-pack", action="store_true", help="build phone/tablet practice HTML pack")
     ap.add_argument("--print-pack", action="store_true", help="build paper PDFs only for seats in 需列印座號.txt")
+    ap.add_argument("--pending-returns", action="store_true", help="list ungraded practice returns")
+    ap.add_argument("--progress-html", action="store_true", help="rebuild progress HTML for student(s)")
+    ap.add_argument("--append-attempt", action="store_true", help="append one practice-return attempt from flags")
+    ap.add_argument("--attempt-json", default="", help="JSON file with attempt fields (preferred for Unicode)")
+    ap.add_argument("--round", type=int, default=0, help="attempt round number")
+    ap.add_argument("--score", type=float, default=-1, help="score earned")
+    ap.add_argument("--max-score", type=float, default=100, help="score maximum")
+    ap.add_argument("--source-file", default="", help="return filename")
+    ap.add_argument("--problem-points", default="", help="problem points this round")
+    ap.add_argument("--feedback", default="", help="feedback text")
+    ap.add_argument("--next-practice", default="", help="next adjusted practice text")
+    ap.add_argument("--goal", default="", help="learning goal")
+    ap.add_argument("--target-score", type=float, default=-1, help="target percent")
+    ap.add_argument("--goal-met", action="store_true", help="mark goal met")
+    ap.add_argument("--goal-not-met", action="store_true", help="mark goal not met")
     ap.add_argument("--apply-clarifications", action="store_true")
     args = ap.parse_args()
 
@@ -773,7 +1153,10 @@ def main() -> int:
     (work / "認知輸入").mkdir(parents=True, exist_ok=True)
     (work / "重謄補充").mkdir(parents=True, exist_ok=True)
     (work / "數位練習").mkdir(parents=True, exist_ok=True)
+    (work / "練習回傳").mkdir(parents=True, exist_ok=True)
+    (work / "練習歷程").mkdir(parents=True, exist_ok=True)
     ensure_print_seat_template(work)
+    write_return_guide(work)
 
     if args.apply_clarifications:
         n = apply_clarifications(work)
@@ -795,10 +1178,75 @@ def main() -> int:
         p, seats = build_print_pack(work)
         print(f"print pack: {p} seats={','.join(seats) if seats else '(none)'}")
 
+    if args.pending_returns:
+        p = build_pending_returns_list(work)
+        print(f"pending returns: {p}")
+
+    if args.progress_html:
+        if args.student:
+            p = write_progress_html(work, args.student.zfill(2))
+            print(f"progress html: {p}")
+        else:
+            for pjson in sorted((work / "練習歷程").glob("*-歷程.json")):
+                sid = pjson.name.replace("-歷程.json", "")
+                p = write_progress_html(work, sid)
+                print(f"progress html: {p}")
+
+    if args.append_attempt:
+        payload = {}
+        if args.attempt_json:
+            payload = json.loads(Path(args.attempt_json).read_text(encoding="utf-8"))
+        sid_raw = payload.get("studentId") or args.student
+        if not sid_raw:
+            print("append-attempt needs studentId", file=sys.stderr)
+            return 2
+        sid = str(sid_raw).zfill(2)
+        rnd = int(payload.get("round") or args.round or next_return_round(work, sid))
+        if "score" in payload:
+            score = float(payload["score"])
+        else:
+            score = float(args.score)
+        if score < 0:
+            print("append-attempt needs score", file=sys.stderr)
+            return 2
+        max_score = float(payload.get("maxScore", args.max_score))
+        goal_met = payload.get("goalMet")
+        if goal_met is None:
+            if args.goal_met:
+                goal_met = True
+            elif args.goal_not_met:
+                goal_met = False
+        target = payload.get("targetScore", None)
+        if target is None and args.target_score >= 0:
+            target = args.target_score
+        data = append_attempt(
+            work,
+            sid,
+            round_no=rnd,
+            source_file=str(payload.get("sourceFile") or args.source_file or ""),
+            score=score,
+            max_score=max_score,
+            problem_points=str(payload.get("problemPoints") or args.problem_points or ""),
+            feedback=str(payload.get("feedback") or args.feedback or ""),
+            next_practice=str(payload.get("nextPractice") or args.next_practice or ""),
+            goal=str(payload.get("goal") or args.goal or ""),
+            target_score=(float(target) if target is not None else None),
+            goal_met=goal_met,
+        )
+        print(f"attempt saved: {sid} R{rnd:02d} attempts={len(data.get('attempts', []))}")
+
     # Regenerate student PDFs when merging / clarifying, or bare --student
     need_student_pdfs = bool(args.merge_original or args.apply_clarifications)
     if args.student and not any(
-        [args.digital_pack, args.print_pack, args.class_report, args.unclear_list]
+        [
+            args.digital_pack,
+            args.print_pack,
+            args.class_report,
+            args.unclear_list,
+            args.pending_returns,
+            args.progress_html,
+            args.append_attempt,
+        ]
     ):
         need_student_pdfs = True
     if not need_student_pdfs:

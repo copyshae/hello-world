@@ -38,7 +38,7 @@ function Get-DefaultWorkDir {
 }
 
 function Ensure-WorkTree([string]$root) {
-  foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充', '數位練習', '列印專用')) {
+  foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充', '數位練習', '列印專用', '練習回傳', '練習歷程')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $root $n) | Out-Null
   }
   $printList = Join-Path (Join-Path $root '列印專用') '需列印座號.txt'
@@ -57,10 +57,10 @@ function Ensure-WorkTree([string]$root) {
     '2. 每位學生試卷一個檔 →「輸入」（如 05.pdf）'
     '3. 批改後「輸出」會有：05-註記.md、05-批閱註記.pdf、05-試卷含批閱.pdf'
     '4. 練習題預設進「數位練習」（手機可開）；有裝置用 LINE／雲端發放'
-    '5. 沒裝置的座號寫進「列印專用\需列印座號.txt」，再按「無裝置列印包」'
-    '6. 看不懂的標 ?；全班批完後開「全班存疑清單」'
-    '7. 老師辨認後寫入「認知輸入\05-Q3.txt」，或重謄掃描放「重謄補充\05-Q3.pdf」'
-    '8. 按「套用認知／重謄並重產PDF」'
+    '5. 學生回傳 PDF／圖 →「練習回傳」（檔名 05-R01.jpg）→ 按「練習回傳循環」批閱調題'
+    '6. 歷程／分數進步在「練習歷程」；沒裝置才用「列印專用」'
+    '7. 看不懂的標 ?；全班批完後開「全班存疑清單」'
+    '8. 詳見「數位發放與回傳說明.txt」'
   ) | Set-Content -LiteralPath $readme -Encoding UTF8
 }
 
@@ -81,7 +81,11 @@ function Invoke-MakePdf {
     [switch]$MergeOriginal,
     [switch]$ClassReport,
     [switch]$DigitalPack,
-    [switch]$PrintPack
+    [switch]$PrintPack,
+    [switch]$PendingReturns,
+    [switch]$ProgressHtml,
+    [switch]$AppendAttempt,
+    [string]$AttemptJson = ''
   )
   $py = Find-Python
   if (-not $py) {
@@ -104,6 +108,12 @@ function Invoke-MakePdf {
   if ($ClassReport) { $argList += '--class-report' }
   if ($DigitalPack) { $argList += '--digital-pack' }
   if ($PrintPack) { $argList += '--print-pack' }
+  if ($PendingReturns) { $argList += '--pending-returns' }
+  if ($ProgressHtml) { $argList += '--progress-html' }
+  if ($AppendAttempt) {
+    $argList += '--append-attempt'
+    if ($AttemptJson) { $argList += @('--attempt-json', $AttemptJson) }
+  }
   $p = Start-Process -FilePath $py -ArgumentList $argList -Wait -PassThru -NoNewWindow
   return ($p.ExitCode -eq 0)
 }
@@ -360,14 +370,437 @@ function Get-SettingsPath([string]$root) {
 
 function Load-Settings([string]$root) {
   $p = Get-SettingsPath $root
-  if (Test-Path -LiteralPath $p) {
-    try { return (Get-Content -LiteralPath $p -Encoding UTF8 -Raw | ConvertFrom-Json) } catch {}
+  $defaults = [pscustomobject]@{
+    mode = 'manual'
+    answerHint = ''
+    preferredSend = '未指定（日後再選）'
+    preferredReturn = '未指定（日後再選）'
+    tools = [pscustomobject]@{
+      line_group = $true
+      line_dm    = $true
+      classroom  = $true
+      drive      = $true
+      lms        = $true
+      print      = $true
+      loop       = $true
+    }
   }
-  return [pscustomobject]@{ mode = 'manual'; answerHint = '' }
+  if (Test-Path -LiteralPath $p) {
+    try {
+      $s = Get-Content -LiteralPath $p -Encoding UTF8 -Raw | ConvertFrom-Json
+      if (-not $s.tools) { $s | Add-Member -NotePropertyName tools -NotePropertyValue $defaults.tools -Force }
+      if (-not $s.preferredSend) { $s | Add-Member -NotePropertyName preferredSend -NotePropertyValue $defaults.preferredSend -Force }
+      if (-not $s.preferredReturn) { $s | Add-Member -NotePropertyName preferredReturn -NotePropertyValue $defaults.preferredReturn -Force }
+      return $s
+    } catch {}
+  }
+  return $defaults
 }
 
 function Save-Settings([string]$root, $settings) {
-  ($settings | ConvertTo-Json) | Set-Content -LiteralPath (Get-SettingsPath $root) -Encoding UTF8
+  ($settings | ConvertTo-Json -Depth 6) | Set-Content -LiteralPath (Get-SettingsPath $root) -Encoding UTF8
+}
+
+function Get-ToolCatalog {
+  return @(
+    [pscustomobject]@{ Id = 'line_group'; Title = 'LINE 班級群組'; Role = '偏發放'; Tip = '發練習連結／公告最方便；不建議全班回傳圖塞群組（難對座號、洗版）' }
+    [pscustomobject]@{ Id = 'line_dm';    Title = 'LINE 個別傳老師'; Role = '偏回傳'; Tip = '學生／家長私訊傳 PDF／圖 → 老師另存「練習回傳\\05-R01.jpg」' }
+    [pscustomobject]@{ Id = 'classroom';  Title = 'Google Classroom'; Role = '發＋回'; Tip = '發作業＋繳交最整齊；下載後丟「練習回傳」即可批' }
+    [pscustomobject]@{ Id = 'drive';      Title = 'Google雲端／OneDrive'; Role = '發＋回'; Tip = '共用「發放」「回傳」兩夾；檔名 05-R01.jpg' }
+    [pscustomobject]@{ Id = 'lms';        Title = '學校LMS／email'; Role = '發＋回'; Tip = '校內平台或信箱收件，最後匯入「練習回傳」' }
+    [pscustomobject]@{ Id = 'print';      Title = '無裝置列印'; Role = '發'; Tip = '只印「需列印座號」；有裝置仍走數位' }
+    [pscustomobject]@{ Id = 'loop';       Title = '練習回傳循環'; Role = '批＋調題'; Tip = '回饋→調題→分數進步→達標為止（與上面發放管道並用）' }
+  )
+}
+
+function Show-ToolPickerDialog {
+  $dlg = New-Object System.Windows.Forms.Form
+  $dlg.Text = '發放／回傳工具（可複選，日後再抉擇）'
+  $dlg.Size = New-Object System.Drawing.Size(760, 580)
+  $dlg.StartPosition = 'CenterParent'
+  $dlg.Font = $font
+
+  $hint = New-Object System.Windows.Forms.Label
+  $hint.Text = "怎麼選？`n• 只想快：發＝LINE班級群組；回＝LINE個別傳老師（別把全班圖塞群組）`n• 想整齊長期用：Classroom 或 雲端兩夾`n勾選＝常用；偏好可日後再改，按鈕都還在。"
+  $hint.Location = New-Object System.Drawing.Point(12, 8)
+  $hint.Size = New-Object System.Drawing.Size(720, 58)
+  $dlg.Controls.Add($hint)
+
+  $checks = @{}
+  $y = 72
+  foreach ($t in Get-ToolCatalog) {
+    $cb = New-Object System.Windows.Forms.CheckBox
+    $cb.Text = "[$($t.Role)] $($t.Title)  —  $($t.Tip)"
+    $cb.Location = New-Object System.Drawing.Point(16, $y)
+    $cb.Size = New-Object System.Drawing.Size(710, 34)
+    $on = $true
+    try { $on = [bool]$script:settings.tools.($t.Id) } catch { $on = $true }
+    $cb.Checked = $on
+    $dlg.Controls.Add($cb)
+    $checks[$t.Id] = $cb
+    $y += 36
+  }
+
+  $lblSend = New-Object System.Windows.Forms.Label
+  $lblSend.Text = '偏好發放'
+  $lblSend.Location = New-Object System.Drawing.Point(16, $y + 8)
+  $lblSend.Size = New-Object System.Drawing.Size(90, 24)
+  $dlg.Controls.Add($lblSend)
+
+  $cmbSend = New-Object System.Windows.Forms.ComboBox
+  $cmbSend.DropDownStyle = 'DropDownList'
+  $cmbSend.Items.AddRange(@(
+      '未指定（日後再選）',
+      'LINE 班級群組',
+      'Google Classroom',
+      'Google雲端／OneDrive',
+      '學校LMS／email',
+      '無裝置列印'
+    ))
+  $cmbSend.Location = New-Object System.Drawing.Point(110, $y + 4)
+  $cmbSend.Size = New-Object System.Drawing.Size(240, 28)
+  $idxS = $cmbSend.Items.IndexOf([string]$script:settings.preferredSend)
+  $cmbSend.SelectedIndex = $(if ($idxS -ge 0) { $idxS } else { 0 })
+  $dlg.Controls.Add($cmbSend)
+
+  $lblRet = New-Object System.Windows.Forms.Label
+  $lblRet.Text = '偏好回傳'
+  $lblRet.Location = New-Object System.Drawing.Point(370, $y + 8)
+  $lblRet.Size = New-Object System.Drawing.Size(90, 24)
+  $dlg.Controls.Add($lblRet)
+
+  $cmbRet = New-Object System.Windows.Forms.ComboBox
+  $cmbRet.DropDownStyle = 'DropDownList'
+  $cmbRet.Items.AddRange(@(
+      '未指定（日後再選）',
+      'LINE 個別傳老師',
+      'Google Classroom',
+      'Google雲端／OneDrive',
+      '學校LMS／email'
+    ))
+  $cmbRet.Location = New-Object System.Drawing.Point(460, $y + 4)
+  $cmbRet.Size = New-Object System.Drawing.Size(240, 28)
+  $idxR = $cmbRet.Items.IndexOf([string]$script:settings.preferredReturn)
+  $cmbRet.SelectedIndex = $(if ($idxR -ge 0) { $idxR } else { 0 })
+  $dlg.Controls.Add($cmbRet)
+
+  $btnOk = New-Object System.Windows.Forms.Button
+  $btnOk.Text = '儲存選擇'
+  $btnOk.Location = New-Object System.Drawing.Point(460, $y + 44)
+  $btnOk.Size = New-Object System.Drawing.Size(100, 32)
+  $btnOk.Add_Click({
+      $tools = [pscustomobject]@{}
+      foreach ($k in $checks.Keys) {
+        $tools | Add-Member -NotePropertyName $k -NotePropertyValue ([bool]$checks[$k].Checked) -Force
+      }
+      $script:settings | Add-Member -NotePropertyName tools -NotePropertyValue $tools -Force
+      $script:settings | Add-Member -NotePropertyName preferredSend -NotePropertyValue ([string]$cmbSend.SelectedItem) -Force
+      $script:settings | Add-Member -NotePropertyName preferredReturn -NotePropertyValue ([string]$cmbRet.SelectedItem) -Force
+      Save-Settings $script:WorkDir $script:settings
+      $lines = @(
+        '我的發放／回傳工具選擇（可隨時改）'
+        '================================'
+        ('偏好發放：' + $script:settings.preferredSend)
+        ('偏好回傳：' + $script:settings.preferredReturn)
+        ''
+        '建議組合：'
+        '・快又省事 → 發：LINE班級群組　回：LINE個別傳老師'
+        '・要長期整齊 → 發＋回都用 Classroom 或 雲端兩夾'
+        '・群組只公告，不要當作業回收桶'
+        ''
+        '已勾選常用工具：'
+      )
+      foreach ($t in Get-ToolCatalog) {
+        $flag = if ($checks[$t.Id].Checked) { '☑' } else { '☐' }
+        $lines += ("$flag $($t.Title)｜$($t.Tip)")
+      }
+      $out = Join-Path $script:WorkDir '我的工具選擇.txt'
+      $utf8Bom = New-Object System.Text.UTF8Encoding $true
+      [IO.File]::WriteAllText($out, ($lines -join "`r`n"), $utf8Bom)
+      $status.Text = '已儲存工具選擇：' + $out
+      $dlg.DialogResult = [System.Windows.Forms.DialogResult]::OK
+      $dlg.Close()
+    })
+  $dlg.Controls.Add($btnOk)
+
+  $btnGuide = New-Object System.Windows.Forms.Button
+  $btnGuide.Text = '開說明'
+  $btnGuide.Location = New-Object System.Drawing.Point(570, $y + 44)
+  $btnGuide.Size = New-Object System.Drawing.Size(90, 32)
+  $btnGuide.Add_Click({
+      [void](Invoke-MakePdf -Root $script:WorkDir -PendingReturns)
+      $g = Join-Path $script:WorkDir '數位發放與回傳說明.txt'
+      if (Test-Path -LiteralPath $g) { Start-Process notepad.exe $g }
+    })
+  $dlg.Controls.Add($btnGuide)
+
+  $btnQuick = New-Object System.Windows.Forms.Button
+  $btnQuick.Text = '一鍵：LINE群發＋個別回'
+  $btnQuick.Location = New-Object System.Drawing.Point(16, $y + 44)
+  $btnQuick.Size = New-Object System.Drawing.Size(220, 32)
+  $btnQuick.BackColor = [System.Drawing.Color]::FromArgb(30, 110, 90)
+  $btnQuick.ForeColor = [System.Drawing.Color]::White
+  $btnQuick.FlatStyle = 'Flat'
+  $btnQuick.Add_Click({
+      $cmbSend.SelectedItem = 'LINE 班級群組'
+      $cmbRet.SelectedItem = 'LINE 個別傳老師'
+      foreach ($k in @('line_group', 'line_dm', 'loop', 'print')) {
+        if ($checks.ContainsKey($k)) { $checks[$k].Checked = $true }
+      }
+      [void][System.Windows.Forms.MessageBox]::Show(
+        "已選好常用組合：`n發放 → LINE 班級群組`n回傳 → LINE 個別傳老師`n`n再按「儲存選擇」即可。`n（有 Classroom／雲端也可再勾，日後換用）",
+        'LINE 組合'
+      )
+    })
+  $dlg.Controls.Add($btnQuick)
+
+  [void]$dlg.ShowDialog($form)
+}
+
+function Get-LatestReturnFile([string]$root, [string]$sid) {
+  $dir = Join-Path $root '練習回傳'
+  if (-not (Test-Path -LiteralPath $dir)) { return $null }
+  $hits = @(Get-ChildItem -LiteralPath $dir -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -match ('^' + $sid) -and $_.Extension -match '\.(pdf|png|jpe?g|tif{1,2}|bmp|webp)$' } |
+    Sort-Object LastWriteTime -Descending)
+  if ($hits.Count -gt 0) { return $hits[0] }
+  return $null
+}
+
+function Build-ReturnCursorPrompt([string]$root, [string]$sid, $returnFile, [int]$round) {
+  $histPath = Join-Path (Join-Path $root '練習歷程') ($sid + '-歷程.json')
+  $histTxt = ''
+  if (Test-Path -LiteralPath $histPath) {
+    $histTxt = Get-Content -LiteralPath $histPath -Raw -Encoding UTF8
+  }
+  $sb = New-Object System.Text.StringBuilder
+  [void]$sb.AppendLine('請批閱這位學生「練習回傳」第 ' + $round + ' 次（PDF／圖檔）。')
+  [void]$sb.AppendLine('目標：針對問題點給適切回饋，並依結果調整下一輪練習，直到達標。')
+  [void]$sb.AppendLine('每次回饋都要含：分數、問題點說明、與前次比較的進步、下一輪題目（題目與解答分段）。')
+  [void]$sb.AppendLine('')
+  [void]$sb.AppendLine('請輸出可直接貼回批改程式的欄位：')
+  [void]$sb.AppendLine('1) 分數：得分/滿分（例 7/10）')
+  [void]$sb.AppendLine('2) 問題點：本輪真正卡住處（具體、可再練）')
+  [void]$sb.AppendLine('3) 回饋說明：對準問題點、短而可執行')
+  [void]$sb.AppendLine('4) 是否達標：是／否（對照目標分數）')
+  [void]$sb.AppendLine('5) 下一輪適切練習：依問題點調整（未達標必給；達標可給伸展選做）；先題目後解答')
+  [void]$sb.AppendLine('6) 分數進步一句話（相對前次）')
+  [void]$sb.AppendLine('')
+  [void]$sb.AppendLine('座號：' + $sid)
+  [void]$sb.AppendLine('本輪回傳檔：' + $(if ($returnFile) { $returnFile.FullName } else { '（尚未放入練習回傳）' }))
+  [void]$sb.AppendLine('建議回傳檔名格式：' + $sid + '-R' + ('{0:D2}' -f $round) + '.jpg 或 .pdf')
+  [void]$sb.AppendLine('')
+  [void]$sb.AppendLine('既有歷程 JSON（若有）：')
+  if ($histTxt) { [void]$sb.AppendLine($histTxt) } else { [void]$sb.AppendLine('（尚無，此為第 1 次）') }
+  return $sb.ToString()
+}
+
+function Show-PracticeLoopDialog {
+  if (-not $script:current) {
+    [void][System.Windows.Forms.MessageBox]::Show('請先在主畫面選左側一位學生', '提示')
+    return
+  }
+  $sid = Get-StudentId $script:current.Name
+  Ensure-WorkTree $script:WorkDir
+
+  $dlg = New-Object System.Windows.Forms.Form
+  $dlg.Text = "練習回傳循環｜座號 $sid（回饋→調題→達標）"
+  $dlg.Size = New-Object System.Drawing.Size(780, 640)
+  $dlg.StartPosition = 'CenterParent'
+  $dlg.Font = $font
+
+  $ret = Get-LatestReturnFile $script:WorkDir $sid
+  $roundGuess = 1
+  $histPath = Join-Path (Join-Path $script:WorkDir '練習歷程') ($sid + '-歷程.json')
+  if (Test-Path -LiteralPath $histPath) {
+    try {
+      $h = Get-Content -LiteralPath $histPath -Raw -Encoding UTF8 | ConvertFrom-Json
+      if ($h.attempts) { $roundGuess = @($h.attempts).Count + 1 }
+    } catch {}
+  }
+  if ($ret -and $ret.BaseName -match '[Rr]0*(\d+)') { $roundGuess = [int]$Matches[1] }
+  elseif ($ret -and $ret.BaseName -match '第\s*(\d+)\s*次') { $roundGuess = [int]$Matches[1] }
+
+  $lblInfo = New-Object System.Windows.Forms.Label
+  $lblInfo.Text = $(if ($ret) { "最新回傳：$($ret.Name)" } else { '尚無回傳檔 → 請把 PDF／圖放到「練習回傳」夾' })
+  $lblInfo.Location = New-Object System.Drawing.Point(12, 10)
+  $lblInfo.Size = New-Object System.Drawing.Size(740, 24)
+  $dlg.Controls.Add($lblInfo)
+
+  function Add-DlgLabel([int]$yy, [string]$text) {
+    $l = New-Object System.Windows.Forms.Label
+    $l.Text = $text
+    $l.Location = New-Object System.Drawing.Point(12, $yy)
+    $l.Size = New-Object System.Drawing.Size(120, 24)
+    $dlg.Controls.Add($l)
+  }
+
+  Add-DlgLabel 40 '次數 R'
+  $numRound = New-Object System.Windows.Forms.NumericUpDown
+  $numRound.Location = New-Object System.Drawing.Point(140, 38)
+  $numRound.Size = New-Object System.Drawing.Size(70, 28)
+  $numRound.Minimum = 1; $numRound.Maximum = 99; $numRound.Value = [Math]::Max(1, [Math]::Min(99, $roundGuess))
+  $dlg.Controls.Add($numRound)
+
+  Add-DlgLabel 40 '分數'
+  $txtScore = New-Object System.Windows.Forms.TextBox
+  $txtScore.Location = New-Object System.Drawing.Point(280, 38)
+  $txtScore.Size = New-Object System.Drawing.Size(60, 28)
+  $txtScore.Text = '0'
+  $dlg.Controls.Add($txtScore)
+
+  $lblSlash = New-Object System.Windows.Forms.Label
+  $lblSlash.Text = '/'
+  $lblSlash.Location = New-Object System.Drawing.Point(345, 40)
+  $lblSlash.Size = New-Object System.Drawing.Size(20, 24)
+  $dlg.Controls.Add($lblSlash)
+
+  $txtMax = New-Object System.Windows.Forms.TextBox
+  $txtMax.Location = New-Object System.Drawing.Point(365, 38)
+  $txtMax.Size = New-Object System.Drawing.Size(60, 28)
+  $txtMax.Text = '100'
+  $dlg.Controls.Add($txtMax)
+
+  Add-DlgLabel 40 '目標%'
+  $txtTarget = New-Object System.Windows.Forms.TextBox
+  $txtTarget.Location = New-Object System.Drawing.Point(520, 38)
+  $txtTarget.Size = New-Object System.Drawing.Size(60, 28)
+  $txtTarget.Text = '80'
+  $dlg.Controls.Add($txtTarget)
+
+  $chkMet = New-Object System.Windows.Forms.CheckBox
+  $chkMet.Text = '已達標'
+  $chkMet.Location = New-Object System.Drawing.Point(600, 40)
+  $chkMet.Size = New-Object System.Drawing.Size(100, 24)
+  $dlg.Controls.Add($chkMet)
+
+  Add-DlgLabel 78 '學習目標'
+  $txtGoal = New-Object System.Windows.Forms.TextBox
+  $txtGoal.Location = New-Object System.Drawing.Point(140, 76)
+  $txtGoal.Size = New-Object System.Drawing.Size(600, 28)
+  $txtGoal.Text = '針對問題點練到穩定掌握'
+  $dlg.Controls.Add($txtGoal)
+
+  Add-DlgLabel 114 '問題點'
+  $txtPP = New-Object System.Windows.Forms.TextBox
+  $txtPP.Multiline = $true; $txtPP.ScrollBars = 'Vertical'
+  $txtPP.Location = New-Object System.Drawing.Point(140, 112)
+  $txtPP.Size = New-Object System.Drawing.Size(600, 70)
+  $dlg.Controls.Add($txtPP)
+
+  Add-DlgLabel 190 '回饋說明'
+  $txtFb = New-Object System.Windows.Forms.TextBox
+  $txtFb.Multiline = $true; $txtFb.ScrollBars = 'Vertical'
+  $txtFb.Location = New-Object System.Drawing.Point(140, 188)
+  $txtFb.Size = New-Object System.Drawing.Size(600, 90)
+  $dlg.Controls.Add($txtFb)
+
+  Add-DlgLabel 288 '下一輪練習'
+  $txtNext = New-Object System.Windows.Forms.TextBox
+  $txtNext.Multiline = $true; $txtNext.ScrollBars = 'Vertical'
+  $txtNext.Location = New-Object System.Drawing.Point(140, 286)
+  $txtNext.Size = New-Object System.Drawing.Size(600, 160)
+  $txtNext.Text = "#### 練習題（先做完再看解答）`r`n1. …`r`n`r`n---`r`n#### 解答（全部題目完成後再看）`r`n1. …"
+  $dlg.Controls.Add($txtNext)
+
+  $btnOpenRet = New-Object System.Windows.Forms.Button
+  $btnOpenRet.Text = '開回傳檔／夾'
+  $btnOpenRet.Location = New-Object System.Drawing.Point(12, 460)
+  $btnOpenRet.Size = New-Object System.Drawing.Size(130, 32)
+  $btnOpenRet.Add_Click({
+      Start-Process explorer.exe (Join-Path $script:WorkDir '練習回傳')
+      if ($ret) { Start-Process -FilePath $ret.FullName }
+    })
+  $dlg.Controls.Add($btnOpenRet)
+
+  $btnPrompt = New-Object System.Windows.Forms.Button
+  $btnPrompt.Text = '複製Cursor批回傳'
+  $btnPrompt.Location = New-Object System.Drawing.Point(150, 460)
+  $btnPrompt.Size = New-Object System.Drawing.Size(150, 32)
+  $btnPrompt.Add_Click({
+      $p = Build-ReturnCursorPrompt $script:WorkDir $sid $ret ([int]$numRound.Value)
+      [System.Windows.Forms.Clipboard]::SetText($p)
+      if ($ret) { Start-Process -FilePath $ret.FullName }
+      [void][System.Windows.Forms.MessageBox]::Show('已複製「批閱回傳」提示。請到 Cursor 貼上並附回傳檔，再把分數／問題點／回饋／下一輪練習貼回本視窗。', 'Cursor')
+    })
+  $dlg.Controls.Add($btnPrompt)
+
+  $btnSave = New-Object System.Windows.Forms.Button
+  $btnSave.Text = '儲存本輪＋下一輪數位練習'
+  $btnSave.Location = New-Object System.Drawing.Point(310, 460)
+  $btnSave.Size = New-Object System.Drawing.Size(240, 32)
+  $btnSave.BackColor = [System.Drawing.Color]::FromArgb(30, 100, 70)
+  $btnSave.ForeColor = [System.Drawing.Color]::White
+  $btnSave.FlatStyle = 'Flat'
+  $btnSave.Add_Click({
+      $score = 0.0; $max = 100.0; $target = 80.0
+      [void][double]::TryParse($txtScore.Text, [ref]$score)
+      [void][double]::TryParse($txtMax.Text, [ref]$max)
+      [void][double]::TryParse($txtTarget.Text, [ref]$target)
+      if ($max -le 0) { $max = 100 }
+      $payload = [ordered]@{
+        studentId     = $sid
+        round         = [int]$numRound.Value
+        sourceFile    = $(if ($ret) { $ret.Name } else { '' })
+        score         = $score
+        maxScore      = $max
+        targetScore   = $target
+        goal          = $txtGoal.Text
+        problemPoints = $txtPP.Text
+        feedback      = $txtFb.Text
+        nextPractice  = $txtNext.Text
+        goalMet       = [bool]$chkMet.Checked
+      }
+      # auto goalMet from score if unchecked but score high
+      if (-not $chkMet.Checked -and $max -gt 0 -and (100.0 * $score / $max) -ge $target) {
+        $payload.goalMet = $true
+      }
+      $jsonPath = Join-Path (Join-Path $script:WorkDir '練習歷程') ($sid + '-attempt-tmp.json')
+      $utf8Bom = New-Object System.Text.UTF8Encoding $true
+      [IO.File]::WriteAllText($jsonPath, ($payload | ConvertTo-Json -Depth 5), $utf8Bom)
+      if (Invoke-MakePdf -Root $script:WorkDir -AppendAttempt -AttemptJson $jsonPath) {
+        $status.Text = "已儲存座號 $sid 第 $($numRound.Value) 次回饋／歷程"
+        $prog = Join-Path (Join-Path $script:WorkDir '練習歷程') ($sid + '-歷程.html')
+        if (Test-Path -LiteralPath $prog) { Start-Process -FilePath $prog }
+        [void][System.Windows.Forms.MessageBox]::Show(
+          "已寫入練習歷程（含分數進步）。`n未達標者已更新「數位練習」下一輪題目。`n可再依你偏好的發放工具傳給學生。",
+          '完成'
+        )
+      }
+    })
+  $dlg.Controls.Add($btnSave)
+
+  $btnHist = New-Object System.Windows.Forms.Button
+  $btnHist.Text = '開歷程'
+  $btnHist.Location = New-Object System.Drawing.Point(560, 460)
+  $btnHist.Size = New-Object System.Drawing.Size(90, 32)
+  $btnHist.Add_Click({
+      [void](Invoke-MakePdf -Root $script:WorkDir -Student $sid -ProgressHtml)
+      $prog = Join-Path (Join-Path $script:WorkDir '練習歷程') ($sid + '-歷程.html')
+      if (Test-Path -LiteralPath $prog) { Start-Process -FilePath $prog }
+      else { Start-Process explorer.exe (Join-Path $script:WorkDir '練習歷程') }
+    })
+  $dlg.Controls.Add($btnHist)
+
+  $btnPending = New-Object System.Windows.Forms.Button
+  $btnPending.Text = '待批清單'
+  $btnPending.Location = New-Object System.Drawing.Point(660, 460)
+  $btnPending.Size = New-Object System.Drawing.Size(90, 32)
+  $btnPending.Add_Click({
+      if (Invoke-MakePdf -Root $script:WorkDir -PendingReturns) {
+        $p = Join-Path (Join-Path $script:WorkDir '練習歷程') '待批閱回傳清單.md'
+        if (Test-Path -LiteralPath $p) { Start-Process -FilePath $p }
+      }
+    })
+  $dlg.Controls.Add($btnPending)
+
+  $foot = New-Object System.Windows.Forms.Label
+  $foot.Text = '閉環：數位發放 → 回傳 PDF/圖 → 本窗批閱回饋 → 調題再練 → 看歷程分數進步 → 達標為止。發放管道可在「工具選擇」多元勾選。'
+  $foot.Location = New-Object System.Drawing.Point(12, 505)
+  $foot.Size = New-Object System.Drawing.Size(740, 40)
+  $dlg.Controls.Add($foot)
+
+  [void]$dlg.ShowDialog($form)
 }
 
 function Build-CursorPrompt([string]$root) {
@@ -946,11 +1379,44 @@ $btnOpenDigital.Add_Click({
     Start-Process explorer.exe (Join-Path $script:WorkDir '列印專用')
   })
 
+$y4 = 640
+$btnTools = New-Object System.Windows.Forms.Button
+$btnTools.Text = '工具選擇（LINE群／個別…）'
+$btnTools.Location = New-Object System.Drawing.Point(16, $y4)
+$btnTools.Size = New-Object System.Drawing.Size(220, 32)
+$btnTools.BackColor = [System.Drawing.Color]::FromArgb(50, 80, 120)
+$btnTools.ForeColor = [System.Drawing.Color]::White
+$btnTools.FlatStyle = 'Flat'
+$btnTools.Add_Click({ Show-ToolPickerDialog })
+
+$btnLoop = New-Object System.Windows.Forms.Button
+$btnLoop.Text = '練習回傳循環'
+$btnLoop.Location = New-Object System.Drawing.Point(246, $y4)
+$btnLoop.Size = New-Object System.Drawing.Size(140, 32)
+$btnLoop.BackColor = [System.Drawing.Color]::FromArgb(30, 100, 70)
+$btnLoop.ForeColor = [System.Drawing.Color]::White
+$btnLoop.FlatStyle = 'Flat'
+$btnLoop.Add_Click({ Show-PracticeLoopDialog })
+
+$btnRetFolder = New-Object System.Windows.Forms.Button
+$btnRetFolder.Text = '練習回傳夾'
+$btnRetFolder.Location = New-Object System.Drawing.Point(396, $y4)
+$btnRetFolder.Size = New-Object System.Drawing.Size(110, 32)
+$btnRetFolder.Add_Click({
+    Ensure-WorkTree $script:WorkDir
+    Start-Process explorer.exe (Join-Path $script:WorkDir '練習回傳')
+  })
+
+$form.Size = New-Object System.Drawing.Size(1000, 820)
+$status.Location = New-Object System.Drawing.Point(16, 688)
+$status.Size = New-Object System.Drawing.Size(950, 40)
+
 $form.Controls.AddRange(@(
     $lbl, $grpStart, $lblPath, $list, $grp, $status,
     $btnWork, $btnOpenIn, $btnOpenOut, $btnGrade, $btnSave, $btnNext, $btnRefresh,
     $btnCsv, $btnUnclear, $btnClarify, $btnOpenCog,
-    $btnDigital, $btnCopyLine, $btnPrintPack, $btnOpenDigital
+    $btnDigital, $btnCopyLine, $btnPrintPack, $btnOpenDigital,
+    $btnTools, $btnLoop, $btnRetFolder
   ))
 
 Refresh-PathLabel

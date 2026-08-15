@@ -14,7 +14,7 @@ if (Test-Path -LiteralPath $py) {
 }
 
 $work = Join-Path $desk 'MathGrading'
-foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充', '數位練習', '列印專用')) {
+foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充', '數位練習', '列印專用', '練習回傳', '練習歷程')) {
   New-Item -ItemType Directory -Force -Path (Join-Path $work $n) | Out-Null
 }
 $printList = Join-Path (Join-Path $work '列印專用') '需列印座號.txt'
