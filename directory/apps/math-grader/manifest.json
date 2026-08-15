@@ -1,0 +1,30 @@
+{
+  "name": "習作批改｜手機版",
+  "short_name": "習作批改",
+  "description": "手機掌握批改進度、複製 Cursor 批閱提示、匯入掃描卷。PDF 輸出請用電腦版。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#e8efe6",
+  "theme_color": "#1b4332",
+  "lang": "zh-Hant",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "share_target": {
+    "action": "./share.html",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [{
+        "name": "scans",
+        "accept": ["image/*", "application/pdf", ".pdf", ".jpg", ".jpeg", ".png", ".heic", ".heif"]
+      }]
+    }
+  }
+}
