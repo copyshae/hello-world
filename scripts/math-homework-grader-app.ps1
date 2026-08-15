@@ -137,14 +137,30 @@ function Invoke-MakePdf {
 function Get-StudentId([string]$fileName) {
   $base = [IO.Path]::GetFileNameWithoutExtension($fileName)
   if ($base -match '^(\d{1,3})') { return $Matches[1].PadLeft(2, '0') }
+  # 常見：座號-試卷、00-R01、掃描_05
+  if ($base -match '(?:^|[^\d])(\d{1,3})(?:[^\d]|$)') { return $Matches[1].PadLeft(2, '0') }
   return $base
+}
+
+function Test-InputExtension([string]$ext) {
+  if ([string]::IsNullOrWhiteSpace($ext)) { return $false }
+  $e = $ext.TrimStart('.').ToLowerInvariant()
+  return @('pdf','png','jpg','jpeg','tif','tiff','bmp','heic','heif','webp','gif') -contains $e
 }
 
 function Get-InputFiles([string]$root) {
   $dir = Join-Path $root '輸入'
   if (-not (Test-Path -LiteralPath $dir)) { return @() }
   Get-ChildItem -LiteralPath $dir -File -ErrorAction SilentlyContinue |
-    Where-Object { $_.Extension -match '\.(pdf|png|jpe?g|tif{1,2}|bmp)$' } |
+    Where-Object { Test-InputExtension $_.Extension } |
+    Sort-Object Name
+}
+
+function Get-InputSkipped([string]$root) {
+  $dir = Join-Path $root '輸入'
+  if (-not (Test-Path -LiteralPath $dir)) { return @() }
+  Get-ChildItem -LiteralPath $dir -File -ErrorAction SilentlyContinue |
+    Where-Object { -not (Test-InputExtension $_.Extension) } |
     Sort-Object Name
 }
 
@@ -1419,7 +1435,22 @@ function Refresh-List {
     $mark = if (Test-Path -LiteralPath $note) { '〔已有註記〕' } else { '〔未批〕' }
     [void]$list.Items.Add("$id  $($f.Name)  $mark")
   }
-  $status.Text = ('輸入 {0} 人｜工作夾 {1}' -f $script:files.Count, $script:WorkDir)
+  $inDir = Join-Path $script:WorkDir '輸入'
+  $skipped = @(Get-InputSkipped $script:WorkDir)
+  $allCount = @(Get-ChildItem -LiteralPath $inDir -File -ErrorAction SilentlyContinue).Count
+  if ($script:files.Count -eq 0 -and $allCount -gt 0) {
+    $names = ($skipped | Select-Object -First 5 | ForEach-Object { $_.Name }) -join '、'
+    $status.Text = ("輸入夾有 {0} 個檔，但副檔名不支援（需 pdf/png/jpg/heic…）。例：{1}" -f $allCount, $names)
+    [void][System.Windows.Forms.MessageBox]::Show(
+      ("「輸入」夾目前有 {0} 個檔，但程式認不到。`n`n請用：PDF、PNG、JPG、HEIC、WEBP。`n若是 Word／Pages／壓縮檔，請先匯出成 PDF 再放入。`n`n資料夾：`n{1}" -f $allCount, $inDir),
+      '輸入檔未列入清單'
+    )
+  } elseif ($script:files.Count -eq 0) {
+    $status.Text = ('輸入 0 人｜請把學生卷放入：' + $inDir)
+  } else {
+    $extra = if ($skipped.Count -gt 0) { "｜另有 $($skipped.Count) 個不支援副檔名未列入" } else { '' }
+    $status.Text = ('輸入 {0} 人{1}｜{2}' -f $script:files.Count, $extra, $script:WorkDir)
+  }
 }
 
 function Load-Selected {
@@ -1532,7 +1563,13 @@ $btnOpenIn = New-Object System.Windows.Forms.Button
 $btnOpenIn.Text = '輸入夾'
 $btnOpenIn.Location = New-Object System.Drawing.Point(156, $y1)
 $btnOpenIn.Size = New-Object System.Drawing.Size(90, 36)
-$btnOpenIn.Add_Click({ Start-Process explorer.exe (Join-Path $script:WorkDir '輸入') })
+$btnOpenIn.Add_Click({
+  $inDir = Join-Path $script:WorkDir '輸入'
+  New-Item -ItemType Directory -Force -Path $inDir | Out-Null
+  Start-Process explorer.exe $inDir
+  Start-Sleep -Milliseconds 500
+  Refresh-List
+})
 
 $btnOpenOut = New-Object System.Windows.Forms.Button
 $btnOpenOut.Text = '輸出夾'
