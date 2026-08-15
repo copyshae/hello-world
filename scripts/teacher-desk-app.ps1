@@ -176,6 +176,7 @@ function Get-LevelColor([string]$level) {
   }
 }
 
+try {
 $script:State = Load-State
 $script:Filter = 'all'
 $script:SelectedId = $null
