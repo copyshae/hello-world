@@ -92,21 +92,23 @@ def md_to_flowables(text: str, font_name: str):
         )
     )
     story.append(Spacer(1, 0.3 * cm))
+    content_started = False
 
     for raw in text.splitlines():
         line = raw.rstrip()
         if not line:
             story.append(Spacer(1, 0.15 * cm))
             continue
-        # 解答與題目分頁：解答一律從新頁開始
-        if (
+        # 解答與題目分頁：解答一律從新頁開始（文件開頭的解答標題除外）
+        is_answer_break = (
             line.startswith("---")
             or line.startswith("#### 解答")
             or line.startswith("### 解答")
             or line.startswith("## 解答")
             or ("解答（全部題目完成後" in line)
             or line.startswith("#### 解答（")
-        ):
+        )
+        if is_answer_break and content_started:
             story.append(PageBreak())
             if line.startswith("---"):
                 continue
@@ -114,12 +116,16 @@ def md_to_flowables(text: str, font_name: str):
             story.append(Paragraph(_esc(line[2:]), title))
         elif line.startswith("## "):
             story.append(Paragraph(_esc(line[3:]), h2))
+            content_started = True
         elif line.startswith("### ") or line.startswith("#### "):
             story.append(Paragraph(_esc(line.lstrip("#").strip()), h2))
+            content_started = True
         elif line.startswith("- "):
             story.append(Paragraph("• " + _esc(line[2:]), body))
+            content_started = True
         else:
             story.append(Paragraph(_esc(line), body))
+            content_started = True
     return story
 
 
