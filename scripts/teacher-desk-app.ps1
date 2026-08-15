@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
   習作台（桌面，繁體中文介面）：掌握程度／發送、LINE 文案、管道偏好、與手機資料互通。
   只用座號、不存姓名。資料：工作夾\班級狀態.json
@@ -176,7 +176,6 @@ function Get-LevelColor([string]$level) {
   }
 }
 
-try {
 $script:State = Load-State
 $script:Filter = 'all'
 $script:SelectedId = $null
@@ -206,7 +205,7 @@ function Get-UnsentIds {
       }
     }
   }
-  return $unsent
+  return ,$unsent
 }
 
 function Build-SendMessage {
@@ -232,6 +231,7 @@ function Build-ReturnMessage {
 }
 
 # —— UI ——
+try {
 $form = New-Object Windows.Forms.Form
 $form.Text = '習作台｜掌握與發送'
 $form.Size = New-Object Drawing.Size(980, 700)

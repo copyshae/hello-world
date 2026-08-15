@@ -10,7 +10,10 @@ $appDir = Join-Path $desk '習作台程式'
 $work = Join-Path $desk '習作台資料'
 
 New-Item -ItemType Directory -Force -Path $appDir | Out-Null
-Copy-Item -LiteralPath $src -Destination (Join-Path $appDir 'teacher-desk-app.ps1') -Force
+# 必須 UTF-8 BOM，否則 Windows PowerShell 會把繁中解錯而無法啟動
+$raw = Get-Content -LiteralPath $src -Raw -Encoding UTF8
+$utf8Bom = New-Object System.Text.UTF8Encoding $true
+[System.IO.File]::WriteAllText((Join-Path $appDir 'teacher-desk-app.ps1'), $raw, $utf8Bom)
 
 New-Item -ItemType Directory -Force -Path $work | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $work '掃描匯入') | Out-Null
