@@ -5,16 +5,18 @@
 #>
 param([string]$WorkDir = "")
 
-Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
+try {
+  Add-Type -AssemblyName System.Windows.Forms
+  Add-Type -AssemblyName System.Drawing
+} catch {
+  throw "無法載入視窗元件：$_"
+}
 [System.Windows.Forms.Application]::EnableVisualStyles()
 try {
   $zh = [System.Globalization.CultureInfo]::GetCultureInfo('zh-TW')
   [System.Threading.Thread]::CurrentThread.CurrentUICulture = $zh
   [System.Threading.Thread]::CurrentThread.CurrentCulture = $zh
-  [System.Windows.Forms.Application]::CurrentCulture = $zh
 } catch {}
 
 $desk = [Environment]::GetFolderPath('Desktop')
@@ -63,19 +65,35 @@ function Get-DefaultState {
 }
 
 function Ensure-Seats($state) {
-  $n = [int]$state.seatCount
+  $n = 30
+  try { $n = [int]$state.seatCount } catch { $n = 30 }
   if ($n -lt 1) { $n = 1 }
   if ($n -gt 60) { $n = 60 }
   $state.seatCount = $n
-  if (-not $state.seats) { $state.seats = @{} }
+  if ($null -eq $state.seats) { $state.seats = @{} }
+  # 若從 JSON 來是 PSCustomObject，改成 Hashtable
+  if ($state.seats -isnot [hashtable]) {
+    $state.seats = ConvertTo-SeatHashtable $state.seats
+  }
   if (-not $state.sendChannel) { $state.sendChannel = 'line_group' }
   if (-not $state.returnChannel) { $state.returnChannel = 'line_dm' }
   for ($i = 1; $i -le $n; $i++) {
     $id = '{0:D2}' -f $i
     if (-not $state.seats.ContainsKey($id)) {
       $state.seats[$id] = @{ level = '未標'; send = '未發'; note = '' }
-    } elseif (-not $state.seats[$id].ContainsKey('note')) {
-      $state.seats[$id].note = ''
+    } else {
+      $seat = $state.seats[$id]
+      if ($seat -is [hashtable]) {
+        if (-not $seat.ContainsKey('note')) { $seat['note'] = '' }
+        if (-not $seat.ContainsKey('level')) { $seat['level'] = '未標' }
+        if (-not $seat.ContainsKey('send')) { $seat['send'] = '未發' }
+      } else {
+        $state.seats[$id] = @{
+          level = $(if ($seat.level) { [string]$seat.level } else { '未標' })
+          send  = $(if ($seat.send) { [string]$seat.send } else { '未發' })
+          note  = $(if ($seat.note) { [string]$seat.note } else { '' })
+        }
+      }
     }
   }
   foreach ($k in @($state.seats.Keys)) {
@@ -588,3 +606,12 @@ $form.Add_FormClosing({
 Refresh-Filters
 Refresh-Grid
 [void]$form.ShowDialog()
+} catch {
+  $msg = "習作台啟動失敗：`n$($_.Exception.Message)`n`n$($_.ScriptStackTrace)"
+  try {
+    [void][System.Windows.Forms.MessageBox]::Show($msg, '習作台錯誤')
+  } catch {
+    Write-Host $msg
+  }
+  exit 1
+}
