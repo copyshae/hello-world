@@ -1,7 +1,7 @@
 {
   "name": "習作台｜老師掌握與發送",
   "short_name": "習作台",
-  "description": "老師平常掌握座號程度與發送狀態，一鍵複製 LINE 群發／回傳說明。",
+  "description": "老師掌握座號、發送練習，並可接收掃描 PDF／圖檔（CS 分享）。",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -22,5 +22,32 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "share_target": {
+    "action": "./share.html",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "scans",
+          "accept": [
+            "image/*",
+            "application/pdf",
+            ".pdf",
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+            ".webp",
+            ".heic",
+            ".heif"
+          ]
+        }
+      ]
+    }
+  }
 }

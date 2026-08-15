@@ -94,6 +94,27 @@
     .nav { margin-top: 1.75rem; font-size: 0.88rem; }
     .nav a { color: var(--accent); }
     .hidden-file { display: none; }
+    .scan-list { list-style: none; margin-top: 0.65rem; display: flex; flex-direction: column; gap: 0.55rem; }
+    .scan-item {
+      padding: 0.7rem 0.75rem; background: rgba(255,255,255,0.7); border: 1px solid var(--line);
+      font-size: 0.88rem;
+    }
+    .scan-item strong { color: var(--accent); }
+    .scan-item .meta { color: var(--muted); font-size: 0.8rem; margin-top: 0.2rem; word-break: break-all; }
+    .scan-item .row { margin-top: 0.45rem; margin-bottom: 0; }
+    .scan-item .mini {
+      flex: 1; padding: 0.4rem 0.5rem; font-size: 0.82rem; min-height: 2.1rem;
+    }
+    .scan-item .btn-row { display: flex; gap: 0.35rem; margin-top: 0.45rem; }
+    .scan-item .btn-row button {
+      flex: 1; padding: 0.45rem 0.35rem; font-size: 0.8rem; font-weight: 600;
+      border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer;
+    }
+    .scan-item .btn-row button.primary { background: var(--accent); color: #fff; }
+    .thumb {
+      width: 100%; max-height: 9rem; object-fit: contain; margin-top: 0.4rem;
+      background: rgba(45,106,79,0.06);
+    }
     @keyframes rise {
       from { opacity: 0; transform: translateY(0.8rem); }
       to { opacity: 1; transform: translateY(0); }
@@ -104,8 +125,8 @@
   <div class="wrap">
     <header class="hero">
       <div class="brand">習作台</div>
-      <p class="lead">與電腦版相同：掌握程度、發送狀態、LINE 文案、管道偏好；可用檔案與電腦互通。</p>
-      <p class="install">iPhone：Safari → 分享 →「加入主畫面」。與電腦互傳：匯出 JSON → AirDrop／雲端 → 另一端匯入。</p>
+      <p class="lead">與電腦版相同：掌握程度、發送狀態、LINE 文案；可接收 CS 掃描匯出的 PDF／圖檔。</p>
+      <p class="install">iPhone：CS 掃描 → 分享 →「儲存到檔案」→ 打開習作台 →「匯入掃描檔」。已加入主畫面後，部分系統也可「分享到習作台」。</p>
       <p class="summary" id="summary">—</p>
     </header>
 
@@ -197,6 +218,23 @@
         <li>學生個別回傳 → 標待回／已回；需補先備採多次少題。</li>
         <li>沒裝置者才走列印包；有手機仍用數位。</li>
       </ul>
+    </section>
+
+    <section id="scanSection">
+      <h2>掃描匯入（CS）</h2>
+      <p class="tips">把 CS 匯出的 PDF／照片拉進習作台，指定座號後可標「待回」，並下載成 <code>05-R01.pdf</code> 傳到電腦「練習回傳」。</p>
+      <div class="actions">
+        <button type="button" class="btn" id="btnPickScan">匯入掃描檔（PDF／圖）</button>
+        <input class="hidden-file" id="fileScan" type="file" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple />
+      </div>
+      <div class="row" style="margin-top:0.65rem">
+        <label for="defaultSeat">預設座號</label>
+        <select id="defaultSeat" class="grow"></select>
+        <label for="defaultRound">次數</label>
+        <input id="defaultRound" type="number" min="1" max="99" value="1" />
+      </div>
+      <ul class="scan-list" id="scanList"></ul>
+      <p class="tips" id="scanEmpty">尚無掃描檔。用上方按鈕匯入，或從 CS 分享進來。</p>
     </section>
 
     <section>
@@ -500,13 +538,259 @@
           persistHeader();
           channelTip();
           refreshPreview();
+          fillSeatSelect();
         });
       });
 
+      /* —— 掃描匯入（CS PDF／圖）—— */
+      var DB_NAME = "teacher-desk-scans";
+      var DB_STORE = "inbox";
+
+      function openScanDb() {
+        return new Promise(function (resolve, reject) {
+          var req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = function () {
+            var db = req.result;
+            if (!db.objectStoreNames.contains(DB_STORE)) {
+              db.createObjectStore(DB_STORE, { keyPath: "id" });
+            }
+          };
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function () { reject(req.error); };
+        });
+      }
+
+      function scanAll() {
+        return openScanDb().then(function (db) {
+          return new Promise(function (resolve, reject) {
+            var tx = db.transaction(DB_STORE, "readonly");
+            var req = tx.objectStore(DB_STORE).getAll();
+            req.onsuccess = function () {
+              var rows = req.result || [];
+              rows.sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+              resolve(rows);
+            };
+            req.onerror = function () { reject(req.error); };
+          });
+        });
+      }
+
+      function scanPut(rec) {
+        return openScanDb().then(function (db) {
+          return new Promise(function (resolve, reject) {
+            var tx = db.transaction(DB_STORE, "readwrite");
+            tx.objectStore(DB_STORE).put(rec);
+            tx.oncomplete = function () { resolve(); };
+            tx.onerror = function () { reject(tx.error); };
+          });
+        });
+      }
+
+      function scanDel(id) {
+        return openScanDb().then(function (db) {
+          return new Promise(function (resolve, reject) {
+            var tx = db.transaction(DB_STORE, "readwrite");
+            tx.objectStore(DB_STORE).delete(id);
+            tx.oncomplete = function () { resolve(); };
+            tx.onerror = function () { reject(tx.error); };
+          });
+        });
+      }
+
+      function extOf(name, type) {
+        var m = /\.([a-z0-9]+)$/i.exec(name || "");
+        if (m) return m[1].toLowerCase();
+        if (type && type.indexOf("pdf") >= 0) return "pdf";
+        if (type && type.indexOf("png") >= 0) return "png";
+        if (type && type.indexOf("webp") >= 0) return "webp";
+        return "jpg";
+      }
+
+      function suggestName(seatId, round, name, type) {
+        var sid = seatId || "00";
+        var r = String(round || 1).padStart(2, "0");
+        return sid + "-R" + r + "." + extOf(name, type);
+      }
+
+      function fillSeatSelect() {
+        var sel = document.getElementById("defaultSeat");
+        var cur = sel.value;
+        sel.innerHTML = "";
+        Object.keys(state.seats).sort().forEach(function (id) {
+          var o = document.createElement("option");
+          o.value = id;
+          o.textContent = id;
+          sel.appendChild(o);
+        });
+        if (cur && state.seats[cur]) sel.value = cur;
+      }
+
+      function bufferToBlob(rec) {
+        var buf = rec.buffer;
+        if (buf instanceof ArrayBuffer) return new Blob([buf], { type: rec.type || "application/octet-stream" });
+        if (buf && buf.buffer) return new Blob([buf.buffer], { type: rec.type || "application/octet-stream" });
+        return new Blob([buf], { type: rec.type || "application/octet-stream" });
+      }
+
+      function renderScans() {
+        return scanAll().then(function (rows) {
+          var list = document.getElementById("scanList");
+          var empty = document.getElementById("scanEmpty");
+          list.innerHTML = "";
+          empty.style.display = rows.length ? "none" : "block";
+          rows.forEach(function (rec) {
+            var li = document.createElement("li");
+            li.className = "scan-item";
+            var seatVal = rec.seatId || document.getElementById("defaultSeat").value || "01";
+            var roundVal = rec.round || parseInt(document.getElementById("defaultRound").value, 10) || 1;
+            var outName = suggestName(seatVal, roundVal, rec.name, rec.type);
+            li.innerHTML =
+              "<strong>" + outName + "</strong>" +
+              '<div class="meta">原檔：' + (rec.name || "") + " · " + Math.round((rec.size || 0) / 1024) + " KB" +
+              (rec.source === "share" ? " · 來自分享" : "") + "</div>" +
+              '<div class="row">' +
+              '<label>座號</label><select class="mini seat-pick"></select>' +
+              '<label>次數</label><input class="mini round-pick" type="number" min="1" max="99" />' +
+              "</div>" +
+              '<div class="btn-row">' +
+              '<button type="button" class="primary act-save">對應座號</button>' +
+              '<button type="button" class="act-dl">下載</button>' +
+              '<button type="button" class="act-pend">標待回</button>' +
+              '<button type="button" class="act-del">刪</button>' +
+              "</div>";
+            var seatPick = li.querySelector(".seat-pick");
+            Object.keys(state.seats).sort().forEach(function (id) {
+              var o = document.createElement("option");
+              o.value = id;
+              o.textContent = id;
+              seatPick.appendChild(o);
+            });
+            seatPick.value = seatVal;
+            var roundPick = li.querySelector(".round-pick");
+            roundPick.value = roundVal;
+            function refreshTitle() {
+              li.querySelector("strong").textContent = suggestName(seatPick.value, roundPick.value, rec.name, rec.type);
+            }
+            seatPick.addEventListener("change", refreshTitle);
+            roundPick.addEventListener("change", refreshTitle);
+
+            if (rec.type && rec.type.indexOf("image/") === 0) {
+              var img = document.createElement("img");
+              img.className = "thumb";
+              img.alt = "預覽";
+              img.src = URL.createObjectURL(bufferToBlob(rec));
+              li.insertBefore(img, li.querySelector(".row"));
+            }
+
+            li.querySelector(".act-save").addEventListener("click", function () {
+              rec.seatId = seatPick.value;
+              rec.round = parseInt(roundPick.value, 10) || 1;
+              scanPut(rec).then(function () {
+                toast("已對應座號 " + rec.seatId);
+                renderScans();
+              });
+            });
+            li.querySelector(".act-dl").addEventListener("click", function () {
+              var name = suggestName(seatPick.value, roundPick.value, rec.name, rec.type);
+              var a = document.createElement("a");
+              a.href = URL.createObjectURL(bufferToBlob(rec));
+              a.download = name;
+              a.click();
+              toast("已下載 " + name + " → 傳到電腦練習回傳");
+            });
+            li.querySelector(".act-pend").addEventListener("click", function () {
+              var sid = seatPick.value;
+              rec.seatId = sid;
+              rec.round = parseInt(roundPick.value, 10) || 1;
+              if (state.seats[sid]) {
+                state.seats[sid].send = "待回";
+                if (!state.seats[sid].note) state.seats[sid].note = "掃描回傳 R" + String(rec.round).padStart(2, "0");
+                save(state);
+                renderGrid();
+              }
+              scanPut(rec).then(function () {
+                toast("座號 " + sid + " 已標待回");
+                renderScans();
+              });
+            });
+            li.querySelector(".act-del").addEventListener("click", function () {
+              scanDel(rec.id).then(function () {
+                toast("已刪除");
+                renderScans();
+              });
+            });
+            list.appendChild(li);
+          });
+        }).catch(function () {
+          toast("無法讀取掃描匣");
+        });
+      }
+
+      function ingestFiles(fileList) {
+        var files = Array.prototype.slice.call(fileList || []);
+        if (!files.length) return Promise.resolve();
+        var seat = document.getElementById("defaultSeat").value || "01";
+        var round = parseInt(document.getElementById("defaultRound").value, 10) || 1;
+        var now = Date.now();
+        var chain = Promise.resolve();
+        files.forEach(function (f, i) {
+          chain = chain.then(function () {
+            return f.arrayBuffer().then(function (buf) {
+              return scanPut({
+                id: "file-" + now + "-" + i,
+                name: f.name || ("scan-" + (i + 1)),
+                type: f.type || "application/octet-stream",
+                size: buf.byteLength,
+                buffer: buf,
+                seatId: seat,
+                round: round,
+                createdAt: now + i,
+                source: "picker"
+              });
+            });
+          });
+        });
+        return chain.then(function () {
+          toast("已匯入 " + files.length + " 個掃描檔");
+          return renderScans();
+        });
+      }
+
+      document.getElementById("btnPickScan").addEventListener("click", function () {
+        document.getElementById("fileScan").click();
+      });
+      document.getElementById("fileScan").addEventListener("change", function (e) {
+        ingestFiles(e.target.files).finally(function () { e.target.value = ""; });
+      });
+
+      // 支援從其他 App 拖放／部分瀏覽器分享後開啟
+      document.body.addEventListener("dragover", function (e) {
+        e.preventDefault();
+      });
+      document.body.addEventListener("drop", function (e) {
+        e.preventDefault();
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+          ingestFiles(e.dataTransfer.files);
+        }
+      });
+
       syncForm();
+      fillSeatSelect();
       renderGrid();
+      renderScans();
+
+      if (location.search.indexOf("inbox=1") >= 0) {
+        toast("已收到分享的掃描檔，請對應座號");
+        var sec = document.getElementById("scanSection");
+        if (sec) sec.scrollIntoView({ behavior: "smooth" });
+        history.replaceState({}, "", "./index.html");
+      }
+
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js").catch(function () {});
+        navigator.serviceWorker.register("./sw.js").then(function () {
+          // 分享進來後 SW 寫入 DB，頁面再刷新列表
+          setTimeout(function () { renderScans(); }, 400);
+        }).catch(function () {});
       }
     })();
   </script>
