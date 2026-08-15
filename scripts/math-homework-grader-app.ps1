@@ -120,19 +120,22 @@ function Load-Note([string]$path) {
       studentId = ''
       sourceFile = ''
       overall = '未批'
+      level = '待判定'
       summary = ''
+      diagnosis = ''
       advice = ''
       practice = ''
-      items = @()
+      itemsText = ''
     }
   }
   $raw = Get-Content -LiteralPath $path -Encoding UTF8 -Raw
-  # simple fields
   $o = [pscustomobject]@{
     studentId = ''
     sourceFile = ''
     overall = '未批'
+    level = '待判定'
     summary = ''
+    diagnosis = ''
     advice = ''
     practice = ''
     itemsText = ''
@@ -140,11 +143,79 @@ function Load-Note([string]$path) {
   if ($raw -match '(?m)^- 座號[：:]\s*(.+)$') { $o.studentId = $Matches[1].Trim() }
   if ($raw -match '(?m)^- 來源檔[：:]\s*(.+)$') { $o.sourceFile = $Matches[1].Trim() }
   if ($raw -match '(?m)^- 總評[：:]\s*(.+)$') { $o.overall = $Matches[1].Trim() }
+  if ($raw -match '(?m)^- 程度[：:]\s*(.+)$') { $o.level = $Matches[1].Trim() }
   if ($raw -match '(?s)## 對錯摘要\s*(.*?)(?=##|$)') { $o.summary = $Matches[1].Trim() }
+  if ($raw -match '(?s)## 個別診斷結果\s*(.*?)(?=##|$)') { $o.diagnosis = $Matches[1].Trim() }
+  elseif ($raw -match '(?s)## 個別建議\s*(.*?)(?=##|$)') { $o.advice = $Matches[1].Trim() }
   if ($raw -match '(?s)## 個別建議\s*(.*?)(?=##|$)') { $o.advice = $Matches[1].Trim() }
-  if ($raw -match '(?s)## 需再練習\s*(.*?)(?=##|$)') { $o.practice = $Matches[1].Trim() }
+  if ($raw -match '(?s)## 依程度自學／補救練習\s*(.*?)(?=##|$)') { $o.practice = $Matches[1].Trim() }
+  elseif ($raw -match '(?s)## 需再練習\s*(.*?)(?=##|$)') { $o.practice = $Matches[1].Trim() }
   if ($raw -match '(?s)## 題號註記\s*(.*?)(?=##|$)') { $o.itemsText = $Matches[1].Trim() }
   return $o
+}
+
+function Get-PracticeTemplate([string]$level) {
+  switch -Regex ($level) {
+    '跟上' {
+      return @"
+### 程度：大致跟上（鞏固＋小挑戰）
+1. （鞏固題）
+2. （鞏固題）
+3. （小挑戰）
+#### 解答
+1. …
+2. …
+3. …
+"@
+    }
+    '略落後' {
+      return @"
+### 程度：略落後（先練本單元關鍵題）
+先復習：________（本單元核心觀念）
+1. （基本題）
+2. （基本題）
+3. （基本題）
+4. （原卷錯題類型變形）
+#### 解答
+1. …
+2. …
+3. …
+4. …
+"@
+    }
+    '明顯落後' {
+      return @"
+### 程度：明顯落後（降階補洞，少而精）
+先備缺口：________
+本週只練 1～2 個點：________
+1. （先備極短題）
+2. （先備極短題）
+3. （銜接本單元最簡題）
+#### 解答（逐步寫）
+1. …
+2. …
+3. …
+說明：先求做對建立信心，暫不强追全班進度。
+"@
+    }
+    '需補先備' {
+      return @"
+### 程度：需補先備（暫緩本單元新進度）
+建議先備單元：________
+1. （先備題）
+2. （先備題）
+3. （先備題）
+#### 解答
+1. …
+2. …
+3. …
+建議：與導師／補救課程協調，避免只重複考卷題。
+"@
+    }
+    default {
+      return "（依程度填寫練習題＋完整解答）"
+    }
+  }
 }
 
 function Save-Note {
@@ -153,18 +224,24 @@ function Save-Note {
     [string]$StudentId,
     [string]$SourceFile,
     [string]$Overall,
+    [string]$Level,
     [string]$ItemsText,
     [string]$Summary,
+    [string]$Diagnosis,
     [string]$Advice,
     [string]$Practice
   )
   $path = Get-NotePath $Root $StudentId
+  if ([string]::IsNullOrWhiteSpace($Practice)) {
+    $Practice = Get-PracticeTemplate $Level
+  }
   $lines = @(
     "# 批閱註記｜座號 $StudentId"
     ''
     '- 座號：' + $StudentId
     '- 來源檔：' + $SourceFile
     '- 總評：' + $Overall
+    '- 程度：' + $Level
     '- 批改時間：' + (Get-Date -Format 'yyyy-MM-dd HH:mm')
     '- 原則：接受其他合理等價解法；存疑項請人工終核'
     ''
@@ -174,11 +251,14 @@ function Save-Note {
     '## 對錯摘要'
     $(if ($Summary) { $Summary } else { '（初核摘要）' })
     ''
-    '## 個別建議'
-    $(if ($Advice) { $Advice } else { '（針對該生）' })
+    '## 個別診斷結果'
+    $(if ($Diagnosis) { $Diagnosis } else { '（弱點類型：計算／觀念／審題／先備不足／粗心…；是否跟得上進度）' })
     ''
-    '## 需再練習'
-    $(if ($Practice) { $Practice } else { '（可後補練習題與解答）' })
+    '## 個別建議'
+    $(if ($Advice) { $Advice } else { '（給學生／家長的短建議）' })
+    ''
+    '## 依程度自學／補救練習'
+    $Practice
     ''
   )
   $utf8Bom = New-Object System.Text.UTF8Encoding $true
@@ -190,14 +270,14 @@ function Export-ClassCsv([string]$root) {
   $outDir = Join-Path $root '輸出'
   $csv = Join-Path $outDir '全班總表.csv'
   $rows = @()
-  $rows += '座號,來源檔,總評,註記檔,批改時間'
+  $rows += '座號,來源檔,總評,程度,註記檔,批改時間'
   Get-ChildItem -LiteralPath $outDir -Filter '*-註記.md' -File -ErrorAction SilentlyContinue |
     Sort-Object Name |
     ForEach-Object {
       $n = Load-Note $_.FullName
       $id = Get-StudentId $_.Name.Replace('-註記', '')
       if (-not $n.studentId) { $n.studentId = $id }
-      $rows += ('{0},{1},{2},{3},{4}' -f $n.studentId, ($n.sourceFile -replace ',', '，'), ($n.overall -replace ',', '，'), $_.Name, (Get-Date -Format 'yyyy-MM-dd HH:mm'))
+      $rows += ('{0},{1},{2},{3},{4},{5}' -f $n.studentId, ($n.sourceFile -replace ',', '，'), ($n.overall -replace ',', '，'), ($n.level -replace ',', '，'), $_.Name, (Get-Date -Format 'yyyy-MM-dd HH:mm'))
     }
   $utf8Bom = New-Object System.Text.UTF8Encoding $true
   [IO.File]::WriteAllText($csv, ($rows -join "`r`n"), $utf8Bom)
@@ -253,7 +333,13 @@ function Build-CursorPromptOne([string]$root, $studentFile) {
   $sb = New-Object System.Text.StringBuilder
   [void]$sb.AppendLine('請直接批閱這一位學生的數學試卷（一人一檔）。')
   [void]$sb.AppendLine('規則：以我提供的正確答案為準；接受合理等價解法；看不懂標 ? 存疑（供我人工確認／重謄）。')
-  [void]$sb.AppendLine('請輸出：題號註記（✓／✗／?）、對錯摘要、個別建議、需再練習（可附練習題與解答）。')
+  [void]$sb.AppendLine('請務必輸出：')
+  [void]$sb.AppendLine('1) 題號註記（✓／✗／?）')
+  [void]$sb.AppendLine('2) 對錯摘要')
+  [void]$sb.AppendLine('3) 個別診斷結果（弱點類型、是否跟得上進度）')
+  [void]$sb.AppendLine('4) 程度分級：跟上／略落後／明顯落後／需補先備')
+  [void]$sb.AppendLine('5) 個別建議（短）')
+  [void]$sb.AppendLine('6) 依程度自學／補救練習：題目＋完整解答（明顯落後要降階、少而精）')
   [void]$sb.AppendLine('格式方便我貼回批改程式／存成 輸出\' + $id + '-註記.md')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('座號：' + $id)
@@ -398,40 +484,72 @@ $cmbOverall.DropDownStyle = 'DropDownList'
 $cmbOverall.Items.AddRange(@('未批', '大致正確', '部分錯誤', '需補救', '存疑多'))
 $cmbOverall.SelectedIndex = 0
 $cmbOverall.Location = New-Object System.Drawing.Point(120, 24)
-$cmbOverall.Size = New-Object System.Drawing.Size(200, 28)
+$cmbOverall.Size = New-Object System.Drawing.Size(150, 28)
 $grp.Controls.Add($cmbOverall)
+
+$lbLevel = New-Object System.Windows.Forms.Label
+$lbLevel.Text = '程度'
+$lbLevel.Location = New-Object System.Drawing.Point(280, 24)
+$lbLevel.Size = New-Object System.Drawing.Size(50, 28)
+$grp.Controls.Add($lbLevel)
+$cmbLevel = New-Object System.Windows.Forms.ComboBox
+$cmbLevel.DropDownStyle = 'DropDownList'
+$cmbLevel.Items.AddRange(@('待判定', '跟上', '略落後', '明顯落後', '需補先備'))
+$cmbLevel.SelectedIndex = 0
+$cmbLevel.Location = New-Object System.Drawing.Point(330, 24)
+$cmbLevel.Size = New-Object System.Drawing.Size(140, 28)
+$grp.Controls.Add($cmbLevel)
+
+$btnFillPractice = New-Object System.Windows.Forms.Button
+$btnFillPractice.Text = '依程度帶入練習架構'
+$btnFillPractice.Location = New-Object System.Drawing.Point(480, 22)
+$btnFillPractice.Size = New-Object System.Drawing.Size(130, 30)
+$btnFillPractice.Add_Click({
+    $txtPractice.Text = Get-PracticeTemplate ([string]$cmbLevel.SelectedItem)
+  })
+$grp.Controls.Add($btnFillPractice)
 
 Add-L 58 '題號註記'
 $txtItems = New-Object System.Windows.Forms.TextBox
 $txtItems.Multiline = $true
 $txtItems.ScrollBars = 'Vertical'
 $txtItems.Location = New-Object System.Drawing.Point(120, 58)
-$txtItems.Size = New-Object System.Drawing.Size(490, 70)
+$txtItems.Size = New-Object System.Drawing.Size(490, 48)
 $txtItems.Text = "1 ✓`r`n2 ✗`r`n3 ?"
 $grp.Controls.Add($txtItems)
 
-Add-L 138 '對錯摘要'
+Add-L 112 '對錯摘要'
 $txtSummary = New-Object System.Windows.Forms.TextBox
 $txtSummary.Multiline = $true
 $txtSummary.ScrollBars = 'Vertical'
-$txtSummary.Location = New-Object System.Drawing.Point(120, 138)
-$txtSummary.Size = New-Object System.Drawing.Size(490, 50)
+$txtSummary.Location = New-Object System.Drawing.Point(120, 112)
+$txtSummary.Size = New-Object System.Drawing.Size(490, 36)
 $grp.Controls.Add($txtSummary)
 
-Add-L 198 '個別建議'
+Add-L 154 '診斷結果'
+$txtDiagnosis = New-Object System.Windows.Forms.TextBox
+$txtDiagnosis.Multiline = $true
+$txtDiagnosis.ScrollBars = 'Vertical'
+$txtDiagnosis.Location = New-Object System.Drawing.Point(120, 154)
+$txtDiagnosis.Size = New-Object System.Drawing.Size(490, 48)
+$txtDiagnosis.Text = '弱點：`r`n是否跟上：'
+$grp.Controls.Add($txtDiagnosis)
+
+Add-L 208 '個別建議'
 $txtAdvice = New-Object System.Windows.Forms.TextBox
 $txtAdvice.Multiline = $true
 $txtAdvice.ScrollBars = 'Vertical'
-$txtAdvice.Location = New-Object System.Drawing.Point(120, 198)
-$txtAdvice.Size = New-Object System.Drawing.Size(490, 50)
+$txtAdvice.Location = New-Object System.Drawing.Point(120, 208)
+$txtAdvice.Size = New-Object System.Drawing.Size(490, 36)
 $grp.Controls.Add($txtAdvice)
 
-Add-L 258 '再練習'
+Add-L 250 '自學練習'
 $txtPractice = New-Object System.Windows.Forms.TextBox
 $txtPractice.Multiline = $true
 $txtPractice.ScrollBars = 'Vertical'
-$txtPractice.Location = New-Object System.Drawing.Point(120, 258)
-$txtPractice.Size = New-Object System.Drawing.Size(490, 60)
+$txtPractice.Location = New-Object System.Drawing.Point(120, 250)
+$txtPractice.Size = New-Object System.Drawing.Size(490, 70)
+$txtPractice.Text = '（題目＋解答；可按「依程度帶入練習架構」）'
 $grp.Controls.Add($txtPractice)
 
 $status = New-Object System.Windows.Forms.Label
@@ -481,10 +599,14 @@ function Load-Selected {
   if ($n.overall -and $cmbOverall.Items.Contains($n.overall)) {
     $cmbOverall.SelectedItem = $n.overall
   } else { $cmbOverall.SelectedIndex = 0 }
+  if ($n.level -and $cmbLevel.Items.Contains($n.level)) {
+    $cmbLevel.SelectedItem = $n.level
+  } else { $cmbLevel.SelectedIndex = 0 }
   $txtItems.Text = $(if ($n.itemsText) { $n.itemsText } else { "1 ✓`r`n2 ✗`r`n3 ?" })
   $txtSummary.Text = [string]$n.summary
+  $txtDiagnosis.Text = $(if ($n.diagnosis) { [string]$n.diagnosis } else { "弱點：`r`n是否跟上：" })
   $txtAdvice.Text = [string]$n.advice
-  $txtPractice.Text = [string]$n.practice
+  $txtPractice.Text = $(if ($n.practice) { [string]$n.practice } else { '（題目＋解答；可按「依程度帶入練習架構」）' })
   $status.Text = '目前：座號 ' + $id + '｜' + $f.Name
 }
 
@@ -506,7 +628,7 @@ function Start-GradeCurrent {
     foreach ($a in $ans) { Start-Process -FilePath $a.FullName }
     $status.Text = '已複製 Cursor 提示，並開啟學生卷＋答案；請到 Cursor 貼上並附檔'
     [void][System.Windows.Forms.MessageBox]::Show(
-      "已複製「請 Cursor 直接批閱」提示到剪貼簿。`n並已開啟此生試卷與正確答案。`n`n請到 Cursor 貼上提示，把檔案拖進對話。`n批完後把題號註記貼回右側再按「輸出此生PDF」。",
+      "已複製「請 Cursor 直接批閱」提示到剪貼簿。`n並已開啟此生試卷與正確答案。`n`n請到 Cursor 貼上並附檔。`n請 Cursor 一併給：診斷結果、程度、自學／補救練習（含解答）。`n貼回右側後按「輸出此生PDF」。",
       '請 Cursor 批閱'
     )
   } else {
@@ -525,8 +647,9 @@ function Save-Current {
   }
   $id = Get-StudentId $script:current.Name
   $path = Save-Note -Root $script:WorkDir -StudentId $id -SourceFile $script:current.Name `
-    -Overall ([string]$cmbOverall.SelectedItem) -ItemsText $txtItems.Text `
-    -Summary $txtSummary.Text -Advice $txtAdvice.Text -Practice $txtPractice.Text
+    -Overall ([string]$cmbOverall.SelectedItem) -Level ([string]$cmbLevel.SelectedItem) `
+    -ItemsText $txtItems.Text -Summary $txtSummary.Text `
+    -Diagnosis $txtDiagnosis.Text -Advice $txtAdvice.Text -Practice $txtPractice.Text
   [void](Invoke-MakePdf -Root $script:WorkDir -Student $id -MergeOriginal)
   Refresh-List
   for ($i = 0; $i -lt $list.Items.Count; $i++) {
