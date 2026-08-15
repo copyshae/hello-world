@@ -496,7 +496,6 @@ function Show-ToolPickerDialog {
   $cmbSend.Items.AddRange(@(
       '未指定（日後再選）',
       'LINE 班級群組',
-      '均一教育平台（線上練）',
       'Google Classroom',
       'Google雲端／OneDrive',
       '學校LMS／email',
@@ -550,8 +549,8 @@ function Show-ToolPickerDialog {
         ''
         '建議組合：'
         '・快又省事 → 發：LINE班級群組　回：LINE個別傳老師'
-        '・線上練技能 → 均一指派（依問題點）；紙本／手寫回傳仍用本程式'
-        '・要長期整齊 → 發＋回都用 Classroom 或 雲端兩夾'
+        '・練習來源 → Cursor 自動產題＋指導＋影片連結（不用均一）'
+        '・要長期整齊 → Classroom 或 雲端兩夾'
         '・群組只公告，不要當作業回收桶'
         ''
         '已勾選常用工具：'
