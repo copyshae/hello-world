@@ -259,13 +259,13 @@
 
       function def() {
         return {
-          classLabel: "本班數學", seatCount: 30, deadline: "今晚 21:00",
+          classLabel: "本班數學", seatCount: 35, deadline: "今晚 21:00",
           sendChannel: "line_group", returnChannel: "line_dm", seats: {}
         };
       }
 
       function ensure(state) {
-        var n = Math.max(1, Math.min(60, parseInt(state.seatCount, 10) || 30));
+        var n = Math.max(1, Math.min(60, parseInt(state.seatCount, 10) || 35));
         state.seatCount = n;
         if (!state.seats) state.seats = {};
         if (!state.sendChannel) state.sendChannel = "line_group";

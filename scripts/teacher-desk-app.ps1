@@ -64,13 +64,13 @@ try {
   function Get-DefaultState {
     $seats = @{}
     $seats['00'] = @{ level = '未標'; send = '未發'; note = '試發' }
-    for ($i = 1; $i -le 30; $i++) {
+    for ($i = 1; $i -le 35; $i++) {
       $id = '{0:D2}' -f $i
       $seats[$id] = @{ level = '未標'; send = '未發'; note = '' }
     }
     return @{
       classLabel    = '本班數學'
-      seatCount     = 30
+      seatCount     = 35
       deadline      = '今晚 21:00'
       sendChannel   = 'line_group'
       returnChannel = 'line_dm'
@@ -80,8 +80,8 @@ try {
 
   function Ensure-State($st) {
     if ($null -eq $st) { return (Get-DefaultState) }
-    $n = 30
-    try { $n = [int]$st.seatCount } catch { $n = 30 }
+    $n = 35
+    try { $n = [int]$st.seatCount } catch { $n = 35 }
     if ($n -lt 1) { $n = 1 }
     if ($n -gt 60) { $n = 60 }
     $st.seatCount = $n
