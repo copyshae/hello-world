@@ -204,6 +204,30 @@ function Export-ClassCsv([string]$root) {
   return $csv
 }
 
+function Get-AnswerFiles([string]$root) {
+  $dir = Join-Path $root '標準答案'
+  if (-not (Test-Path -LiteralPath $dir)) { return @() }
+  Get-ChildItem -LiteralPath $dir -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Extension -match '\.(pdf|png|jpe?g|tif{1,2}|bmp|txt|md)$' } |
+    Sort-Object Name
+}
+
+function Get-SettingsPath([string]$root) {
+  Join-Path $root 'settings.json'
+}
+
+function Load-Settings([string]$root) {
+  $p = Get-SettingsPath $root
+  if (Test-Path -LiteralPath $p) {
+    try { return (Get-Content -LiteralPath $p -Encoding UTF8 -Raw | ConvertFrom-Json) } catch {}
+  }
+  return [pscustomobject]@{ mode = 'manual'; answerHint = '' }
+}
+
+function Save-Settings([string]$root, $settings) {
+  ($settings | ConvertTo-Json) | Set-Content -LiteralPath (Get-SettingsPath $root) -Encoding UTF8
+}
+
 function Build-CursorPrompt([string]$root) {
   $inputs = @(Get-InputFiles $root)
   $ansDir = Join-Path $root '標準答案'
@@ -223,41 +247,142 @@ function Build-CursorPrompt([string]$root) {
   return $sb.ToString()
 }
 
+function Build-CursorPromptOne([string]$root, $studentFile) {
+  $id = Get-StudentId $studentFile.Name
+  $ansFiles = @(Get-AnswerFiles $root)
+  $sb = New-Object System.Text.StringBuilder
+  [void]$sb.AppendLine('請直接批閱這一位學生的數學試卷（一人一檔）。')
+  [void]$sb.AppendLine('規則：以我提供的正確答案為準；接受合理等價解法；看不懂標 ? 存疑（供我人工確認／重謄）。')
+  [void]$sb.AppendLine('請輸出：題號註記（✓／✗／?）、對錯摘要、個別建議、需再練習（可附練習題與解答）。')
+  [void]$sb.AppendLine('格式方便我貼回批改程式／存成 輸出\' + $id + '-註記.md')
+  [void]$sb.AppendLine('')
+  [void]$sb.AppendLine('座號：' + $id)
+  [void]$sb.AppendLine('學生試卷：' + $studentFile.FullName)
+  [void]$sb.AppendLine('正確答案檔：')
+  if ($ansFiles.Count -eq 0) {
+    [void]$sb.AppendLine(' （尚未放入標準答案，請老師一併上傳答案）')
+  } else {
+    foreach ($a in $ansFiles) { [void]$sb.AppendLine(' - ' + $a.FullName) }
+  }
+  return $sb.ToString()
+}
+
 # ----- UI -----
 if ([string]::IsNullOrWhiteSpace($WorkDir)) { $WorkDir = Get-DefaultWorkDir }
 Ensure-WorkTree $WorkDir
 $script:WorkDir = $WorkDir
+$script:settings = Load-Settings $WorkDir
 
 $font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 12)
-$fontBig = New-Object System.Drawing.Font('Microsoft JhengHei UI', 16, [System.Drawing.FontStyle]::Bold)
+$fontBig = New-Object System.Drawing.Font('Microsoft JhengHei UI', 15, [System.Drawing.FontStyle]::Bold)
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = '數學習作批改（一人一檔 → 一人一註記）'
-$form.Size = New-Object System.Drawing.Size(980, 680)
+$form.Text = '數學習作批改（一人一檔｜先載入答案或請 Cursor 批）'
+$form.Size = New-Object System.Drawing.Size(1000, 720)
 $form.StartPosition = 'CenterScreen'
 $form.Font = $font
 $form.BackColor = [System.Drawing.Color]::FromArgb(245, 248, 244)
 
 $lbl = New-Object System.Windows.Forms.Label
-$lbl.Text = '一人一檔、一檔一檔批：選人 → 開啟 → 註記 → 輸出PDF → 下一位'
+$lbl.Text = '建議：先載入正確答案 → 再一檔一檔批（自己對照或請 Cursor）'
 $lbl.Font = $fontBig
 $lbl.ForeColor = [System.Drawing.Color]::FromArgb(20, 70, 50)
-$lbl.Location = New-Object System.Drawing.Point(16, 12)
-$lbl.Size = New-Object System.Drawing.Size(700, 32)
+$lbl.Location = New-Object System.Drawing.Point(16, 10)
+$lbl.Size = New-Object System.Drawing.Size(960, 28)
+
+# --- 開始區：答案＋模式 ---
+$grpStart = New-Object System.Windows.Forms.GroupBox
+$grpStart.Text = '① 開始：正確答案與批閱方式'
+$grpStart.Location = New-Object System.Drawing.Point(16, 42)
+$grpStart.Size = New-Object System.Drawing.Size(950, 88)
+
+$lblAns = New-Object System.Windows.Forms.Label
+$lblAns.Location = New-Object System.Drawing.Point(12, 28)
+$lblAns.Size = New-Object System.Drawing.Size(700, 22)
+$grpStart.Controls.Add($lblAns)
+
+$cmbMode = New-Object System.Windows.Forms.ComboBox
+$cmbMode.DropDownStyle = 'DropDownList'
+$cmbMode.Items.AddRange(@('自己對照批（開啟答案＋學生卷）', '請 Cursor 直接批閱（複製提示並開檔）'))
+$cmbMode.Location = New-Object System.Drawing.Point(12, 52)
+$cmbMode.Size = New-Object System.Drawing.Size(360, 28)
+if ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 } else { $cmbMode.SelectedIndex = 0 }
+$grpStart.Controls.Add($cmbMode)
+
+function Refresh-AnswerLabel {
+  $files = @(Get-AnswerFiles $script:WorkDir)
+  if ($files.Count -eq 0) {
+    $lblAns.Text = '正確答案：尚未載入（請先「載入正確答案」）'
+    $lblAns.ForeColor = [System.Drawing.Color]::DarkRed
+  } else {
+    $names = ($files | ForEach-Object { $_.Name }) -join '、'
+    $lblAns.Text = "正確答案：已載入 $($files.Count) 個｜$names"
+    $lblAns.ForeColor = [System.Drawing.Color]::FromArgb(20, 70, 50)
+  }
+}
+
+$btnLoadAns = New-Object System.Windows.Forms.Button
+$btnLoadAns.Text = '載入正確答案'
+$btnLoadAns.Location = New-Object System.Drawing.Point(390, 48)
+$btnLoadAns.Size = New-Object System.Drawing.Size(130, 32)
+$btnLoadAns.Add_Click({
+    $ofd = New-Object System.Windows.Forms.OpenFileDialog
+    $ofd.Title = '選擇正確答案（可多選）'
+    $ofd.Filter = '答案檔|*.pdf;*.png;*.jpg;*.jpeg;*.txt;*.md|所有檔|*.*'
+    $ofd.Multiselect = $true
+    if ($ofd.ShowDialog() -eq 'OK') {
+      $dest = Join-Path $script:WorkDir '標準答案'
+      foreach ($f in $ofd.FileNames) {
+        Copy-Item -LiteralPath $f -Destination (Join-Path $dest ([IO.Path]::GetFileName($f))) -Force
+      }
+      Refresh-AnswerLabel
+      $status.Text = '已載入正確答案，可開始一檔一檔批'
+    }
+  })
+$grpStart.Controls.Add($btnLoadAns)
+
+$btnOpenAns = New-Object System.Windows.Forms.Button
+$btnOpenAns.Text = '開啟答案對照'
+$btnOpenAns.Location = New-Object System.Drawing.Point(530, 48)
+$btnOpenAns.Size = New-Object System.Drawing.Size(130, 32)
+$btnOpenAns.Add_Click({
+    $files = @(Get-AnswerFiles $script:WorkDir)
+    if ($files.Count -eq 0) {
+      [void][System.Windows.Forms.MessageBox]::Show('尚未載入正確答案', '提示')
+      return
+    }
+    foreach ($f in $files) { Start-Process -FilePath $f.FullName }
+  })
+$grpStart.Controls.Add($btnOpenAns)
+
+$btnOpenAnsFolder = New-Object System.Windows.Forms.Button
+$btnOpenAnsFolder.Text = '答案資料夾'
+$btnOpenAnsFolder.Location = New-Object System.Drawing.Point(670, 48)
+$btnOpenAnsFolder.Size = New-Object System.Drawing.Size(110, 32)
+$btnOpenAnsFolder.Add_Click({ Start-Process explorer.exe (Join-Path $script:WorkDir '標準答案') })
+$grpStart.Controls.Add($btnOpenAnsFolder)
+
+$cmbMode.Add_SelectedIndexChanged({
+    $script:settings = [pscustomobject]@{
+      mode = $(if ($cmbMode.SelectedIndex -eq 1) { 'cursor' } else { 'manual' })
+      answerHint = [string]$lblAns.Text
+    }
+    Save-Settings $script:WorkDir $script:settings
+  })
 
 $lblPath = New-Object System.Windows.Forms.Label
-$lblPath.Location = New-Object System.Drawing.Point(16, 48)
-$lblPath.Size = New-Object System.Drawing.Size(920, 24)
+$lblPath.Location = New-Object System.Drawing.Point(16, 136)
+$lblPath.Size = New-Object System.Drawing.Size(960, 22)
 
 $list = New-Object System.Windows.Forms.ListBox
-$list.Location = New-Object System.Drawing.Point(16, 84)
-$list.Size = New-Object System.Drawing.Size(300, 420)
+$list.Location = New-Object System.Drawing.Point(16, 164)
+$list.Size = New-Object System.Drawing.Size(300, 340)
 $list.Font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 13)
 
 $grp = New-Object System.Windows.Forms.GroupBox
-$grp.Text = '目前學生註記'
-$grp.Location = New-Object System.Drawing.Point(336, 84)
-$grp.Size = New-Object System.Drawing.Size(610, 420)
+$grp.Text = '② 目前學生註記'
+$grp.Location = New-Object System.Drawing.Point(336, 164)
+$grp.Size = New-Object System.Drawing.Size(630, 340)
 
 function Add-L([int]$y, [string]$t) {
   $l = New-Object System.Windows.Forms.Label
@@ -267,58 +392,72 @@ function Add-L([int]$y, [string]$t) {
   $grp.Controls.Add($l)
 }
 
-Add-L 28 '總評'
+Add-L 24 '總評'
 $cmbOverall = New-Object System.Windows.Forms.ComboBox
 $cmbOverall.DropDownStyle = 'DropDownList'
 $cmbOverall.Items.AddRange(@('未批', '大致正確', '部分錯誤', '需補救', '存疑多'))
 $cmbOverall.SelectedIndex = 0
-$cmbOverall.Location = New-Object System.Drawing.Point(120, 28)
+$cmbOverall.Location = New-Object System.Drawing.Point(120, 24)
 $cmbOverall.Size = New-Object System.Drawing.Size(200, 28)
 $grp.Controls.Add($cmbOverall)
 
-Add-L 68 '題號註記'
+Add-L 58 '題號註記'
 $txtItems = New-Object System.Windows.Forms.TextBox
 $txtItems.Multiline = $true
 $txtItems.ScrollBars = 'Vertical'
-$txtItems.Location = New-Object System.Drawing.Point(120, 68)
-$txtItems.Size = New-Object System.Drawing.Size(470, 90)
+$txtItems.Location = New-Object System.Drawing.Point(120, 58)
+$txtItems.Size = New-Object System.Drawing.Size(490, 70)
 $txtItems.Text = "1 ✓`r`n2 ✗`r`n3 ?"
 $grp.Controls.Add($txtItems)
 
-Add-L 168 '對錯摘要'
+Add-L 138 '對錯摘要'
 $txtSummary = New-Object System.Windows.Forms.TextBox
 $txtSummary.Multiline = $true
 $txtSummary.ScrollBars = 'Vertical'
-$txtSummary.Location = New-Object System.Drawing.Point(120, 168)
-$txtSummary.Size = New-Object System.Drawing.Size(470, 60)
+$txtSummary.Location = New-Object System.Drawing.Point(120, 138)
+$txtSummary.Size = New-Object System.Drawing.Size(490, 50)
 $grp.Controls.Add($txtSummary)
 
-Add-L 240 '個別建議'
+Add-L 198 '個別建議'
 $txtAdvice = New-Object System.Windows.Forms.TextBox
 $txtAdvice.Multiline = $true
 $txtAdvice.ScrollBars = 'Vertical'
-$txtAdvice.Location = New-Object System.Drawing.Point(120, 240)
-$txtAdvice.Size = New-Object System.Drawing.Size(470, 60)
+$txtAdvice.Location = New-Object System.Drawing.Point(120, 198)
+$txtAdvice.Size = New-Object System.Drawing.Size(490, 50)
 $grp.Controls.Add($txtAdvice)
 
-Add-L 312 '再練習'
+Add-L 258 '再練習'
 $txtPractice = New-Object System.Windows.Forms.TextBox
 $txtPractice.Multiline = $true
 $txtPractice.ScrollBars = 'Vertical'
-$txtPractice.Location = New-Object System.Drawing.Point(120, 312)
-$txtPractice.Size = New-Object System.Drawing.Size(470, 80)
+$txtPractice.Location = New-Object System.Drawing.Point(120, 258)
+$txtPractice.Size = New-Object System.Drawing.Size(490, 60)
 $grp.Controls.Add($txtPractice)
 
 $status = New-Object System.Windows.Forms.Label
-$status.Location = New-Object System.Drawing.Point(16, 600)
-$status.Size = New-Object System.Drawing.Size(930, 28)
-$status.Text = '先選工作資料夾，把全班 PDF／圖檔放入「輸入」'
+$status.Location = New-Object System.Drawing.Point(16, 640)
+$status.Size = New-Object System.Drawing.Size(950, 28)
+$status.Text = '請先「載入正確答案」，再選批閱方式'
 
 $script:files = @()
 $script:current = $null
 
 function Refresh-PathLabel {
-  $lblPath.Text = '工作資料夾：' + $script:WorkDir
+  $lblPath.Text = '工作資料夾：' + $script:WorkDir + '　　（輸入＝學生卷｜輸出＝註記PDF）'
+}
+
+function Ensure-AnswerOrWarn {
+  $files = @(Get-AnswerFiles $script:WorkDir)
+  if ($files.Count -eq 0) {
+    $r = [System.Windows.Forms.MessageBox]::Show(
+      "尚未載入正確答案。`n建議先載入以便比對。`n仍要繼續嗎？",
+      '正確答案',
+      [System.Windows.Forms.MessageBoxButtons]::YesNo,
+      [System.Windows.Forms.MessageBoxIcon]::Warning
+    )
+    return ($r -eq 'Yes')
+  }
+  return $true
 }
 
 function Refresh-List {
@@ -339,7 +478,6 @@ function Load-Selected {
   $script:current = $f
   $id = Get-StudentId $f.Name
   $n = Load-Note (Get-NotePath $script:WorkDir $id)
-  $idx = [Math]::Max(0, $cmbOverall.Items.IndexOf([string]$n.overall))
   if ($n.overall -and $cmbOverall.Items.Contains($n.overall)) {
     $cmbOverall.SelectedItem = $n.overall
   } else { $cmbOverall.SelectedIndex = 0 }
@@ -352,6 +490,34 @@ function Load-Selected {
 
 $list.Add_SelectedIndexChanged({ Load-Selected })
 
+function Start-GradeCurrent {
+  if (-not $script:current) {
+    [void][System.Windows.Forms.MessageBox]::Show('請先選左側一位學生', '提示')
+    return
+  }
+  if (-not (Ensure-AnswerOrWarn)) { return }
+
+  if ($cmbMode.SelectedIndex -eq 1) {
+    # Cursor 直接批閱
+    $p = Build-CursorPromptOne $script:WorkDir $script:current
+    [System.Windows.Forms.Clipboard]::SetText($p)
+    Start-Process -FilePath $script:current.FullName
+    $ans = @(Get-AnswerFiles $script:WorkDir)
+    foreach ($a in $ans) { Start-Process -FilePath $a.FullName }
+    $status.Text = '已複製 Cursor 提示，並開啟學生卷＋答案；請到 Cursor 貼上並附檔'
+    [void][System.Windows.Forms.MessageBox]::Show(
+      "已複製「請 Cursor 直接批閱」提示到剪貼簿。`n並已開啟此生試卷與正確答案。`n`n請到 Cursor 貼上提示，把檔案拖進對話。`n批完後把題號註記貼回右側再按「輸出此生PDF」。",
+      '請 Cursor 批閱'
+    )
+  } else {
+    # 自己對照
+    Start-Process -FilePath $script:current.FullName
+    $ans = @(Get-AnswerFiles $script:WorkDir)
+    foreach ($a in $ans) { Start-Process -FilePath $a.FullName }
+    $status.Text = '已開啟答案＋此生試卷，請對照後填註記'
+  }
+}
+
 function Save-Current {
   if (-not $script:current) {
     [void][System.Windows.Forms.MessageBox]::Show('請先選左側一位學生', '提示')
@@ -361,14 +527,12 @@ function Save-Current {
   $path = Save-Note -Root $script:WorkDir -StudentId $id -SourceFile $script:current.Name `
     -Overall ([string]$cmbOverall.SelectedItem) -ItemsText $txtItems.Text `
     -Summary $txtSummary.Text -Advice $txtAdvice.Text -Practice $txtPractice.Text
-  # 同時產此生 PDF 註記（一人一檔）
   [void](Invoke-MakePdf -Root $script:WorkDir -Student $id -MergeOriginal)
   Refresh-List
   for ($i = 0; $i -lt $list.Items.Count; $i++) {
     if ($list.Items[$i].ToString().StartsWith($id + ' ')) { $list.SelectedIndex = $i; break }
   }
   $pdf1 = Join-Path (Join-Path $script:WorkDir '輸出') ($id + '-批閱註記.pdf')
-  $pdf2 = Join-Path (Join-Path $script:WorkDir '輸出') ($id + '-試卷含批閱.pdf')
   $status.Text = "已輸出：$path ｜ PDF：$pdf1"
   return $path
 }
@@ -381,7 +545,7 @@ function Select-NextUngraded {
     if (-not (Test-Path -LiteralPath $note)) {
       $list.SelectedIndex = $i
       Load-Selected
-      if ($script:current) { Start-Process -FilePath $script:current.FullName }
+      Start-GradeCurrent
       $status.Text = "下一位未批：座號 $id"
       return
     }
@@ -389,46 +553,50 @@ function Select-NextUngraded {
   [void][System.Windows.Forms.MessageBox]::Show("全員都有註記了。`n可按「產生全班存疑清單」處理看不懂的地方。", '完成')
 }
 
+$y1 = 520
 $btnWork = New-Object System.Windows.Forms.Button
 $btnWork.Text = '選工作資料夾'
-$btnWork.Location = New-Object System.Drawing.Point(16, 520)
-$btnWork.Size = New-Object System.Drawing.Size(140, 40)
+$btnWork.Location = New-Object System.Drawing.Point(16, $y1)
+$btnWork.Size = New-Object System.Drawing.Size(130, 36)
 $btnWork.Add_Click({
     $d = New-Object System.Windows.Forms.FolderBrowserDialog
     $d.SelectedPath = $script:WorkDir
     if ($d.ShowDialog() -eq 'OK') {
       $script:WorkDir = $d.SelectedPath
       Ensure-WorkTree $script:WorkDir
+      $script:settings = Load-Settings $script:WorkDir
+      if ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 } else { $cmbMode.SelectedIndex = 0 }
       Refresh-PathLabel
+      Refresh-AnswerLabel
       Refresh-List
     }
   })
 
 $btnOpenIn = New-Object System.Windows.Forms.Button
-$btnOpenIn.Text = '開啟輸入夾'
-$btnOpenIn.Location = New-Object System.Drawing.Point(168, 520)
-$btnOpenIn.Size = New-Object System.Drawing.Size(120, 40)
+$btnOpenIn.Text = '輸入夾'
+$btnOpenIn.Location = New-Object System.Drawing.Point(156, $y1)
+$btnOpenIn.Size = New-Object System.Drawing.Size(90, 36)
 $btnOpenIn.Add_Click({ Start-Process explorer.exe (Join-Path $script:WorkDir '輸入') })
 
 $btnOpenOut = New-Object System.Windows.Forms.Button
-$btnOpenOut.Text = '開啟輸出夾'
-$btnOpenOut.Location = New-Object System.Drawing.Point(300, 520)
-$btnOpenOut.Size = New-Object System.Drawing.Size(120, 40)
+$btnOpenOut.Text = '輸出夾'
+$btnOpenOut.Location = New-Object System.Drawing.Point(256, $y1)
+$btnOpenOut.Size = New-Object System.Drawing.Size(90, 36)
 $btnOpenOut.Add_Click({ Start-Process explorer.exe (Join-Path $script:WorkDir '輸出') })
 
-$btnOpenFile = New-Object System.Windows.Forms.Button
-$btnOpenFile.Text = '開啟此生檔案'
-$btnOpenFile.Location = New-Object System.Drawing.Point(432, 520)
-$btnOpenFile.Size = New-Object System.Drawing.Size(140, 40)
-$btnOpenFile.Add_Click({
-    if ($script:current) { Start-Process -FilePath $script:current.FullName }
-    else { [void][System.Windows.Forms.MessageBox]::Show('請先選學生', '提示') }
-  })
+$btnGrade = New-Object System.Windows.Forms.Button
+$btnGrade.Text = '開始批此生'
+$btnGrade.Location = New-Object System.Drawing.Point(356, $y1)
+$btnGrade.Size = New-Object System.Drawing.Size(120, 36)
+$btnGrade.BackColor = [System.Drawing.Color]::FromArgb(40, 90, 140)
+$btnGrade.ForeColor = [System.Drawing.Color]::White
+$btnGrade.FlatStyle = 'Flat'
+$btnGrade.Add_Click({ Start-GradeCurrent })
 
 $btnSave = New-Object System.Windows.Forms.Button
 $btnSave.Text = '輸出此生PDF'
-$btnSave.Location = New-Object System.Drawing.Point(584, 520)
-$btnSave.Size = New-Object System.Drawing.Size(140, 40)
+$btnSave.Location = New-Object System.Drawing.Point(486, $y1)
+$btnSave.Size = New-Object System.Drawing.Size(130, 36)
 $btnSave.BackColor = [System.Drawing.Color]::FromArgb(30, 100, 70)
 $btnSave.ForeColor = [System.Drawing.Color]::White
 $btnSave.FlatStyle = 'Flat'
@@ -436,13 +604,20 @@ $btnSave.Add_Click({ [void](Save-Current) })
 
 $btnNext = New-Object System.Windows.Forms.Button
 $btnNext.Text = '下一位未批'
-$btnNext.Location = New-Object System.Drawing.Point(736, 520)
-$btnNext.Size = New-Object System.Drawing.Size(130, 40)
+$btnNext.Location = New-Object System.Drawing.Point(626, $y1)
+$btnNext.Size = New-Object System.Drawing.Size(120, 36)
 $btnNext.Add_Click({ Select-NextUngraded })
 
+$btnRefresh = New-Object System.Windows.Forms.Button
+$btnRefresh.Text = '重新整理'
+$btnRefresh.Location = New-Object System.Drawing.Point(756, $y1)
+$btnRefresh.Size = New-Object System.Drawing.Size(100, 36)
+$btnRefresh.Add_Click({ Refresh-List; Refresh-AnswerLabel })
+
+$y2 = 566
 $btnCsv = New-Object System.Windows.Forms.Button
 $btnCsv.Text = '全班總表'
-$btnCsv.Location = New-Object System.Drawing.Point(16, 568)
+$btnCsv.Location = New-Object System.Drawing.Point(16, $y2)
 $btnCsv.Size = New-Object System.Drawing.Size(100, 28)
 $btnCsv.Add_Click({
     $csv = Export-ClassCsv $script:WorkDir
@@ -451,7 +626,7 @@ $btnCsv.Add_Click({
 
 $btnUnclear = New-Object System.Windows.Forms.Button
 $btnUnclear.Text = '產生全班存疑清單'
-$btnUnclear.Location = New-Object System.Drawing.Point(128, 568)
+$btnUnclear.Location = New-Object System.Drawing.Point(128, $y2)
 $btnUnclear.Size = New-Object System.Drawing.Size(160, 28)
 $btnUnclear.Add_Click({
     if (Invoke-MakePdf -Root $script:WorkDir -UnclearList) {
@@ -463,7 +638,7 @@ $btnUnclear.Add_Click({
 
 $btnClarify = New-Object System.Windows.Forms.Button
 $btnClarify.Text = '套用認知／重謄並重產PDF'
-$btnClarify.Location = New-Object System.Drawing.Point(300, 568)
+$btnClarify.Location = New-Object System.Drawing.Point(300, $y2)
 $btnClarify.Size = New-Object System.Drawing.Size(200, 28)
 $btnClarify.Add_Click({
     if (Invoke-MakePdf -Root $script:WorkDir -ApplyClarifications -UnclearList -MergeOriginal) {
@@ -472,50 +647,22 @@ $btnClarify.Add_Click({
     }
   })
 
-$btnPrompt = New-Object System.Windows.Forms.Button
-$btnPrompt.Text = '複製此生給Cursor'
-$btnPrompt.Location = New-Object System.Drawing.Point(512, 568)
-$btnPrompt.Size = New-Object System.Drawing.Size(150, 28)
-$btnPrompt.Add_Click({
-    if (-not $script:current) {
-      [void][System.Windows.Forms.MessageBox]::Show('請先選一位學生（一檔一檔來）', '提示')
-      return
-    }
-    $id = Get-StudentId $script:current.Name
-    $ansDir = Join-Path $script:WorkDir '標準答案'
-    $p = @"
-請初核這一位學生的數學試卷（一人一檔）。
-規則：以標準答案為準；接受合理等價解法；看不懂標 ? 存疑。
-座號：$id
-來源檔：$($script:current.FullName)
-標準答案資料夾：$ansDir
-請輸出可貼回批改程式的題號註記（✓／✗／?）、對錯摘要、個別建議、需再練習（可附題與解答）。
-"@
-    [System.Windows.Forms.Clipboard]::SetText($p)
-    $status.Text = "已複製座號 $id 的初核提示"
-  })
-
-$btnRefresh = New-Object System.Windows.Forms.Button
-$btnRefresh.Text = '重新整理'
-$btnRefresh.Location = New-Object System.Drawing.Point(674, 568)
-$btnRefresh.Size = New-Object System.Drawing.Size(100, 28)
-$btnRefresh.Add_Click({ Refresh-List })
-
 $btnOpenCog = New-Object System.Windows.Forms.Button
 $btnOpenCog.Text = '認知／重謄夾'
-$btnOpenCog.Location = New-Object System.Drawing.Point(786, 568)
-$btnOpenCog.Size = New-Object System.Drawing.Size(110, 28)
+$btnOpenCog.Location = New-Object System.Drawing.Point(512, $y2)
+$btnOpenCog.Size = New-Object System.Drawing.Size(120, 28)
 $btnOpenCog.Add_Click({
     Start-Process explorer.exe (Join-Path $script:WorkDir '認知輸入')
   })
 
 $form.Controls.AddRange(@(
-    $lbl, $lblPath, $list, $grp, $status,
-    $btnWork, $btnOpenIn, $btnOpenOut, $btnOpenFile, $btnSave, $btnNext,
-    $btnCsv, $btnUnclear, $btnClarify, $btnPrompt, $btnRefresh, $btnOpenCog
+    $lbl, $grpStart, $lblPath, $list, $grp, $status,
+    $btnWork, $btnOpenIn, $btnOpenOut, $btnGrade, $btnSave, $btnNext, $btnRefresh,
+    $btnCsv, $btnUnclear, $btnClarify, $btnOpenCog
   ))
 
 Refresh-PathLabel
+Refresh-AnswerLabel
 Refresh-List
 if ($list.Items.Count -gt 0) { $list.SelectedIndex = 0 }
 
