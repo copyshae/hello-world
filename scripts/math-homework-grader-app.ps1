@@ -64,17 +64,42 @@ function Ensure-WorkTree([string]$root) {
       '提示：檔名若已是 05-R01.jpg 會直接沿用；否則依目前座號自動編次數。'
     ) | Set-Content -LiteralPath $tabletGuide -Encoding UTF8
   }
+  $hwGuide = Join-Path $root '手寫辨識加強說明.txt'
+  if (-not (Test-Path -LiteralPath $hwGuide)) {
+    @(
+      '手寫難辨時怎麼批'
+      '================'
+      ''
+      '1. 檔名請改成座號，例如 05.pdf（不要用 S__44097539 這種 LINE 檔名）'
+      '2. 批閱方式選「請 Cursor 手寫加強批閱」→ 開始批此生'
+      '3. 到 Cursor 貼上提示並附檔；可再附裁切放大的局部清晰圖'
+      '4. Cursor 會先給「手寫轉譯稿」＋「認知輸入清單」；看不清處標 ?'
+      '5. 你把看懂的字寫進「認知輸入」：例如 05-Q3.txt 內容寫該題正確轉譯'
+      '6. 仍看不清 → 請學生重謄該題，放到「重謄補充」：05-Q3.pdf'
+      '7. 按「套用認知／重謄並重產PDF」'
+      ''
+      '拍照技巧：光線均勻、避免陰影、一次一頁、手機橫拍對齊紙邊、必要時分題特寫。'
+    ) | Set-Content -LiteralPath $hwGuide -Encoding UTF8
+  }
+  $cogSample = Join-Path (Join-Path $root '認知輸入') '範例-05-Q3.txt'
+  if (-not (Test-Path -LiteralPath $cogSample)) {
+    @(
+      '（範例）座號 05 第 3 題手寫轉譯'
+      '原式：2/3 + 1/6 = 5/6'
+      '說明：個位的 5 原先掃描像 S，老師確認是 5。'
+    ) | Set-Content -LiteralPath $cogSample -Encoding UTF8
+  }
   $readme = Join-Path $root '說明.txt'
   @(
     '全班試卷批改（一人一檔 → 個人 PDF 註記）'
     ''
     '1. 標準答案 →「標準答案」'
-    '2. 每位學生試卷一個檔 →「輸入」（如 05.pdf）'
+    '2. 每位學生試卷一個檔 →「輸入」（如 05.pdf；勿用 LINE 亂碼檔名）'
     '3. 批改後「輸出」會有：05-註記.md、05-批閱註記.pdf、05-試卷含批閱.pdf'
     '4. 練習題由 Cursor 自產（指導＋題＋解答＋影片）→「數位練習」'
-    '5. 回傳／手寫板：圖檔進「練習回傳」或「手寫匯入」→「手寫板匯入並批」'
-    '6. 歷程在「練習歷程」；沒裝置才用「列印專用」'
-    '7. 詳見「手寫板即時批閱說明.txt」「自產練習與影片說明.txt」'
+    '5. 手寫太差：選「手寫加強批閱」→ 見「手寫辨識加強說明.txt」'
+    '6. 回傳／手寫板：圖檔進「練習回傳」或「手寫匯入」→「手寫板匯入並批」'
+    '7. 歷程在「練習歷程」；沒裝置才用「列印專用」'
   ) | Set-Content -LiteralPath $readme -Encoding UTF8
 }
 
@@ -1160,17 +1185,34 @@ function Build-CursorPrompt([string]$root) {
   return $sb.ToString()
 }
 
-function Build-CursorPromptOne([string]$root, $studentFile) {
+function Build-CursorPromptOne([string]$root, $studentFile, [switch]$HandwritingHard) {
   $id = Get-StudentId $studentFile.Name
   $ansFiles = @(Get-AnswerFiles $root)
   $sb = New-Object System.Text.StringBuilder
   [void]$sb.AppendLine('請直接批閱這一位學生的數學試卷（一人一檔）。')
-  [void]$sb.AppendLine('規則：以我提供的正確答案為準；接受合理等價解法；看不懂標 ? 存疑（供我人工確認／重謄）。')
+  if ($HandwritingHard) {
+    [void]$sb.AppendLine('【手寫加強模式｜辨識優先】')
+    [void]$sb.AppendLine('這份是手寫／掃描，字跡可能很差。請依下列強制規則：')
+    [void]$sb.AppendLine('A. 先「逐格／逐位」判讀數字與運算符號；放大細節再決定。')
+    [void]$sb.AppendLine('B. 只對「有把握」的內容判 ✓／✗；沒把握一律標 ?，禁止猜答案硬批。')
+    [void]$sb.AppendLine('C. 每個 ? 必須寫：位置（第幾題／哪一行）、你看到的候選（例如 6 或 0）、為何不確定。')
+    [void]$sb.AppendLine('D. 先輸出「手寫轉譯稿」：把看得懂的式子打成純文字；看不清處用【?】占位。')
+    [void]$sb.AppendLine('E. 能批的題先批完；整題都看不清就整題 ?，不要整份放棄。')
+    [void]$sb.AppendLine('F. 最後給「老師認知輸入清單」：要我補哪幾格文字／是否建議學生重謄。')
+    [void]$sb.AppendLine('G. 程度判定：若 ? 太多，程度可寫「待判定」，並說明待認知後再定。')
+  } else {
+    [void]$sb.AppendLine('規則：以我提供的正確答案為準；接受合理等價解法；看不懂標 ? 存疑（供我人工確認／重謄）。')
+    [void]$sb.AppendLine('若字跡潦草：寧可多標 ?，不要猜錯；可先給看得懂題目的診斷與練習。')
+  }
   [void]$sb.AppendLine('請務必輸出：')
-  [void]$sb.AppendLine('1) 題號註記（✓／✗／?）')
-  [void]$sb.AppendLine('2) 對錯摘要')
-  [void]$sb.AppendLine('3) 個別診斷結果（弱點類型、是否跟得上進度）')
-  [void]$sb.AppendLine('4) 程度分級：跟上／略落後／明顯落後／需補先備')
+  if ($HandwritingHard) {
+    [void]$sb.AppendLine('0) 手寫轉譯稿（純文字式子＋【?】）')
+    [void]$sb.AppendLine('0b) 老師認知輸入清單（題號／位置／候選字）')
+  }
+  [void]$sb.AppendLine('1) 題號註記（✓／✗／?；? 要附原因）')
+  [void]$sb.AppendLine('2) 對錯摘要（分開：已確認／仍存疑）')
+  [void]$sb.AppendLine('3) 個別診斷結果（弱點類型、是否跟得上進度；存疑多則待判定）')
+  [void]$sb.AppendLine('4) 程度分級：跟上／略落後／明顯落後／需補先備／待判定')
   [void]$sb.AppendLine('5) 個別建議（短）')
   [void]$sb.AppendLine('6) 依程度自學練習（請一次寫完整，我會存成數位練習給學生）：')
   [void]$sb.AppendLine('   a. 自學指導：短步驟／口訣／易錯提醒')
@@ -1180,10 +1222,14 @@ function Build-CursorPromptOne([string]$root, $studentFile) {
   [void]$sb.AppendLine('   - 跟上：少鞏固、多靈活＋再提升挑戰；禁止只改數字。')
   [void]$sb.AppendLine('   - 略落後：對應錯題，少而精。')
   [void]$sb.AppendLine('   - 明顯落後／需補先備：多次補齊（每次 1 點、≤3 題），先有成就再漸次跟上。')
+  [void]$sb.AppendLine('   - 待判定：先給「已確認錯題」對應的少量練習；存疑題等我認知後再補。')
   [void]$sb.AppendLine('不要要求學生另上均一完成任務；練習與指導由此直接產生。')
   [void]$sb.AppendLine('格式方便我貼回批改程式／存成 輸出\' + $id + '-註記.md')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('座號：' + $id)
+  if ($id -notmatch '^\d{2}$') {
+    [void]$sb.AppendLine('（注意：檔名未含清楚座號，請老師核對真實座號；目前暫用：' + $id + '）')
+  }
   [void]$sb.AppendLine('學生試卷：' + $studentFile.FullName)
   [void]$sb.AppendLine('正確答案檔：')
   if ($ansFiles.Count -eq 0) {
@@ -1230,10 +1276,16 @@ $grpStart.Controls.Add($lblAns)
 
 $cmbMode = New-Object System.Windows.Forms.ComboBox
 $cmbMode.DropDownStyle = 'DropDownList'
-$cmbMode.Items.AddRange(@('自己對照批（開啟答案＋學生卷）', '請 Cursor 直接批閱（複製提示並開檔）'))
+$cmbMode.Items.AddRange(@(
+    '自己對照批（開啟答案＋學生卷）',
+    '請 Cursor 直接批閱（複製提示並開檔）',
+    '請 Cursor 手寫加強批閱（難辨／潦草）'
+  ))
 $cmbMode.Location = New-Object System.Drawing.Point(12, 52)
-$cmbMode.Size = New-Object System.Drawing.Size(360, 28)
-if ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 } else { $cmbMode.SelectedIndex = 0 }
+$cmbMode.Size = New-Object System.Drawing.Size(420, 28)
+if ($script:settings.mode -eq 'cursor_hw') { $cmbMode.SelectedIndex = 2 }
+elseif ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 }
+else { $cmbMode.SelectedIndex = 0 }
 $grpStart.Controls.Add($cmbMode)
 
 function Refresh-AnswerLabel {
@@ -1290,8 +1342,11 @@ $btnOpenAnsFolder.Add_Click({ Start-Process explorer.exe (Join-Path $script:Work
 $grpStart.Controls.Add($btnOpenAnsFolder)
 
 $cmbMode.Add_SelectedIndexChanged({
+    $mode = 'manual'
+    if ($cmbMode.SelectedIndex -eq 1) { $mode = 'cursor' }
+    elseif ($cmbMode.SelectedIndex -eq 2) { $mode = 'cursor_hw' }
     $script:settings = [pscustomobject]@{
-      mode = $(if ($cmbMode.SelectedIndex -eq 1) { 'cursor' } else { 'manual' })
+      mode = $mode
       answerHint = [string]$lblAns.Text
     }
     Save-Settings $script:WorkDir $script:settings
@@ -1482,18 +1537,27 @@ function Start-GradeCurrent {
   }
   if (-not (Ensure-AnswerOrWarn)) { return }
 
-  if ($cmbMode.SelectedIndex -eq 1) {
-    # Cursor 直接批閱
-    $p = Build-CursorPromptOne $script:WorkDir $script:current
+  if ($cmbMode.SelectedIndex -ge 1) {
+    # Cursor 批閱（一般或手寫加強）
+    $hw = ($cmbMode.SelectedIndex -eq 2)
+    $p = Build-CursorPromptOne $script:WorkDir $script:current -HandwritingHard:$hw
     [System.Windows.Forms.Clipboard]::SetText($p)
     Start-Process -FilePath $script:current.FullName
     $ans = @(Get-AnswerFiles $script:WorkDir)
     foreach ($a in $ans) { Start-Process -FilePath $a.FullName }
-    $status.Text = '已複製 Cursor 提示，並開啟學生卷＋答案；請到 Cursor 貼上並附檔'
-    [void][System.Windows.Forms.MessageBox]::Show(
-      "已複製「請 Cursor 直接批閱」提示到剪貼簿。`n並已開啟此生試卷與正確答案。`n`n請到 Cursor 貼上並附檔。`n請 Cursor 一併給：診斷、程度、自學指導、練習題＋解答、建議影片連結／YouTube 搜尋頁。`n（不用均一）貼回右側後按「輸出此生PDF」。",
-      '請 Cursor 批閱'
-    )
+    if ($hw) {
+      $status.Text = '已複製「手寫加強」提示，並開啟學生卷＋答案'
+      [void][System.Windows.Forms.MessageBox]::Show(
+        "已複製【手寫加強批閱】提示。`n`n重點：先轉譯→能批的先批→看不清標 ? 並列認知清單。`n請到 Cursor 貼上並附檔（可多附清晰一點的照片）。`n貼回右側後可先輸出；存疑再用「認知輸入」補字後重產。",
+        '手寫加強批閱'
+      )
+    } else {
+      $status.Text = '已複製 Cursor 提示，並開啟學生卷＋答案；請到 Cursor 貼上並附檔'
+      [void][System.Windows.Forms.MessageBox]::Show(
+        "已複製「請 Cursor 直接批閱」提示到剪貼簿。`n並已開啟此生試卷與正確答案。`n`n請到 Cursor 貼上並附檔。`n請 Cursor 一併給：診斷、程度、自學指導、練習題＋解答、建議影片連結／搜尋頁。`n（不用均一）貼回右側後按「輸出此生PDF」。`n`n若字跡太差：改選「手寫加強批閱」。",
+        '請 Cursor 批閱'
+      )
+    }
   } else {
     # 自己對照
     Start-Process -FilePath $script:current.FullName
@@ -1552,7 +1616,9 @@ $btnWork.Add_Click({
       $script:WorkDir = $d.SelectedPath
       Ensure-WorkTree $script:WorkDir
       $script:settings = Load-Settings $script:WorkDir
-      if ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 } else { $cmbMode.SelectedIndex = 0 }
+      if ($script:settings.mode -eq 'cursor_hw') { $cmbMode.SelectedIndex = 2 }
+      elseif ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 }
+      else { $cmbMode.SelectedIndex = 0 }
       Refresh-PathLabel
       Refresh-AnswerLabel
       Refresh-List
