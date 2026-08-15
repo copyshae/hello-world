@@ -724,20 +724,47 @@ def load_history(work_dir: Path, sid: str) -> dict:
     p = history_path(work_dir, sid)
     if p.exists():
         try:
-            return json.loads(p.read_text(encoding="utf-8"))
+            return normalize_history(json.loads(p.read_text(encoding="utf-8")), sid)
         except Exception:
             pass
-    return {
+    data = {
         "studentId": sid,
         "goal": "針對問題點練到穩定掌握（建議正確率達目標分數）",
         "targetScore": 80,
+        "weeklyCap": 2,
+        "openGaps": [],
+        "closedGaps": [],
+        "stageGraduated": False,
+        "stageNote": "",
+        "errorTagCounts": {},
         "attempts": [],
+        "largeText": True,
     }
+    return data
+
+
+
+def normalize_history(data: dict, sid: str = "") -> dict:
+    if not isinstance(data, dict):
+        data = {}
+    sid = str(data.get("studentId") or sid or "00").zfill(2)
+    data["studentId"] = sid
+    data.setdefault("goal", "針對問題點練到穩定掌握")
+    data.setdefault("targetScore", 80)
+    data.setdefault("weeklyCap", 2)
+    data.setdefault("openGaps", [])
+    data.setdefault("closedGaps", [])
+    data.setdefault("stageGraduated", False)
+    data.setdefault("stageNote", "")
+    data.setdefault("errorTagCounts", {})
+    data.setdefault("attempts", [])
+    data.setdefault("largeText", True)
+    return data
 
 
 def save_history(work_dir: Path, data: dict) -> Path:
+    data = normalize_history(data)
     sid = str(data.get("studentId", "00")).zfill(2)
-    data["studentId"] = sid
     p = history_path(work_dir, sid)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -1024,6 +1051,8 @@ B) 長期整齊
    發＋回：Google Classroom（下載繳交檔進「練習回傳」）
 C) 雲端兩夾
    發放夾給學生看、回傳夾上傳；同步到本機「練習回傳」
+D) 均一＋本程式（線上練技能＋紙本診斷循環）
+   見同資料夾「均一結合說明.txt」
 
 【其他】
 - 學校 LMS／email：最後一樣匯入「練習回傳」即可被批閱程式抓取
@@ -1038,6 +1067,59 @@ C) 雲端兩夾
 05-R01.pdf / 05-R02.jpg / 05-第1次.png 皆可
 
 程式內可按「工具選擇」勾選／改偏好，隨時換組合。
+"""
+    path.write_text(text, encoding="utf-8")
+    write_junyi_guide(work_dir)
+    return path
+
+
+def write_junyi_guide(work_dir: Path) -> Path:
+    path = work_dir / "均一結合說明.txt"
+    text = """如何結合「均一教育平台」與本批改工具
+========================================
+
+【一句話分工】
+- 均一：線上影片／習題／熟練度、差異化指派、分析報告
+- 本程式：紙本試卷批閱、手寫回傳、多次補齊、成長歷程、家長短訊
+
+兩者互補，不要兩套都叫學生交同一份作業兩次。
+
+【建議流程】
+1) 本程式批完試卷 → 判定程度與「未補齊／問題點」
+2) 老師到均一「教學管理 → 指派任務」
+   - 對應問題點選技能／影片（可全班或個別差異化）
+   - 落後生：少量、對準 1 個洞（多次補齊）
+   - 跟上生：挑戰／延伸技能（再提升）
+3) 學生在均一線上練（平台記進度）
+4) 若需要看「手寫過程／成就感紙本」：
+   - 仍用本程式產數位練習或列印包
+   - 回傳圖檔進「練習回傳」→ 練習回傳循環記分數進步
+5) 老師看兩處報告：
+   - 均一：分析報告（完成率、熟練）
+   - 本程式：練習歷程／成長曲線／全班總表
+
+【對照表（問題點 → 均一）】
+本程式錯誤類型／未補齊　　→　均一指派
+計算／進位／單位……　　　→　該單元對應「技能」習題
+先備不足　　　　　　　　　→　前一單元基礎技能＋影片
+審題／粗心　　　　　　　　→　少題精練＋本程式手寫回饋
+跟上／再提升　　　　　　　→　進階題或綜合評量（若有）
+
+【家長／群組怎麼講】
+- LINE 群：只公告「請完成均一任務 ○○（期限）」＋「紙本回傳規則」
+- 回傳手寫：仍個別傳老師，勿塞群組
+- 說明：均一＝線上練熟；紙本回傳＝看過程與小成就（非正式成績）
+
+【帳號與班級】
+- 老師建立班級、學生加入（依均一「註冊／建立班級」說明）
+- 多班可複製「任務代碼」重複指派
+說明：https://help.junyiacademy.org/home/mission_report/
+教師資源：https://www.junyiacademy.org/topics/junyi-teacher-resources
+
+【不要這樣做】
+- 同一題又叫均一交、又叫拍照交兩次（負擔大）
+- 落後生一次指派大量均一任務（違反多次補齊）
+- 只用均一分數當唯一成績、忽略手寫思考過程
 """
     path.write_text(text, encoding="utf-8")
     return path

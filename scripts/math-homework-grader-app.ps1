@@ -256,6 +256,7 @@ function Get-PracticeTemplate([string]$level) {
 2. …
 3. …
 說明：本次成功＝有成就；未補完的點下次再補，不追全班、不多輪連催。
+（可選）均一對應技能／任務：________（線上練；紙本回傳仍交老師）
 "@
     }
     '需補先備' {
@@ -265,6 +266,7 @@ function Get-PracticeTemplate([string]$level) {
 建議先備單元：________
 本次只補：________（1 個觀念）
 尚未補、下次再補：________
+（可選）均一先備技能／影片：________
 
 #### 練習題（先做完再看解答｜總題數 ≤ 3）
 1. （先備極短題）
@@ -276,7 +278,7 @@ function Get-PracticeTemplate([string]$level) {
 1. …
 2. …
 3. …
-建議：與導師／補救協調；家長說明「多次小補、不趕一次補完」。
+建議：與導師／補救協調；家長說明「多次小補、不趕一次補完」。線上可用均一練同技能，手寫過程仍可回傳本程式。
 "@
     }
     default {
@@ -385,6 +387,7 @@ function Load-Settings([string]$root) {
       classroom  = $true
       drive      = $true
       lms        = $true
+      junyi      = $true
       print      = $true
       loop       = $true
     }
@@ -412,6 +415,7 @@ function Get-ToolCatalog {
     [pscustomobject]@{ Id = 'classroom';  Title = 'Google Classroom'; Role = '發＋回'; Tip = '發作業＋繳交最整齊；下載後丟「練習回傳」即可批' }
     [pscustomobject]@{ Id = 'drive';      Title = 'Google雲端／OneDrive'; Role = '發＋回'; Tip = '共用「發放」「回傳」兩夾；檔名 05-R01.jpg' }
     [pscustomobject]@{ Id = 'lms';        Title = '學校LMS／email'; Role = '發＋回'; Tip = '校內平台或信箱收件，最後匯入「練習回傳」' }
+    [pscustomobject]@{ Id = 'junyi';      Title = '均一教育平台'; Role = '線上練'; Tip = '依問題點指派均一技能／影片；分析報告看熟練度；紙本回傳仍用本程式批' }
     [pscustomobject]@{ Id = 'print';      Title = '無裝置列印'; Role = '發'; Tip = '只印「需列印座號」；有裝置仍走數位' }
     [pscustomobject]@{ Id = 'loop';       Title = '練習回傳循環'; Role = '批＋調題'; Tip = '回饋→調題→分數進步→達標為止（與上面發放管道並用）' }
   )
@@ -456,6 +460,7 @@ function Show-ToolPickerDialog {
   $cmbSend.Items.AddRange(@(
       '未指定（日後再選）',
       'LINE 班級群組',
+      '均一教育平台（線上練）',
       'Google Classroom',
       'Google雲端／OneDrive',
       '學校LMS／email',
@@ -509,6 +514,7 @@ function Show-ToolPickerDialog {
         ''
         '建議組合：'
         '・快又省事 → 發：LINE班級群組　回：LINE個別傳老師'
+        '・線上練技能 → 均一指派（依問題點）；紙本／手寫回傳仍用本程式'
         '・要長期整齊 → 發＋回都用 Classroom 或 雲端兩夾'
         '・群組只公告，不要當作業回收桶'
         ''
