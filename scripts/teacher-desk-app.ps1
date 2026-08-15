@@ -15,6 +15,8 @@ if (-not $WorkDir) {
   $WorkDir = Join-Path ([Environment]::GetFolderPath('Desktop')) 'TeacherDesk'
 }
 New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $WorkDir '掃描匯入') | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $WorkDir '匯出給手機') | Out-Null
 $StatePath = Join-Path $WorkDir 'class-state.json'
 $PhoneUrl = 'https://copyshae.github.io/hello-world/directory/apps/teacher-desk/'
 
@@ -350,8 +352,13 @@ $right.Controls.Add($btnPhone)
 
 $btnFolder = New-Object Windows.Forms.Button
 $btnFolder.Text = '開啟工作夾'; $btnFolder.Location = New-Object Drawing.Point(0, 308)
-$btnFolder.Width = 350; $btnFolder.Height = 28
+$btnFolder.Width = 170; $btnFolder.Height = 28
 $right.Controls.Add($btnFolder)
+
+$btnScanFolder = New-Object Windows.Forms.Button
+$btnScanFolder.Text = '掃描匯入夾'; $btnScanFolder.Location = New-Object Drawing.Point(180, 308)
+$btnScanFolder.Width = 170; $btnScanFolder.Height = 28
+$right.Controls.Add($btnScanFolder)
 
 $txtPreview = New-Object Windows.Forms.TextBox
 $txtPreview.Multiline = $true; $txtPreview.ScrollBars = 'Vertical'; $txtPreview.ReadOnly = $true
@@ -527,6 +534,11 @@ $btnPhone.Add_Click({
   Start-Process $PhoneUrl
 })
 $btnFolder.Add_Click({ Start-Process explorer.exe $WorkDir })
+$btnScanFolder.Add_Click({
+  $scan = Join-Path $WorkDir '掃描匯入'
+  New-Item -ItemType Directory -Force -Path $scan | Out-Null
+  Start-Process explorer.exe $scan
+})
 $form.Add_FormClosing({
   try {
     Persist-Header
