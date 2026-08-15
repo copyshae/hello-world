@@ -36,7 +36,7 @@ sh.Run cmd, 0, False
 Set-Content -LiteralPath (Join-Path $appDir 'launch.vbs') -Value $vbs -Encoding ASCII
 Set-Content -LiteralPath (Join-Path $desk '習作批改.vbs') -Value $vbs -Encoding ASCII
 
-Write-Host "Installed: $appDir"
-Write-Host "Work: $work  (put each student one file in 輸入\)"
-Write-Host "Desktop shortcut: 習作批改.vbs"
-Write-Host "Need Python + pip install pypdf reportlab for PDF output"
+Write-Host "已安裝程式資料夾：$appDir"
+Write-Host "已建立工作資料夾：$work（請把每位學生一檔放進「輸入」）"
+Write-Host "桌面捷徑：習作批改.vbs"
+Write-Host "產出 PDF 需安裝 Python，並執行：pip install pypdf reportlab"

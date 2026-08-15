@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
-  習作台（桌面）：與手機 PWA 同功能——掌握程度／發送、LINE 文案、管道偏好、JSON 互通。
-  只用座號、不存姓名。資料：WorkDir\class-state.json
+  習作台（桌面，繁體中文介面）：掌握程度／發送、LINE 文案、管道偏好、與手機資料互通。
+  只用座號、不存姓名。資料：工作夾\班級狀態.json
 #>
 param([string]$WorkDir = "")
 
@@ -10,14 +10,31 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
+try {
+  $zh = [System.Globalization.CultureInfo]::GetCultureInfo('zh-TW')
+  [System.Threading.Thread]::CurrentThread.CurrentUICulture = $zh
+  [System.Threading.Thread]::CurrentThread.CurrentCulture = $zh
+  [System.Windows.Forms.Application]::CurrentCulture = $zh
+} catch {}
 
+$desk = [Environment]::GetFolderPath('Desktop')
 if (-not $WorkDir) {
-  $WorkDir = Join-Path ([Environment]::GetFolderPath('Desktop')) 'TeacherDesk'
+  $cand = Join-Path $desk '習作台資料'
+  $legacy = Join-Path $desk 'TeacherDesk'
+  if (Test-Path -LiteralPath $cand) { $WorkDir = $cand }
+  elseif (Test-Path -LiteralPath $legacy) { $WorkDir = $legacy }
+  else { $WorkDir = $cand }
 }
 New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $WorkDir '掃描匯入') | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $WorkDir '匯出給手機') | Out-Null
-$StatePath = Join-Path $WorkDir 'class-state.json'
+
+$StatePath = Join-Path $WorkDir '班級狀態.json'
+$LegacyStatePath = Join-Path $WorkDir 'class-state.json'
+if (-not (Test-Path -LiteralPath $StatePath) -and (Test-Path -LiteralPath $LegacyStatePath)) {
+  $StatePath = $LegacyStatePath
+}
+$script:StatePath = $StatePath
 $PhoneUrl = 'https://copyshae.github.io/hello-world/directory/apps/teacher-desk/'
 
 $Levels = @('未標', '跟上', '略落後', '明顯落後', '需補先備')
@@ -96,9 +113,14 @@ function Import-StateFromObject($obj) {
 }
 
 function Load-State {
-  if (Test-Path -LiteralPath $StatePath) {
+  $path = $script:StatePath
+  if (-not (Test-Path -LiteralPath $path)) {
+    $alt = Join-Path $WorkDir 'class-state.json'
+    if (Test-Path -LiteralPath $alt) { $path = $alt; $script:StatePath = $alt }
+  }
+  if (Test-Path -LiteralPath $path) {
     try {
-      $obj = (Get-Content -LiteralPath $StatePath -Raw -Encoding UTF8) | ConvertFrom-Json
+      $obj = (Get-Content -LiteralPath $path -Raw -Encoding UTF8) | ConvertFrom-Json
       return (Import-StateFromObject $obj)
     } catch {}
   }
@@ -106,6 +128,13 @@ function Load-State {
 }
 
 function Save-State($state) {
+  if (-not $script:StatePath) {
+    $script:StatePath = Join-Path $WorkDir '班級狀態.json'
+  }
+  # 優先寫入繁中檔名
+  if ($script:StatePath -like '*class-state.json') {
+    $script:StatePath = Join-Path $WorkDir '班級狀態.json'
+  }
   $seatsObj = [ordered]@{}
   foreach ($k in ($state.seats.Keys | Sort-Object)) { $seatsObj[$k] = $state.seats[$k] }
   $out = [ordered]@{
@@ -116,7 +145,7 @@ function Save-State($state) {
     returnChannel = $state.returnChannel
     seats         = $seatsObj
   }
-  ($out | ConvertTo-Json -Depth 6) | Set-Content -LiteralPath $StatePath -Encoding UTF8
+  ($out | ConvertTo-Json -Depth 6) | Set-Content -LiteralPath $script:StatePath -Encoding UTF8
 }
 
 function Get-LevelColor([string]$level) {
@@ -185,7 +214,7 @@ function Build-ReturnMessage {
 
 # —— UI ——
 $form = New-Object Windows.Forms.Form
-$form.Text = '習作台｜掌握與發送（與手機同功能）'
+$form.Text = '習作台｜掌握與發送'
 $form.Size = New-Object Drawing.Size(980, 700)
 $form.StartPosition = 'CenterScreen'
 $form.Font = New-Object Drawing.Font('Microsoft JhengHei UI', 10)
@@ -204,7 +233,7 @@ $lblBrand.Location = New-Object Drawing.Point(16, 10); $lblBrand.AutoSize = $tru
 $top.Controls.Add($lblBrand)
 
 $lblSub = New-Object Windows.Forms.Label
-$lblSub.Text = '與手機版相同功能 · JSON 可互通 · 只用座號'
+$lblSub.Text = '繁體中文介面 · 與手機版同功能 · 班級資料可互通'
 $lblSub.ForeColor = [Drawing.Color]::FromArgb(220, 240, 230)
 $lblSub.Location = New-Object Drawing.Point(18, 50); $lblSub.AutoSize = $true
 $top.Controls.Add($lblSub)
@@ -336,17 +365,17 @@ $btnMarkPending.Width = 170; $btnMarkPending.Height = 32
 $right.Controls.Add($btnMarkPending)
 
 $btnExport = New-Object Windows.Forms.Button
-$btnExport.Text = '匯出 JSON'; $btnExport.Location = New-Object Drawing.Point(180, 232)
+$btnExport.Text = '匯出班級資料'; $btnExport.Location = New-Object Drawing.Point(180, 232)
 $btnExport.Width = 170; $btnExport.Height = 32
 $right.Controls.Add($btnExport)
 
 $btnImport = New-Object Windows.Forms.Button
-$btnImport.Text = '匯入 JSON'; $btnImport.Location = New-Object Drawing.Point(0, 270)
+$btnImport.Text = '匯入班級資料'; $btnImport.Location = New-Object Drawing.Point(0, 270)
 $btnImport.Width = 170; $btnImport.Height = 32
 $right.Controls.Add($btnImport)
 
 $btnPhone = New-Object Windows.Forms.Button
-$btnPhone.Text = '開手機版'; $btnPhone.Location = New-Object Drawing.Point(180, 270)
+$btnPhone.Text = '開啟手機版'; $btnPhone.Location = New-Object Drawing.Point(180, 270)
 $btnPhone.Width = 170; $btnPhone.Height = 32
 $right.Controls.Add($btnPhone)
 
@@ -504,28 +533,33 @@ $btnMarkPending.Add_Click({
 $btnExport.Add_Click({
   Persist-Header
   $dlg = New-Object Windows.Forms.SaveFileDialog
-  $dlg.Filter = 'JSON|*.json'; $dlg.FileName = 'class-state.json'
-  $dlg.InitialDirectory = $WorkDir
+  $dlg.Title = '匯出班級資料'
+  $dlg.Filter = '班級資料檔 (*.json)|*.json|所有檔案 (*.*)|*.*'
+  $dlg.FileName = '班級狀態.json'
+  $dlg.InitialDirectory = (Join-Path $WorkDir '匯出給手機')
   if ($dlg.ShowDialog() -eq 'OK') {
-    Copy-Item -LiteralPath $StatePath -Destination $dlg.FileName -Force
+    Copy-Item -LiteralPath $script:StatePath -Destination $dlg.FileName -Force
     [Windows.Forms.MessageBox]::Show("已匯出：`n$($dlg.FileName)`n可傳到手機習作台匯入。", '習作台') | Out-Null
   }
 })
 $btnImport.Add_Click({
   $dlg = New-Object Windows.Forms.OpenFileDialog
-  $dlg.Filter = 'JSON|*.json'; $dlg.InitialDirectory = $WorkDir
+  $dlg.Title = '匯入班級資料'
+  $dlg.Filter = '班級資料檔 (*.json)|*.json|所有檔案 (*.*)|*.*'
+  $dlg.InitialDirectory = $WorkDir
   if ($dlg.ShowDialog() -eq 'OK') {
     try {
       $obj = (Get-Content -LiteralPath $dlg.FileName -Raw -Encoding UTF8) | ConvertFrom-Json
       $script:State = Import-StateFromObject $obj
+      $script:StatePath = Join-Path $WorkDir '班級狀態.json'
       Save-State $script:State
       Sync-FormFromState
       $script:SelectedId = $null
       $lblSid.Text = '座號：—'
       Refresh-Grid
-      [Windows.Forms.MessageBox]::Show('已匯入並覆蓋。', '習作台') | Out-Null
+      [Windows.Forms.MessageBox]::Show('已匯入並覆蓋目前班級資料。', '習作台') | Out-Null
     } catch {
-      [Windows.Forms.MessageBox]::Show('匯入失敗，請確認為 class-state.json。', '習作台') | Out-Null
+      [Windows.Forms.MessageBox]::Show('匯入失敗，請確認檔案是習作台匯出的班級資料。', '習作台') | Out-Null
     }
   }
 })

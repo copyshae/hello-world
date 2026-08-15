@@ -240,8 +240,8 @@
     <section>
       <h2>與電腦同步</h2>
       <div class="actions">
-        <button type="button" class="btn secondary" id="btnExport">匯出 class-state.json</button>
-        <button type="button" class="btn secondary" id="btnImport">匯入 JSON（覆蓋）</button>
+        <button type="button" class="btn secondary" id="btnExport">匯出班級資料</button>
+        <button type="button" class="btn secondary" id="btnImport">匯入班級資料（覆蓋）</button>
         <input class="hidden-file" id="fileImport" type="file" accept="application/json,.json" />
       </div>
     </section>
@@ -502,7 +502,7 @@
         var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
         var a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "class-state.json";
+        a.download = "班級狀態.json";
         a.click();
         URL.revokeObjectURL(a.href);
         toast("已匯出，可傳到電腦習作台匯入");
