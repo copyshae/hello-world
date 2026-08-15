@@ -153,8 +153,9 @@
         </div>
         <div class="actions">
           <button type="button" class="btn" id="btnSave">儲存此座號</button>
-          <button type="button" class="btn secondary" id="btnCopyOne">複製「請 Cursor 批此生」提示</button>
-          <button type="button" class="btn secondary" id="btnCopyHw">複製「手寫加強批閱」提示</button>
+          <button type="button" class="btn secondary" id="btnCopyOne">複製「請 AI 批此生」提示</button>
+          <button type="button" class="btn secondary" id="btnCopyHw">複製「手寫加強」提示</button>
+          <button type="button" class="btn secondary" id="btnOpenGemini">開啟 Gemini 貼上批</button>
           <button type="button" class="btn secondary" id="btnCopyReturn">複製「練習回傳再批」提示</button>
         </div>
       </div>
@@ -414,7 +415,7 @@
         state.seats[selected].status = "批改中";
         save(state);
         renderGrid();
-        copyText(buildPromptOne(selected, false), "已複製批閱提示 → 貼到 Cursor");
+        copyText(buildPromptOne(selected, false), "已複製批閱提示 → 可貼到 Gemini 或 Cursor");
       });
 
       document.getElementById("btnCopyHw").addEventListener("click", function () {
@@ -423,7 +424,21 @@
         state.seats[selected].status = "批改中";
         save(state);
         renderGrid();
-        copyText(buildPromptOne(selected, true), "已複製手寫加強提示 → 貼到 Cursor");
+        copyText(buildPromptOne(selected, true), "已複製手寫加強提示 → 可貼到 Gemini 或 Cursor");
+      });
+
+      document.getElementById("btnOpenGemini").addEventListener("click", function () {
+        if (!selected) { toast("請先點座號"); return; }
+        persistHeader();
+        state.seats[selected].status = "批改中";
+        save(state);
+        renderGrid();
+        var hard = true;
+        copyText(
+          "（請用 Google Gemini 批閱。請務必上傳學生試卷圖／PDF。）\n\n" + buildPromptOne(selected, hard),
+          "已複製 → 開 Gemini 貼上並上傳圖檔"
+        );
+        window.open("https://gemini.google.com/app", "_blank", "noopener,noreferrer");
       });
 
       document.getElementById("btnCopyReturn").addEventListener("click", function () {

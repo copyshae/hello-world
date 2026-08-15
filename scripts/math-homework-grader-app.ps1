@@ -71,9 +71,9 @@ function Ensure-WorkTree([string]$root) {
       '================'
       ''
       '1. 檔名請改成座號，試發用 00.pdf／00.jpg（不要用 S__44097539 這種 LINE 檔名）'
-      '2. 批閱方式選「請 Cursor 手寫加強批閱」→ 開始批此生'
-      '3. 到 Cursor 貼上提示並附檔；可再附裁切放大的局部清晰圖'
-      '4. Cursor 會先給「手寫轉譯稿」＋「認知輸入清單」；看不清處標 ?'
+      '2. 批閱方式選「請 Gemini／Cursor 手寫加強批閱」→ 開始批此生'
+      '3. 到 Gemini 或 Cursor 貼上提示並附檔；可再附裁切放大的局部清晰圖'
+      '4. AI 會先給「手寫轉譯稿」＋「認知輸入清單」；看不清處標 ?'
       '5. 你把看懂的字寫進「認知輸入」：例如 05-Q3.txt 內容寫該題正確轉譯'
       '6. 仍看不清 → 請學生重謄該題，放到「重謄補充」：05-Q3.pdf'
       '7. 按「套用認知／重謄並重產PDF」'
@@ -1250,14 +1250,14 @@ $font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 12)
 $fontBig = New-Object System.Drawing.Font('Microsoft JhengHei UI', 15, [System.Drawing.FontStyle]::Bold)
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = '數學習作批改（一人一檔｜先載入答案或請 Cursor 批）'
+$form.Text = '數學習作批改（一人一檔｜Cursor／Gemini／自己對照）'
 $form.Size = New-Object System.Drawing.Size(1000, 780)
 $form.StartPosition = 'CenterScreen'
 $form.Font = $font
 $form.BackColor = [System.Drawing.Color]::FromArgb(245, 248, 244)
 
 $lbl = New-Object System.Windows.Forms.Label
-$lbl.Text = '建議：先載入正確答案 → 再一檔一檔批（自己對照或請 Cursor）'
+$lbl.Text = '建議：先載入正確答案 → 再一檔一檔批（自己對照／Cursor／Gemini）'
 $lbl.Font = $fontBig
 $lbl.ForeColor = [System.Drawing.Color]::FromArgb(20, 70, 50)
 $lbl.Location = New-Object System.Drawing.Point(16, 10)
@@ -1279,11 +1279,15 @@ $cmbMode.DropDownStyle = 'DropDownList'
 $cmbMode.Items.AddRange(@(
     '自己對照批（開啟答案＋學生卷）',
     '請 Cursor 直接批閱（複製提示並開檔）',
-    '請 Cursor 手寫加強批閱（難辨／潦草）'
+    '請 Cursor 手寫加強批閱（難辨／潦草）',
+    '請 Gemini 直接批閱（複製提示並開網頁）',
+    '請 Gemini 手寫加強批閱（難辨／潦草）'
   ))
 $cmbMode.Location = New-Object System.Drawing.Point(12, 52)
-$cmbMode.Size = New-Object System.Drawing.Size(420, 28)
-if ($script:settings.mode -eq 'cursor_hw') { $cmbMode.SelectedIndex = 2 }
+$cmbMode.Size = New-Object System.Drawing.Size(520, 28)
+if ($script:settings.mode -eq 'gemini_hw') { $cmbMode.SelectedIndex = 4 }
+elseif ($script:settings.mode -eq 'gemini') { $cmbMode.SelectedIndex = 3 }
+elseif ($script:settings.mode -eq 'cursor_hw') { $cmbMode.SelectedIndex = 2 }
 elseif ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 }
 else { $cmbMode.SelectedIndex = 0 }
 $grpStart.Controls.Add($cmbMode)
@@ -1345,6 +1349,8 @@ $cmbMode.Add_SelectedIndexChanged({
     $mode = 'manual'
     if ($cmbMode.SelectedIndex -eq 1) { $mode = 'cursor' }
     elseif ($cmbMode.SelectedIndex -eq 2) { $mode = 'cursor_hw' }
+    elseif ($cmbMode.SelectedIndex -eq 3) { $mode = 'gemini' }
+    elseif ($cmbMode.SelectedIndex -eq 4) { $mode = 'gemini_hw' }
     $script:settings = [pscustomobject]@{
       mode = $mode
       answerHint = [string]$lblAns.Text
@@ -1586,9 +1592,10 @@ function Start-GradeCurrent {
   }
 
   if ($cmbMode.SelectedIndex -ge 1) {
-    # Cursor 批閱（一般或手寫加強）
-    $hw = ($cmbMode.SelectedIndex -eq 2)
-    # 字跡難辨時若選一般模式，自動建議改手寫加強
+    # AI 批閱：Cursor（1–2）或 Gemini（3–4）；偶數／對應索引為手寫加強
+    $useGemini = ($cmbMode.SelectedIndex -ge 3)
+    $hw = ($cmbMode.SelectedIndex -eq 2 -or $cmbMode.SelectedIndex -eq 4)
+    # 字跡難辨時若選一般模式，自動建議改手寫加強（同一工具內切換）
     if (-not $hw) {
       $sug = [System.Windows.Forms.MessageBox]::Show(
         "若剛剛批不出來／字跡很差，建議改用「手寫加強批閱」。`n`n現在改用加強模式嗎？",
@@ -1596,33 +1603,47 @@ function Start-GradeCurrent {
         [System.Windows.Forms.MessageBoxButtons]::YesNo
       )
       if ($sug -eq 'Yes') {
-        $cmbMode.SelectedIndex = 2
+        if ($useGemini) { $cmbMode.SelectedIndex = 4 } else { $cmbMode.SelectedIndex = 2 }
         $hw = $true
       }
     }
     $p = Build-CursorPromptOne $script:WorkDir $script:current -HandwritingHard:$hw
+    if ($useGemini) {
+      $p = "（請用 Google Gemini 批閱。我會在對話中附上學生試卷圖／PDF；若有標準答案也請一併對照。）`r`n`r`n" + $p
+    }
     [System.Windows.Forms.Clipboard]::SetText($p)
     # 另存一份提示到輸出，方便對照
     try {
       $sid = Get-StudentId $script:current.Name
-      $promptPath = Join-Path (Join-Path $script:WorkDir '輸出') ($sid + '-Cursor提示.txt')
+      $tag = if ($useGemini) { 'Gemini提示' } else { 'Cursor提示' }
+      $promptPath = Join-Path (Join-Path $script:WorkDir '輸出') ($sid + '-' + $tag + '.txt')
       $utf8 = New-Object System.Text.UTF8Encoding $true
       [System.IO.File]::WriteAllText($promptPath, $p, $utf8)
     } catch {}
     Start-Process -FilePath $script:current.FullName
     $ans = @(Get-AnswerFiles $script:WorkDir)
     foreach ($a in $ans) { Start-Process -FilePath $a.FullName }
+    if ($useGemini) {
+      try { Start-Process 'https://gemini.google.com/app' } catch {}
+      $toolName = 'Gemini'
+      $step1 = "1. 已開啟 Gemini 網頁（若沒開請到 https://gemini.google.com/app 並登入你的帳號）"
+      $fileHint = "輸出\{座號}-Gemini提示.txt"
+    } else {
+      $toolName = 'Cursor'
+      $step1 = '1. 開 Cursor 對話'
+      $fileHint = "輸出\{座號}-Cursor提示.txt"
+    }
     if ($hw) {
-      $status.Text = '已複製「手寫加強」提示｜請到 Cursor：貼上＋附上學生卷圖檔'
+      $status.Text = "已複製「手寫加強」提示｜請到 ${toolName}：貼上＋附上學生卷圖檔"
       [void][System.Windows.Forms.MessageBox]::Show(
-        "【一定要做這 3 步，否則會批不出來】`n`n1. 開 Cursor 對話`n2. Ctrl+V 貼上提示（已在剪貼簿）`n3. 再把學生卷圖／PDF「附檔」加進去後送出`n`n只貼文字不附圖＝無法辨識手寫。`n可再附裁切放大的局部清晰圖。`n`n提示也已存到輸出\{座號}-Cursor提示.txt",
-        '手寫加強批閱'
+        ("【一定要做這 3 步，否則會批不出來】`n`n" + $step1 + "`n2. Ctrl+V 貼上提示（已在剪貼簿）`n3. 再把學生卷圖／PDF「附檔／上傳」加進去後送出`n`n只貼文字不附圖＝無法辨識手寫。`n可再附裁切放大的局部清晰圖。`n`n提示也已存到 " + $fileHint),
+        ("手寫加強批閱（$toolName）")
       )
     } else {
-      $status.Text = '已複製 Cursor 提示｜請到 Cursor：貼上＋附檔'
+      $status.Text = "已複製 $toolName 提示｜請到 ${toolName}：貼上＋附檔"
       [void][System.Windows.Forms.MessageBox]::Show(
-        "【一定要做這 3 步】`n`n1. 開 Cursor`n2. 貼上提示（Ctrl+V）`n3. 附上學生卷檔後送出`n`n若仍批不出：改選「手寫加強批閱」再按一次「開始批此生」。",
-        '請 Cursor 批閱'
+        ("【一定要做這 3 步】`n`n" + $step1 + "`n2. 貼上提示（Ctrl+V）`n3. 附上學生卷檔後送出`n`n若仍批不出：改選「$toolName 手寫加強批閱」再按一次「開始批此生」。"),
+        ("請 $toolName 批閱")
       )
     }
   } else {
@@ -1683,7 +1704,9 @@ $btnWork.Add_Click({
       $script:WorkDir = $d.SelectedPath
       Ensure-WorkTree $script:WorkDir
       $script:settings = Load-Settings $script:WorkDir
-      if ($script:settings.mode -eq 'cursor_hw') { $cmbMode.SelectedIndex = 2 }
+      if ($script:settings.mode -eq 'gemini_hw') { $cmbMode.SelectedIndex = 4 }
+      elseif ($script:settings.mode -eq 'gemini') { $cmbMode.SelectedIndex = 3 }
+      elseif ($script:settings.mode -eq 'cursor_hw') { $cmbMode.SelectedIndex = 2 }
       elseif ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 }
       else { $cmbMode.SelectedIndex = 0 }
       Refresh-PathLabel
