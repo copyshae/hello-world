@@ -1051,12 +1051,12 @@ B) 長期整齊
    發＋回：Google Classroom（下載繳交檔進「練習回傳」）
 C) 雲端兩夾
    發放夾給學生看、回傳夾上傳；同步到本機「練習回傳」
-D) 均一＋本程式（線上練技能＋紙本診斷循環）
-   見同資料夾「均一結合說明.txt」
+D) （可不用）均一：預設改由 Cursor 自產練習＋指導＋影片連結
 
 【其他】
 - 學校 LMS／email：最後一樣匯入「練習回傳」即可被批閱程式抓取
 - 沒有裝置：只印「列印專用\\需列印座號」那些人
+- 練習來源：Cursor 批閱時自動產生題目、自學指導、YouTube 搜尋／影片連結（不用均一）
 
 【閉環】
 發練習 → 回傳 PDF/圖 → 批閱（Cursor／人工）→
@@ -1488,6 +1488,7 @@ def main() -> int:
             args.class_report,
             args.unclear_list,
             args.pending_returns,
+            args.junyi_list,
             args.progress_html,
             args.append_attempt,
         ]

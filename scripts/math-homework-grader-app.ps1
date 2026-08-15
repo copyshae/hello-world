@@ -110,6 +110,7 @@ function Invoke-MakePdf {
   if ($DigitalPack) { $argList += '--digital-pack' }
   if ($PrintPack) { $argList += '--print-pack' }
   if ($PendingReturns) { $argList += '--pending-returns' }
+  if ($JunyiList) { $argList += '--junyi-list' }
   if ($ProgressHtml) { $argList += '--progress-html' }
   if ($AppendAttempt) {
     $argList += '--append-attempt'
@@ -182,23 +183,30 @@ function Get-PracticeTemplate([string]$level) {
     '跟上' {
       return @"
 ### 程度：跟上｜目標：再提升（少重複、多挑戰）
-說明：已掌握本單元。A 只練 1～2 題把步驟寫穩；重心放在 B、C，讓好的學生真的再進步。禁止整份都是原卷簡單題改數字。
+說明：已掌握本單元。A 少練；重心 B、C。禁止整份只改數字。不使用均一；練習／指導／影片由此產生。
+
+#### 自學指導（先看再做）
+- 重點觀念：________
+- 解題步驟口訣：________
+- 易錯提醒：________
+
+#### 建議影片／學習連結（1～2 個）
+- 搜尋關鍵詞：________
+- 連結：https://www.youtube.com/results?search_query=________
+- 備用關鍵詞：________
 
 #### 練習題（先做完再看解答）
-【A 鞏固｜少而精】步驟寫完整即可（勿佔大半）
-1. （本單元典型題，略改數字／條件）
-
-【B 靈活｜換條件仍會】
-2. （逆向思考／已知結果求條件）
-3. （兩步驟以上綜合，或圖表＋算式）
-
-【C 再提升｜必做挑戰】比原卷難一階
-4. （生活情境應用／多條件取捨）
-5. （一題多解，或需說明「為什麼這樣做」）
-6. （易錯陷阱題：似對實錯，要驗算或反例）
-
-【D 超前伸展｜選做】銜接下單元或更深一層
-7. （延伸觀念一小步；做不出也沒關係，寫卡住的地方）
+【A 鞏固｜少而精】
+1. …
+【B 靈活】
+2. …
+3. …
+【C 再提升｜必做】
+4. …
+5. …
+6. …
+【D 超前伸展｜選做】
+7. …
 
 ---
 #### 解答（全部題目完成後再看）
@@ -209,23 +217,32 @@ function Get-PracticeTemplate([string]$level) {
 5. …
 6. …
 7. …
-提升小提示：挑戰題做完，用一句話寫「我多學到什麼」；選做題寫「還想學什麼」。
+提升小提示：挑戰題做完寫「我多學到什麼」。
 "@
     }
     '略落後' {
       return @"
 ### 程度：略落後｜目標：跟上本單元
 先復習：________（本單元核心觀念）
+不使用均一；練習／指導／影片由此產生。
+
+#### 自學指導（先看再做）
+- 先搞懂：________
+- 步驟：1) … 2) … 3) …
+- 做完自問：________
+
+#### 建議影片／學習連結
+- 搜尋關鍵詞：________
+- 連結：https://www.youtube.com/results?search_query=________
 
 #### 練習題（先做完再看解答）
 【A 關鍵基本】
-1. （基本題）
-2. （基本題）
-3. （基本題）
-
+1. …
+2. …
+3. …
 【B 對應錯題類型】
-4. （原卷錯題變形）
-5. （原卷錯題變形）
+4. …
+5. …
 
 ---
 #### 解答（全部題目完成後再看）
@@ -239,59 +256,77 @@ function Get-PracticeTemplate([string]$level) {
     '明顯落後' {
       return @"
 ### 程度：明顯落後｜目標：多次補齊、每次有成就（漸次跟上）
-原則：不要一次補完。採「多次、小量」：每次只補 1 個小洞、題數 ≤ 3；做對就停，隔日／隔次再補下一個。
-先備缺口清單（可分多次）：________
-本次只補其中 1 點：________
+原則：每次只補 1 個小洞、題數 ≤ 3；做對就停，隔日再補。
+本次只補：________
+不使用均一；練習／指導／影片由此自動產生。
 
-#### 練習題（先做完再看解答｜總題數 ≤ 3）
+#### 自學指導（短、好懂）
+- 今天只要會：________
+- 跟著做：第一步… → 第二步… → 第三步…
+- 做對的樣子：（簡短示範）
+
+#### 建議影片／學習連結（對準本次這 1 點）
+- 搜尋關鍵詞：________（年級＋單元＋教學）
+- 連結：https://www.youtube.com/results?search_query=________
+- 看片重點：________（不必整部）
+
+#### 練習題（≤3 題）
 【A 本次小洞｜求做對有成就】
 1. …
 2. …
-
 【B 極簡銜接｜選做】
 3. …
 
 ---
-#### 解答（全部題目完成後再看｜逐步寫）
+#### 解答（逐步寫）
 1. …
 2. …
 3. …
-說明：本次成功＝有成就；未補完的點下次再補，不追全班、不多輪連催。
-（可選）均一對應技能／任務：________（線上練；紙本回傳仍交老師）
+說明：本次成功＝有成就；其餘下次再補。
 "@
     }
     '需補先備' {
       return @"
 ### 程度：需補先備｜目標：分次回到起點（多次補齊）
-原則：舊單元也拆成多次；每次 1 個觀念、≤3 題；成功後隔幾天再下一次，讓她有成就再漸次跟上。
-建議先備單元：________
 本次只補：________（1 個觀念）
 尚未補、下次再補：________
-（可選）均一先備技能／影片：________
+不使用均一；練習／指導／影片由此產生。
 
-#### 練習題（先做完再看解答｜總題數 ≤ 3）
-1. （先備極短題）
-2. （先備極短題）
-3. （極簡銜接｜選做）
+#### 自學指導
+- 先回到：________
+- 超短步驟：________
+- 不會就先看影片再做 1～2 題
+
+#### 建議影片／學習連結（先備觀念）
+- 搜尋關鍵詞：________
+- 連結：https://www.youtube.com/results?search_query=________
+
+#### 練習題（≤3 題）
+1. …
+2. …
+3. （選做）
 
 ---
-#### 解答（全部題目完成後再看）
+#### 解答
 1. …
 2. …
 3. …
-建議：與導師／補救協調；家長說明「多次小補、不趕一次補完」。線上可用均一練同技能，手寫過程仍可回傳本程式。
+建議：與導師協調；家長說明「多次小補」。
 "@
     }
     default {
       return @"
+### 程度：待判定
+#### 自學指導
+- …
+#### 建議影片／學習連結
+- 搜尋關鍵詞：…
+- 連結：https://www.youtube.com/results?search_query=…
 #### 練習題（先做完再看解答）
 1. …
-2. …
-
 ---
 #### 解答（全部題目完成後再看）
 1. …
-2. …
 "@
     }
   }
@@ -388,7 +423,7 @@ function Load-Settings([string]$root) {
       classroom  = $true
       drive      = $true
       lms        = $true
-      junyi      = $true
+      junyi      = $false
       print      = $true
       loop       = $true
     }
@@ -416,7 +451,7 @@ function Get-ToolCatalog {
     [pscustomobject]@{ Id = 'classroom';  Title = 'Google Classroom'; Role = '發＋回'; Tip = '發作業＋繳交最整齊；下載後丟「練習回傳」即可批' }
     [pscustomobject]@{ Id = 'drive';      Title = 'Google雲端／OneDrive'; Role = '發＋回'; Tip = '共用「發放」「回傳」兩夾；檔名 05-R01.jpg' }
     [pscustomobject]@{ Id = 'lms';        Title = '學校LMS／email'; Role = '發＋回'; Tip = '校內平台或信箱收件，最後匯入「練習回傳」' }
-    [pscustomobject]@{ Id = 'junyi';      Title = '均一教育平台'; Role = '線上練'; Tip = '依問題點指派均一技能／影片；分析報告看熟練度；紙本回傳仍用本程式批' }
+    [pscustomobject]@{ Id = 'junyi';      Title = '均一（可不用）'; Role = '選用'; Tip = '預設不用。改由 Cursor 自動產練習＋指導＋影片連結' }
     [pscustomobject]@{ Id = 'print';      Title = '無裝置列印'; Role = '發'; Tip = '只印「需列印座號」；有裝置仍走數位' }
     [pscustomobject]@{ Id = 'loop';       Title = '練習回傳循環'; Role = '批＋調題'; Tip = '回饋→調題→分數進步→達標為止（與上面發放管道並用）' }
   )
@@ -600,26 +635,28 @@ function Build-ReturnCursorPrompt([string]$root, [string]$sid, $returnFile, [int
   $sb = New-Object System.Text.StringBuilder
   [void]$sb.AppendLine('請批閱這位學生「練習回傳」第 ' + $round + ' 次（PDF／圖檔）。')
   [void]$sb.AppendLine('程度：' + $level)
-  [void]$sb.AppendLine('每次回饋都要含：分數、問題點說明、與前次比較的進步、下一輪題目（題目與解答分段）。')
+  [void]$sb.AppendLine('每次回饋都要含：分數、問題點、進步說明、下一次練習（含自學指導＋建議影片連結或 YouTube 搜尋頁）。')
+  [void]$sb.AppendLine('不要依賴均一指派；請直接自動產生練習題、逐步指導、合適教學影片連結／搜尋關鍵詞。')
   if (Test-IsBehindLevel $level) {
     [void]$sb.AppendLine('')
     [void]$sb.AppendLine('【落後生｜多次補齊 → 有成就 → 漸次跟上】')
     [void]$sb.AppendLine('- 回饋先寫做對／進步之處，再寫「下一次要補的那一小點」。')
     [void]$sb.AppendLine('- 一次只補 1 個洞、題數 ≤ 3；下一題只難一點點。')
-    [void]$sb.AppendLine('- 「多次」是分日／分次小補，不是同一週連催很多輪；兩次之間宜隔開，保住成就感。')
-    [void]$sb.AppendLine('- 階段小目標（約 60～70%）做對＝本次成功；未補完的點列入下次，不要求一次跟上全班。')
-    [void]$sb.AppendLine('- 禁止：一次補太多、整卷難題、暗示「一直練到追上為止」。')
+    [void]$sb.AppendLine('- 「多次」是分日／分次小補；兩次之間宜隔開。')
+    [void]$sb.AppendLine('- 階段小目標（約 60～70%）做對＝本次成功。')
+    [void]$sb.AppendLine('- 必須附：自學指導（短步驟）＋ 1 個對準本次問題的影片搜尋連結（可用 youtube results?search_query=）。')
   } else {
-    [void]$sb.AppendLine('目標：針對問題點給適切回饋；未達標可調下一輪，但略落後也建議本單元 ≤ 3 輪。')
+    [void]$sb.AppendLine('目標：針對問題點給適切回饋並自動產下一輪練習；略落後建議本單元 ≤ 3 輪。')
   }
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('請輸出可直接貼回批改程式的欄位：')
-  [void]$sb.AppendLine('1) 分數：得分/滿分（例 7/10）')
-  [void]$sb.AppendLine('2) 問題點：本輪真正卡住處（具體、可再練）')
-  [void]$sb.AppendLine('3) 回饋說明：對準問題點、短而可執行（落後生要鼓勵＋小步）')
-  [void]$sb.AppendLine('4) 是否達標：是／否（可採階段小目標）')
-  [void]$sb.AppendLine('5) 下一輪／下一次補齊：只接 1 個新小洞或鞏固本次成功；若需休息則寫「隔日再補＋1～2 題」')
+  [void]$sb.AppendLine('1) 分數：得分/滿分')
+  [void]$sb.AppendLine('2) 問題點')
+  [void]$sb.AppendLine('3) 回饋說明（先成就再下一步）')
+  [void]$sb.AppendLine('4) 是否達標：是／否')
+  [void]$sb.AppendLine('5) 下一次練習全文：須含「自學指導」「建議影片／學習連結」「練習題」「解答」（題目與解答分段）')
   [void]$sb.AppendLine('6) 分數進步一句話＋本次成就一句話')
+  [void]$sb.AppendLine('影片規則：優先給可點的 YouTube 搜尋結果連結；若有把握再給具體影片 URL；禁止捏造不存在的影片網址。')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('座號：' + $sid)
   [void]$sb.AppendLine('本輪回傳檔：' + $(if ($returnFile) { $returnFile.FullName } else { '（尚未放入練習回傳）' }))
@@ -878,8 +915,9 @@ function Build-CursorPrompt([string]$root) {
   $sb = New-Object System.Text.StringBuilder
   [void]$sb.AppendLine('請初核下列數學習作（加速人工打勾；非最終成績）。')
   [void]$sb.AppendLine('規則：有標準答案時以答案為準；接受其他合理等價解法；潦草／不確定標「存疑」。')
-  [void]$sb.AppendLine('每位學生輸出一份註記，寫入對應「輸出\座號-註記.md」格式：題號註記、對錯摘要、個別診斷、程度、個別建議、依程度練習（題目與解答分段）。')
-  [void]$sb.AppendLine('跟上者：少鞏固、多再提升挑戰（比原卷難一階）；好的學生要能再進步，勿只出簡單重複題。')
+  [void]$sb.AppendLine('每位學生輸出一份註記：題號註記、對錯摘要、診斷、程度、建議、自學練習（含自學指導＋建議影片＋練習題＋解答）。')
+  [void]$sb.AppendLine('不要用均一指派；請直接自動產生練習題、指導步驟、合適網路教學影片連結或 YouTube 搜尋頁。')
+  [void]$sb.AppendLine('跟上者：少鞏固、多再提升挑戰；好的學生要能再進步。')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('工作資料夾：' + $root)
   [void]$sb.AppendLine('標準答案資料夾：' + $ansDir)
@@ -904,10 +942,15 @@ function Build-CursorPromptOne([string]$root, $studentFile) {
   [void]$sb.AppendLine('3) 個別診斷結果（弱點類型、是否跟得上進度）')
   [void]$sb.AppendLine('4) 程度分級：跟上／略落後／明顯落後／需補先備')
   [void]$sb.AppendLine('5) 個別建議（短）')
-  [void]$sb.AppendLine('6) 依程度自學／補救練習：先列出全部練習題；解答全部放在題目之後（另段「解答」）。')
-  [void]$sb.AppendLine('   - 跟上：少鞏固、多靈活＋再提升挑戰（比原卷難一階）＋可選超前伸展；禁止只改數字的簡單重複題。好的學生要能再提升。')
-  [void]$sb.AppendLine('   - 略落後：對應錯題類型，少而精。')
-  [void]$sb.AppendLine('   - 明顯落後／需補先備：多次補齊（每次 1 點、≤3 題），先讓她做對有成就，再漸次跟上；勿一次補完、勿連催多輪。')
+  [void]$sb.AppendLine('6) 依程度自學練習（請一次寫完整，我會存成數位練習給學生）：')
+  [void]$sb.AppendLine('   a. 自學指導：短步驟／口訣／易錯提醒')
+  [void]$sb.AppendLine('   b. 建議影片／學習連結：給 1～2 個；優先 https://www.youtube.com/results?search_query=編碼後關鍵詞 ；有把握才給具體影片 URL；禁止捏造網址')
+  [void]$sb.AppendLine('   c. 練習題（先全部列出）')
+  [void]$sb.AppendLine('   d. 解答（全部放在題目之後另段）')
+  [void]$sb.AppendLine('   - 跟上：少鞏固、多靈活＋再提升挑戰；禁止只改數字。')
+  [void]$sb.AppendLine('   - 略落後：對應錯題，少而精。')
+  [void]$sb.AppendLine('   - 明顯落後／需補先備：多次補齊（每次 1 點、≤3 題），先有成就再漸次跟上。')
+  [void]$sb.AppendLine('不要要求學生另上均一完成任務；練習與指導由此直接產生。')
   [void]$sb.AppendLine('格式方便我貼回批改程式／存成 輸出\' + $id + '-註記.md')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('座號：' + $id)
@@ -1203,7 +1246,7 @@ function Start-GradeCurrent {
     foreach ($a in $ans) { Start-Process -FilePath $a.FullName }
     $status.Text = '已複製 Cursor 提示，並開啟學生卷＋答案；請到 Cursor 貼上並附檔'
     [void][System.Windows.Forms.MessageBox]::Show(
-      "已複製「請 Cursor 直接批閱」提示到剪貼簿。`n並已開啟此生試卷與正確答案。`n`n請到 Cursor 貼上並附檔。`n請 Cursor 一併給：診斷結果、程度、自學／補救練習（含解答）。`n貼回右側後按「輸出此生PDF」。",
+      "已複製「請 Cursor 直接批閱」提示到剪貼簿。`n並已開啟此生試卷與正確答案。`n`n請到 Cursor 貼上並附檔。`n請 Cursor 一併給：診斷、程度、自學指導、練習題＋解答、建議影片連結／YouTube 搜尋頁。`n（不用均一）貼回右側後按「輸出此生PDF」。",
       '請 Cursor 批閱'
     )
   } else {
@@ -1477,6 +1520,39 @@ $btnRetFolder.Add_Click({
     Start-Process explorer.exe (Join-Path $script:WorkDir '練習回傳')
   })
 
+$btnJunyi = New-Object System.Windows.Forms.Button
+$btnJunyi.Text = '自產練習說明'
+$btnJunyi.Location = New-Object System.Drawing.Point(516, $y4)
+$btnJunyi.Size = New-Object System.Drawing.Size(130, 32)
+$btnJunyi.BackColor = [System.Drawing.Color]::FromArgb(40, 100, 90)
+$btnJunyi.ForeColor = [System.Drawing.Color]::White
+$btnJunyi.FlatStyle = 'Flat'
+$btnJunyi.Add_Click({
+    Ensure-WorkTree $script:WorkDir
+    $guide = Join-Path $script:WorkDir '自產練習與影片說明.txt'
+    $utf8Bom = New-Object System.Text.UTF8Encoding $true
+    $body = @(
+      '自產練習與影片（不用均一）'
+      '===================='
+      ''
+      '做法：'
+      '1. 選「請 Cursor 直接批閱」→ Cursor 會自動產出：診斷、程度、自學指導、練習題、解答、建議影片連結／搜尋頁'
+      '2. 貼回右側後按「輸出此生PDF」→「數位練習」會有手機可開的練習'
+      '3. 回傳循環時，Cursor 同樣會依問題點再產「下一輪練習＋指導＋影片」'
+      ''
+      '影片規則：'
+      '- 優先用 YouTube 搜尋結果頁（可點）：'
+      '  https://www.youtube.com/results?search_query=年級+單元+教學'
+      '- 有把握才貼具體影片網址；不要捏造連結'
+      ''
+      '發放：LINE 群公告＋個別傳練習檔；回傳圖檔到「練習回傳」'
+      '均一：可完全不用。'
+    ) -join "`r`n"
+    [IO.File]::WriteAllText($guide, $body, $utf8Bom)
+    Start-Process notepad.exe $guide
+    $status.Text = '已開：自產練習與影片說明（不用均一）'
+  })
+
 $form.Size = New-Object System.Drawing.Size(1000, 820)
 $status.Location = New-Object System.Drawing.Point(16, 688)
 $status.Size = New-Object System.Drawing.Size(950, 40)
@@ -1486,7 +1562,7 @@ $form.Controls.AddRange(@(
     $btnWork, $btnOpenIn, $btnOpenOut, $btnGrade, $btnSave, $btnNext, $btnRefresh,
     $btnCsv, $btnUnclear, $btnClarify, $btnOpenCog,
     $btnDigital, $btnCopyLine, $btnPrintPack, $btnOpenDigital,
-    $btnTools, $btnLoop, $btnRetFolder
+    $btnTools, $btnLoop, $btnRetFolder, $btnJunyi
   ))
 
 Refresh-PathLabel
