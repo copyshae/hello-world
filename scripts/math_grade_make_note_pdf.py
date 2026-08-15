@@ -15,7 +15,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, PageBreak
 
 
 def find_cjk_font() -> str | None:
@@ -87,7 +87,7 @@ def md_to_flowables(text: str, font_name: str):
     story.append(Paragraph("批閱註記（初核｜人工終核前）", title))
     story.append(
         Paragraph(
-            "原則：接受合理等價解法。✓ 可快速打勾；? 存疑待老師確認／重謄。",
+            "原則：接受合理等價解法。✓ 可快速打勾；? 存疑待老師確認／重謄。練習解答另頁，做完題再看。",
             small,
         )
     )
@@ -98,10 +98,24 @@ def md_to_flowables(text: str, font_name: str):
         if not line:
             story.append(Spacer(1, 0.15 * cm))
             continue
+        # 解答與題目分頁：解答一律從新頁開始
+        if (
+            line.startswith("---")
+            or line.startswith("#### 解答")
+            or line.startswith("### 解答")
+            or line.startswith("## 解答")
+            or ("解答（全部題目完成後" in line)
+            or line.startswith("#### 解答（")
+        ):
+            story.append(PageBreak())
+            if line.startswith("---"):
+                continue
         if line.startswith("# "):
             story.append(Paragraph(_esc(line[2:]), title))
         elif line.startswith("## "):
             story.append(Paragraph(_esc(line[3:]), h2))
+        elif line.startswith("### ") or line.startswith("#### "):
+            story.append(Paragraph(_esc(line.lstrip("#").strip()), h2))
         elif line.startswith("- "):
             story.append(Paragraph("• " + _esc(line[2:]), body))
         else:
@@ -117,6 +131,51 @@ def _esc(s: str) -> str:
     )
 
 
+def split_practice_questions_answers(md_text: str) -> tuple[str, str]:
+    """Split practice block into questions-only and answers-only."""
+    if "## 依程度自學／補救練習" in md_text:
+        block = md_text.split("## 依程度自學／補救練習", 1)[1]
+        if "\n## " in block:
+            block = block.split("\n## ", 1)[0]
+    elif "## 需再練習" in md_text:
+        block = md_text.split("## 需再練習", 1)[1]
+        if "\n## " in block:
+            block = block.split("\n## ", 1)[0]
+    else:
+        return "", ""
+
+    # Prefer explicit answer heading
+    for marker in (
+        "\n#### 解答",
+        "\n### 解答",
+        "\n## 解答",
+        "\n---\n",
+    ):
+        if marker in block:
+            q, a = block.split(marker, 1)
+            if marker.strip().startswith("---"):
+                a = a.lstrip()
+            else:
+                a = marker.strip() + a
+            return q.strip(), a.strip()
+    return block.strip(), ""
+
+
+def write_simple_pdf(title: str, body: str, pdf_path: Path) -> None:
+    font = register_font()
+    md = f"# {title}\n\n{body}\n"
+    # reuse flowables but without double title noise: feed as md
+    doc = SimpleDocTemplate(
+        str(pdf_path),
+        pagesize=A4,
+        leftMargin=1.8 * cm,
+        rightMargin=1.8 * cm,
+        topMargin=1.6 * cm,
+        bottomMargin=1.6 * cm,
+    )
+    doc.build(md_to_flowables(md, font))
+
+
 def write_note_pdf(md_path: Path, pdf_path: Path) -> None:
     font = register_font()
     text = md_path.read_text(encoding="utf-8")
@@ -129,6 +188,23 @@ def write_note_pdf(md_path: Path, pdf_path: Path) -> None:
         bottomMargin=1.6 * cm,
     )
     doc.build(md_to_flowables(text, font))
+
+    # Also emit student handout: questions PDF + answers PDF (separate files)
+    sid = md_path.name.replace("-註記.md", "")
+    q, a = split_practice_questions_answers(text)
+    out_dir = md_path.parent
+    if q:
+        write_simple_pdf(
+            f"座號 {sid}｜自學練習題（先做完再看解答）",
+            q,
+            out_dir / f"{sid}-練習題.pdf",
+        )
+    if a:
+        write_simple_pdf(
+            f"座號 {sid}｜練習解答（全部題目完成後再看）",
+            a,
+            out_dir / f"{sid}-練習解答.pdf",
+        )
 
 
 def merge_original_then_note(original: Path, note_pdf: Path, out_pdf: Path) -> None:

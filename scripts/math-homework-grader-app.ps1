@@ -159,10 +159,13 @@ function Get-PracticeTemplate([string]$level) {
     '跟上' {
       return @"
 ### 程度：大致跟上（鞏固＋小挑戰）
+#### 練習題（先做完再看解答）
 1. （鞏固題）
 2. （鞏固題）
 3. （小挑戰）
-#### 解答
+
+---
+#### 解答（全部題目完成後再看）
 1. …
 2. …
 3. …
@@ -172,11 +175,14 @@ function Get-PracticeTemplate([string]$level) {
       return @"
 ### 程度：略落後（先練本單元關鍵題）
 先復習：________（本單元核心觀念）
+#### 練習題（先做完再看解答）
 1. （基本題）
 2. （基本題）
 3. （基本題）
 4. （原卷錯題類型變形）
-#### 解答
+
+---
+#### 解答（全部題目完成後再看）
 1. …
 2. …
 3. …
@@ -188,10 +194,13 @@ function Get-PracticeTemplate([string]$level) {
 ### 程度：明顯落後（降階補洞，少而精）
 先備缺口：________
 本週只練 1～2 個點：________
+#### 練習題（先做完再看解答）
 1. （先備極短題）
 2. （先備極短題）
 3. （銜接本單元最簡題）
-#### 解答（逐步寫）
+
+---
+#### 解答（全部題目完成後再看｜逐步寫）
 1. …
 2. …
 3. …
@@ -202,10 +211,13 @@ function Get-PracticeTemplate([string]$level) {
       return @"
 ### 程度：需補先備（暫緩本單元新進度）
 建議先備單元：________
+#### 練習題（先做完再看解答）
 1. （先備題）
 2. （先備題）
 3. （先備題）
-#### 解答
+
+---
+#### 解答（全部題目完成後再看）
 1. …
 2. …
 3. …
@@ -213,7 +225,16 @@ function Get-PracticeTemplate([string]$level) {
 "@
     }
     default {
-      return "（依程度填寫練習題＋完整解答）"
+      return @"
+#### 練習題（先做完再看解答）
+1. …
+2. …
+
+---
+#### 解答（全部題目完成後再看）
+1. …
+2. …
+"@
     }
   }
 }
@@ -339,7 +360,7 @@ function Build-CursorPromptOne([string]$root, $studentFile) {
   [void]$sb.AppendLine('3) 個別診斷結果（弱點類型、是否跟得上進度）')
   [void]$sb.AppendLine('4) 程度分級：跟上／略落後／明顯落後／需補先備')
   [void]$sb.AppendLine('5) 個別建議（短）')
-  [void]$sb.AppendLine('6) 依程度自學／補救練習：題目＋完整解答（明顯落後要降階、少而精）')
+  [void]$sb.AppendLine('6) 依程度自學／補救練習：先列出全部練習題；解答請全部放在題目之後（另段「解答」，不要題目與解答穿插同段）。明顯落後要降階、少而精。')
   [void]$sb.AppendLine('格式方便我貼回批改程式／存成 輸出\' + $id + '-註記.md')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('座號：' + $id)
@@ -549,7 +570,7 @@ $txtPractice.Multiline = $true
 $txtPractice.ScrollBars = 'Vertical'
 $txtPractice.Location = New-Object System.Drawing.Point(120, 250)
 $txtPractice.Size = New-Object System.Drawing.Size(490, 70)
-$txtPractice.Text = '（題目＋解答；可按「依程度帶入練習架構」）'
+$txtPractice.Text = '（先寫全部練習題；解答另段「解答」，做完再看）'
 $grp.Controls.Add($txtPractice)
 
 $status = New-Object System.Windows.Forms.Label
