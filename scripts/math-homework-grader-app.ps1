@@ -1540,20 +1540,20 @@ function Start-GradeCurrent {
   $id = Get-StudentId $script:current.Name
   if ($id -notmatch '^\d{1,2}$' -or $script:current.Name -match '^S__') {
     $ask = [System.Windows.Forms.MessageBox]::Show(
-      ("目前檔名像是通訊軟體亂碼（$($script:current.Name)），座號讀成「$id」，容易批不出來。`n`n要先改成座號檔名嗎？例如 05.pdf`n選「是」會請你輸入座號並改名。"),
+      ("目前檔名像是通訊軟體亂碼（$($script:current.Name)），座號讀成「$id」，容易批不出來。`n`n要先改成座號檔名嗎？`n試發請用 00（例如 00.jpg）`n選「是」會請你輸入座號並改名。"),
       '請先改座號檔名',
       [System.Windows.Forms.MessageBoxButtons]::YesNo,
       [System.Windows.Forms.MessageBoxIcon]::Warning
     )
     if ($ask -eq 'Yes') {
       $formAsk = New-Object System.Windows.Forms.Form
-      $formAsk.Text = '輸入座號'
+      $formAsk.Text = '輸入座號（試發用 00）'
       $formAsk.Size = New-Object System.Drawing.Size(320, 140)
       $formAsk.StartPosition = 'CenterParent'
       $tb = New-Object System.Windows.Forms.TextBox
       $tb.Location = New-Object System.Drawing.Point(20, 20)
       $tb.Width = 260
-      $tb.Text = '05'
+      $tb.Text = '00'
       $formAsk.Controls.Add($tb)
       $ok = New-Object System.Windows.Forms.Button
       $ok.Text = '確定'

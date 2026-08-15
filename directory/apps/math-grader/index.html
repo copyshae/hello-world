@@ -286,6 +286,7 @@
           sel.appendChild(o);
         });
         if (cur && state.seats[cur]) sel.value = cur;
+        else if (state.seats["00"]) sel.value = "00";
       }
 
       function buildPromptOne(id, hard) {
@@ -508,7 +509,7 @@
           rows.forEach(function (rec) {
             var li = document.createElement("li");
             li.className = "scan-item";
-            var seatVal = rec.seatId || document.getElementById("defaultSeat").value || "01";
+            var seatVal = rec.seatId || document.getElementById("defaultSeat").value || "00";
             li.innerHTML =
               "<strong>" + outName(seatVal, rec.name, rec.type) + "</strong>" +
               '<div class="tips">原檔：' + (rec.name || "") + "</div>" +
@@ -558,7 +559,7 @@
       function ingestFiles(fileList) {
         var files = Array.prototype.slice.call(fileList || []);
         if (!files.length) return Promise.resolve();
-        var seat = document.getElementById("defaultSeat").value || "01";
+        var seat = document.getElementById("defaultSeat").value || "00";
         var now = Date.now();
         var chain = Promise.resolve();
         files.forEach(function (f, i) {
