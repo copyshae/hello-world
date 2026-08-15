@@ -83,6 +83,7 @@ function Invoke-MakePdf {
     [switch]$DigitalPack,
     [switch]$PrintPack,
     [switch]$PendingReturns,
+    [switch]$JunyiList,
     [switch]$ProgressHtml,
     [switch]$AppendAttempt,
     [string]$AttemptJson = ''

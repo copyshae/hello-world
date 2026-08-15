@@ -1078,51 +1078,205 @@ def write_junyi_guide(work_dir: Path) -> Path:
     text = """如何結合「均一教育平台」與本批改工具
 ========================================
 
+【重要限制】
+均一「指派任務」目前無法由本程式自動完成（無開放一鍵代點）。
+本程式能做的是：依批閱結果「自動產出均一指派清單」，你只要打開均一對照點選；
+同一任務可用「任務代碼」複製到其他班級，減少重複設定。
+
 【一句話分工】
-- 均一：線上影片／習題／熟練度、差異化指派、分析報告
-- 本程式：紙本試卷批閱、手寫回傳、多次補齊、成長歷程、家長短訊
+- 均一：線上影片／習題／熟練度、差異化指派、分析報告（指派＝手動）
+- 本程式：紙本試卷批閱、手寫回傳、多次補齊、成長歷程；並產出「均一指派清單」
 
 兩者互補，不要兩套都叫學生交同一份作業兩次。
 
-【建議流程】
-1) 本程式批完試卷 → 判定程度與「未補齊／問題點」
-2) 老師到均一「教學管理 → 指派任務」
-   - 對應問題點選技能／影片（可全班或個別差異化）
-   - 落後生：少量、對準 1 個洞（多次補齊）
-   - 跟上生：挑戰／延伸技能（再提升）
-3) 學生在均一線上練（平台記進度）
-4) 若需要看「手寫過程／成就感紙本」：
-   - 仍用本程式產數位練習或列印包
-   - 回傳圖檔進「練習回傳」→ 練習回傳循環記分數進步
-5) 老師看兩處報告：
-   - 均一：分析報告（完成率、熟練）
-   - 本程式：練習歷程／成長曲線／全班總表
-
-【對照表（問題點 → 均一）】
-本程式錯誤類型／未補齊　　→　均一指派
-計算／進位／單位……　　　→　該單元對應「技能」習題
-先備不足　　　　　　　　　→　前一單元基礎技能＋影片
-審題／粗心　　　　　　　　→　少題精練＋本程式手寫回饋
-跟上／再提升　　　　　　　→　進階題或綜合評量（若有）
-
-【家長／群組怎麼講】
-- LINE 群：只公告「請完成均一任務 ○○（期限）」＋「紙本回傳規則」
-- 回傳手寫：仍個別傳老師，勿塞群組
-- 說明：均一＝線上練熟；紙本回傳＝看過程與小成就（非正式成績）
+【建議流程（半自動）】
+1) 本程式批完試卷 → 按「均一指派清單」
+2) 打開 `練習歷程\\均一指派清單.md`（已依座號／問題點排好）
+3) 到均一「教學管理 → 指派任務」依清單逐項點選（落後生每次 1 個技能）
+4) 第一次指派後複製「任務代碼」，其他班可貼代碼重用
+5) 學生在均一線上練；手寫過程若要看，再回傳本程式
 
 【帳號與班級】
-- 老師建立班級、學生加入（依均一「註冊／建立班級」說明）
-- 多班可複製「任務代碼」重複指派
+- 老師建立班級、學生加入
+- 多班：任務代碼重複指派（這是均一端最省事的「半自動」）
 說明：https://help.junyiacademy.org/home/mission_report/
 教師資源：https://www.junyiacademy.org/topics/junyi-teacher-resources
 
 【不要這樣做】
-- 同一題又叫均一交、又叫拍照交兩次（負擔大）
-- 落後生一次指派大量均一任務（違反多次補齊）
-- 只用均一分數當唯一成績、忽略手寫思考過程
+- 期待本程式直接登入均一代你指派（目前做不到）
+- 同一題又叫均一交、又叫拍照交兩次
+- 落後生一次指派大量均一任務
 """
     path.write_text(text, encoding="utf-8")
+    ensure_junyi_skill_map(work_dir)
     return path
+
+
+def ensure_junyi_skill_map(work_dir: Path) -> Path:
+    """Editable mapping: error tag / gap keyword → junyi skill hint (teacher fills)."""
+    path = work_dir / "均一技能對照.txt"
+    if path.exists():
+        return path
+    path.write_text(
+        "# 均一技能對照（請依本班教材自行填寫；一行一組）\n"
+        "# 格式：關鍵詞 = 均一技能或影片名稱（或備註）\n"
+        "# 本程式產出「均一指派清單」時會依關鍵詞帶出建議\n"
+        "\n"
+        "進位 = （請填均一技能名）\n"
+        "退位 = （請填均一技能名）\n"
+        "分數 = （請填均一技能名）\n"
+        "小數 = （請填均一技能名）\n"
+        "面積 = （請填均一技能名）\n"
+        "單位 = （請填均一技能名）\n"
+        "先備 = （請填前一單元基礎技能）\n"
+        "計算 = （請填計算類技能）\n"
+        "審題 = （建議少題精練＋手寫回饋，均一可選基礎題）\n"
+        "粗心 = （建議手寫驗算；均一可選同技能少量）\n"
+        "跟上 = （請填進階／挑戰技能）\n"
+        "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def load_junyi_skill_map(work_dir: Path) -> dict[str, str]:
+    ensure_junyi_skill_map(work_dir)
+    path = work_dir / "均一技能對照.txt"
+    mp: dict[str, str] = {}
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k, v = k.strip(), v.strip()
+        if k and v and not v.startswith("（請填"):
+            mp[k] = v
+    return mp
+
+
+def suggest_junyi_skills(keywords: list[str], skill_map: dict[str, str]) -> list[str]:
+    hits = []
+    for kw in keywords:
+        for mk, mv in skill_map.items():
+            if mk in kw or kw in mk:
+                item = f"{mk} → {mv}"
+                if item not in hits:
+                    hits.append(item)
+    return hits
+
+
+def build_junyi_assign_list(work_dir: Path) -> Path:
+    """Auto checklist for manual junyi assignment (cannot click junyi for you)."""
+    out_dir = work_dir / "輸出"
+    hist_dir = work_dir / "練習歷程"
+    hist_dir.mkdir(parents=True, exist_ok=True)
+    skill_map = load_junyi_skill_map(work_dir)
+    write_junyi_guide(work_dir)
+
+    lines = [
+        "# 均一指派清單（自動產生｜指派仍須在均一手動點）",
+        "",
+        "> 均一無法由本程式自動指派。此清單把「誰、補什麼」整理好，你到均一對照點選即可。",
+        "> 同一任務可用「任務代碼」複製到他班。技能名稱請維護 `均一技能對照.txt`。",
+        "",
+        "## 操作步驟",
+        "1. 打開均一 → 教學管理 → 指派任務",
+        "2. 依下方座號：落後生每次只指派 **1** 個建議技能（多次補齊）",
+        "3. 跟上生可指派挑戰技能（選做）",
+        "4. 指派後可把任務代碼記在本檔最下方",
+        "",
+        "## 逐座號建議",
+        "",
+    ]
+
+    sids = set()
+    for p in out_dir.glob("*-註記.md"):
+        sids.add(p.name.replace("-註記.md", ""))
+    for p in hist_dir.glob("*-歷程.json"):
+        sids.add(p.name.replace("-歷程.json", ""))
+
+    if not sids:
+        lines.append("- （尚無批閱註記／歷程，請先批改學生）")
+    else:
+        for sid in sorted(sids):
+            level, diagnosis, practice_hint = "待判定", "", ""
+            note = out_dir / f"{sid}-註記.md"
+            if note.exists():
+                text = note.read_text(encoding="utf-8")
+                m = re.search(r"(?m)^- 程度[：:]\s*(.+)$", text)
+                if m:
+                    level = m.group(1).strip()
+                if "## 個別診斷結果" in text:
+                    diagnosis = text.split("## 個別診斷結果", 1)[1]
+                    if "\n## " in diagnosis:
+                        diagnosis = diagnosis.split("\n## ", 1)[0]
+                    diagnosis = diagnosis.strip().replace("\n", " ")[:120]
+            hist = load_history(work_dir, sid)
+            gaps = list(hist.get("openGaps") or [])
+            tags = list((hist.get("errorTagCounts") or {}).keys())
+            # also pull latest attempt problem points
+            atts = hist.get("attempts") or []
+            if atts:
+                pp = str(atts[-1].get("problemPoints") or "")
+                if pp:
+                    gaps = gaps or [pp[:40]]
+            keywords = gaps + tags + ([diagnosis] if diagnosis else []) + [level]
+            flat_kw = []
+            for k in keywords:
+                flat_kw.extend(re.split(r"[,，、/\s]+", str(k)))
+            flat_kw = [x for x in flat_kw if x]
+            suggestions = suggest_junyi_skills(flat_kw, skill_map)
+            if not suggestions:
+                if "跟上" in level:
+                    suggestions = ["（請在均一選本單元進階／挑戰技能；並填入均一技能對照.txt）"]
+                elif level in ("明顯落後", "需補先備"):
+                    suggestions = ["（請在均一選 1 個先備／基礎技能；並填入均一技能對照.txt）"]
+                else:
+                    suggestions = ["（依問題點在均一搜尋對應技能；建議維護均一技能對照.txt）"]
+
+            pace = (
+                "每次只指派 1 個｜多次補齊"
+                if level in ("明顯落後", "需補先備", "略落後")
+                else "可指派挑戰／延伸（選做）"
+            )
+            lines.append(f"### 座號 {sid}｜{level}｜{pace}")
+            if gaps:
+                lines.append("- 未補齊／焦點：" + "、".join(str(g) for g in gaps[:5]))
+            if tags:
+                lines.append("- 錯誤類型：" + "、".join(tags[:8]))
+            if diagnosis:
+                lines.append(f"- 診斷摘要：{diagnosis}")
+            lines.append("- 均一建議指派：")
+            for s in suggestions[:4]:
+                lines.append(f"  - [ ] {s}")
+            lines.append("")
+
+    lines += [
+        "## 任務代碼備忘（手動貼上）",
+        "",
+        "| 用途 | 任務代碼 | 期限 | 備註 |",
+        "|------|----------|------|------|",
+        "| 本週基礎 |  |  |  |",
+        "| 本週挑戰 |  |  |  |",
+        "| 先備補齊 |  |  |  |",
+        "",
+        "產生時間可重跑「均一指派清單」更新。",
+        "",
+    ]
+    out = hist_dir / "均一指派清單.md"
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # also copy short LINE announcement
+    ann = (
+        "【數學｜均一任務】\n"
+        "請依老師在均一指派的任務完成線上練習（看分析報告即可）。\n"
+        "若另有手寫回傳，請個別傳老師，檔名：座號-R01.jpg。\n"
+        "（均一＝線上練熟；手寫＝看過程。練習非正式成績）\n"
+    )
+    (hist_dir / "均一任務LINE公告.txt").write_text(ann, encoding="utf-8")
+    dig = work_dir / "數位練習"
+    dig.mkdir(parents=True, exist_ok=True)
+    (dig / "均一任務LINE公告.txt").write_text(ann, encoding="utf-8")
+    return out
 
 
 def build_pending_returns_list(work_dir: Path) -> Path:
@@ -1214,6 +1368,7 @@ def main() -> int:
     ap.add_argument("--digital-pack", action="store_true", help="build phone/tablet practice HTML pack")
     ap.add_argument("--print-pack", action="store_true", help="build paper PDFs only for seats in 需列印座號.txt")
     ap.add_argument("--pending-returns", action="store_true", help="list ungraded practice returns")
+    ap.add_argument("--junyi-list", action="store_true", help="build manual junyi assignment checklist")
     ap.add_argument("--progress-html", action="store_true", help="rebuild progress HTML for student(s)")
     ap.add_argument("--append-attempt", action="store_true", help="append one practice-return attempt from flags")
     ap.add_argument("--attempt-json", default="", help="JSON file with attempt fields (preferred for Unicode)")
@@ -1266,6 +1421,10 @@ def main() -> int:
     if args.pending_returns:
         p = build_pending_returns_list(work)
         print(f"pending returns: {p}")
+
+    if args.junyi_list:
+        p = build_junyi_assign_list(work)
+        print(f"junyi assign list: {p}")
 
     if args.progress_html:
         if args.student:
