@@ -355,7 +355,8 @@ try {
       $b.BackColor = Get-LevelColor ([string]$s.level)
       $b.Tag = $k
       $b.Add_Click({
-        $id = [string]$this.Tag
+        param($sender, $eventArgs)
+        $id = [string]$sender.Tag
         $script:SelectedId = $id
         $seat = $script:State.seats[$id]
         $lblSid.Text = "座號：$id"
