@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1b4332" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="習作批改" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>習作批改｜手機版</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c; --paper: #e8efe6; --accent: #1b4332; --muted: #4a5c52;
+      --line: rgba(27, 67, 50, 0.22);
+      --ok: #d8f3dc; --mid: #fff3bf; --bad: #ffc9c9; --wait: #d0ebff; --plain: #f5f8f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; font-family: "DM Sans", sans-serif; color: var(--ink); line-height: 1.55;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1.25rem 1.1rem 5.5rem; }
+    .brand {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(2rem, 9vw, 2.6rem); color: var(--accent); font-weight: 400;
+    }
+    .lead { margin-top: 0.45rem; color: var(--muted); font-size: 0.98rem; }
+    .install {
+      margin-top: 0.85rem; font-size: 0.86rem; color: var(--muted);
+      border-left: 3px solid var(--accent); padding: 0.5rem 0.7rem; background: rgba(27,67,50,0.08);
+    }
+    .summary { margin-top: 0.9rem; font-size: 0.9rem; color: var(--accent); font-weight: 500; }
+    section { margin-top: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif; font-size: 1.28rem; font-weight: 400;
+      color: var(--accent); margin-bottom: 0.55rem;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; align-items: center; }
+    label { font-size: 0.86rem; color: var(--muted); }
+    input, select, textarea, button {
+      font: inherit; border: 1px solid var(--line); background: rgba(255,255,255,0.78);
+      color: var(--ink); padding: 0.55rem 0.65rem;
+    }
+    input, select { min-height: 2.4rem; }
+    input[type="number"] { width: 4.4rem; }
+    input[type="text"], select.grow { flex: 1; min-width: 7rem; }
+    textarea { width: 100%; min-height: 8rem; font-size: 0.88rem; line-height: 1.45; }
+    .filters { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
+    .chip {
+      border: 1px solid var(--line); background: rgba(255,255,255,0.6); padding: 0.35rem 0.55rem;
+      font-size: 0.8rem; color: var(--muted); cursor: pointer;
+    }
+    .chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.35rem; }
+    .seat {
+      border: 1px solid var(--line); min-height: 3rem; padding: 0.25rem 0.1rem; text-align: center;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; background: var(--plain);
+    }
+    .seat .sid { display: block; font-size: 0.9rem; }
+    .seat .st { display: block; font-weight: 400; font-size: 0.68rem; color: var(--muted); }
+    .seat.st-未批 { background: var(--plain); }
+    .seat.st-批改中 { background: var(--wait); }
+    .seat.st-已批 { background: var(--ok); }
+    .seat.st-待認知 { background: var(--mid); }
+    .seat.st-待重謄 { background: var(--bad); }
+    .seat.trial { border-style: dashed; border-color: var(--accent); }
+    .seat.active { outline: 2px solid rgba(27,67,50,0.4); }
+    .seat.dim { opacity: 0.28; }
+    .panel { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--line); }
+    .actions { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.55rem; }
+    .btn {
+      display: block; width: 100%; text-align: center; padding: 0.8rem 1rem; border: none;
+      background: var(--accent); color: #fff; font-weight: 600; cursor: pointer;
+    }
+    .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .tips { font-size: 0.88rem; color: var(--muted); }
+    .tips li { margin: 0.25rem 0 0.25rem 1.1rem; }
+    .toast {
+      position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%) translateY(120%);
+      background: var(--ink); color: #fff; padding: 0.65rem 1rem; font-size: 0.88rem;
+      opacity: 0; transition: 0.25s ease; z-index: 20; max-width: 92vw; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .nav { margin-top: 1.6rem; font-size: 0.88rem; }
+    .nav a { color: var(--accent); }
+    .hidden-file { display: none; }
+    .scan-list { list-style: none; margin-top: 0.55rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .scan-item { padding: 0.65rem 0.7rem; background: rgba(255,255,255,0.7); border: 1px solid var(--line); font-size: 0.86rem; }
+    .scan-item .btn-row { display: flex; gap: 0.35rem; margin-top: 0.4rem; }
+    .scan-item .btn-row button {
+      flex: 1; padding: 0.4rem; font-size: 0.78rem; font-weight: 600;
+      border: 1px solid var(--accent); background: transparent; color: var(--accent);
+    }
+    .scan-item .btn-row button.primary { background: var(--accent); color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">習作批改</div>
+      <p class="lead">手機版：掌握誰已批、複製 Cursor 提示、匯入 CS 掃描。產 PDF／正式輸出請用電腦「習作批改」。</p>
+      <p class="install">Safari 開啟本頁 → 分享 → 往下找「加入主畫面」。含試發座號 00，人數預設到 35。</p>
+      <p class="summary" id="summary">—</p>
+    </header>
+
+    <section>
+      <h2>設定</h2>
+      <div class="row">
+        <label for="classLabel">班級</label>
+        <input id="classLabel" type="text" maxlength="40" />
+      </div>
+      <div class="row">
+        <label for="seatCount">人數</label>
+        <input id="seatCount" type="number" min="1" max="60" />
+        <button type="button" class="btn secondary" id="btnApply" style="width:auto;padding:0.55rem 0.9rem">套用</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>批改進度</h2>
+      <div class="filters" id="filters">
+        <button type="button" class="chip on" data-f="all">全部</button>
+        <button type="button" class="chip" data-f="未批">未批</button>
+        <button type="button" class="chip" data-f="批改中">批改中</button>
+        <button type="button" class="chip" data-f="已批">已批</button>
+        <button type="button" class="chip" data-f="待認知">待認知</button>
+        <button type="button" class="chip" data-f="待重謄">待重謄</button>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="panel" id="editPanel" hidden>
+        <h2 id="editTitle" style="font-size:1.1rem;margin-bottom:0.45rem">座號</h2>
+        <div class="row">
+          <label for="gradeStatus">狀態</label>
+          <select id="gradeStatus" class="grow">
+            <option>未批</option><option>批改中</option><option>已批</option><option>待認知</option><option>待重謄</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="level">程度</label>
+          <select id="level" class="grow">
+            <option>未標</option><option>跟上</option><option>略落後</option><option>明顯落後</option><option>需補先備</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="note">備註</label>
+          <input id="note" type="text" maxlength="80" placeholder="勿填姓名" />
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" id="btnSave">儲存此座號</button>
+          <button type="button" class="btn secondary" id="btnCopyOne">複製「請 Cursor 批此生」提示</button>
+          <button type="button" class="btn secondary" id="btnCopyReturn">複製「練習回傳再批」提示</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>提示預覽</h2>
+      <textarea id="preview" readonly></textarea>
+      <div class="actions">
+        <button type="button" class="btn secondary" id="btnCopyPreview">複製上方文字</button>
+      </div>
+    </section>
+
+    <section id="scanSection">
+      <h2>掃描／試卷匯入（CS）</h2>
+      <p class="tips">CS 匯出 → 分享 → 儲存到檔案 → 這裡匯入 → 對應座號。正式 PDF 輸出仍回電腦「習作批改」。</p>
+      <div class="actions">
+        <button type="button" class="btn" id="btnPickScan">匯入 PDF／圖檔</button>
+        <input class="hidden-file" id="fileScan" type="file" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple />
+      </div>
+      <div class="row" style="margin-top:0.55rem">
+        <label for="defaultSeat">預設座號</label>
+        <select id="defaultSeat" class="grow"></select>
+      </div>
+      <ul class="scan-list" id="scanList"></ul>
+      <p class="tips" id="scanEmpty">尚無掃描檔。</p>
+    </section>
+
+    <section>
+      <h2>和電腦怎麼分工</h2>
+      <ul class="tips">
+        <li>手機：匯入掃描、標進度、複製 Cursor 提示、到 Cursor／電腦貼上批。</li>
+        <li>電腦「習作批改.vbs」：載入標準答案、輸出註記 PDF、產數位練習。</li>
+        <li>批完要發練習：開手機／電腦「習作台」複製 LINE 群發文。</li>
+      </ul>
+    </section>
+
+    <p class="nav">
+      <a href="../teacher-desk/">習作台（掌握／發送）</a> ·
+      <a href="../../">學習日誌</a>
+    </p>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    (function () {
+      var KEY = "math-grader-v1";
+      var selected = null;
+      var filter = "all";
+      var STATUSES = ["未批", "批改中", "已批", "待認知", "待重謄"];
+
+      function def() {
+        return { classLabel: "本班數學", seatCount: 35, seats: {} };
+      }
+
+      function ensure(state) {
+        var n = Math.max(1, Math.min(60, parseInt(state.seatCount, 10) || 35));
+        state.seatCount = n;
+        if (!state.seats) state.seats = {};
+        if (!state.seats["00"]) state.seats["00"] = { status: "未批", level: "未標", note: "試發" };
+        else {
+          if (!state.seats["00"].status) state.seats["00"].status = "未批";
+          if (!state.seats["00"].note) state.seats["00"].note = "試發";
+        }
+        for (var i = 1; i <= n; i++) {
+          var id = String(i).padStart(2, "0");
+          if (!state.seats[id]) state.seats[id] = { status: "未批", level: "未標", note: "" };
+          if (!state.seats[id].status) state.seats[id].status = "未批";
+          if (state.seats[id].level == null) state.seats[id].level = "未標";
+          if (state.seats[id].note == null) state.seats[id].note = "";
+        }
+        Object.keys(state.seats).forEach(function (k) {
+          if (k === "00") return;
+          var num = parseInt(k, 10);
+          if (!num || num < 1 || num > n) delete state.seats[k];
+        });
+        return state;
+      }
+
+      function load() {
+        try {
+          var raw = localStorage.getItem(KEY);
+          if (raw) return ensure(Object.assign(def(), JSON.parse(raw)));
+        } catch (e) {}
+        return ensure(def());
+      }
+      function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
+      var state = load();
+
+      function toast(msg) {
+        var el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(function () { el.classList.remove("show"); }, 2200);
+      }
+
+      function matchFilter(s) {
+        if (filter === "all") return true;
+        return s.status === filter;
+      }
+
+      function summary() {
+        var c = { 未批: 0, 批改中: 0, 已批: 0, 待認知: 0, 待重謄: 0 };
+        Object.keys(state.seats).forEach(function (k) {
+          if (k === "00") return;
+          var st = state.seats[k].status;
+          if (c[st] != null) c[st]++;
+        });
+        document.getElementById("summary").textContent =
+          "未批" + c["未批"] + " 批改中" + c["批改中"] + " 已批" + c["已批"] +
+          "｜待認知" + c["待認知"] + " 待重謄" + c["待重謄"] + "（另有 00 試發）";
+      }
+
+      function fillSeatSelect() {
+        var sel = document.getElementById("defaultSeat");
+        var cur = sel.value;
+        sel.innerHTML = "";
+        Object.keys(state.seats).sort().forEach(function (id) {
+          var o = document.createElement("option");
+          o.value = id;
+          o.textContent = id === "00" ? "00 試發" : id;
+          sel.appendChild(o);
+        });
+        if (cur && state.seats[cur]) sel.value = cur;
+      }
+
+      function buildPromptOne(id) {
+        return (
+          "請直接批閱這一位學生的數學試卷（一人一檔）。\n" +
+          "規則：以正確答案為準；接受合理等價解法；看不懂標 ? 存疑。\n" +
+          "請務必輸出：\n" +
+          "1) 題號註記（✓／✗／?）\n" +
+          "2) 對錯摘要\n" +
+          "3) 個別診斷結果（弱點、是否跟上）\n" +
+          "4) 程度：跟上／略落後／明顯落後／需補先備\n" +
+          "5) 個別建議（短）\n" +
+          "6) 依程度自學練習：自學指導、建議影片（優先 YouTube 搜尋連結）、練習題、解答\n" +
+          "   - 跟上：再提升挑戰；略落後：少而精；明顯落後／需補先備：多次補齊（每次≤3題）\n" +
+          "不要要求學生另上均一。\n\n" +
+          "座號：" + id + "\n" +
+          "班級：" + state.classLabel + "\n" +
+          "請一併參考老師提供的標準答案與學生試卷檔。"
+        );
+      }
+
+      function buildPromptReturn(id) {
+        var lv = state.seats[id] ? state.seats[id].level : "未標";
+        return (
+          "請批閱這位學生「練習回傳」（PDF／圖檔）。\n" +
+          "座號：" + id + "\n" +
+          "程度：" + lv + "\n" +
+          "請輸出：分數或達成情形、問題點、簡短回饋、下一輪練習（指導＋題＋解答＋影片搜尋連結）。\n" +
+          "明顯落後／需補先備採多次補齊，每次約 1 點、少題。"
+        );
+      }
+
+      function renderGrid() {
+        var grid = document.getElementById("grid");
+        grid.innerHTML = "";
+        Object.keys(state.seats).sort().forEach(function (id) {
+          var s = state.seats[id];
+          var b = document.createElement("button");
+          b.type = "button";
+          var show = matchFilter(s);
+          b.className = "seat st-" + s.status + (selected === id ? " active" : "") + (show ? "" : " dim") + (id === "00" ? " trial" : "");
+          b.innerHTML = '<span class="sid">' + (id === "00" ? "00試發" : id) + '</span><span class="st">' + s.status + "</span>";
+          b.addEventListener("click", function () {
+            selected = id;
+            document.getElementById("editPanel").hidden = false;
+            document.getElementById("editTitle").textContent = id === "00" ? "座號 00（試發）" : ("座號 " + id);
+            document.getElementById("gradeStatus").value = s.status;
+            document.getElementById("level").value = s.level || "未標";
+            document.getElementById("note").value = s.note || "";
+            document.getElementById("preview").value = buildPromptOne(id);
+            renderGrid();
+          });
+          grid.appendChild(b);
+        });
+        summary();
+      }
+
+      function syncForm() {
+        document.getElementById("classLabel").value = state.classLabel;
+        document.getElementById("seatCount").value = state.seatCount;
+      }
+
+      function persistHeader() {
+        state.classLabel = (document.getElementById("classLabel").value || "本班數學").trim();
+        state.seatCount = parseInt(document.getElementById("seatCount").value, 10) || 35;
+        state = ensure(state);
+        save(state);
+      }
+
+      async function copyText(text, ok) {
+        document.getElementById("preview").value = text;
+        try {
+          await navigator.clipboard.writeText(text);
+          toast(ok);
+        } catch (e) {
+          window.prompt("請手動複製：", text);
+        }
+      }
+
+      document.getElementById("filters").addEventListener("click", function (e) {
+        var t = e.target;
+        if (!t.classList.contains("chip")) return;
+        filter = t.getAttribute("data-f");
+        Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) {
+          c.classList.toggle("on", c === t);
+        });
+        renderGrid();
+      });
+
+      document.getElementById("btnApply").addEventListener("click", function () {
+        persistHeader();
+        fillSeatSelect();
+        renderGrid();
+        toast("已套用（含 00～" + String(state.seatCount).padStart(2, "0") + "）");
+      });
+
+      document.getElementById("btnSave").addEventListener("click", function () {
+        if (!selected) return;
+        persistHeader();
+        state.seats[selected].status = document.getElementById("gradeStatus").value;
+        state.seats[selected].level = document.getElementById("level").value;
+        state.seats[selected].note = (document.getElementById("note").value || "").trim();
+        save(state);
+        renderGrid();
+        toast("已儲存座號 " + selected);
+      });
+
+      document.getElementById("btnCopyOne").addEventListener("click", function () {
+        if (!selected) { toast("請先點座號"); return; }
+        persistHeader();
+        state.seats[selected].status = "批改中";
+        save(state);
+        renderGrid();
+        copyText(buildPromptOne(selected), "已複製批閱提示 → 貼到 Cursor");
+      });
+
+      document.getElementById("btnCopyReturn").addEventListener("click", function () {
+        if (!selected) { toast("請先點座號"); return; }
+        persistHeader();
+        copyText(buildPromptReturn(selected), "已複製回傳再批提示");
+      });
+
+      document.getElementById("btnCopyPreview").addEventListener("click", function () {
+        copyText(document.getElementById("preview").value || "", "已複製");
+      });
+
+      /* scans */
+      var DB_NAME = "math-grader-scans";
+      var DB_STORE = "inbox";
+      function openScanDb() {
+        return new Promise(function (resolve, reject) {
+          var req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = function () {
+            var db = req.result;
+            if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE, { keyPath: "id" });
+          };
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function () { reject(req.error); };
+        });
+      }
+      function scanAll() {
+        return openScanDb().then(function (db) {
+          return new Promise(function (resolve, reject) {
+            var tx = db.transaction(DB_STORE, "readonly");
+            var req = tx.objectStore(DB_STORE).getAll();
+            req.onsuccess = function () {
+              var rows = req.result || [];
+              rows.sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+              resolve(rows);
+            };
+            req.onerror = function () { reject(req.error); };
+          });
+        });
+      }
+      function scanPut(rec) {
+        return openScanDb().then(function (db) {
+          return new Promise(function (resolve, reject) {
+            var tx = db.transaction(DB_STORE, "readwrite");
+            tx.objectStore(DB_STORE).put(rec);
+            tx.oncomplete = function () { resolve(); };
+            tx.onerror = function () { reject(tx.error); };
+          });
+        });
+      }
+      function scanDel(id) {
+        return openScanDb().then(function (db) {
+          return new Promise(function (resolve, reject) {
+            var tx = db.transaction(DB_STORE, "readwrite");
+            tx.objectStore(DB_STORE).delete(id);
+            tx.oncomplete = function () { resolve(); };
+            tx.onerror = function () { reject(tx.error); };
+          });
+        });
+      }
+      function bufferToBlob(rec) {
+        var buf = rec.buffer;
+        if (buf instanceof ArrayBuffer) return new Blob([buf], { type: rec.type || "application/octet-stream" });
+        if (buf && buf.buffer) return new Blob([buf.buffer], { type: rec.type || "application/octet-stream" });
+        return new Blob([buf], { type: rec.type || "application/octet-stream" });
+      }
+      function extOf(name, type) {
+        var m = /\.([a-z0-9]+)$/i.exec(name || "");
+        if (m) return m[1].toLowerCase();
+        if (type && type.indexOf("pdf") >= 0) return "pdf";
+        return "jpg";
+      }
+      function outName(seatId, name, type) {
+        return (seatId || "00") + "-試卷." + extOf(name, type);
+      }
+
+      function renderScans() {
+        return scanAll().then(function (rows) {
+          var list = document.getElementById("scanList");
+          var empty = document.getElementById("scanEmpty");
+          list.innerHTML = "";
+          empty.style.display = rows.length ? "none" : "block";
+          rows.forEach(function (rec) {
+            var li = document.createElement("li");
+            li.className = "scan-item";
+            var seatVal = rec.seatId || document.getElementById("defaultSeat").value || "01";
+            li.innerHTML =
+              "<strong>" + outName(seatVal, rec.name, rec.type) + "</strong>" +
+              '<div class="tips">原檔：' + (rec.name || "") + "</div>" +
+              '<div class="row"><label>座號</label><select class="grow seat-pick"></select></div>' +
+              '<div class="btn-row">' +
+              '<button type="button" class="primary act-save">對應並標批改中</button>' +
+              '<button type="button" class="act-dl">下載</button>' +
+              '<button type="button" class="act-del">刪</button></div>';
+            var seatPick = li.querySelector(".seat-pick");
+            Object.keys(state.seats).sort().forEach(function (id) {
+              var o = document.createElement("option");
+              o.value = id; o.textContent = id === "00" ? "00試發" : id;
+              seatPick.appendChild(o);
+            });
+            seatPick.value = seatVal;
+            seatPick.addEventListener("change", function () {
+              li.querySelector("strong").textContent = outName(seatPick.value, rec.name, rec.type);
+            });
+            li.querySelector(".act-save").addEventListener("click", function () {
+              rec.seatId = seatPick.value;
+              if (state.seats[rec.seatId]) {
+                state.seats[rec.seatId].status = "批改中";
+                save(state);
+                renderGrid();
+              }
+              scanPut(rec).then(function () {
+                selected = rec.seatId;
+                document.getElementById("preview").value = buildPromptOne(rec.seatId);
+                toast("已對應 " + rec.seatId + "，可複製 Cursor 提示");
+                renderScans();
+              });
+            });
+            li.querySelector(".act-dl").addEventListener("click", function () {
+              var a = document.createElement("a");
+              a.href = URL.createObjectURL(bufferToBlob(rec));
+              a.download = outName(seatPick.value, rec.name, rec.type);
+              a.click();
+            });
+            li.querySelector(".act-del").addEventListener("click", function () {
+              scanDel(rec.id).then(renderScans);
+            });
+            list.appendChild(li);
+          });
+        });
+      }
+
+      function ingestFiles(fileList) {
+        var files = Array.prototype.slice.call(fileList || []);
+        if (!files.length) return Promise.resolve();
+        var seat = document.getElementById("defaultSeat").value || "01";
+        var now = Date.now();
+        var chain = Promise.resolve();
+        files.forEach(function (f, i) {
+          chain = chain.then(function () {
+            return f.arrayBuffer().then(function (buf) {
+              return scanPut({
+                id: "file-" + now + "-" + i,
+                name: f.name || ("scan-" + (i + 1)),
+                type: f.type || "application/octet-stream",
+                size: buf.byteLength,
+                buffer: buf,
+                seatId: seat,
+                createdAt: now + i,
+                source: "picker"
+              });
+            });
+          });
+        });
+        return chain.then(function () {
+          toast("已匯入 " + files.length + " 個檔");
+          return renderScans();
+        });
+      }
+
+      document.getElementById("btnPickScan").addEventListener("click", function () {
+        document.getElementById("fileScan").click();
+      });
+      document.getElementById("fileScan").addEventListener("change", function (e) {
+        ingestFiles(e.target.files).finally(function () { e.target.value = ""; });
+      });
+
+      syncForm();
+      fillSeatSelect();
+      renderGrid();
+      renderScans();
+      if (location.search.indexOf("inbox=1") >= 0) {
+        toast("已收到分享檔，請對應座號");
+        document.getElementById("scanSection").scrollIntoView({ behavior: "smooth" });
+        history.replaceState({}, "", "./index.html");
+      }
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").then(function () {
+          setTimeout(renderScans, 400);
+        }).catch(function () {});
+      }
+    })();
+  </script>
+</body>
+</html>
