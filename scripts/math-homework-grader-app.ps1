@@ -237,16 +237,17 @@ function Get-PracticeTemplate([string]$level) {
     }
     '明顯落後' {
       return @"
-### 程度：明顯落後｜目標：先補洞再銜接（少而精）
-先備缺口：________
-本週只練 1～2 個點：________
+### 程度：明顯落後｜目標：多次補齊、每次有成就（漸次跟上）
+原則：不要一次補完。採「多次、小量」：每次只補 1 個小洞、題數 ≤ 3；做對就停，隔日／隔次再補下一個。
+先備缺口清單（可分多次）：________
+本次只補其中 1 點：________
 
-#### 練習題（先做完再看解答）
-【A 先備極短題】
+#### 練習題（先做完再看解答｜總題數 ≤ 3）
+【A 本次小洞｜求做對有成就】
 1. …
 2. …
 
-【B 銜接本單元最簡題】
+【B 極簡銜接｜選做】
 3. …
 
 ---
@@ -254,25 +255,28 @@ function Get-PracticeTemplate([string]$level) {
 1. …
 2. …
 3. …
-說明：先求做對建立信心；暫不强追全班進度與難題。
+說明：本次成功＝有成就；未補完的點下次再補，不追全班、不多輪連催。
 "@
     }
     '需補先備' {
       return @"
-### 程度：需補先備｜目標：回到可學習的起點
+### 程度：需補先備｜目標：分次回到起點（多次補齊）
+原則：舊單元也拆成多次；每次 1 個觀念、≤3 題；成功後隔幾天再下一次，讓她有成就再漸次跟上。
 建議先備單元：________
+本次只補：________（1 個觀念）
+尚未補、下次再補：________
 
-#### 練習題（先做完再看解答）
-1. （先備題）
-2. （先備題）
-3. （先備題）
+#### 練習題（先做完再看解答｜總題數 ≤ 3）
+1. （先備極短題）
+2. （先備極短題）
+3. （極簡銜接｜選做）
 
 ---
 #### 解答（全部題目完成後再看）
 1. …
 2. …
 3. …
-建議：與導師／補救協調；避免只重複整份考卷難題。
+建議：與導師／補救協調；家長說明「多次小補、不趕一次補完」。
 "@
     }
     default {
@@ -567,24 +571,48 @@ function Get-LatestReturnFile([string]$root, [string]$sid) {
   return $null
 }
 
+function Get-StudentLevelFromNote([string]$root, [string]$sid) {
+  $p = Get-NotePath $root $sid
+  if (-not (Test-Path -LiteralPath $p)) { return '待判定' }
+  $n = Load-Note $p
+  if ($n.level) { return [string]$n.level }
+  return '待判定'
+}
+
+function Test-IsBehindLevel([string]$level) {
+  return ($level -match '明顯落後|需補先備')
+}
+
 function Build-ReturnCursorPrompt([string]$root, [string]$sid, $returnFile, [int]$round) {
   $histPath = Join-Path (Join-Path $root '練習歷程') ($sid + '-歷程.json')
   $histTxt = ''
   if (Test-Path -LiteralPath $histPath) {
     $histTxt = Get-Content -LiteralPath $histPath -Raw -Encoding UTF8
   }
+  $level = Get-StudentLevelFromNote $root $sid
   $sb = New-Object System.Text.StringBuilder
   [void]$sb.AppendLine('請批閱這位學生「練習回傳」第 ' + $round + ' 次（PDF／圖檔）。')
-  [void]$sb.AppendLine('目標：針對問題點給適切回饋，並依結果調整下一輪練習，直到達標。')
+  [void]$sb.AppendLine('程度：' + $level)
   [void]$sb.AppendLine('每次回饋都要含：分數、問題點說明、與前次比較的進步、下一輪題目（題目與解答分段）。')
+  if (Test-IsBehindLevel $level) {
+    [void]$sb.AppendLine('')
+    [void]$sb.AppendLine('【落後生｜多次補齊 → 有成就 → 漸次跟上】')
+    [void]$sb.AppendLine('- 回饋先寫做對／進步之處，再寫「下一次要補的那一小點」。')
+    [void]$sb.AppendLine('- 一次只補 1 個洞、題數 ≤ 3；下一題只難一點點。')
+    [void]$sb.AppendLine('- 「多次」是分日／分次小補，不是同一週連催很多輪；兩次之間宜隔開，保住成就感。')
+    [void]$sb.AppendLine('- 階段小目標（約 60～70%）做對＝本次成功；未補完的點列入下次，不要求一次跟上全班。')
+    [void]$sb.AppendLine('- 禁止：一次補太多、整卷難題、暗示「一直練到追上為止」。')
+  } else {
+    [void]$sb.AppendLine('目標：針對問題點給適切回饋；未達標可調下一輪，但略落後也建議本單元 ≤ 3 輪。')
+  }
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('請輸出可直接貼回批改程式的欄位：')
   [void]$sb.AppendLine('1) 分數：得分/滿分（例 7/10）')
   [void]$sb.AppendLine('2) 問題點：本輪真正卡住處（具體、可再練）')
-  [void]$sb.AppendLine('3) 回饋說明：對準問題點、短而可執行')
-  [void]$sb.AppendLine('4) 是否達標：是／否（對照目標分數）')
-  [void]$sb.AppendLine('5) 下一輪適切練習：依問題點調整（未達標必給；達標可給伸展選做）；先題目後解答')
-  [void]$sb.AppendLine('6) 分數進步一句話（相對前次）')
+  [void]$sb.AppendLine('3) 回饋說明：對準問題點、短而可執行（落後生要鼓勵＋小步）')
+  [void]$sb.AppendLine('4) 是否達標：是／否（可採階段小目標）')
+  [void]$sb.AppendLine('5) 下一輪／下一次補齊：只接 1 個新小洞或鞏固本次成功；若需休息則寫「隔日再補＋1～2 題」')
+  [void]$sb.AppendLine('6) 分數進步一句話＋本次成就一句話')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('座號：' + $sid)
   [void]$sb.AppendLine('本輪回傳檔：' + $(if ($returnFile) { $returnFile.FullName } else { '（尚未放入練習回傳）' }))
@@ -602,10 +630,12 @@ function Show-PracticeLoopDialog {
   }
   $sid = Get-StudentId $script:current.Name
   Ensure-WorkTree $script:WorkDir
+  $level = Get-StudentLevelFromNote $script:WorkDir $sid
+  $behind = Test-IsBehindLevel $level
 
   $dlg = New-Object System.Windows.Forms.Form
-  $dlg.Text = "練習回傳循環｜座號 $sid（回饋→調題→達標）"
-  $dlg.Size = New-Object System.Drawing.Size(780, 640)
+  $dlg.Text = "練習回傳循環｜座號 $sid｜$level"
+  $dlg.Size = New-Object System.Drawing.Size(780, 680)
   $dlg.StartPosition = 'CenterParent'
   $dlg.Font = $font
 
@@ -621,10 +651,15 @@ function Show-PracticeLoopDialog {
   if ($ret -and $ret.BaseName -match '[Rr]0*(\d+)') { $roundGuess = [int]$Matches[1] }
   elseif ($ret -and $ret.BaseName -match '第\s*(\d+)\s*次') { $roundGuess = [int]$Matches[1] }
 
+  $paceNote = if ($behind) {
+    '落後生：多次補齊（每次 1 點、≤3 題）→ 有成就再下次；勿一次補完、勿連催多輪。'
+  } else {
+    '可依問題點調下一輪；略落後也建議分次、少題。'
+  }
   $lblInfo = New-Object System.Windows.Forms.Label
-  $lblInfo.Text = $(if ($ret) { "最新回傳：$($ret.Name)" } else { '尚無回傳檔 → 請把 PDF／圖放到「練習回傳」夾' })
-  $lblInfo.Location = New-Object System.Drawing.Point(12, 10)
-  $lblInfo.Size = New-Object System.Drawing.Size(740, 24)
+  $lblInfo.Text = $(if ($ret) { "最新回傳：$($ret.Name)`n$paceNote" } else { "尚無回傳檔 → 請放到「練習回傳」夾`n$paceNote" })
+  $lblInfo.Location = New-Object System.Drawing.Point(12, 8)
+  $lblInfo.Size = New-Object System.Drawing.Size(740, 42)
   $dlg.Controls.Add($lblInfo)
 
   function Add-DlgLabel([int]$yy, [string]$text) {
@@ -635,72 +670,96 @@ function Show-PracticeLoopDialog {
     $dlg.Controls.Add($l)
   }
 
-  Add-DlgLabel 40 '次數 R'
+  Add-DlgLabel 56 '次數 R'
   $numRound = New-Object System.Windows.Forms.NumericUpDown
-  $numRound.Location = New-Object System.Drawing.Point(140, 38)
+  $numRound.Location = New-Object System.Drawing.Point(140, 54)
   $numRound.Size = New-Object System.Drawing.Size(70, 28)
   $numRound.Minimum = 1; $numRound.Maximum = 99; $numRound.Value = [Math]::Max(1, [Math]::Min(99, $roundGuess))
   $dlg.Controls.Add($numRound)
 
-  Add-DlgLabel 40 '分數'
+  Add-DlgLabel 56 '分數'
   $txtScore = New-Object System.Windows.Forms.TextBox
-  $txtScore.Location = New-Object System.Drawing.Point(280, 38)
+  $txtScore.Location = New-Object System.Drawing.Point(280, 54)
   $txtScore.Size = New-Object System.Drawing.Size(60, 28)
   $txtScore.Text = '0'
   $dlg.Controls.Add($txtScore)
 
   $lblSlash = New-Object System.Windows.Forms.Label
   $lblSlash.Text = '/'
-  $lblSlash.Location = New-Object System.Drawing.Point(345, 40)
+  $lblSlash.Location = New-Object System.Drawing.Point(345, 56)
   $lblSlash.Size = New-Object System.Drawing.Size(20, 24)
   $dlg.Controls.Add($lblSlash)
 
   $txtMax = New-Object System.Windows.Forms.TextBox
-  $txtMax.Location = New-Object System.Drawing.Point(365, 38)
+  $txtMax.Location = New-Object System.Drawing.Point(365, 54)
   $txtMax.Size = New-Object System.Drawing.Size(60, 28)
   $txtMax.Text = '100'
   $dlg.Controls.Add($txtMax)
 
-  Add-DlgLabel 40 '目標%'
+  Add-DlgLabel 56 '目標%'
   $txtTarget = New-Object System.Windows.Forms.TextBox
-  $txtTarget.Location = New-Object System.Drawing.Point(520, 38)
+  $txtTarget.Location = New-Object System.Drawing.Point(520, 54)
   $txtTarget.Size = New-Object System.Drawing.Size(60, 28)
-  $txtTarget.Text = '80'
+  $txtTarget.Text = $(if ($behind) { '65' } else { '80' })
   $dlg.Controls.Add($txtTarget)
 
   $chkMet = New-Object System.Windows.Forms.CheckBox
-  $chkMet.Text = '已達標'
-  $chkMet.Location = New-Object System.Drawing.Point(600, 40)
-  $chkMet.Size = New-Object System.Drawing.Size(100, 24)
+  $chkMet.Text = '階段成功'
+  $chkMet.Location = New-Object System.Drawing.Point(600, 56)
+  $chkMet.Size = New-Object System.Drawing.Size(120, 24)
   $dlg.Controls.Add($chkMet)
 
-  Add-DlgLabel 78 '學習目標'
+  Add-DlgLabel 94 '學習目標'
   $txtGoal = New-Object System.Windows.Forms.TextBox
-  $txtGoal.Location = New-Object System.Drawing.Point(140, 76)
+  $txtGoal.Location = New-Object System.Drawing.Point(140, 92)
   $txtGoal.Size = New-Object System.Drawing.Size(600, 28)
-  $txtGoal.Text = '針對問題點練到穩定掌握'
+  $txtGoal.Text = $(if ($behind) {
+      '多次補齊：本次只穩 1 點並讓她有成就；其餘下次再補，漸次跟上'
+    } else {
+      '針對問題點練到穩定掌握'
+    })
   $dlg.Controls.Add($txtGoal)
 
-  Add-DlgLabel 114 '問題點'
+  Add-DlgLabel 130 '問題點'
   $txtPP = New-Object System.Windows.Forms.TextBox
   $txtPP.Multiline = $true; $txtPP.ScrollBars = 'Vertical'
-  $txtPP.Location = New-Object System.Drawing.Point(140, 112)
-  $txtPP.Size = New-Object System.Drawing.Size(600, 70)
+  $txtPP.Location = New-Object System.Drawing.Point(140, 128)
+  $txtPP.Size = New-Object System.Drawing.Size(600, 64)
   $dlg.Controls.Add($txtPP)
 
-  Add-DlgLabel 190 '回饋說明'
+  Add-DlgLabel 200 '回饋說明'
   $txtFb = New-Object System.Windows.Forms.TextBox
   $txtFb.Multiline = $true; $txtFb.ScrollBars = 'Vertical'
-  $txtFb.Location = New-Object System.Drawing.Point(140, 188)
-  $txtFb.Size = New-Object System.Drawing.Size(600, 90)
+  $txtFb.Location = New-Object System.Drawing.Point(140, 198)
+  $txtFb.Size = New-Object System.Drawing.Size(600, 80)
+  $txtFb.Text = $(if ($behind) { '（先寫她做對了什麼 → 再寫下一步一小步；語氣要有成就感）' } else { '' })
   $dlg.Controls.Add($txtFb)
 
   Add-DlgLabel 288 '下一輪練習'
   $txtNext = New-Object System.Windows.Forms.TextBox
   $txtNext.Multiline = $true; $txtNext.ScrollBars = 'Vertical'
   $txtNext.Location = New-Object System.Drawing.Point(140, 286)
-  $txtNext.Size = New-Object System.Drawing.Size(600, 160)
-  $txtNext.Text = "#### 練習題（先做完再看解答）`r`n1. …`r`n`r`n---`r`n#### 解答（全部題目完成後再看）`r`n1. …"
+  $txtNext.Size = New-Object System.Drawing.Size(600, 150)
+  if ($behind) {
+    $txtNext.Text = @"
+#### 練習題（本次補齊｜≤3題｜先延續成就）
+【成就延續】剛做對的類型再穩一次
+1. …
+
+【下一次要補的一小點】（只難一點點；會做就停）
+2. …
+3. （選做）
+
+---
+#### 解答（全部題目完成後再看）
+1. …
+2. …
+3. …
+備註：未補完的洞下次再補＝多次補齊；中間可隔日，不要連催。
+"@
+  } else {
+    $txtNext.Text = "#### 練習題（先做完再看解答）`r`n1. …`r`n`r`n---`r`n#### 解答（全部題目完成後再看）`r`n1. …"
+  }
   $dlg.Controls.Add($txtNext)
 
   $btnOpenRet = New-Object System.Windows.Forms.Button
@@ -795,7 +854,10 @@ function Show-PracticeLoopDialog {
   $dlg.Controls.Add($btnPending)
 
   $foot = New-Object System.Windows.Forms.Label
-  $foot.Text = '閉環：數位發放 → 回傳 PDF/圖 → 本窗批閱回饋 → 調題再練 → 看歷程分數進步 → 達標為止。發放管道可在「工具選擇」多元勾選。'
+  $foot.Text = '落後生＝多次補齊（每次有成就）→ 漸次跟上。發放用群組公告、回傳走個別；工具可在「工具選擇」改。'
+  $foot.Location = New-Object System.Drawing.Point(12, 520)
+  $foot.Size = New-Object System.Drawing.Size(740, 40)
+  $dlg.Controls.Add($foot)
   $foot.Location = New-Object System.Drawing.Point(12, 505)
   $foot.Size = New-Object System.Drawing.Size(740, 40)
   $dlg.Controls.Add($foot)
@@ -837,7 +899,8 @@ function Build-CursorPromptOne([string]$root, $studentFile) {
   [void]$sb.AppendLine('5) 個別建議（短）')
   [void]$sb.AppendLine('6) 依程度自學／補救練習：先列出全部練習題；解答全部放在題目之後（另段「解答」）。')
   [void]$sb.AppendLine('   - 跟上：少鞏固、多靈活＋再提升挑戰（比原卷難一階）＋可選超前伸展；禁止只改數字的簡單重複題。好的學生要能再提升。')
-  [void]$sb.AppendLine('   - 略落後：對應錯題類型；明顯落後／需補先備：降階、少而精。')
+  [void]$sb.AppendLine('   - 略落後：對應錯題類型，少而精。')
+  [void]$sb.AppendLine('   - 明顯落後／需補先備：多次補齊（每次 1 點、≤3 題），先讓她做對有成就，再漸次跟上；勿一次補完、勿連催多輪。')
   [void]$sb.AppendLine('格式方便我貼回批改程式／存成 輸出\' + $id + '-註記.md')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('座號：' + $id)

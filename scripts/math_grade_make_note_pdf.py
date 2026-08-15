@@ -687,8 +687,9 @@ def build_class_learning_report(out_dir: Path) -> Path:
         "2. 個別練習優先用通訊裝置看「數位練習」資料夾（練習題 → 做完再看解答）。",
         "3. 沒有裝置的學生，由老師依「列印專用／需列印座號」印紙本即可，避免整班列印。",
         "4. 「跟上」學生練習含再提升挑戰，鼓勵多做靈活／挑戰題，勿只重複簡單題。",
-        "5. 明顯落後／需補先備者，宜採少而精、先補基礎，避免只重複整卷難題。",
-        "6. 本表為學習狀況溝通用，非正式成績單。",
+        "5. 明顯落後／需補先備：採「多次補齊」—每次少量、先有成就，再漸次跟上；避免一次補完或連催多輪。",
+        "6. 「跟上」學生練習含再提升挑戰，鼓勵多做靈活／挑戰題，勿只重複簡單題。",
+        "7. 本表為學習狀況溝通用，非正式成績單。",
         "",
     ]
 
@@ -835,7 +836,10 @@ def write_progress_html(work_dir: Path, sid: str) -> Path:
         delta_note = f"<p class='delta'>進步幅度（首次→最近）：<strong>{sign}{delta}</strong> 百分點</p>"
 
     latest = atts[-1] if atts else None
-    status = "已達標，可維持挑戰／伸展" if latest and latest.get("goalMet") else "尚未達標，請依下一輪練習繼續"
+    if latest and latest.get("goalMet"):
+        status = "本階段成功（有成就）／可維持或下次再補下一點"
+    else:
+        status = "本次尚未達小目標 → 下次再小步補齊（多次補齊，不急一次追上）"
     html = f"""<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -861,7 +865,7 @@ def write_progress_html(work_dir: Path, sid: str) -> Path:
 <strong>目標分數：</strong>{target}%　｜　<strong>狀態：</strong>{_esc(status)}</p>
 {delta_note}
 {''.join(bars) if bars else '<p>（尚無回傳批閱紀錄）</p>'}
-<p style="color:#666;font-size:0.85rem">每次回饋都會對準問題點說明，並依結果調整下一輪題目，直到達成目標。</p>
+<p style="color:#666;font-size:0.85rem">落後生採「多次補齊」：每次小量、先看見成就，再漸次跟上；不必一次補完。</p>
 </body>
 </html>
 """
