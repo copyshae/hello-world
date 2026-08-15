@@ -63,6 +63,7 @@ try {
 
   function Get-DefaultState {
     $seats = @{}
+    $seats['00'] = @{ level = '未標'; send = '未發'; note = '試發' }
     for ($i = 1; $i -le 30; $i++) {
       $id = '{0:D2}' -f $i
       $seats[$id] = @{ level = '未標'; send = '未發'; note = '' }
@@ -102,6 +103,23 @@ try {
         }
       }
     }
+    # 試發座號 00（固定保留）
+    if (-not $seats.ContainsKey('00')) {
+      $seats['00'] = @{ level = '未標'; send = '未發'; note = '試發' }
+    } else {
+      $t0 = $seats['00']
+      if ($t0 -isnot [hashtable]) {
+        $seats['00'] = @{
+          level = $(if ($t0.level) { [string]$t0.level } else { '未標' })
+          send  = $(if ($t0.send) { [string]$t0.send } else { '未發' })
+          note  = $(if ($t0.note) { [string]$t0.note } else { '試發' })
+        }
+      } else {
+        if (-not $t0.ContainsKey('note') -or -not $t0.note) { $t0['note'] = '試發' }
+        if (-not $t0.ContainsKey('level') -or -not $t0.level) { $t0['level'] = '未標' }
+        if (-not $t0.ContainsKey('send') -or -not $t0.send) { $t0['send'] = '未發' }
+      }
+    }
     for ($i = 1; $i -le $n; $i++) {
       $id = '{0:D2}' -f $i
       if (-not $seats.ContainsKey($id)) {
@@ -122,6 +140,7 @@ try {
       }
     }
     foreach ($k in @($seats.Keys)) {
+      if ($k -eq '00') { continue }
       $num = 0
       if (-not [int]::TryParse($k, [ref]$num) -or $num -lt 1 -or $num -gt $n) { $seats.Remove($k) }
     }
@@ -490,7 +509,7 @@ try {
       $b.Size = New-Object System.Drawing.Size(68, 48)
       $b.Margin = New-Object System.Windows.Forms.Padding(3)
       $b.FlatStyle = 'Flat'
-      $b.Text = ($k + "`n" + $s.send)
+      $b.Text = if ($k -eq '00') { "00試發`n$($s.send)" } else { ($k + "`n" + $s.send) }
       $b.BackColor = Get-LevelColor ([string]$s.level)
       $b.Tag = $k
       if (-not (Test-SeatFilter $s)) { $b.Enabled = $false }

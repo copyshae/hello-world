@@ -73,6 +73,7 @@
     .seat.lv-略落後 { background: var(--mild); }
     .seat.lv-明顯落後 { background: var(--behind); }
     .seat.lv-需補先備 { background: var(--prep); }
+    .seat.trial { border-color: var(--accent); border-style: dashed; }
     .seat.active { outline: 2px solid rgba(45,106,79,0.4); border-color: var(--accent); }
     .seat.dim { opacity: 0.28; }
     .panel { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--line); }
@@ -125,7 +126,7 @@
   <div class="wrap">
     <header class="hero">
       <div class="brand">習作台</div>
-      <p class="lead">與電腦版相同：掌握程度、發送狀態、LINE 文案；可接收 CS 掃描匯出的 PDF／圖檔。</p>
+      <p class="lead">與電腦版相同：掌握程度、發送狀態、LINE 文案；含試發座號 <strong>00</strong>，可接收 CS 掃描檔。</p>
       <p class="install">iPhone：CS 掃描 → 分享 →「儲存到檔案」→ 打開習作台 →「匯入掃描檔」。已加入主畫面後，部分系統也可「分享到習作台」。</p>
       <p class="summary" id="summary">—</p>
     </header>
@@ -269,12 +270,19 @@
         if (!state.seats) state.seats = {};
         if (!state.sendChannel) state.sendChannel = "line_group";
         if (!state.returnChannel) state.returnChannel = "line_dm";
+        // 試發座號 00（固定保留，不占人數）
+        if (!state.seats["00"]) {
+          state.seats["00"] = { level: "未標", send: "未發", note: "試發" };
+        } else if (state.seats["00"].note == null || state.seats["00"].note === "") {
+          state.seats["00"].note = "試發";
+        }
         for (var i = 1; i <= n; i++) {
           var id = String(i).padStart(2, "0");
           if (!state.seats[id]) state.seats[id] = { level: "未標", send: "未發", note: "" };
           if (state.seats[id].note == null) state.seats[id].note = "";
         }
         Object.keys(state.seats).forEach(function (k) {
+          if (k === "00") return;
           var num = parseInt(k, 10);
           if (!num || num < 1 || num > n) delete state.seats[k];
         });
@@ -349,12 +357,13 @@
           var b = document.createElement("button");
           b.type = "button";
           var show = matchFilter(s);
-          b.className = "seat lv-" + s.level + (selected === id ? " active" : "") + (show ? "" : " dim");
-          b.innerHTML = '<span class="sid">' + id + '</span><span class="st">' + s.send + "</span>";
+          b.className = "seat lv-" + s.level + (selected === id ? " active" : "") + (show ? "" : " dim") + (id === "00" ? " trial" : "");
+          var label = id === "00" ? "00試發" : id;
+          b.innerHTML = '<span class="sid">' + label + '</span><span class="st">' + s.send + "</span>";
           b.addEventListener("click", function () {
             selected = id;
             document.getElementById("editPanel").hidden = false;
-            document.getElementById("editTitle").textContent = "座號 " + id;
+            document.getElementById("editTitle").textContent = id === "00" ? "座號 00（試發）" : ("座號 " + id);
             document.getElementById("level").value = s.level;
             document.getElementById("send").value = s.send;
             document.getElementById("note").value = s.note || "";
