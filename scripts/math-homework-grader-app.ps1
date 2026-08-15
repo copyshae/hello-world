@@ -7,10 +7,13 @@
   資料夾結構：
     工作資料夾\
       標準答案\   （放答案 PDF／圖）
-      輸入\       （每位學生一個 PDF 或圖檔，檔名建議座號）
-      輸出\       （自動產生：座號-註記.md、全班總表.csv）
+      輸入\       （每位學生一個試卷 PDF／圖檔）
+      輸出\       （座號-註記.md、座號-批閱註記.pdf、座號-試卷含批閱.pdf、全班存疑清單）
+      認知輸入\   （老師看懂後：05-Q3.txt）
+      重謄補充\   （看不懂處重謄掃描：05-Q3.pdf）
 
-  原則：接受等價合理解法；標「正確／錯誤／存疑」；存疑留給人工終核。
+  流程：全班各自批閱 → 輸出 PDF 註記 → 彙整存疑 → 老師補認知／重謄 → 再產 PDF。
+  原則：接受等價合理解法；✓ 可快速打勾；? 存疑待人工。
 #>
 param(
   [string]$WorkDir = ''
@@ -21,26 +24,76 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
+$script:ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$script:PyMakePdf = Join-Path $script:ScriptDir 'math_grade_make_note_pdf.py'
+# also check beside installed copy
+if (-not (Test-Path -LiteralPath $script:PyMakePdf)) {
+  $alt = Join-Path (Split-Path -Parent $script:ScriptDir) 'scripts\math_grade_make_note_pdf.py'
+  if (Test-Path -LiteralPath $alt) { $script:PyMakePdf = $alt }
+}
+
 function Get-DefaultWorkDir {
   $desk = [Environment]::GetFolderPath('Desktop')
   return (Join-Path $desk 'MathGrading')
 }
 
 function Ensure-WorkTree([string]$root) {
-  foreach ($n in @('標準答案', '輸入', '輸出')) {
+  foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $root $n) | Out-Null
   }
   $readme = Join-Path $root '說明.txt'
-  if (-not (Test-Path -LiteralPath $readme)) {
-    @(
-      '數學習作批改資料夾'
-      ''
-      '1. 把標準答案放到「標準答案」'
-      '2. 每位學生一個檔放到「輸入」（PDF 或 JPG/PNG），檔名用座號，例如 05.pdf'
-      '3. 開啟本程式批改；每人結果寫入「輸出\座號-註記.md」'
-      '4. 可再匯出「輸出\全班總表.csv」'
-    ) | Set-Content -LiteralPath $readme -Encoding UTF8
+  @(
+    '全班試卷批改（一人一檔 → 個人 PDF 註記）'
+    ''
+    '1. 標準答案 →「標準答案」'
+    '2. 每位學生試卷一個檔 →「輸入」（如 05.pdf）'
+    '3. 批改後「輸出」會有：05-註記.md、05-批閱註記.pdf、05-試卷含批閱.pdf'
+    '4. 看不懂的標 ?；全班批完後開「全班存疑清單」'
+    '5. 老師辨認後寫入「認知輸入\05-Q3.txt」，或重謄掃描放「重謄補充\05-Q3.pdf」'
+    '6. 按「套用認知／重謄並重產PDF」'
+  ) | Set-Content -LiteralPath $readme -Encoding UTF8
+}
+
+function Find-Python {
+  foreach ($c in @('python', 'python3', 'py')) {
+    $cmd = Get-Command $c -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
   }
+  return $null
+}
+
+function Invoke-MakePdf {
+  param(
+    [string]$Root,
+    [string]$Student = '',
+    [switch]$UnclearList,
+    [switch]$ApplyClarifications,
+    [switch]$MergeOriginal
+  )
+  $py = Find-Python
+  if (-not $py) {
+    [void][System.Windows.Forms.MessageBox]::Show('找不到 python。請先安裝 Python，並 pip install pypdf reportlab', 'PDF')
+    return $false
+  }
+  if (-not (Test-Path -LiteralPath $script:PyMakePdf)) {
+    # fallback: copy next to work app if shipped together
+    $localPy = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'math_grade_make_note_pdf.py'
+    if (Test-Path -LiteralPath $localPy) { $script:PyMakePdf = $localPy }
+  }
+  if (-not (Test-Path -LiteralPath $script:PyMakePdf)) {
+    [void][System.Windows.Forms.MessageBox]::Show("找不到 math_grade_make_note_pdf.py`n請放到與批改程式相同資料夾", 'PDF')
+    return $false
+  }
+  $argList = @($script:PyMakePdf, '--work-dir', $Root, '--merge-original')
+  if ($Student) { $argList += @('--student', $Student) }
+  if ($UnclearList) { $argList += '--unclear-list' }
+  if ($ApplyClarifications) { $argList += '--apply-clarifications' }
+  if (-not $MergeOriginal) {
+    # still pass merge for deliverable combined PDF
+    $null = $MergeOriginal
+  }
+  $p = Start-Process -FilePath $py -ArgumentList $argList -Wait -PassThru -NoNewWindow
+  return ($p.ExitCode -eq 0)
 }
 
 function Get-StudentId([string]$fileName) {
@@ -186,7 +239,7 @@ $form.Font = $font
 $form.BackColor = [System.Drawing.Color]::FromArgb(245, 248, 244)
 
 $lbl = New-Object System.Windows.Forms.Label
-$lbl.Text = '每人一個輸入檔；批完輸出到「輸出」資料夾'
+$lbl.Text = '一人一檔、一檔一檔批：選人 → 開啟 → 註記 → 輸出PDF → 下一位'
 $lbl.Font = $fontBig
 $lbl.ForeColor = [System.Drawing.Color]::FromArgb(20, 70, 50)
 $lbl.Location = New-Object System.Drawing.Point(16, 12)
@@ -308,13 +361,32 @@ function Save-Current {
   $path = Save-Note -Root $script:WorkDir -StudentId $id -SourceFile $script:current.Name `
     -Overall ([string]$cmbOverall.SelectedItem) -ItemsText $txtItems.Text `
     -Summary $txtSummary.Text -Advice $txtAdvice.Text -Practice $txtPractice.Text
+  # 同時產此生 PDF 註記（一人一檔）
+  [void](Invoke-MakePdf -Root $script:WorkDir -Student $id -MergeOriginal)
   Refresh-List
-  # reselect
   for ($i = 0; $i -lt $list.Items.Count; $i++) {
     if ($list.Items[$i].ToString().StartsWith($id + ' ')) { $list.SelectedIndex = $i; break }
   }
-  $status.Text = '已輸出：' + $path
+  $pdf1 = Join-Path (Join-Path $script:WorkDir '輸出') ($id + '-批閱註記.pdf')
+  $pdf2 = Join-Path (Join-Path $script:WorkDir '輸出') ($id + '-試卷含批閱.pdf')
+  $status.Text = "已輸出：$path ｜ PDF：$pdf1"
   return $path
+}
+
+function Select-NextUngraded {
+  Refresh-List
+  for ($i = 0; $i -lt $script:files.Count; $i++) {
+    $id = Get-StudentId $script:files[$i].Name
+    $note = Get-NotePath $script:WorkDir $id
+    if (-not (Test-Path -LiteralPath $note)) {
+      $list.SelectedIndex = $i
+      Load-Selected
+      if ($script:current) { Start-Process -FilePath $script:current.FullName }
+      $status.Text = "下一位未批：座號 $id"
+      return
+    }
+  }
+  [void][System.Windows.Forms.MessageBox]::Show("全員都有註記了。`n可按「產生全班存疑清單」處理看不懂的地方。", '完成')
 }
 
 $btnWork = New-Object System.Windows.Forms.Button
@@ -354,7 +426,7 @@ $btnOpenFile.Add_Click({
   })
 
 $btnSave = New-Object System.Windows.Forms.Button
-$btnSave.Text = '輸出此生註記'
+$btnSave.Text = '輸出此生PDF'
 $btnSave.Location = New-Object System.Drawing.Point(584, 520)
 $btnSave.Size = New-Object System.Drawing.Size(140, 40)
 $btnSave.BackColor = [System.Drawing.Color]::FromArgb(30, 100, 70)
@@ -362,39 +434,89 @@ $btnSave.ForeColor = [System.Drawing.Color]::White
 $btnSave.FlatStyle = 'Flat'
 $btnSave.Add_Click({ [void](Save-Current) })
 
+$btnNext = New-Object System.Windows.Forms.Button
+$btnNext.Text = '下一位未批'
+$btnNext.Location = New-Object System.Drawing.Point(736, 520)
+$btnNext.Size = New-Object System.Drawing.Size(130, 40)
+$btnNext.Add_Click({ Select-NextUngraded })
+
 $btnCsv = New-Object System.Windows.Forms.Button
-$btnCsv.Text = '匯出全班總表'
-$btnCsv.Location = New-Object System.Drawing.Point(736, 520)
-$btnCsv.Size = New-Object System.Drawing.Size(130, 40)
+$btnCsv.Text = '全班總表'
+$btnCsv.Location = New-Object System.Drawing.Point(16, 568)
+$btnCsv.Size = New-Object System.Drawing.Size(100, 28)
 $btnCsv.Add_Click({
     $csv = Export-ClassCsv $script:WorkDir
     $status.Text = '已匯出：' + $csv
-    [void][System.Windows.Forms.MessageBox]::Show("已匯出：`n$csv", '全班總表')
+  })
+
+$btnUnclear = New-Object System.Windows.Forms.Button
+$btnUnclear.Text = '產生全班存疑清單'
+$btnUnclear.Location = New-Object System.Drawing.Point(128, 568)
+$btnUnclear.Size = New-Object System.Drawing.Size(160, 28)
+$btnUnclear.Add_Click({
+    if (Invoke-MakePdf -Root $script:WorkDir -UnclearList) {
+      $p = Join-Path (Join-Path $script:WorkDir '輸出') '全班存疑清單.md'
+      $status.Text = '存疑清單：' + $p
+      if (Test-Path -LiteralPath $p) { Start-Process -FilePath $p }
+    }
+  })
+
+$btnClarify = New-Object System.Windows.Forms.Button
+$btnClarify.Text = '套用認知／重謄並重產PDF'
+$btnClarify.Location = New-Object System.Drawing.Point(300, 568)
+$btnClarify.Size = New-Object System.Drawing.Size(200, 28)
+$btnClarify.Add_Click({
+    if (Invoke-MakePdf -Root $script:WorkDir -ApplyClarifications -UnclearList -MergeOriginal) {
+      $status.Text = '已套用認知／重謄並重產 PDF'
+      [void][System.Windows.Forms.MessageBox]::Show("已讀取「認知輸入」「重謄補充」並重產輸出 PDF。", '完成')
+    }
   })
 
 $btnPrompt = New-Object System.Windows.Forms.Button
-$btnPrompt.Text = '複製給 Cursor 初核提示'
-$btnPrompt.Location = New-Object System.Drawing.Point(16, 568)
-$btnPrompt.Size = New-Object System.Drawing.Size(220, 28)
+$btnPrompt.Text = '複製此生給Cursor'
+$btnPrompt.Location = New-Object System.Drawing.Point(512, 568)
+$btnPrompt.Size = New-Object System.Drawing.Size(150, 28)
 $btnPrompt.Add_Click({
-    $p = Build-CursorPrompt $script:WorkDir
+    if (-not $script:current) {
+      [void][System.Windows.Forms.MessageBox]::Show('請先選一位學生（一檔一檔來）', '提示')
+      return
+    }
+    $id = Get-StudentId $script:current.Name
+    $ansDir = Join-Path $script:WorkDir '標準答案'
+    $p = @"
+請初核這一位學生的數學試卷（一人一檔）。
+規則：以標準答案為準；接受合理等價解法；看不懂標 ? 存疑。
+座號：$id
+來源檔：$($script:current.FullName)
+標準答案資料夾：$ansDir
+請輸出可貼回批改程式的題號註記（✓／✗／?）、對錯摘要、個別建議、需再練習（可附題與解答）。
+"@
     [System.Windows.Forms.Clipboard]::SetText($p)
-    $status.Text = '已複製初核提示，到 Cursor 貼上並附上標準答案／掃描檔'
-    [void][System.Windows.Forms.MessageBox]::Show('已複製到剪貼簿。到 Cursor 貼上，並上傳標準答案與學生檔（或說明路徑）。', 'Cursor 初核')
+    $status.Text = "已複製座號 $id 的初核提示"
   })
 
 $btnRefresh = New-Object System.Windows.Forms.Button
-$btnRefresh.Text = '重新整理名單'
-$btnRefresh.Location = New-Object System.Drawing.Point(250, 568)
-$btnRefresh.Size = New-Object System.Drawing.Size(140, 28)
+$btnRefresh.Text = '重新整理'
+$btnRefresh.Location = New-Object System.Drawing.Point(674, 568)
+$btnRefresh.Size = New-Object System.Drawing.Size(100, 28)
 $btnRefresh.Add_Click({ Refresh-List })
+
+$btnOpenCog = New-Object System.Windows.Forms.Button
+$btnOpenCog.Text = '認知／重謄夾'
+$btnOpenCog.Location = New-Object System.Drawing.Point(786, 568)
+$btnOpenCog.Size = New-Object System.Drawing.Size(110, 28)
+$btnOpenCog.Add_Click({
+    Start-Process explorer.exe (Join-Path $script:WorkDir '認知輸入')
+  })
 
 $form.Controls.AddRange(@(
     $lbl, $lblPath, $list, $grp, $status,
-    $btnWork, $btnOpenIn, $btnOpenOut, $btnOpenFile, $btnSave, $btnCsv, $btnPrompt, $btnRefresh
+    $btnWork, $btnOpenIn, $btnOpenOut, $btnOpenFile, $btnSave, $btnNext,
+    $btnCsv, $btnUnclear, $btnClarify, $btnPrompt, $btnRefresh, $btnOpenCog
   ))
 
 Refresh-PathLabel
 Refresh-List
+if ($list.Items.Count -gt 0) { $list.SelectedIndex = 0 }
 
 [void]$form.ShowDialog()
