@@ -524,9 +524,10 @@
             selected = null;
             document.getElementById("editPanel").hidden = true;
             renderGrid();
-            toast("已匯入並覆蓋");
+            fillSeatSelect();
+            toast("已匯入並覆蓋班級資料");
           } catch (err) {
-            toast("匯入失敗，請確認是 class-state.json");
+            toast("匯入失敗，請確認是習作台匯出的班級資料");
           }
         };
         reader.readAsText(f, "utf-8");
