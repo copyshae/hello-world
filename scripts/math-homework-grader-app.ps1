@@ -38,7 +38,7 @@ function Get-DefaultWorkDir {
 }
 
 function Ensure-WorkTree([string]$root) {
-  foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充', '數位練習', '列印專用', '練習回傳', '練習歷程')) {
+  foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充', '數位練習', '列印專用', '練習回傳', '練習歷程', '手寫匯入')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $root $n) | Out-Null
   }
   $printList = Join-Path (Join-Path $root '列印專用') '需列印座號.txt'
@@ -49,6 +49,21 @@ function Ensure-WorkTree([string]$root) {
       ''
     ) | Set-Content -LiteralPath $printList -Encoding UTF8
   }
+  $tabletGuide = Join-Path $root '手寫板即時批閱說明.txt'
+  if (-not (Test-Path -LiteralPath $tabletGuide)) {
+    @(
+      '手寫板 → 即時批閱'
+      '================'
+      ''
+      '1. 手寫板／平板寫完後，把圖檔或 PDF 存到「手寫匯入」資料夾'
+      '   （也可在程式裡改成你的 OneNote／繪圖軟體匯出資料夾）'
+      '2. 左側選好座號，按「手寫板匯入並批」'
+      '3. 檔案會改名複製到「練習回傳」（如 05-R02.jpg），並複製 Cursor 批閱提示'
+      '4. 到 Cursor 貼上並附檔 → 把回饋貼回「練習回傳循環」→ 產下一輪練習'
+      ''
+      '提示：檔名若已是 05-R01.jpg 會直接沿用；否則依目前座號自動編次數。'
+    ) | Set-Content -LiteralPath $tabletGuide -Encoding UTF8
+  }
   $readme = Join-Path $root '說明.txt'
   @(
     '全班試卷批改（一人一檔 → 個人 PDF 註記）'
@@ -56,11 +71,10 @@ function Ensure-WorkTree([string]$root) {
     '1. 標準答案 →「標準答案」'
     '2. 每位學生試卷一個檔 →「輸入」（如 05.pdf）'
     '3. 批改後「輸出」會有：05-註記.md、05-批閱註記.pdf、05-試卷含批閱.pdf'
-    '4. 練習題預設進「數位練習」（手機可開）；有裝置用 LINE／雲端發放'
-    '5. 學生回傳 PDF／圖 →「練習回傳」（檔名 05-R01.jpg）→ 按「練習回傳循環」批閱調題'
-    '6. 歷程／分數進步在「練習歷程」；沒裝置才用「列印專用」'
-    '7. 看不懂的標 ?；全班批完後開「全班存疑清單」'
-    '8. 詳見「數位發放與回傳說明.txt」'
+    '4. 練習題由 Cursor 自產（指導＋題＋解答＋影片）→「數位練習」'
+    '5. 回傳／手寫板：圖檔進「練習回傳」或「手寫匯入」→「手寫板匯入並批」'
+    '6. 歷程在「練習歷程」；沒裝置才用「列印專用」'
+    '7. 詳見「手寫板即時批閱說明.txt」「自產練習與影片說明.txt」'
   ) | Set-Content -LiteralPath $readme -Encoding UTF8
 }
 
@@ -417,6 +431,7 @@ function Load-Settings([string]$root) {
     answerHint = ''
     preferredSend = '未指定（日後再選）'
     preferredReturn = '未指定（日後再選）'
+    tabletImportDir = ''
     tools = [pscustomobject]@{
       line_group = $true
       line_dm    = $true
@@ -434,6 +449,9 @@ function Load-Settings([string]$root) {
       if (-not $s.tools) { $s | Add-Member -NotePropertyName tools -NotePropertyValue $defaults.tools -Force }
       if (-not $s.preferredSend) { $s | Add-Member -NotePropertyName preferredSend -NotePropertyValue $defaults.preferredSend -Force }
       if (-not $s.preferredReturn) { $s | Add-Member -NotePropertyName preferredReturn -NotePropertyValue $defaults.preferredReturn -Force }
+      if ($null -eq $s.PSObject.Properties['tabletImportDir']) {
+        $s | Add-Member -NotePropertyName tabletImportDir -NotePropertyValue '' -Force
+      }
       return $s
     } catch {}
   }
