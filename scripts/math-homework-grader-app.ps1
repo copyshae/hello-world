@@ -620,6 +620,203 @@ function Show-ToolPickerDialog {
   [void]$dlg.ShowDialog($form)
 }
 
+function Get-TabletImportDir([string]$root) {
+  $custom = ''
+  try { $custom = [string]$script:settings.tabletImportDir } catch {}
+  if ($custom -and (Test-Path -LiteralPath $custom)) { return $custom }
+  $def = Join-Path $root '手寫匯入'
+  New-Item -ItemType Directory -Force -Path $def | Out-Null
+  return $def
+}
+
+function Get-NextPracticeRound([string]$root, [string]$sid) {
+  $used = New-Object 'System.Collections.Generic.HashSet[int]'
+  $histPath = Join-Path (Join-Path $root '練習歷程') ($sid + '-歷程.json')
+  if (Test-Path -LiteralPath $histPath) {
+    try {
+      $h = Get-Content -LiteralPath $histPath -Raw -Encoding UTF8 | ConvertFrom-Json
+      foreach ($a in @($h.attempts)) {
+        [void]$used.Add([int]$a.round)
+      }
+    } catch {}
+  }
+  $retDir = Join-Path $root '練習回傳'
+  if (Test-Path -LiteralPath $retDir) {
+    Get-ChildItem -LiteralPath $retDir -File -ErrorAction SilentlyContinue |
+      Where-Object { $_.Name -match ('^' + $sid) } |
+      ForEach-Object {
+        if ($_.BaseName -match '[Rr]0*(\d+)') { [void]$used.Add([int]$Matches[1]) }
+        elseif ($_.BaseName -match '第\s*(\d+)\s*次') { [void]$used.Add([int]$Matches[1]) }
+      }
+  }
+  $n = 1
+  while ($used.Contains($n)) { $n++ }
+  return $n
+}
+
+function Import-TabletFileToReturn {
+  param(
+    [string]$Root,
+    [string]$Sid,
+    [System.IO.FileInfo]$SourceFile
+  )
+  $retDir = Join-Path $Root '練習回傳'
+  New-Item -ItemType Directory -Force -Path $retDir | Out-Null
+  $ext = $SourceFile.Extension.ToLowerInvariant()
+  if ($ext -notmatch '\.(pdf|png|jpe?g|tif{1,2}|bmp|webp)$') {
+    throw "不支援的檔案類型：$ext"
+  }
+  # If already named like 05-R01.jpg keep stem when seat matches
+  $destName = $null
+  if ($SourceFile.BaseName -match ('^' + $Sid + '([-_].*)?$')) {
+    if ($SourceFile.BaseName -match '[Rr]0*\d+' -or $SourceFile.BaseName -match '第\s*\d+\s*次') {
+      $destName = $SourceFile.Name
+    }
+  }
+  if (-not $destName) {
+    $rnd = Get-NextPracticeRound $Root $Sid
+    $destName = ('{0}-R{1:D2}{2}' -f $Sid, $rnd, $ext)
+  }
+  $dest = Join-Path $retDir $destName
+  if (Test-Path -LiteralPath $dest) {
+    $rnd = Get-NextPracticeRound $Root $Sid
+    $destName = ('{0}-R{1:D2}{2}' -f $Sid, $rnd, $ext)
+    $dest = Join-Path $retDir $destName
+  }
+  Copy-Item -LiteralPath $SourceFile.FullName -Destination $dest -Force
+  return (Get-Item -LiteralPath $dest)
+}
+
+function Show-TabletImportAndGrade {
+  Ensure-WorkTree $script:WorkDir
+  if (-not $script:current) {
+    [void][System.Windows.Forms.MessageBox]::Show('請先在左側選一位學生（座號），再匯入手寫檔。', '手寫板')
+    return
+  }
+  $sid = Get-StudentId $script:current.Name
+  $importDir = Get-TabletImportDir $script:WorkDir
+
+  $dlg = New-Object System.Windows.Forms.Form
+  $dlg.Text = "手寫板匯入並批｜座號 $sid"
+  $dlg.Size = New-Object System.Drawing.Size(640, 420)
+  $dlg.StartPosition = 'CenterParent'
+  $dlg.Font = $font
+
+  $lbl = New-Object System.Windows.Forms.Label
+  $lbl.Text = "把平板／手寫板匯出的圖或 PDF 放到下方資料夾後選檔，一鍵進「練習回傳」並複製 Cursor 批閱提示。"
+  $lbl.Location = New-Object System.Drawing.Point(12, 10)
+  $lbl.Size = New-Object System.Drawing.Size(600, 40)
+  $dlg.Controls.Add($lbl)
+
+  $lblDir = New-Object System.Windows.Forms.Label
+  $lblDir.Text = '匯入資料夾：' + $importDir
+  $lblDir.Location = New-Object System.Drawing.Point(12, 55)
+  $lblDir.Size = New-Object System.Drawing.Size(480, 40)
+  $dlg.Controls.Add($lblDir)
+
+  $btnPickDir = New-Object System.Windows.Forms.Button
+  $btnPickDir.Text = '改資料夾'
+  $btnPickDir.Location = New-Object System.Drawing.Point(500, 55)
+  $btnPickDir.Size = New-Object System.Drawing.Size(100, 28)
+  $btnPickDir.Add_Click({
+      $fb = New-Object System.Windows.Forms.FolderBrowserDialog
+      $fb.SelectedPath = $importDir
+      if ($fb.ShowDialog() -eq 'OK') {
+        $script:settings | Add-Member -NotePropertyName tabletImportDir -NotePropertyValue $fb.SelectedPath -Force
+        Save-Settings $script:WorkDir $script:settings
+        $importDir = $fb.SelectedPath
+        $lblDir.Text = '匯入資料夾：' + $importDir
+        Refresh-TabletList
+      }
+    })
+  $dlg.Controls.Add($btnPickDir)
+
+  $listFiles = New-Object System.Windows.Forms.ListBox
+  $listFiles.Location = New-Object System.Drawing.Point(12, 100)
+  $listFiles.Size = New-Object System.Drawing.Size(590, 180)
+  $dlg.Controls.Add($listFiles)
+
+  function Refresh-TabletList {
+    $listFiles.Items.Clear()
+    if (-not (Test-Path -LiteralPath $importDir)) { return }
+    $files = @(Get-ChildItem -LiteralPath $importDir -File -ErrorAction SilentlyContinue |
+      Where-Object { $_.Extension -match '\.(pdf|png|jpe?g|tif{1,2}|bmp|webp)$' } |
+      Sort-Object LastWriteTime -Descending)
+    foreach ($f in $files) {
+      [void]$listFiles.Items.Add(('{0} ｜ {1}' -f $f.Name, $f.LastWriteTime.ToString('MM-dd HH:mm')))
+    }
+    if ($listFiles.Items.Count -gt 0) { $listFiles.SelectedIndex = 0 }
+  }
+  Refresh-TabletList
+
+  $btnOpenDir = New-Object System.Windows.Forms.Button
+  $btnOpenDir.Text = '開匯入夾'
+  $btnOpenDir.Location = New-Object System.Drawing.Point(12, 295)
+  $btnOpenDir.Size = New-Object System.Drawing.Size(100, 32)
+  $btnOpenDir.Add_Click({ Start-Process explorer.exe $importDir; Start-Sleep -Milliseconds 400; Refresh-TabletList })
+  $dlg.Controls.Add($btnOpenDir)
+
+  $btnRefresh = New-Object System.Windows.Forms.Button
+  $btnRefresh.Text = '重新整理'
+  $btnRefresh.Location = New-Object System.Drawing.Point(120, 295)
+  $btnRefresh.Size = New-Object System.Drawing.Size(100, 32)
+  $btnRefresh.Add_Click({ Refresh-TabletList })
+  $dlg.Controls.Add($btnRefresh)
+
+  $btnGo = New-Object System.Windows.Forms.Button
+  $btnGo.Text = '匯入並立即批閱'
+  $btnGo.Location = New-Object System.Drawing.Point(280, 295)
+  $btnGo.Size = New-Object System.Drawing.Size(160, 32)
+  $btnGo.BackColor = [System.Drawing.Color]::FromArgb(30, 100, 70)
+  $btnGo.ForeColor = [System.Drawing.Color]::White
+  $btnGo.FlatStyle = 'Flat'
+  $btnGo.Add_Click({
+      if ($listFiles.SelectedIndex -lt 0) {
+        [void][System.Windows.Forms.MessageBox]::Show('請先選一個手寫檔（或把檔案存進匯入夾後按重新整理）', '手寫板')
+        return
+      }
+      $files = @(Get-ChildItem -LiteralPath $importDir -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Extension -match '\.(pdf|png|jpe?g|tif{1,2}|bmp|webp)$' } |
+        Sort-Object LastWriteTime -Descending)
+      if ($listFiles.SelectedIndex -ge $files.Count) { return }
+      $src = $files[$listFiles.SelectedIndex]
+      try {
+        $dest = Import-TabletFileToReturn -Root $script:WorkDir -Sid $sid -SourceFile $src
+      } catch {
+        [void][System.Windows.Forms.MessageBox]::Show([string]$_.Exception.Message, '匯入失敗')
+        return
+      }
+      $rnd = 1
+      if ($dest.BaseName -match '[Rr]0*(\d+)') { $rnd = [int]$Matches[1] }
+      $prompt = Build-ReturnCursorPrompt $script:WorkDir $sid $dest $rnd
+      [System.Windows.Forms.Clipboard]::SetText($prompt)
+      Start-Process -FilePath $dest.FullName
+      $status.Text = "手寫已匯入：$($dest.Name)｜已複製 Cursor 批閱提示"
+      $dlg.Close()
+      [void][System.Windows.Forms.MessageBox]::Show(
+        "已匯入練習回傳：$($dest.Name)`n`n已複製「批閱回傳」提示到剪貼簿，並開啟檔案。`n請到 Cursor 貼上並附檔。`n批完後打開「練習回傳循環」貼回分數／指導／下一輪練習。",
+        '手寫板即時批閱'
+      )
+      Show-PracticeLoopDialog
+    })
+  $dlg.Controls.Add($btnGo)
+
+  $btnCancel = New-Object System.Windows.Forms.Button
+  $btnCancel.Text = '關閉'
+  $btnCancel.Location = New-Object System.Drawing.Point(500, 295)
+  $btnCancel.Size = New-Object System.Drawing.Size(100, 32)
+  $btnCancel.Add_Click({ $dlg.Close() })
+  $dlg.Controls.Add($btnCancel)
+
+  $hint2 = New-Object System.Windows.Forms.Label
+  $hint2.Text = '也可把 OneNote／Whiteboard／繪圖軟體的預設匯出路徑設成「改資料夾」。'
+  $hint2.Location = New-Object System.Drawing.Point(12, 340)
+  $hint2.Size = New-Object System.Drawing.Size(600, 30)
+  $dlg.Controls.Add($hint2)
+
+  [void]$dlg.ShowDialog($form)
+}
+
 function Get-LatestReturnFile([string]$root, [string]$sid) {
   $dir = Join-Path $root '練習回傳'
   if (-not (Test-Path -LiteralPath $dir)) { return $null }
@@ -1570,6 +1767,15 @@ $btnJunyi.Add_Click({
     $status.Text = '已開：自產練習與影片說明（不用均一）'
   })
 
+$btnTablet = New-Object System.Windows.Forms.Button
+$btnTablet.Text = '手寫板匯入並批'
+$btnTablet.Location = New-Object System.Drawing.Point(656, $y4)
+$btnTablet.Size = New-Object System.Drawing.Size(140, 32)
+$btnTablet.BackColor = [System.Drawing.Color]::FromArgb(20, 90, 130)
+$btnTablet.ForeColor = [System.Drawing.Color]::White
+$btnTablet.FlatStyle = 'Flat'
+$btnTablet.Add_Click({ Show-TabletImportAndGrade })
+
 $form.Size = New-Object System.Drawing.Size(1000, 820)
 $status.Location = New-Object System.Drawing.Point(16, 688)
 $status.Size = New-Object System.Drawing.Size(950, 40)
@@ -1579,7 +1785,7 @@ $form.Controls.AddRange(@(
     $btnWork, $btnOpenIn, $btnOpenOut, $btnGrade, $btnSave, $btnNext, $btnRefresh,
     $btnCsv, $btnUnclear, $btnClarify, $btnOpenCog,
     $btnDigital, $btnCopyLine, $btnPrintPack, $btnOpenDigital,
-    $btnTools, $btnLoop, $btnRetFolder, $btnJunyi
+    $btnTools, $btnLoop, $btnRetFolder, $btnJunyi, $btnTablet
   ))
 
 Refresh-PathLabel
