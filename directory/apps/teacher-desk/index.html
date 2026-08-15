@@ -300,6 +300,12 @@
       function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
 
       var state = load();
+      if (location.search.indexOf("reset=1") >= 0) {
+        try { localStorage.removeItem(KEY); } catch (e) {}
+        state = ensure(def());
+        save(state);
+        history.replaceState({}, "", "./index.html");
+      }
 
       function toast(msg) {
         var el = document.getElementById("toast");
