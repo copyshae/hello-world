@@ -182,7 +182,7 @@ def write_simple_pdf(title: str, body: str, pdf_path: Path) -> None:
     doc.build(md_to_flowables(md, font))
 
 
-def write_note_pdf(md_path: Path, pdf_path: Path) -> None:
+def write_note_pdf(md_path: Path, pdf_path: Path, split_practice: bool = True) -> None:
     font = register_font()
     text = md_path.read_text(encoding="utf-8")
     doc = SimpleDocTemplate(
@@ -195,8 +195,13 @@ def write_note_pdf(md_path: Path, pdf_path: Path) -> None:
     )
     doc.build(md_to_flowables(text, font))
 
+    if not split_practice:
+        return
+
     # Also emit student handout: questions PDF + answers PDF (separate files)
     sid = md_path.name.replace("-註記.md", "")
+    if not md_path.name.endswith("-註記.md"):
+        return
     q, a = split_practice_questions_answers(text)
     out_dir = md_path.parent
     if q:
@@ -291,6 +296,156 @@ def build_unclear_list(out_dir: Path) -> Path:
     return md_path
 
 
+def _field(text: str, key: str) -> str:
+    m = re.search(rf"(?m)^- {re.escape(key)}[：:]\s*(.+)$", text)
+    return m.group(1).strip() if m else ""
+
+
+def _section(text: str, heading: str) -> str:
+    marker = f"## {heading}"
+    if marker not in text:
+        return ""
+    block = text.split(marker, 1)[1]
+    if "\n## " in block:
+        block = block.split("\n## ", 1)[0]
+    return block.strip()
+
+
+def build_class_learning_report(out_dir: Path) -> Path:
+    """Summarize class math learning for mentors/parents after teacher review."""
+    from collections import Counter
+    from datetime import datetime
+
+    students = []
+    for md in sorted(out_dir.glob("*-註記.md")):
+        sid = md.name.replace("-註記.md", "")
+        text = md.read_text(encoding="utf-8")
+        students.append(
+            {
+                "id": _field(text, "座號") or sid,
+                "overall": _field(text, "總評") or "未批",
+                "level": _field(text, "程度") or "待判定",
+                "diagnosis": _section(text, "個別診斷結果") or _section(text, "個別建議"),
+                "summary": _section(text, "對錯摘要"),
+                "has_unclear": ("?" in text) or ("？" in text) or ("存疑" in text),
+            }
+        )
+
+    n = len(students)
+    level_counts = Counter(s["level"] for s in students)
+    overall_counts = Counter(s["overall"] for s in students)
+
+    # simple keyword themes from diagnosis/summary
+    themes = Counter()
+    keys = [
+        ("計算", ["計算", "粗心", "運算"]),
+        ("觀念", ["觀念", "概念", "公式", "理解"]),
+        ("審題", ["審題", "題意", "看錯", "單位"]),
+        ("先備不足", ["先備", "基礎", "跟不上", "落後", "不會"]),
+        ("表達／書寫", ["潦草", "看不清", "書寫", "步驟"]),
+    ]
+    for s in students:
+        blob = f"{s['diagnosis']}\n{s['summary']}"
+        for label, words in keys:
+            if any(w in blob for w in words):
+                themes[label] += 1
+
+    def pct(c: int) -> str:
+        return f"{c} 人（{(c / n * 100):.0f}%）" if n else "0 人"
+
+    lines = [
+        "# 全班數學學習狀況總表",
+        "",
+        f"- 產出時間：{datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        f"- 已有註記人數：{n}",
+        "- 說明：本表依「Cursor 初核＋老師確認」後的個別註記彙整，供**導師／家長**了解全班概況；個別成績仍以老師終核為準。",
+        "- 隱私：表內以**座號**呈現，不含姓名。",
+        "",
+        "## 一、程度分布",
+        "",
+        "| 程度 | 人數 |",
+        "|------|------|",
+    ]
+    for lv in ["跟上", "略落後", "明顯落後", "需補先備", "待判定"]:
+        if level_counts.get(lv, 0) or lv != "待判定":
+            lines.append(f"| {lv} | {pct(level_counts.get(lv, 0))} |")
+    for lv, c in sorted(level_counts.items()):
+        if lv not in {"跟上", "略落後", "明顯落後", "需補先備", "待判定"}:
+            lines.append(f"| {lv} | {pct(c)} |")
+
+    lines += ["", "## 二、總評分布", ""]
+    for k, c in overall_counts.most_common():
+        lines.append(f"- {k}：{pct(c)}")
+
+    lines += ["", "## 三、常見學習課題（依註記關鍵詞粗分）", ""]
+    if themes:
+        for k, c in themes.most_common():
+            lines.append(f"- {k}：約 {c} 人的註記有相關描述")
+    else:
+        lines.append("- （註記中尚無足夠文字可歸納，建議補上診斷結果後再產一次）")
+
+    focus = [s for s in students if s["level"] in ("明顯落後", "需補先備") or s["overall"] == "需補救"]
+    lines += ["", "## 四、需優先關注（座號）", ""]
+    if focus:
+        for s in focus:
+            short = (s["diagnosis"] or s["summary"] or "（見個別註記）").replace("\n", " ")
+            if len(short) > 80:
+                short = short[:80] + "…"
+            lines.append(f"- 座號 **{s['id']}**：程度 {s['level']}／總評 {s['overall']}｜{short}")
+    else:
+        lines.append("- （目前沒有標為明顯落後／需補先備／需補救者）")
+
+    unclear = [s for s in students if s["has_unclear"]]
+    lines += ["", "## 五、仍有存疑題（待最終確認）", ""]
+    if unclear:
+        lines.append("座號：" + "、".join(s["id"] for s in unclear))
+        lines.append("（細節見「全班存疑清單」）")
+    else:
+        lines.append("- 無（或存疑已清除）")
+
+    lines += [
+        "",
+        "## 六、逐座號一覽",
+        "",
+        "| 座號 | 程度 | 總評 | 診斷摘要 |",
+        "|------|------|------|----------|",
+    ]
+    for s in students:
+        short = (s["diagnosis"] or s["summary"] or "—").replace("\n", " ").replace("|", "/")
+        if len(short) > 60:
+            short = short[:60] + "…"
+        lines.append(f"| {s['id']} | {s['level']} | {s['overall']} | {short} |")
+
+    lines += [
+        "",
+        "## 七、給導師／家長的閱讀建議",
+        "",
+        "1. 先看「程度分布」與「需優先關注」，掌握全班與個別落差。",
+        "2. 個別練習請看該生 `座號-練習題.pdf`（先做）與 `座號-練習解答.pdf`（做完再看）。",
+        "3. 「跟上」學生練習含再提升挑戰，鼓勵多做靈活／挑戰題，勿只重複簡單題。",
+        "4. 明顯落後／需補先備者，宜採少而精、先補基礎，避免只重複整卷難題。",
+        "5. 本表為學習狀況溝通用，非正式成績單。",
+        "",
+    ]
+
+    md_path = out_dir / "全班學習狀況總表.md"
+    md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    # CSV for mentors
+    csv_lines = ["座號,程度,總評,診斷摘要"]
+    for s in students:
+        short = (s["diagnosis"] or s["summary"] or "").replace("\n", " ").replace(",", "，")
+        csv_lines.append(f"{s['id']},{s['level']},{s['overall']},{short}")
+    csv_path = out_dir / "全班學習狀況總表.csv"
+    csv_path.write_text("\n".join(csv_lines) + "\n", encoding="utf-8-sig")
+
+    # PDF
+    pdf_path = out_dir / "全班學習狀況總表.pdf"
+    write_note_pdf(md_path, pdf_path, split_practice=False)
+
+    return md_path
+
+
 def apply_clarifications(work_dir: Path) -> int:
     """Append teacher clarifications / re-transcript notes into student md files."""
     out_dir = work_dir / "輸出"
@@ -343,6 +498,7 @@ def main() -> int:
     ap.add_argument("--student", default="", help="student id e.g. 05; empty = all")
     ap.add_argument("--merge-original", action="store_true", help="original PDF + note pages")
     ap.add_argument("--unclear-list", action="store_true", help="build class unclear list")
+    ap.add_argument("--class-report", action="store_true", help="build class learning report for mentors/parents")
     ap.add_argument("--apply-clarifications", action="store_true")
     args = ap.parse_args()
 
@@ -360,6 +516,15 @@ def main() -> int:
     if args.unclear_list:
         p = build_unclear_list(out_dir)
         print(f"unclear list: {p}")
+
+    if args.class_report:
+        p = build_class_learning_report(out_dir)
+        print(f"class report: {p}")
+
+    # Only regenerate student PDFs when grading / merging / clarifying a student
+    need_student_pdfs = bool(args.student or args.merge_original or args.apply_clarifications)
+    if not need_student_pdfs:
+        return 0
 
     md_files = sorted(out_dir.glob("*-註記.md"))
     if args.student:

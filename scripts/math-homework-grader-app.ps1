@@ -68,7 +68,8 @@ function Invoke-MakePdf {
     [string]$Student = '',
     [switch]$UnclearList,
     [switch]$ApplyClarifications,
-    [switch]$MergeOriginal
+    [switch]$MergeOriginal,
+    [switch]$ClassReport
   )
   $py = Find-Python
   if (-not $py) {
@@ -76,7 +77,6 @@ function Invoke-MakePdf {
     return $false
   }
   if (-not (Test-Path -LiteralPath $script:PyMakePdf)) {
-    # fallback: copy next to work app if shipped together
     $localPy = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'math_grade_make_note_pdf.py'
     if (Test-Path -LiteralPath $localPy) { $script:PyMakePdf = $localPy }
   }
@@ -84,14 +84,12 @@ function Invoke-MakePdf {
     [void][System.Windows.Forms.MessageBox]::Show("找不到 math_grade_make_note_pdf.py`n請放到與批改程式相同資料夾", 'PDF')
     return $false
   }
-  $argList = @($script:PyMakePdf, '--work-dir', $Root, '--merge-original')
+  $argList = @($script:PyMakePdf, '--work-dir', $Root)
+  if ($MergeOriginal) { $argList += '--merge-original' }
   if ($Student) { $argList += @('--student', $Student) }
   if ($UnclearList) { $argList += '--unclear-list' }
   if ($ApplyClarifications) { $argList += '--apply-clarifications' }
-  if (-not $MergeOriginal) {
-    # still pass merge for deliverable combined PDF
-    $null = $MergeOriginal
-  }
+  if ($ClassReport) { $argList += '--class-report' }
   $p = Start-Process -FilePath $py -ArgumentList $argList -Wait -PassThru -NoNewWindow
   return ($p.ExitCode -eq 0)
 }
@@ -158,28 +156,24 @@ function Get-PracticeTemplate([string]$level) {
   switch -Regex ($level) {
     '跟上' {
       return @"
-### 程度：大致跟上（鞏固＋小挑戰）
-#### 練習題（先做完再看解答）
-1. （鞏固題）
-2. （鞏固題）
-3. （小挑戰）
+### 程度：跟上｜目標：再提升（少重複、多挑戰）
+說明：已掌握本單元。A 只練 1～2 題把步驟寫穩；重心放在 B、C，讓好的學生真的再進步。禁止整份都是原卷簡單題改數字。
 
----
-#### 解答（全部題目完成後再看）
-1. …
-2. …
-3. …
-"@
-    }
-    '略落後' {
-      return @"
-### 程度：略落後（先練本單元關鍵題）
-先復習：________（本單元核心觀念）
 #### 練習題（先做完再看解答）
-1. （基本題）
-2. （基本題）
-3. （基本題）
-4. （原卷錯題類型變形）
+【A 鞏固｜少而精】步驟寫完整即可（勿佔大半）
+1. （本單元典型題，略改數字／條件）
+
+【B 靈活｜換條件仍會】
+2. （逆向思考／已知結果求條件）
+3. （兩步驟以上綜合，或圖表＋算式）
+
+【C 再提升｜必做挑戰】比原卷難一階
+4. （生活情境應用／多條件取捨）
+5. （一題多解，或需說明「為什麼這樣做」）
+6. （易錯陷阱題：似對實錯，要驗算或反例）
+
+【D 超前伸展｜選做】銜接下單元或更深一層
+7. （延伸觀念一小步；做不出也沒關係，寫卡住的地方）
 
 ---
 #### 解答（全部題目完成後再看）
@@ -187,30 +181,63 @@ function Get-PracticeTemplate([string]$level) {
 2. …
 3. …
 4. …
+5. …
+6. …
+7. …
+提升小提示：挑戰題做完，用一句話寫「我多學到什麼」；選做題寫「還想學什麼」。
+"@
+    }
+    '略落後' {
+      return @"
+### 程度：略落後｜目標：跟上本單元
+先復習：________（本單元核心觀念）
+
+#### 練習題（先做完再看解答）
+【A 關鍵基本】
+1. （基本題）
+2. （基本題）
+3. （基本題）
+
+【B 對應錯題類型】
+4. （原卷錯題變形）
+5. （原卷錯題變形）
+
+---
+#### 解答（全部題目完成後再看）
+1. …
+2. …
+3. …
+4. …
+5. …
 "@
     }
     '明顯落後' {
       return @"
-### 程度：明顯落後（降階補洞，少而精）
+### 程度：明顯落後｜目標：先補洞再銜接（少而精）
 先備缺口：________
 本週只練 1～2 個點：________
+
 #### 練習題（先做完再看解答）
-1. （先備極短題）
-2. （先備極短題）
-3. （銜接本單元最簡題）
+【A 先備極短題】
+1. …
+2. …
+
+【B 銜接本單元最簡題】
+3. …
 
 ---
 #### 解答（全部題目完成後再看｜逐步寫）
 1. …
 2. …
 3. …
-說明：先求做對建立信心，暫不强追全班進度。
+說明：先求做對建立信心；暫不强追全班進度與難題。
 "@
     }
     '需補先備' {
       return @"
-### 程度：需補先備（暫緩本單元新進度）
+### 程度：需補先備｜目標：回到可學習的起點
 建議先備單元：________
+
 #### 練習題（先做完再看解答）
 1. （先備題）
 2. （先備題）
@@ -221,7 +248,7 @@ function Get-PracticeTemplate([string]$level) {
 1. …
 2. …
 3. …
-建議：與導師／補救課程協調，避免只重複考卷題。
+建議：與導師／補救協調；避免只重複整份考卷難題。
 "@
     }
     default {
@@ -335,7 +362,8 @@ function Build-CursorPrompt([string]$root) {
   $sb = New-Object System.Text.StringBuilder
   [void]$sb.AppendLine('請初核下列數學習作（加速人工打勾；非最終成績）。')
   [void]$sb.AppendLine('規則：有標準答案時以答案為準；接受其他合理等價解法；潦草／不確定標「存疑」。')
-  [void]$sb.AppendLine('每位學生輸出一份註記，寫入對應「輸出\座號-註記.md」格式：題號註記、對錯摘要、個別建議、需再練習（可附練習題＋解答）。')
+  [void]$sb.AppendLine('每位學生輸出一份註記，寫入對應「輸出\座號-註記.md」格式：題號註記、對錯摘要、個別診斷、程度、個別建議、依程度練習（題目與解答分段）。')
+  [void]$sb.AppendLine('跟上者：少鞏固、多再提升挑戰（比原卷難一階）；好的學生要能再進步，勿只出簡單重複題。')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('工作資料夾：' + $root)
   [void]$sb.AppendLine('標準答案資料夾：' + $ansDir)
@@ -360,7 +388,9 @@ function Build-CursorPromptOne([string]$root, $studentFile) {
   [void]$sb.AppendLine('3) 個別診斷結果（弱點類型、是否跟得上進度）')
   [void]$sb.AppendLine('4) 程度分級：跟上／略落後／明顯落後／需補先備')
   [void]$sb.AppendLine('5) 個別建議（短）')
-  [void]$sb.AppendLine('6) 依程度自學／補救練習：先列出全部練習題；解答請全部放在題目之後（另段「解答」，不要題目與解答穿插同段）。明顯落後要降階、少而精。')
+  [void]$sb.AppendLine('6) 依程度自學／補救練習：先列出全部練習題；解答全部放在題目之後（另段「解答」）。')
+  [void]$sb.AppendLine('   - 跟上：少鞏固、多靈活＋再提升挑戰（比原卷難一階）＋可選超前伸展；禁止只改數字的簡單重複題。好的學生要能再提升。')
+  [void]$sb.AppendLine('   - 略落後：對應錯題類型；明顯落後／需補先備：降階、少而精。')
   [void]$sb.AppendLine('格式方便我貼回批改程式／存成 輸出\' + $id + '-註記.md')
   [void]$sb.AppendLine('')
   [void]$sb.AppendLine('座號：' + $id)
@@ -522,13 +552,20 @@ $cmbLevel.Size = New-Object System.Drawing.Size(140, 28)
 $grp.Controls.Add($cmbLevel)
 
 $btnFillPractice = New-Object System.Windows.Forms.Button
-$btnFillPractice.Text = '依程度帶入練習架構'
+$btnFillPractice.Text = '依程度給練習'
 $btnFillPractice.Location = New-Object System.Drawing.Point(480, 22)
 $btnFillPractice.Size = New-Object System.Drawing.Size(130, 30)
 $btnFillPractice.Add_Click({
     $txtPractice.Text = Get-PracticeTemplate ([string]$cmbLevel.SelectedItem)
   })
 $grp.Controls.Add($btnFillPractice)
+$cmbLevel.Add_SelectedIndexChanged({
+    # 換程度時自動帶入對應練習架構（跟上＝再提升；落後＝補救）
+    $lv = [string]$cmbLevel.SelectedItem
+    if ($lv -and $lv -ne '待判定') {
+      $txtPractice.Text = Get-PracticeTemplate $lv
+    }
+  })
 
 Add-L 58 '題號註記'
 $txtItems = New-Object System.Windows.Forms.TextBox
@@ -760,17 +797,30 @@ $btnRefresh.Add_Click({ Refresh-List; Refresh-AnswerLabel })
 
 $y2 = 566
 $btnCsv = New-Object System.Windows.Forms.Button
-$btnCsv.Text = '全班總表'
+$btnCsv.Text = '全班學習總表'
 $btnCsv.Location = New-Object System.Drawing.Point(16, $y2)
-$btnCsv.Size = New-Object System.Drawing.Size(100, 28)
+$btnCsv.Size = New-Object System.Drawing.Size(130, 28)
+$btnCsv.BackColor = [System.Drawing.Color]::FromArgb(120, 70, 20)
+$btnCsv.ForeColor = [System.Drawing.Color]::White
+$btnCsv.FlatStyle = 'Flat'
 $btnCsv.Add_Click({
     $csv = Export-ClassCsv $script:WorkDir
-    $status.Text = '已匯出：' + $csv
+    if (Invoke-MakePdf -Root $script:WorkDir -ClassReport) {
+      $rep = Join-Path (Join-Path $script:WorkDir '輸出') '全班學習狀況總表.pdf'
+      $status.Text = "已產出導師／家長用總表：$rep ｜ $csv"
+      if (Test-Path -LiteralPath $rep) { Start-Process -FilePath $rep }
+      [void][System.Windows.Forms.MessageBox]::Show(
+        "已產出全班學習狀況總表（導師／家長用）：`n$rep`n`n另有 .md / .csv。`n建議在全班逐一經 Cursor＋老師確認後再產。",
+        '全班總表'
+      )
+    } else {
+      $status.Text = '已匯出簡易 CSV：' + $csv
+    }
   })
 
 $btnUnclear = New-Object System.Windows.Forms.Button
 $btnUnclear.Text = '產生全班存疑清單'
-$btnUnclear.Location = New-Object System.Drawing.Point(128, $y2)
+$btnUnclear.Location = New-Object System.Drawing.Point(156, $y2)
 $btnUnclear.Size = New-Object System.Drawing.Size(160, 28)
 $btnUnclear.Add_Click({
     if (Invoke-MakePdf -Root $script:WorkDir -UnclearList) {
