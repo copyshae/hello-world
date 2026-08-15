@@ -14,8 +14,16 @@ if (Test-Path -LiteralPath $py) {
 }
 
 $work = Join-Path $desk 'MathGrading'
-foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充')) {
+foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充', '數位練習', '列印專用')) {
   New-Item -ItemType Directory -Force -Path (Join-Path $work $n) | Out-Null
+}
+$printList = Join-Path (Join-Path $work '列印專用') '需列印座號.txt'
+if (-not (Test-Path -LiteralPath $printList)) {
+  @(
+    '# 沒有手機／平板等通訊裝置、需要紙本練習的座號'
+    '# 一行一個，或用逗號分隔，例如：03  或  07, 12, 18'
+    ''
+  ) | Set-Content -LiteralPath $printList -Encoding UTF8
 }
 
 $vbs = @"

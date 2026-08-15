@@ -38,8 +38,16 @@ function Get-DefaultWorkDir {
 }
 
 function Ensure-WorkTree([string]$root) {
-  foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充')) {
+  foreach ($n in @('標準答案', '輸入', '輸出', '認知輸入', '重謄補充', '數位練習', '列印專用')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $root $n) | Out-Null
+  }
+  $printList = Join-Path (Join-Path $root '列印專用') '需列印座號.txt'
+  if (-not (Test-Path -LiteralPath $printList)) {
+    @(
+      '# 沒有手機／平板等通訊裝置、需要紙本練習的座號'
+      '# 一行一個，或用逗號分隔，例如：03  或  07, 12, 18'
+      ''
+    ) | Set-Content -LiteralPath $printList -Encoding UTF8
   }
   $readme = Join-Path $root '說明.txt'
   @(
@@ -48,9 +56,11 @@ function Ensure-WorkTree([string]$root) {
     '1. 標準答案 →「標準答案」'
     '2. 每位學生試卷一個檔 →「輸入」（如 05.pdf）'
     '3. 批改後「輸出」會有：05-註記.md、05-批閱註記.pdf、05-試卷含批閱.pdf'
-    '4. 看不懂的標 ?；全班批完後開「全班存疑清單」'
-    '5. 老師辨認後寫入「認知輸入\05-Q3.txt」，或重謄掃描放「重謄補充\05-Q3.pdf」'
-    '6. 按「套用認知／重謄並重產PDF」'
+    '4. 練習題預設進「數位練習」（手機可開）；有裝置用 LINE／雲端發放'
+    '5. 沒裝置的座號寫進「列印專用\需列印座號.txt」，再按「無裝置列印包」'
+    '6. 看不懂的標 ?；全班批完後開「全班存疑清單」'
+    '7. 老師辨認後寫入「認知輸入\05-Q3.txt」，或重謄掃描放「重謄補充\05-Q3.pdf」'
+    '8. 按「套用認知／重謄並重產PDF」'
   ) | Set-Content -LiteralPath $readme -Encoding UTF8
 }
 
@@ -69,7 +79,9 @@ function Invoke-MakePdf {
     [switch]$UnclearList,
     [switch]$ApplyClarifications,
     [switch]$MergeOriginal,
-    [switch]$ClassReport
+    [switch]$ClassReport,
+    [switch]$DigitalPack,
+    [switch]$PrintPack
   )
   $py = Find-Python
   if (-not $py) {
@@ -90,6 +102,8 @@ function Invoke-MakePdf {
   if ($UnclearList) { $argList += '--unclear-list' }
   if ($ApplyClarifications) { $argList += '--apply-clarifications' }
   if ($ClassReport) { $argList += '--class-report' }
+  if ($DigitalPack) { $argList += '--digital-pack' }
+  if ($PrintPack) { $argList += '--print-pack' }
   $p = Start-Process -FilePath $py -ArgumentList $argList -Wait -PassThru -NoNewWindow
   return ($p.ExitCode -eq 0)
 }
@@ -415,7 +429,7 @@ $fontBig = New-Object System.Drawing.Font('Microsoft JhengHei UI', 15, [System.D
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = '數學習作批改（一人一檔｜先載入答案或請 Cursor 批）'
-$form.Size = New-Object System.Drawing.Size(1000, 720)
+$form.Size = New-Object System.Drawing.Size(1000, 780)
 $form.StartPosition = 'CenterScreen'
 $form.Font = $font
 $form.BackColor = [System.Drawing.Color]::FromArgb(245, 248, 244)
@@ -611,8 +625,8 @@ $txtPractice.Text = '（先寫全部練習題；解答另段「解答」，做�
 $grp.Controls.Add($txtPractice)
 
 $status = New-Object System.Windows.Forms.Label
-$status.Location = New-Object System.Drawing.Point(16, 640)
-$status.Size = New-Object System.Drawing.Size(950, 28)
+$status.Location = New-Object System.Drawing.Point(16, 648)
+$status.Size = New-Object System.Drawing.Size(950, 40)
 $status.Text = '請先「載入正確答案」，再選批閱方式'
 
 $script:files = @()
@@ -714,7 +728,8 @@ function Save-Current {
     if ($list.Items[$i].ToString().StartsWith($id + ' ')) { $list.SelectedIndex = $i; break }
   }
   $pdf1 = Join-Path (Join-Path $script:WorkDir '輸出') ($id + '-批閱註記.pdf')
-  $status.Text = "已輸出：$path ｜ PDF：$pdf1"
+  $dig = Join-Path (Join-Path $script:WorkDir '數位練習') ($id + '-練習題.html')
+  $status.Text = "已輸出：$path ｜ PDF：$pdf1 ｜ 數位練習：$dig"
   return $path
 }
 
@@ -847,12 +862,95 @@ $btnOpenCog.Location = New-Object System.Drawing.Point(512, $y2)
 $btnOpenCog.Size = New-Object System.Drawing.Size(120, 28)
 $btnOpenCog.Add_Click({
     Start-Process explorer.exe (Join-Path $script:WorkDir '認知輸入')
+    Start-Process explorer.exe (Join-Path $script:WorkDir '重謄補充')
+  })
+
+$y3 = 600
+$btnDigital = New-Object System.Windows.Forms.Button
+$btnDigital.Text = '數位練習包（手機）'
+$btnDigital.Location = New-Object System.Drawing.Point(16, $y3)
+$btnDigital.Size = New-Object System.Drawing.Size(170, 32)
+$btnDigital.BackColor = [System.Drawing.Color]::FromArgb(30, 110, 90)
+$btnDigital.ForeColor = [System.Drawing.Color]::White
+$btnDigital.FlatStyle = 'Flat'
+$btnDigital.Add_Click({
+    if (Invoke-MakePdf -Root $script:WorkDir -DigitalPack) {
+      $dir = Join-Path $script:WorkDir '數位練習'
+      $status.Text = "已產出數位練習包：$dir"
+      Start-Process explorer.exe $dir
+      $idx = Join-Path $dir 'index.html'
+      if (Test-Path -LiteralPath $idx) { Start-Process -FilePath $idx }
+      [void][System.Windows.Forms.MessageBox]::Show(
+        "已產出「數位練習」資料夾（手機／平板可開）。`n`n建議：`n1. 整夾放到 Google 雲端／OneDrive 分享連結`n2. 或用 LINE 傳「座號-練習題.html」（做完再傳解答）`n3. 也可複製「LINE發放文案.txt」`n`n沒有裝置的學生：填「列印專用\需列印座號.txt」後按「無裝置列印包」。",
+        '數位發放'
+      )
+    }
+  })
+
+$btnCopyLine = New-Object System.Windows.Forms.Button
+$btnCopyLine.Text = '複製此生LINE訊息'
+$btnCopyLine.Location = New-Object System.Drawing.Point(196, $y3)
+$btnCopyLine.Size = New-Object System.Drawing.Size(160, 32)
+$btnCopyLine.Add_Click({
+    if (-not $script:current) {
+      [void][System.Windows.Forms.MessageBox]::Show('請先選左側一位學生', '提示')
+      return
+    }
+    $id = Get-StudentId $script:current.Name
+    [void](Invoke-MakePdf -Root $script:WorkDir -Student $id -DigitalPack)
+    $msgPath = Join-Path (Join-Path $script:WorkDir '數位練習') ($id + '-LINE訊息.txt')
+    if (-not (Test-Path -LiteralPath $msgPath)) {
+      [void][System.Windows.Forms.MessageBox]::Show("尚未有座號 $id 的練習內容。請先輸出此生註記／練習。", '提示')
+      return
+    }
+    $msg = Get-Content -LiteralPath $msgPath -Raw -Encoding UTF8
+    [System.Windows.Forms.Clipboard]::SetText($msg.Trim())
+    $status.Text = "已複製座號 $id 的 LINE 發放訊息"
+    [void][System.Windows.Forms.MessageBox]::Show("已複製到剪貼簿，可貼到 LINE／班級群組。`n`n$($msg.Trim())", 'LINE 訊息')
+  })
+
+$btnPrintPack = New-Object System.Windows.Forms.Button
+$btnPrintPack.Text = '無裝置列印包'
+$btnPrintPack.Location = New-Object System.Drawing.Point(366, $y3)
+$btnPrintPack.Size = New-Object System.Drawing.Size(140, 32)
+$btnPrintPack.BackColor = [System.Drawing.Color]::FromArgb(140, 90, 40)
+$btnPrintPack.ForeColor = [System.Drawing.Color]::White
+$btnPrintPack.FlatStyle = 'Flat'
+$btnPrintPack.Add_Click({
+    Ensure-WorkTree $script:WorkDir
+    $listPath = Join-Path (Join-Path $script:WorkDir '列印專用') '需列印座號.txt'
+    Start-Process notepad.exe $listPath
+    $r = [System.Windows.Forms.MessageBox]::Show(
+      "請在「需列印座號.txt」填入沒有通訊裝置的座號並存檔。`n`n存好後按「是」產出紙本 PDF（只印這些人）。",
+      '無裝置列印包',
+      [System.Windows.Forms.MessageBoxButtons]::YesNo
+    )
+    if ($r -ne [System.Windows.Forms.DialogResult]::Yes) { return }
+    if (Invoke-MakePdf -Root $script:WorkDir -PrintPack) {
+      $dir = Join-Path $script:WorkDir '列印專用'
+      $status.Text = "已產出列印包：$dir"
+      Start-Process explorer.exe $dir
+      [void][System.Windows.Forms.MessageBox]::Show(
+        "已依「需列印座號.txt」產出練習題／解答 PDF。`n只印這些座號即可，其餘用數位發放。`n`n$dir",
+        '列印包'
+      )
+    }
+  })
+
+$btnOpenDigital = New-Object System.Windows.Forms.Button
+$btnOpenDigital.Text = '數位／列印夾'
+$btnOpenDigital.Location = New-Object System.Drawing.Point(516, $y3)
+$btnOpenDigital.Size = New-Object System.Drawing.Size(120, 32)
+$btnOpenDigital.Add_Click({
+    Start-Process explorer.exe (Join-Path $script:WorkDir '數位練習')
+    Start-Process explorer.exe (Join-Path $script:WorkDir '列印專用')
   })
 
 $form.Controls.AddRange(@(
     $lbl, $grpStart, $lblPath, $list, $grp, $status,
     $btnWork, $btnOpenIn, $btnOpenOut, $btnGrade, $btnSave, $btnNext, $btnRefresh,
-    $btnCsv, $btnUnclear, $btnClarify, $btnOpenCog
+    $btnCsv, $btnUnclear, $btnClarify, $btnOpenCog,
+    $btnDigital, $btnCopyLine, $btnPrintPack, $btnOpenDigital
   ))
 
 Refresh-PathLabel

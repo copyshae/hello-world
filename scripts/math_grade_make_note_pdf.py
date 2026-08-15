@@ -182,6 +182,282 @@ def write_simple_pdf(title: str, body: str, pdf_path: Path) -> None:
     doc.build(md_to_flowables(md, font))
 
 
+def _md_body_to_html(body: str) -> str:
+    """Plain markdown-ish lines → simple HTML paragraphs for phone reading."""
+    parts: list[str] = []
+    for raw in body.splitlines():
+        line = raw.rstrip()
+        if not line:
+            parts.append("<br>")
+            continue
+        if line.startswith("#### "):
+            parts.append(f"<h3>{_esc(line[5:].strip())}</h3>")
+        elif line.startswith("### "):
+            parts.append(f"<h2>{_esc(line[4:].strip())}</h2>")
+        elif line.startswith("## "):
+            parts.append(f"<h2>{_esc(line[3:].strip())}</h2>")
+        elif line.startswith("# "):
+            parts.append(f"<h1>{_esc(line[2:].strip())}</h1>")
+        elif line.startswith("---"):
+            parts.append("<hr>")
+        elif line.startswith("- "):
+            parts.append(f"<p class='li'>• {_esc(line[2:])}</p>")
+        else:
+            parts.append(f"<p>{_esc(line)}</p>")
+    return "\n".join(parts)
+
+
+def write_mobile_html(title: str, body: str, html_path: Path, *, is_answer: bool = False) -> None:
+    """Self-contained HTML for phone / tablet (LINE、雲端資料夾可開)."""
+    warn = (
+        "<p class='warn'>⚠ 請先把練習題全部做完，再打開本解答頁。</p>"
+        if is_answer
+        else "<p class='tip'>請用通訊裝置（手機／平板）閱讀。建議用紙本或記事本演算，做完再看解答檔。</p>"
+    )
+    html = f"""<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{_esc(title)}</title>
+<style>
+  :root {{ color-scheme: light; }}
+  body {{
+    margin: 0; padding: 16px 18px 48px;
+    font-family: "Microsoft JhengHei", "Noto Sans TC", "PingFang TC", sans-serif;
+    font-size: 18px; line-height: 1.55; color: #1a1a1a;
+    background: #f7f4ef;
+  }}
+  h1 {{ font-size: 1.35rem; margin: 0 0 12px; color: #143d2e; }}
+  h2 {{ font-size: 1.15rem; margin: 22px 0 8px; color: #1f4d3a; }}
+  h3 {{ font-size: 1.05rem; margin: 16px 0 6px; color: #2a5a44; }}
+  p {{ margin: 0.45em 0; }}
+  p.li {{ padding-left: 0.2em; }}
+  .tip {{ background: #e7f2ea; border-left: 4px solid #2a7a4b; padding: 10px 12px; border-radius: 4px; }}
+  .warn {{ background: #fff3e0; border-left: 4px solid #c97820; padding: 10px 12px; border-radius: 4px; }}
+  .foot {{ margin-top: 28px; font-size: 0.85rem; color: #666; }}
+  hr {{ border: 0; border-top: 1px solid #ccc; margin: 18px 0; }}
+</style>
+</head>
+<body>
+<h1>{_esc(title)}</h1>
+{warn}
+{_md_body_to_html(body)}
+<p class="foot">由習作批改工具產生｜優先數位發放，節省紙張</p>
+</body>
+</html>
+"""
+    html_path.parent.mkdir(parents=True, exist_ok=True)
+    html_path.write_text(html, encoding="utf-8")
+
+
+def write_digital_practice_for_student(md_path: Path, digital_dir: Path) -> tuple[bool, bool]:
+    """Write phone-friendly practice HTML (+ plain txt for LINE). Returns (has_q, has_a)."""
+    if not md_path.name.endswith("-註記.md"):
+        return False, False
+    sid = md_path.name.replace("-註記.md", "")
+    text = md_path.read_text(encoding="utf-8")
+    q, a = split_practice_questions_answers(text)
+    digital_dir.mkdir(parents=True, exist_ok=True)
+    has_q = bool(q.strip())
+    has_a = bool(a.strip())
+    if has_q:
+        write_mobile_html(
+            f"座號 {sid}｜自學練習題（先做完再看解答）",
+            q,
+            digital_dir / f"{sid}-練習題.html",
+            is_answer=False,
+        )
+        (digital_dir / f"{sid}-練習題.txt").write_text(
+            f"座號 {sid}｜自學練習題（先做完再看解答）\n\n{q}\n",
+            encoding="utf-8",
+        )
+    if has_a:
+        write_mobile_html(
+            f"座號 {sid}｜練習解答（全部題目完成後再看）",
+            a,
+            digital_dir / f"{sid}-練習解答.html",
+            is_answer=True,
+        )
+        (digital_dir / f"{sid}-練習解答.txt").write_text(
+            f"座號 {sid}｜練習解答（全部題目完成後再看）\n\n{a}\n",
+            encoding="utf-8",
+        )
+    return has_q, has_a
+
+
+def write_print_practice_pdfs(md_path: Path, print_dir: Path) -> None:
+    """Paper handouts only for students without devices."""
+    if not md_path.name.endswith("-註記.md"):
+        return
+    sid = md_path.name.replace("-註記.md", "")
+    text = md_path.read_text(encoding="utf-8")
+    q, a = split_practice_questions_answers(text)
+    print_dir.mkdir(parents=True, exist_ok=True)
+    if q.strip():
+        write_simple_pdf(
+            f"座號 {sid}｜自學練習題（先做完再看解答）",
+            q,
+            print_dir / f"{sid}-練習題.pdf",
+        )
+    if a.strip():
+        write_simple_pdf(
+            f"座號 {sid}｜練習解答（全部題目完成後再看）",
+            a,
+            print_dir / f"{sid}-練習解答.pdf",
+        )
+
+
+def parse_print_seat_list(work_dir: Path) -> list[str]:
+    """Seats without devices → print. File: 列印專用/需列印座號.txt"""
+    path = work_dir / "列印專用" / "需列印座號.txt"
+    if not path.exists():
+        return []
+    seats: list[str] = []
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        for part in re.split(r"[,，\s]+", line):
+            if not part:
+                continue
+            if part.isdigit():
+                seats.append(part.zfill(2))
+            elif re.match(r"^\d{1,3}$", part):
+                seats.append(part.zfill(2))
+    # unique preserve order
+    seen = set()
+    out: list[str] = []
+    for s in seats:
+        if s not in seen:
+            seen.add(s)
+            out.append(s)
+    return out
+
+
+def ensure_print_seat_template(work_dir: Path) -> Path:
+    print_dir = work_dir / "列印專用"
+    print_dir.mkdir(parents=True, exist_ok=True)
+    path = print_dir / "需列印座號.txt"
+    if not path.exists():
+        path.write_text(
+            "# 沒有手機／平板等通訊裝置、需要紙本練習的座號\n"
+            "# 一行一個，或用逗號分隔，例如：\n"
+            "# 03\n"
+            "# 07, 12, 18\n"
+            "\n",
+            encoding="utf-8",
+        )
+    return path
+
+
+def build_digital_pack(work_dir: Path, student: str = "") -> Path:
+    """Build mobile practice pack + LINE copy text + index. Prefer digital over paper."""
+    out_dir = work_dir / "輸出"
+    digital_dir = work_dir / "數位練習"
+    digital_dir.mkdir(parents=True, exist_ok=True)
+    ensure_print_seat_template(work_dir)
+
+    md_files = sorted(out_dir.glob("*-註記.md"))
+    if student:
+        md_files = [p for p in md_files if p.name.startswith(student + "-")]
+
+    rows: list[str] = []
+    line_msgs: list[str] = [
+        "【數學自學練習｜數位發放】",
+        "有通訊裝置的同學：請開啟對應座號的「練習題」檔，做完再看「解答」。",
+        "沒有裝置的同學：跟老師領紙本（僅列印這些座號）。",
+        "",
+    ]
+    index_items: list[str] = []
+
+    for md in md_files:
+        sid = md.name.replace("-註記.md", "")
+        has_q, has_a = write_digital_practice_for_student(md, digital_dir)
+        if not has_q and not has_a:
+            continue
+        q_name = f"{sid}-練習題.html"
+        a_name = f"{sid}-練習解答.html"
+        rows.append(f"- 座號 {sid}：{q_name}" + (f" ／ {a_name}" if has_a else ""))
+        index_items.append(
+            f'<li><strong>座號 {sid}</strong>：'
+            f'<a href="{_esc(q_name)}">練習題</a>'
+            + (f'　｜　<a href="{_esc(a_name)}">解答（做完再看）</a>' if has_a else "")
+            + "</li>"
+        )
+        msg = (
+            f"【數學練習｜座號{sid}】\n"
+            f"請先開啟「{q_name}」做完練習。\n"
+            + (f"解答：「{a_name}」（全部做完再打開）\n" if has_a else "")
+            + "沒有手機／平板請向老師領紙本。"
+        )
+        line_msgs.append(msg)
+        line_msgs.append("---")
+        (digital_dir / f"{sid}-LINE訊息.txt").write_text(msg + "\n", encoding="utf-8")
+
+    guide = (
+        "數位練習發放說明（省紙）\n"
+        "====================\n"
+        "1. 有通訊裝置：把本資料夾放到雲端（Google 雲端／OneDrive）或用 LINE 傳個別 html／txt。\n"
+        "2. 學生先開「座號-練習題」，做完再開「座號-練習解答」。\n"
+        "3. 也可傳「座號-LINE訊息.txt」內容給家長／學生。\n"
+        "4. 沒有裝置：在「列印專用\\需列印座號.txt」填座號，再按程式「無裝置列印包」只印那些人。\n"
+        "5. 老師批閱註記 PDF 仍在「輸出」；練習題預設不整班列印。\n"
+    )
+    (digital_dir / "發放說明.txt").write_text(guide, encoding="utf-8")
+    (digital_dir / "LINE發放文案.txt").write_text("\n".join(line_msgs) + "\n", encoding="utf-8")
+    (digital_dir / "清單.md").write_text(
+        "# 數位練習清單\n\n" + ("\n".join(rows) if rows else "- （尚無練習內容）") + "\n",
+        encoding="utf-8",
+    )
+
+    index_html = f"""<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>數位練習總表</title>
+<style>
+  body {{ font-family: "Microsoft JhengHei", sans-serif; margin: 16px; background: #f7f4ef; color: #222; }}
+  h1 {{ color: #143d2e; }}
+  li {{ margin: 10px 0; font-size: 1.05rem; }}
+  a {{ color: #1a5f3f; }}
+  .box {{ background: #e7f2ea; padding: 12px; border-radius: 6px; }}
+</style>
+</head>
+<body>
+<h1>數位練習總表（手機可開）</h1>
+<p class="box">有裝置→看練習題／解答。沒裝置→跟老師領「列印專用」紙本。</p>
+<ul>
+{chr(10).join(index_items) if index_items else "<li>（尚無練習）</li>"}
+</ul>
+</body>
+</html>
+"""
+    (digital_dir / "index.html").write_text(index_html, encoding="utf-8")
+    return digital_dir
+
+
+def build_print_pack(work_dir: Path) -> tuple[Path, list[str]]:
+    """Generate practice PDFs only for seats listed in 需列印座號.txt."""
+    ensure_print_seat_template(work_dir)
+    seats = parse_print_seat_list(work_dir)
+    print_dir = work_dir / "列印專用"
+    out_dir = work_dir / "輸出"
+    # clear old practice pdfs in print dir (keep 需列印座號.txt)
+    for old in print_dir.glob("*-練習*.pdf"):
+        old.unlink(missing_ok=True)
+
+    made: list[str] = []
+    for sid in seats:
+        md = out_dir / f"{sid}-註記.md"
+        if not md.exists():
+            continue
+        write_print_practice_pdfs(md, print_dir)
+        made.append(sid)
+    return print_dir, made
+
+
 def write_note_pdf(md_path: Path, pdf_path: Path, split_practice: bool = True) -> None:
     font = register_font()
     text = md_path.read_text(encoding="utf-8")
@@ -198,24 +474,9 @@ def write_note_pdf(md_path: Path, pdf_path: Path, split_practice: bool = True) -
     if not split_practice:
         return
 
-    # Also emit student handout: questions PDF + answers PDF (separate files)
-    sid = md_path.name.replace("-註記.md", "")
-    if not md_path.name.endswith("-註記.md"):
-        return
-    q, a = split_practice_questions_answers(text)
-    out_dir = md_path.parent
-    if q:
-        write_simple_pdf(
-            f"座號 {sid}｜自學練習題（先做完再看解答）",
-            q,
-            out_dir / f"{sid}-練習題.pdf",
-        )
-    if a:
-        write_simple_pdf(
-            f"座號 {sid}｜練習解答（全部題目完成後再看）",
-            a,
-            out_dir / f"{sid}-練習解答.pdf",
-        )
+    # Digital-first: phone HTML in 數位練習（不預設整班列印練習 PDF）
+    digital_dir = md_path.parent.parent / "數位練習"
+    write_digital_practice_for_student(md_path, digital_dir)
 
 
 def merge_original_then_note(original: Path, note_pdf: Path, out_pdf: Path) -> None:
@@ -421,10 +682,11 @@ def build_class_learning_report(out_dir: Path) -> Path:
         "## 七、給導師／家長的閱讀建議",
         "",
         "1. 先看「程度分布」與「需優先關注」，掌握全班與個別落差。",
-        "2. 個別練習請看該生 `座號-練習題.pdf`（先做）與 `座號-練習解答.pdf`（做完再看）。",
-        "3. 「跟上」學生練習含再提升挑戰，鼓勵多做靈活／挑戰題，勿只重複簡單題。",
-        "4. 明顯落後／需補先備者，宜採少而精、先補基礎，避免只重複整卷難題。",
-        "5. 本表為學習狀況溝通用，非正式成績單。",
+        "2. 個別練習優先用通訊裝置看「數位練習」資料夾（練習題 → 做完再看解答）。",
+        "3. 沒有裝置的學生，由老師依「列印專用／需列印座號」印紙本即可，避免整班列印。",
+        "4. 「跟上」學生練習含再提升挑戰，鼓勵多做靈活／挑戰題，勿只重複簡單題。",
+        "5. 明顯落後／需補先備者，宜採少而精、先補基礎，避免只重複整卷難題。",
+        "6. 本表為學習狀況溝通用，非正式成績單。",
         "",
     ]
 
@@ -499,6 +761,8 @@ def main() -> int:
     ap.add_argument("--merge-original", action="store_true", help="original PDF + note pages")
     ap.add_argument("--unclear-list", action="store_true", help="build class unclear list")
     ap.add_argument("--class-report", action="store_true", help="build class learning report for mentors/parents")
+    ap.add_argument("--digital-pack", action="store_true", help="build phone/tablet practice HTML pack")
+    ap.add_argument("--print-pack", action="store_true", help="build paper PDFs only for seats in 需列印座號.txt")
     ap.add_argument("--apply-clarifications", action="store_true")
     args = ap.parse_args()
 
@@ -508,6 +772,8 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     (work / "認知輸入").mkdir(parents=True, exist_ok=True)
     (work / "重謄補充").mkdir(parents=True, exist_ok=True)
+    (work / "數位練習").mkdir(parents=True, exist_ok=True)
+    ensure_print_seat_template(work)
 
     if args.apply_clarifications:
         n = apply_clarifications(work)
@@ -521,8 +787,20 @@ def main() -> int:
         p = build_class_learning_report(out_dir)
         print(f"class report: {p}")
 
-    # Only regenerate student PDFs when grading / merging / clarifying a student
-    need_student_pdfs = bool(args.student or args.merge_original or args.apply_clarifications)
+    if args.digital_pack:
+        p = build_digital_pack(work, student=args.student)
+        print(f"digital pack: {p}")
+
+    if args.print_pack:
+        p, seats = build_print_pack(work)
+        print(f"print pack: {p} seats={','.join(seats) if seats else '(none)'}")
+
+    # Regenerate student PDFs when merging / clarifying, or bare --student
+    need_student_pdfs = bool(args.merge_original or args.apply_clarifications)
+    if args.student and not any(
+        [args.digital_pack, args.print_pack, args.class_report, args.unclear_list]
+    ):
+        need_student_pdfs = True
     if not need_student_pdfs:
         return 0
 
