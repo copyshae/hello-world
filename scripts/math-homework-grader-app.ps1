@@ -1537,24 +1537,91 @@ function Start-GradeCurrent {
   }
   if (-not (Ensure-AnswerOrWarn)) { return }
 
+  $id = Get-StudentId $script:current.Name
+  if ($id -notmatch '^\d{1,2}$' -or $script:current.Name -match '^S__') {
+    $ask = [System.Windows.Forms.MessageBox]::Show(
+      ("目前檔名像是通訊軟體亂碼（$($script:current.Name)），座號讀成「$id」，容易批不出來。`n`n要先改成座號檔名嗎？例如 05.pdf`n選「是」會請你輸入座號並改名。"),
+      '請先改座號檔名',
+      [System.Windows.Forms.MessageBoxButtons]::YesNo,
+      [System.Windows.Forms.MessageBoxIcon]::Warning
+    )
+    if ($ask -eq 'Yes') {
+      $formAsk = New-Object System.Windows.Forms.Form
+      $formAsk.Text = '輸入座號'
+      $formAsk.Size = New-Object System.Drawing.Size(320, 140)
+      $formAsk.StartPosition = 'CenterParent'
+      $tb = New-Object System.Windows.Forms.TextBox
+      $tb.Location = New-Object System.Drawing.Point(20, 20)
+      $tb.Width = 260
+      $tb.Text = '05'
+      $formAsk.Controls.Add($tb)
+      $ok = New-Object System.Windows.Forms.Button
+      $ok.Text = '確定'
+      $ok.Location = New-Object System.Drawing.Point(110, 60)
+      $ok.DialogResult = 'OK'
+      $formAsk.Controls.Add($ok)
+      $formAsk.AcceptButton = $ok
+      $dr = $formAsk.ShowDialog()
+      $input = if ($dr -eq 'OK') { $tb.Text.Trim() } else { '' }
+      if ($input -match '^\d{1,2}$') {
+        $newId = $input.PadLeft(2, '0')
+        $ext = $script:current.Extension
+        $dest = Join-Path $script:current.DirectoryName ($newId + $ext)
+        if (Test-Path -LiteralPath $dest) {
+          [void][System.Windows.Forms.MessageBox]::Show("已存在 $newId$ext，請先換名或刪除舊檔。", '無法改名')
+          return
+        }
+        Rename-Item -LiteralPath $script:current.FullName -NewName ($newId + $ext)
+        Refresh-List
+        $idx = 0
+        foreach ($f in $script:files) {
+          if ($f.Name -eq ($newId + $ext)) { $list.SelectedIndex = $idx; break }
+          $idx++
+        }
+        if (-not $script:current) { return }
+      } else {
+        return
+      }
+    }
+  }
+
   if ($cmbMode.SelectedIndex -ge 1) {
     # Cursor 批閱（一般或手寫加強）
     $hw = ($cmbMode.SelectedIndex -eq 2)
+    # 字跡難辨時若選一般模式，自動建議改手寫加強
+    if (-not $hw) {
+      $sug = [System.Windows.Forms.MessageBox]::Show(
+        "若剛剛批不出來／字跡很差，建議改用「手寫加強批閱」。`n`n現在改用加強模式嗎？",
+        '批閱模式',
+        [System.Windows.Forms.MessageBoxButtons]::YesNo
+      )
+      if ($sug -eq 'Yes') {
+        $cmbMode.SelectedIndex = 2
+        $hw = $true
+      }
+    }
     $p = Build-CursorPromptOne $script:WorkDir $script:current -HandwritingHard:$hw
     [System.Windows.Forms.Clipboard]::SetText($p)
+    # 另存一份提示到輸出，方便對照
+    try {
+      $sid = Get-StudentId $script:current.Name
+      $promptPath = Join-Path (Join-Path $script:WorkDir '輸出') ($sid + '-Cursor提示.txt')
+      $utf8 = New-Object System.Text.UTF8Encoding $true
+      [System.IO.File]::WriteAllText($promptPath, $p, $utf8)
+    } catch {}
     Start-Process -FilePath $script:current.FullName
     $ans = @(Get-AnswerFiles $script:WorkDir)
     foreach ($a in $ans) { Start-Process -FilePath $a.FullName }
     if ($hw) {
-      $status.Text = '已複製「手寫加強」提示，並開啟學生卷＋答案'
+      $status.Text = '已複製「手寫加強」提示｜請到 Cursor：貼上＋附上學生卷圖檔'
       [void][System.Windows.Forms.MessageBox]::Show(
-        "已複製【手寫加強批閱】提示。`n`n重點：先轉譯→能批的先批→看不清標 ? 並列認知清單。`n請到 Cursor 貼上並附檔（可多附清晰一點的照片）。`n貼回右側後可先輸出；存疑再用「認知輸入」補字後重產。",
+        "【一定要做這 3 步，否則會批不出來】`n`n1. 開 Cursor 對話`n2. Ctrl+V 貼上提示（已在剪貼簿）`n3. 再把學生卷圖／PDF「附檔」加進去後送出`n`n只貼文字不附圖＝無法辨識手寫。`n可再附裁切放大的局部清晰圖。`n`n提示也已存到輸出\{座號}-Cursor提示.txt",
         '手寫加強批閱'
       )
     } else {
-      $status.Text = '已複製 Cursor 提示，並開啟學生卷＋答案；請到 Cursor 貼上並附檔'
+      $status.Text = '已複製 Cursor 提示｜請到 Cursor：貼上＋附檔'
       [void][System.Windows.Forms.MessageBox]::Show(
-        "已複製「請 Cursor 直接批閱」提示到剪貼簿。`n並已開啟此生試卷與正確答案。`n`n請到 Cursor 貼上並附檔。`n請 Cursor 一併給：診斷、程度、自學指導、練習題＋解答、建議影片連結／搜尋頁。`n（不用均一）貼回右側後按「輸出此生PDF」。`n`n若字跡太差：改選「手寫加強批閱」。",
+        "【一定要做這 3 步】`n`n1. 開 Cursor`n2. 貼上提示（Ctrl+V）`n3. 附上學生卷檔後送出`n`n若仍批不出：改選「手寫加強批閱」再按一次「開始批此生」。",
         '請 Cursor 批閱'
       )
     }
