@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2d6a4f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="習作台" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>習作台｜老師掌握與發送</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c; --paper: #e8efe6; --accent: #2d6a4f; --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.22);
+      --ok: #dcf5e6; --mild: #fff8dc; --behind: #ffebdc; --prep: #ffe4e4; --plain: #f5f8f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; font-family: "DM Sans", sans-serif; color: var(--ink); line-height: 1.55;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.4), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1.25rem 1.1rem 5.5rem; }
+    .hero { animation: rise 0.7s ease-out both; padding: 1.4rem 0 1rem; }
+    .brand {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(2.2rem, 10vw, 2.8rem); color: var(--accent); font-weight: 400; letter-spacing: 0.04em;
+    }
+    .lead { margin-top: 0.5rem; color: var(--muted); font-size: 1rem; max-width: 22rem; }
+    .install {
+      margin-top: 0.9rem; font-size: 0.86rem; color: var(--muted);
+      border-left: 3px solid var(--accent); padding: 0.5rem 0.7rem; background: rgba(45,106,79,0.08);
+    }
+    .summary { margin-top: 1rem; font-size: 0.9rem; color: var(--accent); font-weight: 500; }
+    section { margin-top: 1.6rem; animation: rise 0.75s 0.1s ease-out both; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif; font-size: 1.3rem; font-weight: 400;
+      color: var(--accent); margin-bottom: 0.6rem;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.55rem; align-items: center; }
+    label { font-size: 0.86rem; color: var(--muted); }
+    input, select, textarea, button {
+      font: inherit; border: 1px solid var(--line); background: rgba(255,255,255,0.78); color: var(--ink);
+      padding: 0.55rem 0.65rem;
+    }
+    input, select { min-height: 2.45rem; }
+    input[type="number"] { width: 4.4rem; }
+    input[type="text"] { flex: 1; min-width: 6.5rem; }
+    select.grow { flex: 1; min-width: 8rem; }
+    textarea {
+      width: 100%; min-height: 7.5rem; resize: vertical; line-height: 1.45; font-size: 0.92rem;
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.55rem; }
+    .chip {
+      border: 1px solid var(--line); background: rgba(255,255,255,0.6); padding: 0.35rem 0.55rem;
+      font-size: 0.8rem; cursor: pointer; color: var(--muted);
+    }
+    .chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.35rem; }
+    .seat {
+      border: 1px solid var(--line); min-height: 3rem; padding: 0.3rem 0.15rem; text-align: center;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer; background: var(--plain);
+    }
+    .seat .sid { display: block; font-size: 0.92rem; }
+    .seat .st { display: block; font-weight: 400; font-size: 0.7rem; color: var(--muted); }
+    .seat.lv-跟上 { background: var(--ok); }
+    .seat.lv-略落後 { background: var(--mild); }
+    .seat.lv-明顯落後 { background: var(--behind); }
+    .seat.lv-需補先備 { background: var(--prep); }
+    .seat.active { outline: 2px solid rgba(45,106,79,0.4); border-color: var(--accent); }
+    .seat.dim { opacity: 0.28; }
+    .panel { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--line); }
+    .panel h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.45rem; }
+    .actions { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.65rem; }
+    .btn {
+      display: block; width: 100%; text-align: center; padding: 0.8rem 1rem; border: none;
+      background: var(--accent); color: #fff; font-weight: 600; cursor: pointer;
+    }
+    .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .tips { font-size: 0.88rem; color: var(--muted); }
+    .tips li { margin: 0.25rem 0 0.25rem 1.1rem; }
+    .toast {
+      position: fixed; left: 50%; bottom: 1.2rem; transform: translateX(-50%) translateY(120%);
+      background: var(--ink); color: #fff; padding: 0.65rem 1rem; font-size: 0.88rem;
+      opacity: 0; transition: 0.25s ease; z-index: 20; max-width: 92vw; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .nav { margin-top: 1.75rem; font-size: 0.88rem; }
+    .nav a { color: var(--accent); }
+    .hidden-file { display: none; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(0.8rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="brand">習作台</div>
+      <p class="lead">與電腦版相同：掌握程度、發送狀態、LINE 文案、管道偏好；可用檔案與電腦互通。</p>
+      <p class="install">iPhone：Safari → 分享 →「加入主畫面」。與電腦互傳：匯出 JSON → AirDrop／雲端 → 另一端匯入。</p>
+      <p class="summary" id="summary">—</p>
+    </header>
+
+    <section>
+      <h2>設定</h2>
+      <div class="row">
+        <label for="classLabel">班級</label>
+        <input id="classLabel" type="text" maxlength="40" />
+      </div>
+      <div class="row">
+        <label for="seatCount">人數</label>
+        <input id="seatCount" type="number" min="1" max="60" />
+        <label for="deadline">截止</label>
+        <input id="deadline" type="text" maxlength="40" />
+      </div>
+      <div class="row">
+        <label for="sendCh">發放</label>
+        <select id="sendCh" class="grow">
+          <option value="line_group">LINE 班級群組</option>
+          <option value="classroom">Classroom</option>
+          <option value="cloud">雲端資料夾</option>
+          <option value="print">無裝置列印</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="retCh">回傳</label>
+        <select id="retCh" class="grow">
+          <option value="line_dm">LINE 個別傳老師</option>
+          <option value="classroom">Classroom</option>
+          <option value="cloud">雲端回傳夾</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn secondary" id="btnApply">套用設定</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>掌握</h2>
+      <div class="filters" id="filters">
+        <button type="button" class="chip on" data-f="all">全部</button>
+        <button type="button" class="chip" data-f="未發">未發</button>
+        <button type="button" class="chip" data-f="待回">待回</button>
+        <button type="button" class="chip" data-f="關注">需關注</button>
+        <button type="button" class="chip" data-f="先備">需補先備</button>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="panel" id="editPanel" hidden>
+        <h3 id="editTitle">座號</h3>
+        <div class="row">
+          <label for="level">程度</label>
+          <select id="level" class="grow">
+            <option>未標</option><option>跟上</option><option>略落後</option><option>明顯落後</option><option>需補先備</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="send">發送</label>
+          <select id="send" class="grow">
+            <option>未發</option><option>已發</option><option>待回</option><option>已回</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="note">備註</label>
+          <input id="note" type="text" maxlength="80" placeholder="僅座號相關，勿填姓名" />
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" id="btnSaveSeat">儲存此座號</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>發送</h2>
+      <p class="tips" id="channelTip"></p>
+      <textarea id="preview" readonly aria-label="文案預覽"></textarea>
+      <div class="actions">
+        <button type="button" class="btn" id="btnCopySend">複製 LINE 群發文</button>
+        <button type="button" class="btn secondary" id="btnCopyRet">複製回傳說明</button>
+        <button type="button" class="btn secondary" id="btnMarkSent">將「未發」全部標為已發</button>
+        <button type="button" class="btn secondary" id="btnMarkPending">將「已發」改為待回</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>今日流程（與電腦批改銜接）</h2>
+      <ul class="tips">
+        <li>電腦「習作批改」：載入答案 → 批閱 → 自產練習到「數位練習」。</li>
+        <li>手機／電腦「習作台」：標程度與未發 → 複製群發文 → 貼 LINE 群。</li>
+        <li>學生個別回傳 → 標待回／已回；需補先備採多次少題。</li>
+        <li>沒裝置者才走列印包；有手機仍用數位。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>與電腦同步</h2>
+      <div class="actions">
+        <button type="button" class="btn secondary" id="btnExport">匯出 class-state.json</button>
+        <button type="button" class="btn secondary" id="btnImport">匯入 JSON（覆蓋）</button>
+        <input class="hidden-file" id="fileImport" type="file" accept="application/json,.json" />
+      </div>
+    </section>
+
+    <p class="nav"><a href="../../">← 學習日誌</a> · 桌面捷徑：<strong>習作台.vbs</strong></p>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    (function () {
+      var KEY = "teacher-desk-v1";
+      var selected = null;
+      var filter = "all";
+
+      function def() {
+        return {
+          classLabel: "本班數學", seatCount: 30, deadline: "今晚 21:00",
+          sendChannel: "line_group", returnChannel: "line_dm", seats: {}
+        };
+      }
+
+      function ensure(state) {
+        var n = Math.max(1, Math.min(60, parseInt(state.seatCount, 10) || 30));
+        state.seatCount = n;
+        if (!state.seats) state.seats = {};
+        if (!state.sendChannel) state.sendChannel = "line_group";
+        if (!state.returnChannel) state.returnChannel = "line_dm";
+        for (var i = 1; i <= n; i++) {
+          var id = String(i).padStart(2, "0");
+          if (!state.seats[id]) state.seats[id] = { level: "未標", send: "未發", note: "" };
+          if (state.seats[id].note == null) state.seats[id].note = "";
+        }
+        Object.keys(state.seats).forEach(function (k) {
+          var num = parseInt(k, 10);
+          if (!num || num < 1 || num > n) delete state.seats[k];
+        });
+        return state;
+      }
+
+      function load() {
+        try {
+          var raw = localStorage.getItem(KEY);
+          if (raw) return ensure(Object.assign(def(), JSON.parse(raw)));
+        } catch (e) {}
+        return ensure(def());
+      }
+
+      function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
+
+      var state = load();
+
+      function toast(msg) {
+        var el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(function () { el.classList.remove("show"); }, 2200);
+      }
+
+      function matchFilter(s) {
+        if (filter === "all") return true;
+        if (filter === "未發") return s.send === "未發";
+        if (filter === "待回") return s.send === "待回" || s.send === "已發";
+        if (filter === "先備") return s.level === "需補先備";
+        if (filter === "關注") {
+          return s.level === "略落後" || s.level === "明顯落後" || s.level === "需補先備" || s.send === "未發" || s.send === "待回";
+        }
+        return true;
+      }
+
+      function summary() {
+        var c = { 跟上: 0, 略落後: 0, 明顯落後: 0, 需補先備: 0, 未發: 0, 待回: 0 };
+        Object.keys(state.seats).forEach(function (k) {
+          var s = state.seats[k];
+          if (c[s.level] != null) c[s.level]++;
+          if (s.send === "未發") c["未發"]++;
+          if (s.send === "待回" || s.send === "已發") c["待回"]++;
+        });
+        document.getElementById("summary").textContent =
+          "跟上" + c["跟上"] + " 略落後" + c["略落後"] + " 明顯" + c["明顯落後"] +
+          " 先備" + c["需補先備"] + "｜未發" + c["未發"] + " 待回" + c["待回"];
+      }
+
+      function channelTip() {
+        var sendMap = {
+          line_group: "發：LINE 班級群組（貼群發文）",
+          classroom: "發：Classroom 作業／公告",
+          cloud: "發：雲端「數位練習」連結",
+          print: "發：僅無裝置列印包"
+        };
+        var retMap = {
+          line_dm: "回：LINE 個別傳老師（勿塞群組）",
+          classroom: "回：Classroom 繳交",
+          cloud: "回：雲端回傳夾"
+        };
+        document.getElementById("channelTip").textContent =
+          (sendMap[state.sendChannel] || "") + " · " + (retMap[state.returnChannel] || "");
+      }
+
+      function renderGrid() {
+        var grid = document.getElementById("grid");
+        grid.innerHTML = "";
+        Object.keys(state.seats).sort().forEach(function (id) {
+          var s = state.seats[id];
+          var b = document.createElement("button");
+          b.type = "button";
+          var show = matchFilter(s);
+          b.className = "seat lv-" + s.level + (selected === id ? " active" : "") + (show ? "" : " dim");
+          b.innerHTML = '<span class="sid">' + id + '</span><span class="st">' + s.send + "</span>";
+          b.addEventListener("click", function () {
+            selected = id;
+            document.getElementById("editPanel").hidden = false;
+            document.getElementById("editTitle").textContent = "座號 " + id;
+            document.getElementById("level").value = s.level;
+            document.getElementById("send").value = s.send;
+            document.getElementById("note").value = s.note || "";
+            renderGrid();
+          });
+          grid.appendChild(b);
+        });
+        summary();
+        channelTip();
+        refreshPreview();
+      }
+
+      function syncForm() {
+        document.getElementById("classLabel").value = state.classLabel;
+        document.getElementById("seatCount").value = state.seatCount;
+        document.getElementById("deadline").value = state.deadline;
+        document.getElementById("sendCh").value = state.sendChannel;
+        document.getElementById("retCh").value = state.returnChannel;
+      }
+
+      function persistHeader() {
+        state.classLabel = (document.getElementById("classLabel").value || "本班數學").trim();
+        state.deadline = (document.getElementById("deadline").value || "今晚 21:00").trim();
+        state.seatCount = parseInt(document.getElementById("seatCount").value, 10) || 30;
+        state.sendChannel = document.getElementById("sendCh").value;
+        state.returnChannel = document.getElementById("retCh").value;
+        state = ensure(state);
+        save(state);
+      }
+
+      function unsentList() {
+        var unsent = Object.keys(state.seats).sort().filter(function (k) {
+          return state.seats[k].send === "未發";
+        });
+        if (!unsent.length) {
+          unsent = Object.keys(state.seats).sort().filter(function (k) {
+            var s = state.seats[k];
+            return s.send !== "已回" && (
+              s.send === "已發" || s.send === "待回" ||
+              s.level === "略落後" || s.level === "明顯落後" || s.level === "需補先備"
+            );
+          });
+        }
+        return unsent;
+      }
+
+      function buildSend() {
+        var list = unsentList();
+        var seats = list.length ? list.join("、") : "（請先把要發的座號標成「未發」）";
+        return (
+          "【" + state.classLabel + "｜今日練習】\n" +
+          "請座號：" + seats + "\n" +
+          "1. 依老師發的檔／連結完成練習（含指導與影片）\n" +
+          "2. 完成後請「個別傳老師」，不要傳班級群組\n" +
+          "3. 截止：" + state.deadline + "\n" +
+          "有問題先看指導；仍不懂再私訊老師。"
+        );
+      }
+
+      function buildRet() {
+        return (
+          "【" + state.classLabel + "｜回傳方式】\n" +
+          "請用 LINE「個別傳老師」交練習圖／PDF。\n" +
+          "檔名建議：座號-次數，例如 05-R01.jpg\n" +
+          "不要傳進班級群組，方便老師對座號批改。"
+        );
+      }
+
+      function refreshPreview() {
+        document.getElementById("preview").value = buildSend();
+      }
+
+      async function copyText(text, ok) {
+        try {
+          await navigator.clipboard.writeText(text);
+          toast(ok);
+        } catch (e) {
+          window.prompt("請手動複製：", text);
+        }
+      }
+
+      document.getElementById("filters").addEventListener("click", function (e) {
+        var t = e.target;
+        if (!t.classList.contains("chip")) return;
+        filter = t.getAttribute("data-f");
+        Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) {
+          c.classList.toggle("on", c === t);
+        });
+        renderGrid();
+      });
+
+      document.getElementById("btnApply").addEventListener("click", function () {
+        persistHeader();
+        renderGrid();
+        toast("已套用設定");
+      });
+
+      document.getElementById("btnSaveSeat").addEventListener("click", function () {
+        if (!selected) return;
+        persistHeader();
+        state.seats[selected].level = document.getElementById("level").value;
+        state.seats[selected].send = document.getElementById("send").value;
+        state.seats[selected].note = (document.getElementById("note").value || "").trim();
+        save(state);
+        renderGrid();
+        toast("已儲存座號 " + selected);
+      });
+
+      document.getElementById("btnCopySend").addEventListener("click", function () {
+        persistHeader();
+        var msg = buildSend();
+        document.getElementById("preview").value = msg;
+        copyText(msg, "已複製群發文");
+      });
+
+      document.getElementById("btnCopyRet").addEventListener("click", function () {
+        persistHeader();
+        var msg = buildRet();
+        document.getElementById("preview").value = msg;
+        copyText(msg, "已複製回傳說明");
+      });
+
+      document.getElementById("btnMarkSent").addEventListener("click", function () {
+        persistHeader();
+        Object.keys(state.seats).forEach(function (k) {
+          if (state.seats[k].send === "未發") state.seats[k].send = "已發";
+        });
+        save(state);
+        renderGrid();
+        toast("未發 → 已發");
+      });
+
+      document.getElementById("btnMarkPending").addEventListener("click", function () {
+        persistHeader();
+        Object.keys(state.seats).forEach(function (k) {
+          if (state.seats[k].send === "已發") state.seats[k].send = "待回";
+        });
+        save(state);
+        renderGrid();
+        toast("已發 → 待回");
+      });
+
+      document.getElementById("btnExport").addEventListener("click", function () {
+        persistHeader();
+        var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "class-state.json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast("已匯出，可傳到電腦習作台匯入");
+      });
+
+      document.getElementById("btnImport").addEventListener("click", function () {
+        document.getElementById("fileImport").click();
+      });
+
+      document.getElementById("fileImport").addEventListener("change", function (e) {
+        var f = e.target.files && e.target.files[0];
+        if (!f) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            state = ensure(Object.assign(def(), JSON.parse(reader.result)));
+            save(state);
+            syncForm();
+            selected = null;
+            document.getElementById("editPanel").hidden = true;
+            renderGrid();
+            toast("已匯入並覆蓋");
+          } catch (err) {
+            toast("匯入失敗，請確認是 class-state.json");
+          }
+        };
+        reader.readAsText(f, "utf-8");
+        e.target.value = "";
+      });
+
+      ["sendCh", "retCh", "classLabel", "deadline", "seatCount"].forEach(function (id) {
+        document.getElementById(id).addEventListener("change", function () {
+          persistHeader();
+          channelTip();
+          refreshPreview();
+        });
+      });
+
+      syncForm();
+      renderGrid();
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      }
+    })();
+  </script>
+</body>
+</html>
