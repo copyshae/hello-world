@@ -1,5 +1,5 @@
 /* 習作台：離線快取殼層 */
-const CACHE = "teacher-desk-v1";
+const CACHE = "teacher-desk-v2";
 const ASSETS = [
   "./",
   "./index.html",
