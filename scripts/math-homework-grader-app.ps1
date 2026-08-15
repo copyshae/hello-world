@@ -71,8 +71,8 @@ function Ensure-WorkTree([string]$root) {
       '================'
       ''
       '1. 檔名請改成座號，試發用 00.pdf／00.jpg（不要用 S__44097539 這種 LINE 檔名）'
-      '2. 批閱方式選「請 Gemini／Cursor 手寫加強批閱」→ 開始批此生'
-      '3. 到 Gemini 或 Cursor 貼上提示並附檔；可再附裁切放大的局部清晰圖'
+      '2. 批閱方式選「請 Gemini 自動批閱（API）」→ 開始批此生（免手動貼檔）'
+      '3. 首次按「Gemini金鑰」到 aistudio.google.com/apikey 貼上 key'
       '4. AI 會先給「手寫轉譯稿」＋「認知輸入清單」；看不清處標 ?'
       '5. 你把看懂的字寫進「認知輸入」：例如 05-Q3.txt 內容寫該題正確轉譯'
       '6. 仍看不清 → 請學生重謄該題，放到「重謄補充」：05-Q3.pdf'
@@ -465,6 +465,205 @@ function Get-SettingsPath([string]$root) {
   Join-Path $root 'settings.json'
 }
 
+function Get-GeminiKeyPath([string]$root) {
+  Join-Path $root 'gemini-api-key.txt'
+}
+
+function Get-GeminiApiKey([string]$root) {
+  $p = Get-GeminiKeyPath $root
+  if (-not (Test-Path -LiteralPath $p)) { return '' }
+  try {
+    $k = (Get-Content -LiteralPath $p -Encoding UTF8 -Raw).Trim()
+    if ($k -match '^\s*#') { return '' }
+    return $k
+  } catch { return '' }
+}
+
+function Save-GeminiApiKey([string]$root, [string]$key) {
+  $p = Get-GeminiKeyPath $root
+  $utf8 = New-Object System.Text.UTF8Encoding $true
+  [IO.File]::WriteAllText($p, ($key.Trim() + "`r`n"), $utf8)
+}
+
+function Get-FileMimeType([string]$path) {
+  $ext = [IO.Path]::GetExtension($path).ToLowerInvariant()
+  switch ($ext) {
+    '.png' { return 'image/png' }
+    '.jpg' { return 'image/jpeg' }
+    '.jpeg' { return 'image/jpeg' }
+    '.gif' { return 'image/gif' }
+    '.webp' { return 'image/webp' }
+    '.bmp' { return 'image/bmp' }
+    '.tif' { return 'image/tiff' }
+    '.tiff' { return 'image/tiff' }
+    '.heic' { return 'image/heic' }
+    '.heif' { return 'image/heif' }
+    '.pdf' { return 'application/pdf' }
+    '.txt' { return 'text/plain' }
+    '.md' { return 'text/plain' }
+    default { return 'application/octet-stream' }
+  }
+}
+
+function New-GeminiInlinePart([string]$path) {
+  $mime = Get-FileMimeType $path
+  $bytes = [IO.File]::ReadAllBytes($path)
+  if ($bytes.Length -gt 18MB) {
+    throw "檔案太大（$([IO.Path]::GetFileName($path))），請先壓縮或改拍清晰照片（建議 < 15MB）"
+  }
+  if ($mime -eq 'text/plain') {
+    $text = [Text.Encoding]::UTF8.GetString($bytes)
+    return @{ text = ("【檔案：$([IO.Path]::GetFileName($path))】`n" + $text) }
+  }
+  return @{
+    inline_data = @{
+      mime_type = $mime
+      data = [Convert]::ToBase64String($bytes)
+    }
+  }
+}
+
+function Invoke-GeminiGenerateContent {
+  param(
+    [string]$ApiKey,
+    [string]$Model,
+    [string]$Prompt,
+    [string[]]$FilePaths
+  )
+  if ([string]::IsNullOrWhiteSpace($ApiKey)) { throw '尚未設定 Gemini API 金鑰' }
+  if ([string]::IsNullOrWhiteSpace($Model)) { $Model = 'gemini-2.0-flash' }
+
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+  $parts = New-Object System.Collections.ArrayList
+  [void]$parts.Add(@{ text = $Prompt })
+  foreach ($fp in $FilePaths) {
+    if (-not (Test-Path -LiteralPath $fp)) { continue }
+    [void]$parts.Add((New-GeminiInlinePart $fp))
+  }
+
+  $payload = @{
+    contents = @(
+      @{
+        role = 'user'
+        parts = @($parts.ToArray())
+      }
+    )
+    generationConfig = @{
+      temperature = 0.2
+    }
+  }
+
+  Add-Type -AssemblyName System.Web.Extensions -ErrorAction SilentlyContinue
+  $ser = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+  $ser.MaxJsonLength = [int]::MaxValue
+  $json = $ser.Serialize($payload)
+  $bytes = [Text.Encoding]::UTF8.GetBytes($json)
+
+  $models = @($Model, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro') | Select-Object -Unique
+  $lastErr = $null
+  foreach ($m in $models) {
+    $uri = "https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=$ApiKey"
+    try {
+      $resp = Invoke-RestMethod -Method Post -Uri $uri -ContentType 'application/json; charset=utf-8' -Body $bytes -TimeoutSec 180
+      $text = ''
+      try {
+        foreach ($c in $resp.candidates) {
+          foreach ($p in $c.content.parts) {
+            if ($p.text) { $text += [string]$p.text }
+          }
+        }
+      } catch {}
+      if ([string]::IsNullOrWhiteSpace($text)) {
+        throw ("Gemini 沒有回傳文字（model=$m）。原始：" + ($resp | ConvertTo-Json -Depth 6 -Compress))
+      }
+      return [pscustomobject]@{ Text = $text; Model = $m }
+    } catch {
+      $lastErr = $_
+      $msg = [string]$_.Exception.Message
+      if ($msg -match '404|not found|NOT_FOUND') { continue }
+      throw
+    }
+  }
+  throw $lastErr
+}
+
+function Apply-GeminiReplyToForm([string]$text) {
+  $txtDiagnosis.Text = $text
+  $txtSummary.Text = '（Gemini 自動批閱完成，詳見診斷欄／輸出資料夾）'
+  if ($text -match '(?m)^1\)[\s\S]*?(?=^2\)|\z)') {
+    $txtItems.Text = $Matches[0].Trim()
+  } elseif ($text -match '(?m)(^\d+\s*[✓✗?xX].*)$') {
+    # keep default if no clear list
+  }
+  if ($text -match '程度[：:\s]*(跟上|略落後|明顯落後|需補先備|待判定)') {
+    $lv = $Matches[1]
+    $idx = $cmbLevel.Items.IndexOf($lv)
+    if ($idx -ge 0) { $cmbLevel.SelectedIndex = $idx }
+  }
+  if ($text -match '總評[：:\s]*(全對|多對|混雜|多錯|看不懂為主)') {
+    $ov = $Matches[1]
+    $idx = $cmbOverall.Items.IndexOf($ov)
+    if ($idx -ge 0) { $cmbOverall.SelectedIndex = $idx }
+  } elseif ($text -match '完全正確|全對|100\s*分') {
+    $idx = $cmbOverall.Items.IndexOf('全對')
+    if ($idx -ge 0) { $cmbOverall.SelectedIndex = $idx }
+    $idx2 = $cmbLevel.Items.IndexOf('跟上')
+    if ($idx2 -ge 0) { $cmbLevel.SelectedIndex = $idx2 }
+  }
+  if ($text -match '(?s)6\)[\s\S]*') {
+    $txtPractice.Text = $Matches[0].Trim()
+  }
+  if ($text -match '(?s)5\)[^\n]*\n([\s\S]*?)(?=6\)|\z)') {
+    $txtAdvice.Text = $Matches[1].Trim()
+  }
+}
+
+function Show-GeminiKeyDialog {
+  $has = -not [string]::IsNullOrWhiteSpace((Get-GeminiApiKey $script:WorkDir))
+  $dlg = New-Object System.Windows.Forms.Form
+  $dlg.Text = '設定 Gemini API 金鑰'
+  $dlg.Size = New-Object System.Drawing.Size(520, 260)
+  $dlg.StartPosition = 'CenterParent'
+  $dlg.Font = $font
+  $lbl = New-Object System.Windows.Forms.Label
+  $lbl.Location = New-Object System.Drawing.Point(12, 12)
+  $lbl.Size = New-Object System.Drawing.Size(480, 72)
+  $lbl.Text = "到 https://aistudio.google.com/apikey 用你的 Google 帳號建立 API key（免費額度通常夠試發）。`n貼上後存在本機 MathGrading\gemini-api-key.txt，不會上傳 GitHub。`n目前：" + $(if ($has) { '已有金鑰' } else { '尚未設定' })
+  $dlg.Controls.Add($lbl)
+  $tb = New-Object System.Windows.Forms.TextBox
+  $tb.Location = New-Object System.Drawing.Point(12, 90)
+  $tb.Width = 480
+  $tb.UseSystemPasswordChar = $true
+  if ($has) { $tb.Text = Get-GeminiApiKey $script:WorkDir }
+  $dlg.Controls.Add($tb)
+  $btnOk = New-Object System.Windows.Forms.Button
+  $btnOk.Text = '儲存'
+  $btnOk.Location = New-Object System.Drawing.Point(300, 140)
+  $btnOk.DialogResult = 'OK'
+  $dlg.Controls.Add($btnOk)
+  $btnOpen = New-Object System.Windows.Forms.Button
+  $btnOpen.Text = '開啟申請頁'
+  $btnOpen.Location = New-Object System.Drawing.Point(12, 140)
+  $btnOpen.Size = New-Object System.Drawing.Size(120, 28)
+  $btnOpen.Add_Click({ Start-Process 'https://aistudio.google.com/apikey' })
+  $dlg.Controls.Add($btnOpen)
+  $dlg.AcceptButton = $btnOk
+  if ($dlg.ShowDialog() -eq 'OK') {
+    $k = $tb.Text.Trim()
+    if ([string]::IsNullOrWhiteSpace($k)) {
+      [void][System.Windows.Forms.MessageBox]::Show('金鑰空白，未儲存', '提示')
+      return $false
+    }
+    Save-GeminiApiKey $script:WorkDir $k
+    $script:settings | Add-Member -NotePropertyName geminiModel -NotePropertyValue 'gemini-2.0-flash' -Force
+    Save-Settings $script:WorkDir $script:settings
+    [void][System.Windows.Forms.MessageBox]::Show('已儲存 Gemini API 金鑰。選「請 Gemini 自動批閱」即可免手動貼檔。', '完成')
+    return $true
+  }
+  return $false
+}
+
 function Load-Settings([string]$root) {
   $p = Get-SettingsPath $root
   $defaults = [pscustomobject]@{
@@ -473,6 +672,7 @@ function Load-Settings([string]$root) {
     preferredSend = '未指定（日後再選）'
     preferredReturn = '未指定（日後再選）'
     tabletImportDir = ''
+    geminiModel = 'gemini-2.0-flash'
     tools = [pscustomobject]@{
       line_group = $true
       line_dm    = $true
@@ -492,6 +692,9 @@ function Load-Settings([string]$root) {
       if (-not $s.preferredReturn) { $s | Add-Member -NotePropertyName preferredReturn -NotePropertyValue $defaults.preferredReturn -Force }
       if ($null -eq $s.PSObject.Properties['tabletImportDir']) {
         $s | Add-Member -NotePropertyName tabletImportDir -NotePropertyValue '' -Force
+      }
+      if ($null -eq $s.PSObject.Properties['geminiModel']) {
+        $s | Add-Member -NotePropertyName geminiModel -NotePropertyValue $defaults.geminiModel -Force
       }
       return $s
     } catch {}
@@ -1280,16 +1483,22 @@ $cmbMode.Items.AddRange(@(
     '自己對照批（開啟答案＋學生卷）',
     '請 Cursor 直接批閱（複製提示並開檔）',
     '請 Cursor 手寫加強批閱（難辨／潦草）',
-    '請 Gemini 直接批閱（複製提示並開網頁）',
-    '請 Gemini 手寫加強批閱（難辨／潦草）'
+    '請 Gemini 自動批閱（API，免手動貼檔）',
+    '請 Gemini 自動手寫加強（API）',
+    '請 Gemini 網頁批閱（手動貼檔）',
+    '請 Gemini 網頁手寫加強（手動）'
   ))
 $cmbMode.Location = New-Object System.Drawing.Point(12, 52)
-$cmbMode.Size = New-Object System.Drawing.Size(520, 28)
-if ($script:settings.mode -eq 'gemini_hw') { $cmbMode.SelectedIndex = 4 }
-elseif ($script:settings.mode -eq 'gemini') { $cmbMode.SelectedIndex = 3 }
-elseif ($script:settings.mode -eq 'cursor_hw') { $cmbMode.SelectedIndex = 2 }
-elseif ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 }
-else { $cmbMode.SelectedIndex = 0 }
+$cmbMode.Size = New-Object System.Drawing.Size(480, 28)
+switch ($script:settings.mode) {
+  'gemini_auto_hw' { $cmbMode.SelectedIndex = 4 }
+  'gemini_auto' { $cmbMode.SelectedIndex = 3 }
+  'gemini_hw' { $cmbMode.SelectedIndex = 6 }
+  'gemini' { $cmbMode.SelectedIndex = 5 }
+  'cursor_hw' { $cmbMode.SelectedIndex = 2 }
+  'cursor' { $cmbMode.SelectedIndex = 1 }
+  default { $cmbMode.SelectedIndex = 0 }
+}
 $grpStart.Controls.Add($cmbMode)
 
 function Refresh-AnswerLabel {
@@ -1306,8 +1515,8 @@ function Refresh-AnswerLabel {
 
 $btnLoadAns = New-Object System.Windows.Forms.Button
 $btnLoadAns.Text = '載入正確答案'
-$btnLoadAns.Location = New-Object System.Drawing.Point(390, 48)
-$btnLoadAns.Size = New-Object System.Drawing.Size(130, 32)
+$btnLoadAns.Location = New-Object System.Drawing.Point(500, 48)
+$btnLoadAns.Size = New-Object System.Drawing.Size(110, 32)
 $btnLoadAns.Add_Click({
     $ofd = New-Object System.Windows.Forms.OpenFileDialog
     $ofd.Title = '選擇正確答案（可多選）'
@@ -1324,10 +1533,17 @@ $btnLoadAns.Add_Click({
   })
 $grpStart.Controls.Add($btnLoadAns)
 
+$btnGeminiKey = New-Object System.Windows.Forms.Button
+$btnGeminiKey.Text = 'Gemini金鑰'
+$btnGeminiKey.Location = New-Object System.Drawing.Point(620, 48)
+$btnGeminiKey.Size = New-Object System.Drawing.Size(100, 32)
+$btnGeminiKey.Add_Click({ [void](Show-GeminiKeyDialog) })
+$grpStart.Controls.Add($btnGeminiKey)
+
 $btnOpenAns = New-Object System.Windows.Forms.Button
-$btnOpenAns.Text = '開啟答案對照'
-$btnOpenAns.Location = New-Object System.Drawing.Point(530, 48)
-$btnOpenAns.Size = New-Object System.Drawing.Size(130, 32)
+$btnOpenAns.Text = '開啟答案'
+$btnOpenAns.Location = New-Object System.Drawing.Point(730, 48)
+$btnOpenAns.Size = New-Object System.Drawing.Size(90, 32)
 $btnOpenAns.Add_Click({
     $files = @(Get-AnswerFiles $script:WorkDir)
     if ($files.Count -eq 0) {
@@ -1339,22 +1555,23 @@ $btnOpenAns.Add_Click({
 $grpStart.Controls.Add($btnOpenAns)
 
 $btnOpenAnsFolder = New-Object System.Windows.Forms.Button
-$btnOpenAnsFolder.Text = '答案資料夾'
-$btnOpenAnsFolder.Location = New-Object System.Drawing.Point(670, 48)
-$btnOpenAnsFolder.Size = New-Object System.Drawing.Size(110, 32)
+$btnOpenAnsFolder.Text = '答案夾'
+$btnOpenAnsFolder.Location = New-Object System.Drawing.Point(830, 48)
+$btnOpenAnsFolder.Size = New-Object System.Drawing.Size(80, 32)
 $btnOpenAnsFolder.Add_Click({ Start-Process explorer.exe (Join-Path $script:WorkDir '標準答案') })
 $grpStart.Controls.Add($btnOpenAnsFolder)
 
 $cmbMode.Add_SelectedIndexChanged({
     $mode = 'manual'
-    if ($cmbMode.SelectedIndex -eq 1) { $mode = 'cursor' }
-    elseif ($cmbMode.SelectedIndex -eq 2) { $mode = 'cursor_hw' }
-    elseif ($cmbMode.SelectedIndex -eq 3) { $mode = 'gemini' }
-    elseif ($cmbMode.SelectedIndex -eq 4) { $mode = 'gemini_hw' }
-    $script:settings = [pscustomobject]@{
-      mode = $mode
-      answerHint = [string]$lblAns.Text
+    switch ($cmbMode.SelectedIndex) {
+      1 { $mode = 'cursor' }
+      2 { $mode = 'cursor_hw' }
+      3 { $mode = 'gemini_auto' }
+      4 { $mode = 'gemini_auto_hw' }
+      5 { $mode = 'gemini' }
+      6 { $mode = 'gemini_hw' }
     }
+    $script:settings | Add-Member -NotePropertyName mode -NotePropertyValue $mode -Force
     Save-Settings $script:WorkDir $script:settings
   })
 
@@ -1592,27 +1809,84 @@ function Start-GradeCurrent {
   }
 
   if ($cmbMode.SelectedIndex -ge 1) {
-    # AI 批閱：Cursor（1–2）或 Gemini（3–4）；偶數／對應索引為手寫加強
-    $useGemini = ($cmbMode.SelectedIndex -ge 3)
-    $hw = ($cmbMode.SelectedIndex -eq 2 -or $cmbMode.SelectedIndex -eq 4)
-    # 字跡難辨時若選一般模式，自動建議改手寫加強（同一工具內切換）
-    if (-not $hw) {
+    # 1–2 Cursor 手動｜3–4 Gemini API 自動｜5–6 Gemini 網頁手動
+    $idx = $cmbMode.SelectedIndex
+    $useGeminiAuto = ($idx -eq 3 -or $idx -eq 4)
+    $useGeminiWeb = ($idx -eq 5 -or $idx -eq 6)
+    $useGemini = ($useGeminiAuto -or $useGeminiWeb)
+    $hw = ($idx -eq 2 -or $idx -eq 4 -or $idx -eq 6)
+
+    if (-not $hw -and -not $useGeminiAuto) {
       $sug = [System.Windows.Forms.MessageBox]::Show(
         "若剛剛批不出來／字跡很差，建議改用「手寫加強批閱」。`n`n現在改用加強模式嗎？",
         '批閱模式',
         [System.Windows.Forms.MessageBoxButtons]::YesNo
       )
       if ($sug -eq 'Yes') {
-        if ($useGemini) { $cmbMode.SelectedIndex = 4 } else { $cmbMode.SelectedIndex = 2 }
+        if ($useGeminiWeb) { $cmbMode.SelectedIndex = 6 }
+        else { $cmbMode.SelectedIndex = 2 }
         $hw = $true
+        $idx = $cmbMode.SelectedIndex
       }
     }
+
     $p = Build-CursorPromptOne $script:WorkDir $script:current -HandwritingHard:$hw
     if ($useGemini) {
-      $p = "（請用 Google Gemini 批閱。我會在對話中附上學生試卷圖／PDF；若有標準答案也請一併對照。）`r`n`r`n" + $p
+      $p = "（請用 Google Gemini 批閱。學生試卷與標準答案檔已一併提供；請依檔案內容批改，不要要求我再貼檔。）`r`n`r`n" + $p
     }
+
+    if ($useGeminiAuto) {
+      $key = Get-GeminiApiKey $script:WorkDir
+      if ([string]::IsNullOrWhiteSpace($key)) {
+        $ask = [System.Windows.Forms.MessageBox]::Show(
+          "自動批閱需要 Gemini API 金鑰（與網頁 Pro 訂閱分開，到 AI Studio 免費申請）。`n`n現在設定嗎？",
+          '需要 Gemini 金鑰',
+          [System.Windows.Forms.MessageBoxButtons]::YesNo
+        )
+        if ($ask -ne 'Yes') { return }
+        if (-not (Show-GeminiKeyDialog)) { return }
+        $key = Get-GeminiApiKey $script:WorkDir
+        if ([string]::IsNullOrWhiteSpace($key)) { return }
+      }
+
+      $sid = Get-StudentId $script:current.Name
+      $files = New-Object System.Collections.ArrayList
+      [void]$files.Add($script:current.FullName)
+      foreach ($a in @(Get-AnswerFiles $script:WorkDir | Select-Object -First 4)) {
+        [void]$files.Add($a.FullName)
+      }
+
+      $status.Text = "Gemini 自動批閱中（座號 $sid）…請稍候"
+      $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+      [System.Windows.Forms.Application]::DoEvents()
+      try {
+        $model = 'gemini-2.0-flash'
+        try { if ($script:settings.geminiModel) { $model = [string]$script:settings.geminiModel } } catch {}
+        $result = Invoke-GeminiGenerateContent -ApiKey $key -Model $model -Prompt $p -FilePaths @($files.ToArray())
+        $text = [string]$result.Text
+        Apply-GeminiReplyToForm $text
+        $outDir = Join-Path $script:WorkDir '輸出'
+        $utf8 = New-Object System.Text.UTF8Encoding $true
+        [IO.File]::WriteAllText((Join-Path $outDir ($sid + '-Gemini提示.txt')), $p, $utf8)
+        [IO.File]::WriteAllText((Join-Path $outDir ($sid + '-Gemini回覆.md')), $text, $utf8)
+        $status.Text = "Gemini 自動批完（$($result.Model)）｜已填入右側｜可再按「輸出此生PDF」"
+        [void][System.Windows.Forms.MessageBox]::Show(
+          "已自動批完座號 $sid（模型：$($result.Model)）。`n`n回覆已填入右側診斷欄，並存到：`n輸出\$sid-Gemini回覆.md`n`n請快速過目後按「輸出此生PDF」。",
+          'Gemini 自動批閱'
+        )
+      } catch {
+        $status.Text = 'Gemini 自動批閱失敗'
+        [void][System.Windows.Forms.MessageBox]::Show(
+          ("自動批閱失敗：`n" + $_.Exception.Message + "`n`n可改選「網頁批閱」手動貼檔，或檢查金鑰／網路。"),
+          '錯誤'
+        )
+      } finally {
+        $form.Cursor = [System.Windows.Forms.Cursors]::Default
+      }
+      return
+    }
+
     [System.Windows.Forms.Clipboard]::SetText($p)
-    # 另存一份提示到輸出，方便對照
     try {
       $sid = Get-StudentId $script:current.Name
       $tag = if ($useGemini) { 'Gemini提示' } else { 'Cursor提示' }
@@ -1623,10 +1897,10 @@ function Start-GradeCurrent {
     Start-Process -FilePath $script:current.FullName
     $ans = @(Get-AnswerFiles $script:WorkDir)
     foreach ($a in $ans) { Start-Process -FilePath $a.FullName }
-    if ($useGemini) {
+    if ($useGeminiWeb) {
       try { Start-Process 'https://gemini.google.com/app' } catch {}
       $toolName = 'Gemini'
-      $step1 = "1. 已開啟 Gemini 網頁（若沒開請到 https://gemini.google.com/app 並登入你的帳號）"
+      $step1 = "1. 已開啟 Gemini 網頁（若沒開請到 https://gemini.google.com/app）"
       $fileHint = "輸出\{座號}-Gemini提示.txt"
     } else {
       $toolName = 'Cursor'
@@ -1636,13 +1910,13 @@ function Start-GradeCurrent {
     if ($hw) {
       $status.Text = "已複製「手寫加強」提示｜請到 ${toolName}：貼上＋附上學生卷圖檔"
       [void][System.Windows.Forms.MessageBox]::Show(
-        ("【一定要做這 3 步，否則會批不出來】`n`n" + $step1 + "`n2. Ctrl+V 貼上提示（已在剪貼簿）`n3. 再把學生卷圖／PDF「附檔／上傳」加進去後送出`n`n只貼文字不附圖＝無法辨識手寫。`n可再附裁切放大的局部清晰圖。`n`n提示也已存到 " + $fileHint),
+        ("【一定要做這 3 步，否則會批不出來】`n`n" + $step1 + "`n2. Ctrl+V 貼上提示（已在剪貼簿）`n3. 再把學生卷圖／PDF「附檔／上傳」加進去後送出`n`n只貼文字不附圖＝無法辨識手寫。`n`n提示也已存到 " + $fileHint + "`n`n想免手動貼檔：選「Gemini 自動批閱」並設定 API 金鑰。"),
         ("手寫加強批閱（$toolName）")
       )
     } else {
       $status.Text = "已複製 $toolName 提示｜請到 ${toolName}：貼上＋附檔"
       [void][System.Windows.Forms.MessageBox]::Show(
-        ("【一定要做這 3 步】`n`n" + $step1 + "`n2. 貼上提示（Ctrl+V）`n3. 附上學生卷檔後送出`n`n若仍批不出：改選「$toolName 手寫加強批閱」再按一次「開始批此生」。"),
+        ("【一定要做這 3 步】`n`n" + $step1 + "`n2. 貼上提示（Ctrl+V）`n3. 附上學生卷檔後送出`n`n想免手動貼檔：選「Gemini 自動批閱（API）」並按「Gemini金鑰」。"),
         ("請 $toolName 批閱")
       )
     }
@@ -1704,11 +1978,15 @@ $btnWork.Add_Click({
       $script:WorkDir = $d.SelectedPath
       Ensure-WorkTree $script:WorkDir
       $script:settings = Load-Settings $script:WorkDir
-      if ($script:settings.mode -eq 'gemini_hw') { $cmbMode.SelectedIndex = 4 }
-      elseif ($script:settings.mode -eq 'gemini') { $cmbMode.SelectedIndex = 3 }
-      elseif ($script:settings.mode -eq 'cursor_hw') { $cmbMode.SelectedIndex = 2 }
-      elseif ($script:settings.mode -eq 'cursor') { $cmbMode.SelectedIndex = 1 }
-      else { $cmbMode.SelectedIndex = 0 }
+      switch ($script:settings.mode) {
+        'gemini_auto_hw' { $cmbMode.SelectedIndex = 4 }
+        'gemini_auto' { $cmbMode.SelectedIndex = 3 }
+        'gemini_hw' { $cmbMode.SelectedIndex = 6 }
+        'gemini' { $cmbMode.SelectedIndex = 5 }
+        'cursor_hw' { $cmbMode.SelectedIndex = 2 }
+        'cursor' { $cmbMode.SelectedIndex = 1 }
+        default { $cmbMode.SelectedIndex = 0 }
+      }
       Refresh-PathLabel
       Refresh-AnswerLabel
       Refresh-List
