@@ -100,6 +100,22 @@
         主要檔：<code>scripts/math-homework-grader-app.ps1</code>、<code>math_grade_make_note_pdf.py</code>、<code>install-math-homework-grader.ps1</code>、<code>README-math-homework-grader.md</code>。工作夾：標準答案、輸入、輸出、數位練習、練習回傳、練習歷程、列印專用、手寫匯入、認知輸入、重謄補充。暫緩成長圖／儀表板；需要時從本日誌接續。
       </div>
 
+      <h2>三｜供日後修正程式（務必對照）</h2>
+      <p>實際執行檔在桌面 <code>MathGradingApp\</code>（<code>習作批改.vbs</code> 啟動），工作夾 <code>Desktop\MathGrading\</code>。hello-world 的 <code>scripts\</code> 是安裝來源，重裝會覆蓋 App；改程式要兩邊同步，否則下次安裝會退回舊版。</p>
+      <ul>
+        <li><strong>課本寫法</strong>：提示詞與存檔都要國中直式（全形＋－＝、中間……、右邊①、分數 a／b）。禁止 <code>$$</code>、<code>\dfrac</code>、<code>\times</code>、<code>\cdots</code>。PowerShell <code>Convert-ToTextbookMath</code>、Python <code>to_textbook_math</code>、規則 <code>textbook-math-style.mdc</code>。</li>
+        <li><strong>多班＋多次考試</strong>：座號會重複。檔名／輸出詞幹為 <code>班級_考試_座號</code>（例 <code>101_小考第一次_00</code>）。開檔先讓 Gemini 掃卷面班級、考試、座號 00～35 再改名。輸入可分子夾 <code>輸入\701\</code>。勿對詞幹做 <code>int(sid)</code> 去對原卷 PDF。</li>
+        <li><strong>各班聯繫</strong>：<code>班級聯繫.txt</code>（<code>班級 = 發放群組 | 回傳方式</code>）。數位練習拆 <code>數位練習\{班級}\</code>；LINE 文案標明貼哪一班群。</li>
+        <li><strong>Gemini 寫入表單</strong>：回覆可能是 <code>### 1)</code> 不是 <code>^1)</code>；沒寫的題不要發明成「3 ?」。WinForms 多行框遇 Unix <code>\n</code> 會截斷（練習只剩標題）。要 <code>Convert-ToWinFormsText</code>、<code>Get-GeminiSection</code>、<code>Convert-GeminiMarksToLines</code>，註記框 <code>MaxLength = 0</code>。</li>
+        <li><strong>產出連動</strong>：改註記後 PDF、試卷含批閱、數位練習、LINE 包都要重產（<code>Save-Current</code> 呼叫 <code>Invoke-MakePdf -MergeOriginal -DigitalPack</code>）。原卷 PDF 被開啟時改寫 <code>*-試卷含批閱-新.pdf</code>。</li>
+        <li><strong>工具選擇視窗當掉</strong>：<code>找不到 Point 的超載…引數計數: 3</code>。PowerShell 把 <code>Point(16, $y + 8)</code> 拆成三參數；必須 <code>Point(16, ($y + 8))</code>。改腳本後要關掉批改視窗再開。</li>
+        <li><strong>說明.txt 被蓋</strong>：每次啟動 <code>Ensure-WorkTree</code> 會用 ps1 內範本覆寫工作夾說明，改說明要改腳本範本。</li>
+        <li><strong>機密</strong>：不要提交 <code>gemini-api-key.txt</code>、<code>.env</code>、<code>settings.json</code>（可含金鑰）。學生姓名不要進檔名與日誌。</li>
+      </ul>
+      <div class="callout">
+        工作倉：GitHub <code>copyshae/MathGrading</code>（私人，規則與工作說明）。執行程式目前主要在本機 <code>MathGradingApp</code>，修正時先改那裡再回寫 hello-world 安裝腳本。
+      </div>
+
       <p class="note">
         線上：
         <a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260803-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260803-learning-log.html</a>
