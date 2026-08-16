@@ -111,6 +111,7 @@
         <li><strong>工具選擇視窗當掉</strong>：<code>找不到 Point 的超載…引數計數: 3</code>。PowerShell 把 <code>Point(16, $y + 8)</code> 拆成三參數；必須 <code>Point(16, ($y + 8))</code>。改腳本後要關掉批改視窗再開。</li>
         <li><strong>說明.txt 被蓋</strong>：每次啟動 <code>Ensure-WorkTree</code> 會用 ps1 內範本覆寫工作夾說明，改說明要改腳本範本。</li>
         <li><strong>機密</strong>：不要提交 <code>gemini-api-key.txt</code>、<code>.env</code>、<code>settings.json</code>（可含金鑰）。學生姓名不要進檔名與日誌。</li>
+        <li><strong>各題配分</strong>：整班共用 <code>標準答案\配分表.txt</code>（格式 <code>題號 = 配分 | 附註</code>）。部分給分只依各題附註，不要另立規則。題號註記寫 <code>1 ✓ 10／10</code>、<code>2 ✗ 6／10 過程對</code>；註記抬頭 <code>計分：得分／滿分</code>。✓＝該題滿分；未寫部分分的 ✗／? 先 0。多次考試可另存 <code>考試名-配分表.txt</code>。視窗有「配分表」按鈕；改腳本後要重開習作批改。執行檔在 <code>MathGradingApp</code>，不是只改工作夾裡的註記。</li>
       </ul>
       <div class="callout">
         工作倉：GitHub <code>copyshae/MathGrading</code>（私人，規則與工作說明）。執行程式目前主要在本機 <code>MathGradingApp</code>，修正時先改那裡再回寫 hello-world 安裝腳本。
