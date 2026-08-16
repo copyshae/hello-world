@@ -7,7 +7,23 @@
 | **習作台.cmd** | 掌握程度／發送狀態／篩選／管道／LINE 文案／匯入匯出／掃描夾 |
 | **習作批改.vbs** | 載入答案、批閱、自產練習、數位發放循環 |
 
-## 一鍵安裝
+## 另一台電腦也有 Cursor
+
+1. 同一 Cursor 帳號登入（帶回 User Rules）。
+2. Cursor 開啟 `桌面\hello-world`（沒有就 clone `https://github.com/copyshae/hello-world.git`）。
+3. 對 Agent 說：**裝習作台和習作批改**。  
+   或在終端機執行：
+
+```powershell
+irm https://raw.githubusercontent.com/copyshae/hello-world/master/scripts/bootstrap-desktop-apps.ps1 | iex
+```
+
+4. 雙擊桌面 **習作台.cmd**、**習作批改.vbs**。  
+5. 金鑰從密碼管理器放到 `桌面\MathGrading\gemini-api-key.txt`，不要 git。
+
+線上步驟：https://copyshae.github.io/hello-world/directory/apps/desktop-install.html
+
+## 一鍵安裝（已有倉庫）
 
 ```powershell
 cd $env:USERPROFILE\Desktop\hello-world

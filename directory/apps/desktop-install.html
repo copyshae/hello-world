@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>換機安裝｜習作台＋習作批改</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#1a1f1c; --paper:#e8efe6; --accent:#2d6a4f; --muted:#4a5c52; --line:rgba(45,106,79,.2); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      min-height:100vh; font-family:"DM Sans",sans-serif; color:var(--ink); line-height:1.7;
+      background: radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149,213,178,.35), transparent 55%),
+        linear-gradient(160deg,#f4faf6 0%,var(--paper) 50%,#d8e8dc 100%);
+    }
+    .wrap { max-width:46rem; margin:0 auto; padding:2rem 1.35rem 4rem; }
+    .nav { display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; font-size:.95rem; }
+    .nav a { color:var(--accent); text-decoration:none; font-weight:500; }
+    article { background:rgba(255,255,255,.55); border:1px solid var(--line); padding:1.75rem 1.5rem 2.5rem; }
+    h1 { font-family:"Instrument Serif",Georgia,serif; font-size:clamp(1.45rem,4.5vw,2rem); font-weight:400; color:var(--accent); line-height:1.35; margin-bottom:.75rem; }
+    .lead { color:var(--muted); margin-bottom:1.5rem; }
+    h2 { font-family:"Instrument Serif",Georgia,serif; font-size:1.25rem; font-weight:400; color:var(--accent); margin:1.5rem 0 .7rem; padding-top:.7rem; border-top:1px solid var(--line); }
+    ol, ul { margin:.4rem 0 .8rem 1.3rem; }
+    li { margin:.3rem 0; }
+    code, pre { font-size:.9em; background:rgba(45,106,79,.1); }
+    code { padding:.1em .35em; }
+    pre { padding:.85rem 1rem; overflow:auto; margin:.6rem 0 1rem; white-space:pre-wrap; }
+    .callout { margin:1rem 0; padding:.85rem 1rem; border-left:3px solid var(--accent); background:rgba(45,106,79,.08); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+    </nav>
+    <article>
+      <h1>另一台電腦（也有 Cursor）安裝兩個視窗</h1>
+      <p class="lead">生成桌面「習作台」與「習作批改」。程式來自 GitHub，不是只複製捷徑。</p>
+
+      <h2>在 Cursor 裡做</h2>
+      <ol>
+        <li>同一 Cursor 帳號登入（帶回 User Rules）。</li>
+        <li>開資料夾 <code>%USERPROFILE%\Desktop\hello-world</code>。沒有就先 clone。</li>
+        <li>對 Agent 說：<strong>裝習作台和習作批改</strong>。</li>
+        <li>雙擊桌面 <strong>習作台.cmd</strong>、<strong>習作批改.vbs</strong>。</li>
+      </ol>
+
+      <h2>或在 PowerShell 貼一次</h2>
+      <pre>irm https://raw.githubusercontent.com/copyshae/hello-world/master/scripts/bootstrap-desktop-apps.ps1 | iex</pre>
+      <p>已有倉庫時：</p>
+      <pre>cd $env:USERPROFILE\Desktop\hello-world
+git pull origin master
+powershell -ExecutionPolicy Bypass -File .\scripts\install-desktop-apps.ps1</pre>
+
+      <div class="callout">
+        金鑰用密碼管理器還原到 <code>桌面\MathGrading\gemini-api-key.txt</code>，不要放進 Git。產 PDF 需 Python：<code>pip install pypdf reportlab</code>。
+      </div>
+    </article>
+  </div>
+</body>
+</html>

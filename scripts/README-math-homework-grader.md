@@ -70,6 +70,8 @@ Desktop\MathGrading\
 
 ## 安裝
 
+另一台也有 Cursor：開 `桌面\hello-world`，對 Agent 說 **裝習作台和習作批改**（兩個視窗一起生成）。只要批改：
+
 ```powershell
 cd $env:USERPROFILE\Desktop\hello-world
 git pull origin master

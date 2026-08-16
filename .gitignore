@@ -1,0 +1,9 @@
+# 本機機密與金鑰（換機用密碼管理器還原，不要推遠端）
+.env
+.env.*
+auth.json
+gemini-api-key.txt
+**/gemini-api-key.txt
+*.pem
+token.json
+secrets.json

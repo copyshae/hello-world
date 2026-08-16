@@ -1,0 +1,10 @@
+---
+description: 換機／本機安裝桌面「習作台」與「習作批改」視窗
+alwaysApply: true
+---
+
+# 習作台＋習作批改（換機）
+
+使用者說 **裝習作台**、**裝習作批改**、**裝兩個視窗**、**換機裝視窗**、**另一台也裝習作台** 時，依 skill `install-desktop-apps` 執行。不限目前開啟哪個專案。
+
+另一台已有 Cursor：同一帳號登入 → clone `copyshae/hello-world` 到桌面 → 跑 `scripts/install-desktop-apps.ps1` 或 `scripts/bootstrap-desktop-apps.ps1`。金鑰用密碼管理器還原，不要進 Git。

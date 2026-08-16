@@ -26,8 +26,18 @@ New-Item -ItemType Directory -Force -Path $destSkillDir, $destRuleDir | Out-Null
 Copy-Item -LiteralPath $srcSkill -Destination (Join-Path $destSkillDir 'SKILL.md') -Force
 Copy-Item -LiteralPath $srcRule -Destination (Join-Path $destRuleDir 'push-learning-log.mdc') -Force
 
+$deskSkill = Join-Path $root '.cursor\skills\install-desktop-apps\SKILL.md'
+$deskRule = Join-Path $root '.cursor\rules\install-desktop-apps.mdc'
+if ((Test-Path -LiteralPath $deskSkill) -and (Test-Path -LiteralPath $deskRule)) {
+  $deskSkillDir = Join-Path $env:USERPROFILE '.cursor\skills\install-desktop-apps'
+  New-Item -ItemType Directory -Force -Path $deskSkillDir | Out-Null
+  Copy-Item -LiteralPath $deskSkill -Destination (Join-Path $deskSkillDir 'SKILL.md') -Force
+  Copy-Item -LiteralPath $deskRule -Destination (Join-Path $destRuleDir 'install-desktop-apps.mdc') -Force
+}
+
 Write-Host 'Installed for all Cursor projects on this PC:'
 Write-Host ("  skill: {0}\SKILL.md" -f $destSkillDir)
 Write-Host ("  rule:  {0}\push-learning-log.mdc" -f $destRuleDir)
 Write-Host ''
 Write-Host 'Reopen a Cursor chat, then type the shortcut: tui-ri-zhi'
+Write-Host 'Desktop apps shortcut: 裝習作台和習作批改'

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260817 學習日誌・另一台 Cursor 電腦安裝兩個視窗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+    </nav>
+    <article>
+      <h1>20260817 另一台 Cursor 電腦安裝兩個視窗</h1>
+      <p class="lead">換機不必從零做視窗：有 Cursor 就開 hello-world，說「裝習作台和習作批改」，桌面會生成兩個捷徑。</p>
+
+      <h2>一｜另一台怎麼做</h2>
+      <ol>
+        <li>同一 Cursor 帳號登入（帶回 User Rules）。</li>
+        <li>Clone <code>copyshae/hello-world</code> 到桌面（或已有就 <code>git pull origin master</code>）。</li>
+        <li>Cursor 開啟該資料夾，對 Agent 說：<strong>裝習作台和習作批改</strong>。</li>
+        <li>雙擊 <code>習作台.cmd</code>、<code>習作批改.vbs</code>。</li>
+        <li>金鑰用密碼管理器還原到 <code>MathGrading\gemini-api-key.txt</code>，不要進 Git。</li>
+      </ol>
+      <div class="callout">
+        尚未 clone 時，PowerShell 可貼：<code>irm https://raw.githubusercontent.com/copyshae/hello-world/master/scripts/bootstrap-desktop-apps.ps1 | iex</code>
+      </div>
+
+      <h2>二｜倉庫裡加了什麼</h2>
+      <ul>
+        <li><code>scripts/bootstrap-desktop-apps.ps1</code>：clone／pull 後呼叫一鍵安裝。</li>
+        <li><code>scripts/install-desktop-apps.ps1</code>：同時裝兩個視窗，並把快捷詞複製到 <code>%USERPROFILE%\.cursor\</code>。</li>
+        <li>skill／規則：<code>install-desktop-apps</code>；說明頁 <code>directory/apps/desktop-install.html</code>。</li>
+        <li><code>.gitignore</code>：排除 <code>.env</code>、金鑰、token。</li>
+      </ul>
+
+      <p class="note">
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260817-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260817-learning-log.html</a>
+        ｜步驟：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/desktop-install.html">https://copyshae.github.io/hello-world/directory/apps/desktop-install.html</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
