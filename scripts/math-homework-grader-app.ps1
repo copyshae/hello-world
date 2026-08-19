@@ -71,7 +71,7 @@ function Ensure-WorkTree([string]$root) {
       '================'
       ''
       '1. 檔名請改成座號，試發用 00.pdf／00.jpg（不要用 S__44097539 這種 LINE 檔名）'
-      '2. 批閱方式選「請 Gemini 自動批閱（API）」→ 開始批此生（免手動貼檔）'
+      '2. 批閱方式選「請 Gemini 自動批閱（API）」＝真正自動；「網頁批閱」仍要手動貼'
       '3. 首次按「Gemini金鑰」到 aistudio.google.com/apikey 貼上 key'
       '4. AI 會先給「手寫轉譯稿」＋「認知輸入清單」；看不清處標 ?'
       '5. 你把看懂的字寫進「認知輸入」：例如 05-Q3.txt 內容寫該題正確轉譯'
@@ -469,11 +469,21 @@ function Get-GeminiKeyPath([string]$root) {
   Join-Path $root 'gemini-api-key.txt'
 }
 
+function Normalize-GeminiApiKey([string]$key) {
+  if ([string]::IsNullOrWhiteSpace($key)) { return '' }
+  $k = $key.Trim()
+  $k = $k -replace '[\u200B-\u200D\uFEFF]', ''
+  $k = ($k -split "`r|`n")[0].Trim()
+  if ($k -match '^(?i)Bearer\s+(.+)$') { $k = $Matches[1].Trim() }
+  $k = $k.Trim('"', "'", ' ', "`t")
+  return $k
+}
+
 function Get-GeminiApiKey([string]$root) {
   $p = Get-GeminiKeyPath $root
   if (-not (Test-Path -LiteralPath $p)) { return '' }
   try {
-    $k = (Get-Content -LiteralPath $p -Encoding UTF8 -Raw).Trim()
+    $k = Normalize-GeminiApiKey ((Get-Content -LiteralPath $p -Encoding UTF8 -Raw))
     if ($k -match '^\s*#') { return '' }
     return $k
   } catch { return '' }
@@ -481,8 +491,47 @@ function Get-GeminiApiKey([string]$root) {
 
 function Save-GeminiApiKey([string]$root, [string]$key) {
   $p = Get-GeminiKeyPath $root
+  $k = Normalize-GeminiApiKey $key
   $utf8 = New-Object System.Text.UTF8Encoding $true
-  [IO.File]::WriteAllText($p, ($key.Trim() + "`r`n"), $utf8)
+  [IO.File]::WriteAllText($p, ($k + "`r`n"), $utf8)
+}
+
+function Test-GeminiApiKey([string]$ApiKey) {
+  $k = Normalize-GeminiApiKey $ApiKey
+  if ([string]::IsNullOrWhiteSpace($k)) { throw '金鑰空白' }
+  if ($k.Length -lt 20) { throw '金鑰太短，可能貼不完整。請重新從 aistudio.google.com/apikey 複製整串。' }
+  if ($k -notmatch '^AIza') {
+    throw '這不像 Google AI Studio 的 API 金鑰（通常以 AIza 開頭）。請勿貼 Gemini 網頁／訂閱相關文字。'
+  }
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+  $uri = "https://generativelanguage.googleapis.com/v1beta/models?key=$k&pageSize=5"
+  try {
+    $resp = Invoke-RestMethod -Method Get -Uri $uri -TimeoutSec 30
+  } catch {
+    $msg = [string]$_.Exception.Message
+    try { if ($_.Exception.InnerException) { $msg += ' | ' + $_.Exception.InnerException.Message } } catch {}
+    if ($msg -match '401|403|PERMISSION|API[_ ]?key|UNAUTHENTICATED|INVALID.*key|金鑰') {
+      throw ("金鑰無效或未開通。請到 aistudio.google.com/apikey 新建一把，整串複製後再貼。`n原始：$msg")
+    }
+    if ($msg -match '503|429|Unavailable|無法使用') {
+      throw ("Google 暫時忙碌（503／429）。金鑰格式可接受，請等 1～2 分鐘再測。`n原始：$msg")
+    }
+    throw ("測試金鑰失敗：$msg")
+  }
+  $names = @()
+  try {
+    foreach ($m in $resp.models) {
+      if ($m.name) { $names += ([string]$m.name -replace '^models/', '') }
+    }
+  } catch {}
+  if ($names.Count -eq 0) {
+    throw '金鑰能連上，但列不出模型。請確認此 Google 帳號已開通 Gemini API。'
+  }
+  return [pscustomobject]@{
+    Ok = $true
+    ModelCount = $names.Count
+    Sample = ($names | Select-Object -First 3) -join ', '
+  }
 }
 
 function Get-FileMimeType([string]$path) {
@@ -531,7 +580,10 @@ function Invoke-GeminiGenerateContent {
     [string[]]$FilePaths
   )
   if ([string]::IsNullOrWhiteSpace($ApiKey)) { throw '尚未設定 Gemini API 金鑰' }
-  if ([string]::IsNullOrWhiteSpace($Model)) { $Model = 'gemini-2.0-flash' }
+  # 預設務必用仍上線的模型（2.0-flash 已於 2026-06-01 下線 → 404）
+  if ([string]::IsNullOrWhiteSpace($Model) -or $Model -match 'gemini-2\.0|gemini-1\.5') {
+    $Model = 'gemini-2.5-flash'
+  }
 
   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
@@ -560,32 +612,63 @@ function Invoke-GeminiGenerateContent {
   $json = $ser.Serialize($payload)
   $bytes = [Text.Encoding]::UTF8.GetBytes($json)
 
-  $models = @($Model, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro') | Select-Object -Unique
+  # 依序嘗試；跳過已下線／404 的模型
+  $models = @(
+    $Model,
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-2.5-pro'
+  ) | Where-Object { $_ -and $_ -notmatch 'gemini-2\.0' } | Select-Object -Unique
+  $tried = New-Object System.Collections.ArrayList
   $lastErr = $null
   foreach ($m in $models) {
+    [void]$tried.Add($m)
     $uri = "https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=$ApiKey"
-    try {
-      $resp = Invoke-RestMethod -Method Post -Uri $uri -ContentType 'application/json; charset=utf-8' -Body $bytes -TimeoutSec 180
-      $text = ''
+    $attempt = 0
+    $maxAttempt = 3
+    while ($attempt -lt $maxAttempt) {
+      $attempt++
       try {
-        foreach ($c in $resp.candidates) {
-          foreach ($p in $c.content.parts) {
-            if ($p.text) { $text += [string]$p.text }
+        $resp = Invoke-RestMethod -Method Post -Uri $uri -ContentType 'application/json; charset=utf-8' -Body $bytes -TimeoutSec 180
+        $text = ''
+        try {
+          foreach ($c in $resp.candidates) {
+            foreach ($p in $c.content.parts) {
+              if ($p.text) { $text += [string]$p.text }
+            }
           }
+        } catch {}
+        if ([string]::IsNullOrWhiteSpace($text)) {
+          throw ("Gemini 沒有回傳文字（model=$m）。原始：" + ($resp | ConvertTo-Json -Depth 6 -Compress))
         }
-      } catch {}
-      if ([string]::IsNullOrWhiteSpace($text)) {
-        throw ("Gemini 沒有回傳文字（model=$m）。原始：" + ($resp | ConvertTo-Json -Depth 6 -Compress))
+        return [pscustomobject]@{ Text = $text; Model = $m }
+      } catch {
+        $lastErr = $_
+        $msg = [string]$_.Exception.Message
+        try {
+          if ($_.Exception.InnerException) { $msg += ' | ' + $_.Exception.InnerException.Message }
+        } catch {}
+        if ($msg -match '404|not found|NOT_FOUND|找不到|is not found|not supported|was not found') { break }
+        if ($msg -match 'API[_ ]?key|PERMISSION|401|403|INVALID_ARGUMENT.*key|金鑰') {
+          throw ("Gemini 金鑰無效或未開通。請按「Gemini金鑰」到 aistudio.google.com/apikey 重建。`n原始：" + $msg)
+        }
+        # 503／429／忙碌：同模型重試，再換下一個模型
+        if ($msg -match '503|429|Unavailable|無法使用|RESOURCE_EXHAUSTED|quota|rate|過載|暫時') {
+          if ($attempt -lt $maxAttempt) {
+            Start-Sleep -Seconds (2 * $attempt)
+            continue
+          }
+          break
+        }
+        if ($msg -match 'INVALID_ARGUMENT|unsupported|FAILED_PRECONDITION|400') { break }
+        throw
       }
-      return [pscustomobject]@{ Text = $text; Model = $m }
-    } catch {
-      $lastErr = $_
-      $msg = [string]$_.Exception.Message
-      if ($msg -match '404|not found|NOT_FOUND') { continue }
-      throw
     }
   }
-  throw $lastErr
+  $hint = "已嘗試模型：$([string]::Join(', ', $tried.ToArray()))`n若出現 503，多半是 Google 暫時忙碌，等 1～2 分鐘再按「Gemini自動批」。`n請用 gemini-2.5-flash（2.0-flash 已下線會 404）。"
+  if ($lastErr) { throw (($lastErr.Exception.Message) + "`n`n" + $hint) }
+  throw $hint
 }
 
 function Apply-GeminiReplyToForm([string]$text) {
@@ -623,56 +706,91 @@ function Show-GeminiKeyDialog {
   $has = -not [string]::IsNullOrWhiteSpace((Get-GeminiApiKey $script:WorkDir))
   $dlg = New-Object System.Windows.Forms.Form
   $dlg.Text = '設定 Gemini API 金鑰'
-  $dlg.Size = New-Object System.Drawing.Size(520, 260)
+  $dlg.Size = New-Object System.Drawing.Size(560, 300)
   $dlg.StartPosition = 'CenterParent'
   $dlg.Font = $font
   $lbl = New-Object System.Windows.Forms.Label
   $lbl.Location = New-Object System.Drawing.Point(12, 12)
-  $lbl.Size = New-Object System.Drawing.Size(480, 72)
-  $lbl.Text = "到 https://aistudio.google.com/apikey 用你的 Google 帳號建立 API key（免費額度通常夠試發）。`n貼上後存在本機 MathGrading\gemini-api-key.txt，不會上傳 GitHub。`n目前：" + $(if ($has) { '已有金鑰' } else { '尚未設定' })
+  $lbl.Size = New-Object System.Drawing.Size(520, 88)
+  $lbl.Text = "請到 https://aistudio.google.com/apikey 建立 API key（≠ Gemini 網頁訂閱）。`n整串複製後貼上（通常以 AIza 開頭）。存於本機 MathGrading\gemini-api-key.txt，不上傳 GitHub。`n換過金鑰後若批失敗：先按「測試金鑰」確認。`n目前：" + $(if ($has) { '已有金鑰（可覆蓋）' } else { '尚未設定' })
   $dlg.Controls.Add($lbl)
   $tb = New-Object System.Windows.Forms.TextBox
-  $tb.Location = New-Object System.Drawing.Point(12, 90)
-  $tb.Width = 480
+  $tb.Location = New-Object System.Drawing.Point(12, 108)
+  $tb.Width = 520
   $tb.UseSystemPasswordChar = $true
   if ($has) { $tb.Text = Get-GeminiApiKey $script:WorkDir }
   $dlg.Controls.Add($tb)
+  $btnTest = New-Object System.Windows.Forms.Button
+  $btnTest.Text = '測試金鑰'
+  $btnTest.Location = New-Object System.Drawing.Point(12, 150)
+  $btnTest.Size = New-Object System.Drawing.Size(110, 32)
+  $btnTest.Add_Click({
+      try {
+        $r = Test-GeminiApiKey $tb.Text
+        [void][System.Windows.Forms.MessageBox]::Show(
+          ("金鑰可用。`n可列出模型約 " + $r.ModelCount + " 個。`n例：" + $r.Sample),
+          '測試成功'
+        )
+      } catch {
+        [void][System.Windows.Forms.MessageBox]::Show([string]$_.Exception.Message, '測試失敗')
+      }
+    })
+  $dlg.Controls.Add($btnTest)
   $btnOk = New-Object System.Windows.Forms.Button
   $btnOk.Text = '儲存'
-  $btnOk.Location = New-Object System.Drawing.Point(300, 140)
-  $btnOk.DialogResult = 'OK'
+  $btnOk.Location = New-Object System.Drawing.Point(320, 150)
+  $btnOk.Size = New-Object System.Drawing.Size(100, 32)
+  $btnOk.DialogResult = 'None'
+  $btnOk.Add_Click({
+      $k = Normalize-GeminiApiKey $tb.Text
+      if ([string]::IsNullOrWhiteSpace($k)) {
+        [void][System.Windows.Forms.MessageBox]::Show('金鑰空白，未儲存', '提示')
+        return
+      }
+      try {
+        $null = Test-GeminiApiKey $k
+      } catch {
+        $ask = [System.Windows.Forms.MessageBox]::Show(
+          ("測試未通過：`n" + $_.Exception.Message + "`n`n仍要強制儲存嗎？（通常不建議）"),
+          '金鑰測試',
+          [System.Windows.Forms.MessageBoxButtons]::YesNo,
+          [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+        if ($ask -ne [System.Windows.Forms.DialogResult]::Yes) { return }
+      }
+      Save-GeminiApiKey $script:WorkDir $k
+      $script:settings | Add-Member -NotePropertyName geminiModel -NotePropertyValue 'gemini-2.5-flash' -Force
+      Save-Settings $script:WorkDir $script:settings
+      [void][System.Windows.Forms.MessageBox]::Show('已儲存 Gemini API 金鑰。可再按「Gemini自動批」。', '完成')
+      $dlg.DialogResult = 'OK'
+      $dlg.Close()
+    })
   $dlg.Controls.Add($btnOk)
   $btnOpen = New-Object System.Windows.Forms.Button
   $btnOpen.Text = '開啟申請頁'
-  $btnOpen.Location = New-Object System.Drawing.Point(12, 140)
-  $btnOpen.Size = New-Object System.Drawing.Size(120, 28)
+  $btnOpen.Location = New-Object System.Drawing.Point(140, 150)
+  $btnOpen.Size = New-Object System.Drawing.Size(120, 32)
   $btnOpen.Add_Click({ Start-Process 'https://aistudio.google.com/apikey' })
   $dlg.Controls.Add($btnOpen)
-  $dlg.AcceptButton = $btnOk
-  if ($dlg.ShowDialog() -eq 'OK') {
-    $k = $tb.Text.Trim()
-    if ([string]::IsNullOrWhiteSpace($k)) {
-      [void][System.Windows.Forms.MessageBox]::Show('金鑰空白，未儲存', '提示')
-      return $false
-    }
-    Save-GeminiApiKey $script:WorkDir $k
-    $script:settings | Add-Member -NotePropertyName geminiModel -NotePropertyValue 'gemini-2.0-flash' -Force
-    Save-Settings $script:WorkDir $script:settings
-    [void][System.Windows.Forms.MessageBox]::Show('已儲存 Gemini API 金鑰。選「請 Gemini 自動批閱」即可免手動貼檔。', '完成')
-    return $true
-  }
-  return $false
+  $btnCancel = New-Object System.Windows.Forms.Button
+  $btnCancel.Text = '關閉'
+  $btnCancel.Location = New-Object System.Drawing.Point(440, 150)
+  $btnCancel.Size = New-Object System.Drawing.Size(90, 32)
+  $btnCancel.DialogResult = 'Cancel'
+  $dlg.Controls.Add($btnCancel)
+  $dlg.CancelButton = $btnCancel
+  return ($dlg.ShowDialog() -eq 'OK')
 }
 
 function Load-Settings([string]$root) {
   $p = Get-SettingsPath $root
   $defaults = [pscustomobject]@{
-    mode = 'manual'
+    mode = 'gemini_auto'
     answerHint = ''
     preferredSend = '未指定（日後再選）'
     preferredReturn = '未指定（日後再選）'
     tabletImportDir = ''
-    geminiModel = 'gemini-2.0-flash'
+    geminiModel = 'gemini-2.5-flash'
     tools = [pscustomobject]@{
       line_group = $true
       line_dm    = $true
@@ -693,8 +811,11 @@ function Load-Settings([string]$root) {
       if ($null -eq $s.PSObject.Properties['tabletImportDir']) {
         $s | Add-Member -NotePropertyName tabletImportDir -NotePropertyValue '' -Force
       }
-      if ($null -eq $s.PSObject.Properties['geminiModel']) {
+      if ($null -eq $s.PSObject.Properties['geminiModel'] -or [string]::IsNullOrWhiteSpace([string]$s.geminiModel) -or [string]$s.geminiModel -match 'gemini-2\.0') {
         $s | Add-Member -NotePropertyName geminiModel -NotePropertyValue $defaults.geminiModel -Force
+      }
+      if ($null -eq $s.PSObject.Properties['mode'] -or [string]::IsNullOrWhiteSpace([string]$s.mode)) {
+        $s | Add-Member -NotePropertyName mode -NotePropertyValue 'gemini_auto' -Force
       }
       return $s
     } catch {}
@@ -1404,7 +1525,15 @@ function Build-CursorPromptOne([string]$root, $studentFile, [switch]$Handwriting
     [void]$sb.AppendLine('F. 最後給「老師認知輸入清單」：要我補哪幾格文字／是否建議學生重謄。')
     [void]$sb.AppendLine('G. 程度判定：若 ? 太多，程度可寫「待判定」，並說明待認知後再定。')
   } else {
-    [void]$sb.AppendLine('規則：以我提供的正確答案為準；接受合理等價解法；看不懂標 ? 存疑（供我人工確認／重謄）。')
+    if ($ansFiles.Count -gt 0) {
+      [void]$sb.AppendLine('【模式｜對照正確答案】')
+      [void]$sb.AppendLine('規則：必須以我一併提供的「正確答案」檔為批改依據；學生卷與答案不一致才可判 ✗。')
+      [void]$sb.AppendLine('接受合理等價解法；看不懂標 ? 存疑（供我人工確認／重謄）。禁止忽略答案自行另立標準。')
+    } else {
+      [void]$sb.AppendLine('【模式｜直接 AI 批閱（無標準答案檔）】')
+      [void]$sb.AppendLine('規則：未附正確答案檔；請依題意與數學正確性直接批改（合理等價解法給 ✓）。')
+      [void]$sb.AppendLine('看不懂標 ? 存疑；字跡潦草寧可多標 ?，不要猜錯。')
+    }
     [void]$sb.AppendLine('若字跡潦草：寧可多標 ?，不要猜錯；可先給看得懂題目的診斷與練習。')
   }
   [void]$sb.AppendLine('請務必輸出：')
@@ -1436,7 +1565,7 @@ function Build-CursorPromptOne([string]$root, $studentFile, [switch]$Handwriting
   [void]$sb.AppendLine('學生試卷：' + $studentFile.FullName)
   [void]$sb.AppendLine('正確答案檔：')
   if ($ansFiles.Count -eq 0) {
-    [void]$sb.AppendLine(' （尚未放入標準答案，請老師一併上傳答案）')
+    [void]$sb.AppendLine(' （無｜採直接 AI 批閱）')
   } else {
     foreach ($a in $ansFiles) { [void]$sb.AppendLine(' - ' + $a.FullName) }
   }
@@ -1453,14 +1582,14 @@ $font = New-Object System.Drawing.Font('Microsoft JhengHei UI', 12)
 $fontBig = New-Object System.Drawing.Font('Microsoft JhengHei UI', 15, [System.Drawing.FontStyle]::Bold)
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text = '數學習作批改（一人一檔｜Cursor／Gemini／自己對照）'
-$form.Size = New-Object System.Drawing.Size(1000, 780)
+$form.Text = '數學習作批改（Gemini 自動批｜對照答案或直接 AI｜一人一檔）'
+$form.Size = New-Object System.Drawing.Size(1060, 780)
 $form.StartPosition = 'CenterScreen'
 $form.Font = $font
 $form.BackColor = [System.Drawing.Color]::FromArgb(245, 248, 244)
 
 $lbl = New-Object System.Windows.Forms.Label
-$lbl.Text = '建議：先載入正確答案 → 再一檔一檔批（自己對照／Cursor／Gemini）'
+$lbl.Text = 'Gemini 自動批：有正確答案就對照；沒有就直接 AI 批（都自動處理）'
 $lbl.Font = $fontBig
 $lbl.ForeColor = [System.Drawing.Color]::FromArgb(20, 70, 50)
 $lbl.Location = New-Object System.Drawing.Point(16, 10)
@@ -1468,7 +1597,7 @@ $lbl.Size = New-Object System.Drawing.Size(960, 28)
 
 # --- 開始區：答案＋模式 ---
 $grpStart = New-Object System.Windows.Forms.GroupBox
-$grpStart.Text = '① 開始：正確答案與批閱方式'
+$grpStart.Text = '① 開始：正確答案（可選）與批閱方式'
 $grpStart.Location = New-Object System.Drawing.Point(16, 42)
 $grpStart.Size = New-Object System.Drawing.Size(950, 88)
 
@@ -1483,13 +1612,15 @@ $cmbMode.Items.AddRange(@(
     '自己對照批（開啟答案＋學生卷）',
     '請 Cursor 直接批閱（複製提示並開檔）',
     '請 Cursor 手寫加強批閱（難辨／潦草）',
-    '請 Gemini 自動批閱（API，免手動貼檔）',
+    '請 Gemini 自動批閱（API＝真正自動）',
     '請 Gemini 自動手寫加強（API）',
-    '請 Gemini 網頁批閱（手動貼檔）',
-    '請 Gemini 網頁手寫加強（手動）'
+    '請 Gemini 網頁批閱（要手動貼，非自動）',
+    '請 Gemini 網頁手寫加強（要手動貼）'
   ))
 $cmbMode.Location = New-Object System.Drawing.Point(12, 52)
 $cmbMode.Size = New-Object System.Drawing.Size(480, 28)
+# 預設：Gemini API 自動批閱（最後用 Gemini）
+if (-not $script:settings.mode) { $script:settings.mode = 'gemini_auto' }
 switch ($script:settings.mode) {
   'gemini_auto_hw' { $cmbMode.SelectedIndex = 4 }
   'gemini_auto' { $cmbMode.SelectedIndex = 3 }
@@ -1497,18 +1628,19 @@ switch ($script:settings.mode) {
   'gemini' { $cmbMode.SelectedIndex = 5 }
   'cursor_hw' { $cmbMode.SelectedIndex = 2 }
   'cursor' { $cmbMode.SelectedIndex = 1 }
-  default { $cmbMode.SelectedIndex = 0 }
+  'manual' { $cmbMode.SelectedIndex = 0 }
+  default { $cmbMode.SelectedIndex = 3 }
 }
 $grpStart.Controls.Add($cmbMode)
 
 function Refresh-AnswerLabel {
   $files = @(Get-AnswerFiles $script:WorkDir)
   if ($files.Count -eq 0) {
-    $lblAns.Text = '正確答案：尚未載入（請先「載入正確答案」）'
-    $lblAns.ForeColor = [System.Drawing.Color]::DarkRed
+    $lblAns.Text = '正確答案：尚未載入（可選｜沒有也能「直接 AI 批」）'
+    $lblAns.ForeColor = [System.Drawing.Color]::FromArgb(120, 80, 20)
   } else {
     $names = ($files | ForEach-Object { $_.Name }) -join '、'
-    $lblAns.Text = "正確答案：已載入 $($files.Count) 個｜$names"
+    $lblAns.Text = "正確答案：已載入 $($files.Count) 個｜對照批｜$names"
     $lblAns.ForeColor = [System.Drawing.Color]::FromArgb(20, 70, 50)
   }
 }
@@ -1681,21 +1813,51 @@ $grp.Controls.Add($txtPractice)
 $status = New-Object System.Windows.Forms.Label
 $status.Location = New-Object System.Drawing.Point(16, 648)
 $status.Size = New-Object System.Drawing.Size(950, 40)
-$status.Text = '請先「載入正確答案」，再選批閱方式'
+$status.Text = '可載入正確答案（對照批）或直接按 Gemini 自動批（預設）'
 
 $script:files = @()
 $script:current = $null
+# 連續自動批：成功後不跳確認窗，直接下一位
+$script:SilentAutoContinue = $false
+$script:AutoBatchDone = 0
 
 function Refresh-PathLabel {
   $lblPath.Text = '工作資料夾：' + $script:WorkDir + '　　（輸入＝學生卷｜輸出＝註記PDF）'
 }
 
 function Ensure-AnswerOrWarn {
+  param(
+    # 自動批：答案可選；只提示是否要載入，選「否」仍可直接 AI 批
+    [switch]$OfferForAuto
+  )
   $files = @(Get-AnswerFiles $script:WorkDir)
   if ($files.Count -eq 0) {
+    if ($OfferForAuto) {
+      # 連續／靜默模式不打斷：直接 AI 批
+      if ($script:SilentAutoContinue) { return $true }
+      $ask = [System.Windows.Forms.MessageBox]::Show(
+        "尚未載入正確答案。`n`n「是」＝現在載入（對照批）`n「否」＝直接用 Gemini AI 批（無答案檔）",
+        '對照答案 或 直接 AI 批',
+        [System.Windows.Forms.MessageBoxButtons]::YesNo,
+        [System.Windows.Forms.MessageBoxIcon]::Question
+      )
+      if ($ask -ne 'Yes') { return $true }
+      $ofd = New-Object System.Windows.Forms.OpenFileDialog
+      $ofd.Title = '選擇正確答案（可多選）'
+      $ofd.Filter = '答案檔|*.pdf;*.png;*.jpg;*.jpeg;*.txt;*.md|所有檔|*.*'
+      $ofd.Multiselect = $true
+      if ($ofd.ShowDialog() -ne 'OK') { return $true }
+      $dest = Join-Path $script:WorkDir '標準答案'
+      New-Item -ItemType Directory -Force -Path $dest | Out-Null
+      foreach ($f in $ofd.FileNames) {
+        Copy-Item -LiteralPath $f -Destination (Join-Path $dest ([IO.Path]::GetFileName($f))) -Force
+      }
+      Refresh-AnswerLabel
+      return $true
+    }
     $r = [System.Windows.Forms.MessageBox]::Show(
-      "尚未載入正確答案。`n建議先載入以便比對。`n仍要繼續嗎？",
-      '正確答案',
+      "尚未載入正確答案。`n建議先載入以便比對；沒有也可繼續（自行對照／AI 直接批）。`n仍要繼續嗎？",
+      '正確答案（可選）',
       [System.Windows.Forms.MessageBoxButtons]::YesNo,
       [System.Windows.Forms.MessageBoxIcon]::Warning
     )
@@ -1758,7 +1920,14 @@ function Start-GradeCurrent {
     [void][System.Windows.Forms.MessageBox]::Show('請先選左側一位學生', '提示')
     return
   }
-  if (-not (Ensure-AnswerOrWarn)) { return }
+  # Gemini 自動批：答案可選；其他模式仍提醒
+  $preIdx = $cmbMode.SelectedIndex
+  $willGeminiAuto = ($preIdx -eq 3 -or $preIdx -eq 4)
+  if ($willGeminiAuto) {
+    if (-not (Ensure-AnswerOrWarn -OfferForAuto)) { return }
+  } else {
+    if (-not (Ensure-AnswerOrWarn)) { return }
+  }
 
   $id = Get-StudentId $script:current.Name
   if ($id -notmatch '^\d{1,2}$' -or $script:current.Name -match '^S__') {
@@ -1830,9 +1999,23 @@ function Start-GradeCurrent {
       }
     }
 
+    $ansList = @(Get-AnswerFiles $script:WorkDir)
+    $hasAns = ($ansList.Count -gt 0)
     $p = Build-CursorPromptOne $script:WorkDir $script:current -HandwritingHard:$hw
     if ($useGemini) {
-      $p = "（請用 Google Gemini 批閱。學生試卷與標準答案檔已一併提供；請依檔案內容批改，不要要求我再貼檔。）`r`n`r`n" + $p
+      if ($hasAns) {
+        $p = ("【任務】你是數學老師助理，用 Google Gemini 自動批閱。`r`n" +
+          "【模式】對照正確答案`r`n" +
+          "【已附檔】1) 學生試卷 2) 正確答案（可能多檔）。`r`n" +
+          "【必做】先看正確答案，再對學生卷逐題判 ✓／✗／?；以答案為準，等價解法可給 ✓。`r`n" +
+          "【禁止】不要要我再貼檔；不要忽略正確答案自行出標準。`r`n`r`n") + $p
+      } else {
+        $p = ("【任務】你是數學老師助理，用 Google Gemini 自動批閱。`r`n" +
+          "【模式】直接 AI 批閱（未附正確答案檔）`r`n" +
+          "【已附檔】學生試卷。`r`n" +
+          "【必做】依題意與數學正確性逐題判 ✓／✗／?；等價解法可給 ✓；看不清標 ?。`r`n" +
+          "【禁止】不要要我再貼檔。`r`n`r`n") + $p
+      }
     }
 
     if ($useGeminiAuto) {
@@ -1843,41 +2026,81 @@ function Start-GradeCurrent {
           '需要 Gemini 金鑰',
           [System.Windows.Forms.MessageBoxButtons]::YesNo
         )
-        if ($ask -ne 'Yes') { return }
-        if (-not (Show-GeminiKeyDialog)) { return }
+        if ($ask -ne 'Yes') { $script:SilentAutoContinue = $false; $script:AutoBatchDone = 0; return }
+        if (-not (Show-GeminiKeyDialog)) { $script:SilentAutoContinue = $false; $script:AutoBatchDone = 0; return }
         $key = Get-GeminiApiKey $script:WorkDir
-        if ([string]::IsNullOrWhiteSpace($key)) { return }
+        if ([string]::IsNullOrWhiteSpace($key)) { $script:SilentAutoContinue = $false; $script:AutoBatchDone = 0; return }
       }
 
       $sid = Get-StudentId $script:current.Name
       $files = New-Object System.Collections.ArrayList
       [void]$files.Add($script:current.FullName)
-      foreach ($a in @(Get-AnswerFiles $script:WorkDir | Select-Object -First 4)) {
+      # 有正確答案就全部附上；沒有就純 AI 直接批
+      foreach ($a in $ansList) {
         [void]$files.Add($a.FullName)
       }
 
-      $status.Text = "Gemini 自動批閱中（座號 $sid）…請稍候"
+      $modeLabel = if ($hasAns) { "對照答案 $($ansList.Count) 檔" } else { '直接 AI 批' }
+      $status.Text = "Gemini 自動批閱中（座號 $sid｜$modeLabel）…"
       $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
       [System.Windows.Forms.Application]::DoEvents()
       try {
-        $model = 'gemini-2.0-flash'
-        try { if ($script:settings.geminiModel) { $model = [string]$script:settings.geminiModel } } catch {}
+        $model = 'gemini-2.5-flash'
+        try {
+          if ($script:settings.geminiModel) {
+            $cand = [string]$script:settings.geminiModel
+            if ($cand -and $cand -notmatch 'gemini-2\.0|gemini-1\.5') { $model = $cand }
+          }
+        } catch {}
         $result = Invoke-GeminiGenerateContent -ApiKey $key -Model $model -Prompt $p -FilePaths @($files.ToArray())
         $text = [string]$result.Text
         Apply-GeminiReplyToForm $text
         $outDir = Join-Path $script:WorkDir '輸出'
+        New-Item -ItemType Directory -Force -Path $outDir | Out-Null
         $utf8 = New-Object System.Text.UTF8Encoding $true
         [IO.File]::WriteAllText((Join-Path $outDir ($sid + '-Gemini提示.txt')), $p, $utf8)
         [IO.File]::WriteAllText((Join-Path $outDir ($sid + '-Gemini回覆.md')), $text, $utf8)
-        $status.Text = "Gemini 自動批完（$($result.Model)）｜已填入右側｜可再按「輸出此生PDF」"
-        [void][System.Windows.Forms.MessageBox]::Show(
-          "已自動批完座號 $sid（模型：$($result.Model)）。`n`n回覆已填入右側診斷欄，並存到：`n輸出\$sid-Gemini回覆.md`n`n請快速過目後按「輸出此生PDF」。",
-          'Gemini 自動批閱'
-        )
+        # 自動寫入註記並嘗試產 PDF（老師仍可再改）
+        $saved = $false
+        try { $saved = [bool](Save-Current) } catch { $saved = $false }
+        if ($script:SilentAutoContinue) { $script:AutoBatchDone++ }
+        $status.Text = "Gemini 已自動批完（$($result.Model)）｜$modeLabel｜座號 $sid｜註記已寫入"
+        $extra = if ($saved) { "`n已自動輸出此生 PDF／註記。" } else { "`n請再按「輸出此生PDF」確認。" }
+
+        if ($script:SilentAutoContinue) {
+          # 連續模式：不跳確認，直接下一位未批
+          $form.Cursor = [System.Windows.Forms.Cursors]::Default
+          Select-NextUngraded -Quiet
+          if ($script:current) {
+            Start-GradeCurrent
+          } else {
+            $n = $script:AutoBatchDone
+            $script:SilentAutoContinue = $false
+            $script:AutoBatchDone = 0
+            $status.Text = "連續自動批完成｜共 $n 份（Gemini）"
+            [void][System.Windows.Forms.MessageBox]::Show(
+              ("連續自動批完成。`n已用 Gemini 自動處理 $n 份。`n`n請抽查「輸出」夾的註記／PDF。"),
+              '連續自動批完成'
+            )
+          }
+        } else {
+          $ansHint = if ($hasAns) { "答案檔：$($ansList.Count) 個｜對照批" } else { '模式：直接 AI 批（無答案檔）' }
+          $next = [System.Windows.Forms.MessageBox]::Show(
+            ("已自動批完座號 $sid（模型：$($result.Model)）。`n$ansHint`n回覆：輸出\$sid-Gemini回覆.md" + $extra + "`n`n要繼續自動批「下一位未批」嗎？"),
+            'Gemini 自動批閱',
+            [System.Windows.Forms.MessageBoxButtons]::YesNo
+          )
+          if ($next -eq 'Yes') {
+            Select-NextUngraded -Quiet
+            if ($script:current) { Start-GradeCurrent }
+          }
+        }
       } catch {
+        $script:SilentAutoContinue = $false
+        $script:AutoBatchDone = 0
         $status.Text = 'Gemini 自動批閱失敗'
         [void][System.Windows.Forms.MessageBox]::Show(
-          ("自動批閱失敗：`n" + $_.Exception.Message + "`n`n可改選「網頁批閱」手動貼檔，或檢查金鑰／網路。"),
+          ("自動批閱失敗：`n" + $_.Exception.Message + "`n`n請確認：Gemini 金鑰有效、網路正常。`n若是 503，等 1～2 分鐘再按一次「Gemini自動批」。"),
           '錯誤'
         )
       } finally {
@@ -1951,6 +2174,7 @@ function Save-Current {
 }
 
 function Select-NextUngraded {
+  param([switch]$Quiet)
   Refresh-List
   for ($i = 0; $i -lt $script:files.Count; $i++) {
     $id = Get-StudentId $script:files[$i].Name
@@ -1958,12 +2182,15 @@ function Select-NextUngraded {
     if (-not (Test-Path -LiteralPath $note)) {
       $list.SelectedIndex = $i
       Load-Selected
-      Start-GradeCurrent
       $status.Text = "下一位未批：座號 $id"
-      return
+      return $true
     }
   }
-  [void][System.Windows.Forms.MessageBox]::Show("全員都有註記了。`n可按「產生全班存疑清單」處理看不懂的地方。", '完成')
+  $script:current = $null
+  if (-not $Quiet) {
+    [void][System.Windows.Forms.MessageBox]::Show("全員都有註記了。`n可按「產生全班存疑清單」處理看不懂的地方。", '完成')
+  }
+  return $false
 }
 
 $y1 = 520
@@ -2012,13 +2239,19 @@ $btnOpenOut.Size = New-Object System.Drawing.Size(90, 36)
 $btnOpenOut.Add_Click({ Start-Process explorer.exe (Join-Path $script:WorkDir '輸出') })
 
 $btnGrade = New-Object System.Windows.Forms.Button
-$btnGrade.Text = '開始批此生'
+$btnGrade.Text = 'Gemini自動批'
 $btnGrade.Location = New-Object System.Drawing.Point(356, $y1)
 $btnGrade.Size = New-Object System.Drawing.Size(120, 36)
 $btnGrade.BackColor = [System.Drawing.Color]::FromArgb(40, 90, 140)
 $btnGrade.ForeColor = [System.Drawing.Color]::White
 $btnGrade.FlatStyle = 'Flat'
-$btnGrade.Add_Click({ Start-GradeCurrent })
+$btnGrade.Add_Click({
+  # 一鍵：強制 Gemini API 自動（有答案對照／無答案直接 AI）
+  if ($cmbMode.SelectedIndex -lt 3 -or $cmbMode.SelectedIndex -gt 4) {
+    $cmbMode.SelectedIndex = 3
+  }
+  Start-GradeCurrent
+})
 
 $btnSave = New-Object System.Windows.Forms.Button
 $btnSave.Text = '輸出此生PDF'
@@ -2032,13 +2265,61 @@ $btnSave.Add_Click({ [void](Save-Current) })
 $btnNext = New-Object System.Windows.Forms.Button
 $btnNext.Text = '下一位未批'
 $btnNext.Location = New-Object System.Drawing.Point(626, $y1)
-$btnNext.Size = New-Object System.Drawing.Size(120, 36)
+$btnNext.Size = New-Object System.Drawing.Size(100, 36)
 $btnNext.Add_Click({ Select-NextUngraded })
+
+$btnAutoAll = New-Object System.Windows.Forms.Button
+$btnAutoAll.Text = '連續自動批'
+$btnAutoAll.Location = New-Object System.Drawing.Point(736, $y1)
+$btnAutoAll.Size = New-Object System.Drawing.Size(110, 36)
+$btnAutoAll.BackColor = [System.Drawing.Color]::FromArgb(45, 106, 79)
+$btnAutoAll.ForeColor = [System.Drawing.Color]::White
+$btnAutoAll.FlatStyle = 'Flat'
+$btnAutoAll.Add_Click({
+  # Gemini API 連續自動批：有答案就對照，沒有就直接 AI
+  $cmbMode.SelectedIndex = 3
+  [void](Ensure-AnswerOrWarn -OfferForAuto)
+  $key = Get-GeminiApiKey $script:WorkDir
+  if ([string]::IsNullOrWhiteSpace($key)) {
+    $askKey = [System.Windows.Forms.MessageBox]::Show(
+      "連續自動批需要 Gemini API 金鑰。`n`n現在設定嗎？",
+      '需要 Gemini 金鑰',
+      [System.Windows.Forms.MessageBoxButtons]::YesNo
+    )
+    if ($askKey -ne 'Yes') { return }
+    if (-not (Show-GeminiKeyDialog)) { return }
+  }
+  # 若目前這份已有註記，跳到下一位未批
+  if ($script:current) {
+    $curId = Get-StudentId $script:current.Name
+    $curNote = Get-NotePath $script:WorkDir $curId
+    if (Test-Path -LiteralPath $curNote) { [void](Select-NextUngraded -Quiet) }
+  } else {
+    [void](Select-NextUngraded -Quiet)
+  }
+  if (-not $script:current) {
+    [void][System.Windows.Forms.MessageBox]::Show('沒有未批學生（請把試卷放入「輸入」夾）。', '提示')
+    return
+  }
+  $ansN = @(Get-AnswerFiles $script:WorkDir).Count
+  $modeHint = if ($ansN -gt 0) { "有正確答案 $ansN 檔 → 對照批" } else { '無正確答案 → 直接 AI 批' }
+  $confirm = [System.Windows.Forms.MessageBox]::Show(
+    ("將用 Gemini 連續自動批所有未批學生。`n$modeHint`n`n每份成功會自動存註記／PDF，再處理下一位。`n中途失敗會停下。`n`n開始？"),
+    '連續自動批',
+    [System.Windows.Forms.MessageBoxButtons]::YesNo,
+    [System.Windows.Forms.MessageBoxIcon]::Question
+  )
+  if ($confirm -ne 'Yes') { return }
+  $script:SilentAutoContinue = $true
+  $script:AutoBatchDone = 0
+  $status.Text = "連續自動批開始｜Gemini｜$modeHint"
+  Start-GradeCurrent
+})
 
 $btnRefresh = New-Object System.Windows.Forms.Button
 $btnRefresh.Text = '重新整理'
-$btnRefresh.Location = New-Object System.Drawing.Point(756, $y1)
-$btnRefresh.Size = New-Object System.Drawing.Size(100, 36)
+$btnRefresh.Location = New-Object System.Drawing.Point(856, $y1)
+$btnRefresh.Size = New-Object System.Drawing.Size(90, 36)
 $btnRefresh.Add_Click({ Refresh-List; Refresh-AnswerLabel })
 
 $y2 = 566
@@ -2253,7 +2534,7 @@ $status.Size = New-Object System.Drawing.Size(950, 40)
 
 $form.Controls.AddRange(@(
     $lbl, $grpStart, $lblPath, $list, $grp, $status,
-    $btnWork, $btnOpenIn, $btnOpenOut, $btnGrade, $btnSave, $btnNext, $btnRefresh,
+    $btnWork, $btnOpenIn, $btnOpenOut, $btnGrade, $btnSave, $btnNext, $btnAutoAll, $btnRefresh,
     $btnCsv, $btnUnclear, $btnClarify, $btnOpenCog,
     $btnDigital, $btnCopyLine, $btnPrintPack, $btnOpenDigital,
     $btnTools, $btnLoop, $btnRetFolder, $btnJunyi, $btnTablet

@@ -1,7 +1,7 @@
 {
   "name": "習作台｜老師掌握與發送",
   "short_name": "習作台",
-  "description": "繁體中文。老師掌握座號、發送練習，並可接收掃描 PDF／圖檔。",
+  "description": "繁體中文介面。老師掌握座號、發送練習，並可接收掃描王匯出的 PDF／圖片。",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

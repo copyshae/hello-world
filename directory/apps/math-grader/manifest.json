@@ -1,7 +1,7 @@
 {
   "name": "習作批改｜手機版",
   "short_name": "習作批改",
-  "description": "手機掌握批改進度、複製 Cursor 批閱提示、匯入掃描卷。PDF 輸出請用電腦版。",
+  "description": "手機 Gemini API 自動批、掌握進度、匯入掃描卷。正式 PDF 輸出請用電腦版。",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

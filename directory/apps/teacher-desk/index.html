@@ -4,10 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#2d6a4f" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="習作台" />
   <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="icon-180.png" />
   <title>習作台｜老師掌握與發送</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -73,7 +75,6 @@
     .seat.lv-略落後 { background: var(--mild); }
     .seat.lv-明顯落後 { background: var(--behind); }
     .seat.lv-需補先備 { background: var(--prep); }
-    .seat.trial { border-color: var(--accent); border-style: dashed; }
     .seat.active { outline: 2px solid rgba(45,106,79,0.4); border-color: var(--accent); }
     .seat.dim { opacity: 0.28; }
     .panel { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--line); }
@@ -116,6 +117,10 @@
       width: 100%; max-height: 9rem; object-fit: contain; margin-top: 0.4rem;
       background: rgba(45,106,79,0.06);
     }
+    .pdf-badge {
+      margin-top: 0.4rem; padding: 0.55rem 0.7rem; font-size: 0.82rem; color: var(--muted);
+      background: rgba(45,106,79,0.08); border: 1px dashed var(--line);
+    }
     @keyframes rise {
       from { opacity: 0; transform: translateY(0.8rem); }
       to { opacity: 1; transform: translateY(0); }
@@ -123,11 +128,15 @@
   </style>
 </head>
 <body>
+    <div class="preview-banner" style="background:#2d6a4f;color:#fff;padding:0.65rem 0.8rem;font-size:0.92rem;font-weight:600;text-align:center;">
+      這是繁體中文新版預覽（正式站尚未更新）
+    </div>
+
   <div class="wrap">
     <header class="hero">
       <div class="brand">習作台</div>
-      <p class="lead">與電腦版相同：掌握程度、發送狀態、LINE 文案；含試發座號 <strong>00</strong>，可接收 CS 掃描檔。</p>
-      <p class="install">iPhone：CS 掃描 → 分享 →「儲存到檔案」→ 打開習作台 →「匯入掃描檔」。已加入主畫面後，部分系統也可「分享到習作台」。</p>
+      <p class="lead">掌握程度、發送狀態、群發文案；可從「習作批改」一鍵同步程度。</p>
+      <p class="install">請用預覽網址開啟（正式 hello-world 可能是舊版）。掃描王 → 分享 → 儲存到檔案 → 匯入掃描檔。</p>
       <p class="summary" id="summary">—</p>
     </header>
 
@@ -146,8 +155,8 @@
       <div class="row">
         <label for="sendCh">發放</label>
         <select id="sendCh" class="grow">
-          <option value="line_group">LINE 班級群組</option>
-          <option value="classroom">Classroom</option>
+          <option value="line_group">通訊軟體班級群組</option>
+          <option value="classroom">Google 教室</option>
           <option value="cloud">雲端資料夾</option>
           <option value="print">無裝置列印</option>
         </select>
@@ -155,8 +164,8 @@
       <div class="row">
         <label for="retCh">回傳</label>
         <select id="retCh" class="grow">
-          <option value="line_dm">LINE 個別傳老師</option>
-          <option value="classroom">Classroom</option>
+          <option value="line_dm">個別傳給老師</option>
+          <option value="classroom">Google 教室</option>
           <option value="cloud">雲端回傳夾</option>
         </select>
       </div>
@@ -204,7 +213,7 @@
       <p class="tips" id="channelTip"></p>
       <textarea id="preview" readonly aria-label="文案預覽"></textarea>
       <div class="actions">
-        <button type="button" class="btn" id="btnCopySend">複製 LINE 群發文</button>
+        <button type="button" class="btn" id="btnCopySend">複製群發文</button>
         <button type="button" class="btn secondary" id="btnCopyRet">複製回傳說明</button>
         <button type="button" class="btn secondary" id="btnMarkSent">將「未發」全部標為已發</button>
         <button type="button" class="btn secondary" id="btnMarkPending">將「已發」改為待回</button>
@@ -214,18 +223,18 @@
     <section>
       <h2>今日流程（與電腦批改銜接）</h2>
       <ul class="tips">
-        <li>電腦「習作批改」：載入答案 → 批閱 → 自產練習到「數位練習」。</li>
-        <li>手機／電腦「習作台」：標程度與未發 → 複製群發文 → 貼 LINE 群。</li>
+        <li>「習作批改」：載入答案 → 批閱 → <strong>批完後續</strong>（自產練習／發放訊息／練習回傳循環）。</li>
+        <li>手機／電腦「習作台」：從習作批改同步或寫入程度 → 複製群發文 → 貼到班級群組。</li>
         <li>學生個別回傳 → 標待回／已回；需補先備採多次少題。</li>
-        <li>沒裝置者才走列印包；有手機仍用數位。</li>
+        <li>沒裝置者才走列印包；有手機仍用數位。正式 PDF／整班數位練習包可用電腦版。</li>
       </ul>
     </section>
 
     <section id="scanSection">
-      <h2>掃描匯入（CS）</h2>
-      <p class="tips">把 CS 匯出的 PDF／照片拉進習作台，指定座號後可標「待回」，並下載成 <code>05-R01.pdf</code> 傳到電腦「練習回傳」。</p>
+      <h2>掃描匯入（掃描王）</h2>
+      <p class="tips">把掃描王匯出的 PDF／照片拉進習作台，指定座號後可標「待回」，並下載成 <code>05-R01.pdf</code>；傳到電腦後放進 <code>桌面\習作台資料\掃描匯入</code>，桌面習作台可一鍵處理。</p>
       <div class="actions">
-        <button type="button" class="btn" id="btnPickScan">匯入掃描檔（PDF／圖）</button>
+        <button type="button" class="btn" id="btnPickScan">匯入掃描檔（PDF／圖片）</button>
         <input class="hidden-file" id="fileScan" type="file" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple />
       </div>
       <div class="row" style="margin-top:0.65rem">
@@ -235,19 +244,24 @@
         <input id="defaultRound" type="number" min="1" max="99" value="1" />
       </div>
       <ul class="scan-list" id="scanList"></ul>
-      <p class="tips" id="scanEmpty">尚無掃描檔。用上方按鈕匯入，或從 CS 分享進來。</p>
+      <p class="tips" id="scanEmpty">尚無掃描檔。用上方按鈕匯入，或從掃描王分享進來。</p>
     </section>
 
     <section>
-      <h2>與電腦同步</h2>
+      <h2>同步更新</h2>
+      <p class="tips">習作批改與習作台資料分開存放。若已在「習作批改」批完，按下方可把程度同步過來。</p>
       <div class="actions">
+        <button type="button" class="btn" id="btnSyncGrader">從習作批改同步程度</button>
         <button type="button" class="btn secondary" id="btnExport">匯出班級資料</button>
         <button type="button" class="btn secondary" id="btnImport">匯入班級資料（覆蓋）</button>
         <input class="hidden-file" id="fileImport" type="file" accept="application/json,.json" />
       </div>
     </section>
 
-    <p class="nav"><a href="../../">← 學習日誌</a> · <a href="../math-grader/">習作批改（手機）</a> · 桌面捷徑：<strong>習作台.cmd</strong></p>
+    <p class="nav">
+      <a href="../math-grader/">習作批改</a> ·
+      請用此預覽網址；正式 hello-world 站可能仍是舊版
+    </p>
   </div>
   <div class="toast" id="toast" role="status"></div>
 
@@ -270,16 +284,18 @@
         if (!state.seats) state.seats = {};
         if (!state.sendChannel) state.sendChannel = "line_group";
         if (!state.returnChannel) state.returnChannel = "line_dm";
-        // 試發座號 00（固定保留，不占人數）
-        if (!state.seats["00"]) {
-          state.seats["00"] = { level: "未標", send: "未發", note: "試發" };
-        } else if (state.seats["00"].note == null || state.seats["00"].note === "") {
-          state.seats["00"].note = "試發";
+        if (!state.seats["00"]) state.seats["00"] = { level: "未標", send: "未發", note: "試發" };
+        else {
+          if (!state.seats["00"].level) state.seats["00"].level = "未標";
+          if (!state.seats["00"].send) state.seats["00"].send = "未發";
+          if (!state.seats["00"].note) state.seats["00"].note = "試發";
         }
         for (var i = 1; i <= n; i++) {
           var id = String(i).padStart(2, "0");
           if (!state.seats[id]) state.seats[id] = { level: "未標", send: "未發", note: "" };
           if (state.seats[id].note == null) state.seats[id].note = "";
+          if (!state.seats[id].level) state.seats[id].level = "未標";
+          if (!state.seats[id].send) state.seats[id].send = "未發";
         }
         Object.keys(state.seats).forEach(function (k) {
           if (k === "00") return;
@@ -300,12 +316,6 @@
       function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
 
       var state = load();
-      if (location.search.indexOf("reset=1") >= 0) {
-        try { localStorage.removeItem(KEY); } catch (e) {}
-        state = ensure(def());
-        save(state);
-        history.replaceState({}, "", "./index.html");
-      }
 
       function toast(msg) {
         var el = document.getElementById("toast");
@@ -341,14 +351,14 @@
 
       function channelTip() {
         var sendMap = {
-          line_group: "發：LINE 班級群組（貼群發文）",
-          classroom: "發：Classroom 作業／公告",
+          line_group: "發：通訊軟體班級群組（貼群發文）",
+          classroom: "發：Google 教室作業／公告",
           cloud: "發：雲端「數位練習」連結",
           print: "發：僅無裝置列印包"
         };
         var retMap = {
-          line_dm: "回：LINE 個別傳老師（勿塞群組）",
-          classroom: "回：Classroom 繳交",
+          line_dm: "回：個別傳給老師（勿塞群組）",
+          classroom: "回：Google 教室繳交",
           cloud: "回：雲端回傳夾"
         };
         document.getElementById("channelTip").textContent =
@@ -363,13 +373,12 @@
           var b = document.createElement("button");
           b.type = "button";
           var show = matchFilter(s);
-          b.className = "seat lv-" + s.level + (selected === id ? " active" : "") + (show ? "" : " dim") + (id === "00" ? " trial" : "");
-          var label = id === "00" ? "00試發" : id;
-          b.innerHTML = '<span class="sid">' + label + '</span><span class="st">' + s.send + "</span>";
+          b.className = "seat lv-" + s.level + (selected === id ? " active" : "") + (show ? "" : " dim");
+          b.innerHTML = '<span class="sid">' + id + '</span><span class="st">' + s.send + "</span>";
           b.addEventListener("click", function () {
             selected = id;
             document.getElementById("editPanel").hidden = false;
-            document.getElementById("editTitle").textContent = id === "00" ? "座號 00（試發）" : ("座號 " + id);
+            document.getElementById("editTitle").textContent = "座號 " + id;
             document.getElementById("level").value = s.level;
             document.getElementById("send").value = s.send;
             document.getElementById("note").value = s.note || "";
@@ -423,16 +432,16 @@
           "【" + state.classLabel + "｜今日練習】\n" +
           "請座號：" + seats + "\n" +
           "1. 依老師發的檔／連結完成練習（含指導與影片）\n" +
-          "2. 完成後請「個別傳老師」，不要傳班級群組\n" +
+          "2. 完成後請「個別傳給老師」，不要傳班級群組\n" +
           "3. 截止：" + state.deadline + "\n" +
-          "有問題先看指導；仍不懂再私訊老師。"
+          "有問題先看指導；仍不懂再私下詢問老師。"
         );
       }
 
       function buildRet() {
         return (
           "【" + state.classLabel + "｜回傳方式】\n" +
-          "請用 LINE「個別傳老師」交練習圖／PDF。\n" +
+          "請用「個別傳給老師」交練習圖／PDF。\n" +
           "檔名建議：座號-次數，例如 05-R01.jpg\n" +
           "不要傳進班級群組，方便老師對座號批改。"
         );
@@ -523,6 +532,55 @@
         toast("已匯出，可傳到電腦習作台匯入");
       });
 
+      document.getElementById("btnSyncGrader").addEventListener("click", function () {
+        var raw = null;
+        try { raw = localStorage.getItem("math-grader-v1"); } catch (e) {}
+        if (!raw) {
+          toast("找不到習作批改資料。請先用同一個預覽網址打開「習作批改」並批過");
+          return;
+        }
+        var g = null;
+        try { g = JSON.parse(raw); } catch (e) {
+          toast("習作批改資料讀取失敗");
+          return;
+        }
+        if (!g || !g.seats) {
+          toast("習作批改尚無座號資料");
+          return;
+        }
+        persistHeader();
+        var n = 0;
+        Object.keys(g.seats).forEach(function (id) {
+          var src = g.seats[id];
+          if (!src) return;
+          if (!state.seats[id]) {
+            if (id === "00" || (parseInt(id, 10) >= 1 && parseInt(id, 10) <= state.seatCount)) {
+              state.seats[id] = { level: "未標", send: "未發", note: id === "00" ? "試發" : "" };
+            } else return;
+          }
+          var lv = src.level || "";
+          if (lv && lv !== "未標" && lv !== "待判定") {
+            state.seats[id].level = lv;
+            n++;
+          } else if (lv === "待判定") {
+            state.seats[id].level = "需補先備";
+            n++;
+          }
+          if (src.status === "已批" || src.status === "待認知") {
+            if (src.note) state.seats[id].note = String(src.note).slice(0, 40);
+          }
+          if (src.status === "待認知") state.seats[id].level = state.seats[id].level || "需補先備";
+        });
+        if (g.classLabel) state.classLabel = g.classLabel;
+        if (g.seatCount) state.seatCount = g.seatCount;
+        state = ensure(state);
+        save(state);
+        syncForm();
+        renderGrid();
+        fillSeatSelect();
+        toast(n ? ("已同步 " + n + " 個座號程度") : "沒有可同步的程度（請先在習作批改完成自動批）");
+      });
+
       document.getElementById("btnImport").addEventListener("click", function () {
         document.getElementById("fileImport").click();
       });
@@ -558,7 +616,7 @@
         });
       });
 
-      /* —— 掃描匯入（CS PDF／圖）—— */
+      /* —— 掃描匯入（掃描王 PDF／圖片）—— */
       var DB_NAME = "teacher-desk-scans";
       var DB_STORE = "inbox";
 
@@ -628,6 +686,30 @@
         return sid + "-R" + r + "." + extOf(name, type);
       }
 
+      /** 從檔名猜座號／次數：05-R01、05_R1、座號05、SKM_…_05 等 */
+      function guessSeatRound(name, fallbackSeat, fallbackRound) {
+        var base = String(name || "").replace(/\.[^.]+$/, "");
+        var seat = fallbackSeat || "01";
+        var round = fallbackRound || 1;
+        var m = /(\d{1,2})\s*[-_ ]\s*[RrＲｒ]\s*0*(\d{1,2})\b/.exec(base);
+        if (m) {
+          seat = String(parseInt(m[1], 10)).padStart(2, "0");
+          round = parseInt(m[2], 10) || 1;
+          return { seatId: seat, round: round };
+        }
+        m = /^(\d{1,2})$/.exec(base);
+        if (m) {
+          seat = String(parseInt(m[1], 10)).padStart(2, "0");
+          return { seatId: seat, round: round };
+        }
+        m = /(?:座號|座)\s*(\d{1,2})\b/.exec(base);
+        if (m) {
+          seat = String(parseInt(m[1], 10)).padStart(2, "0");
+          return { seatId: seat, round: round };
+        }
+        return { seatId: seat, round: round };
+      }
+
       function fillSeatSelect() {
         var sel = document.getElementById("defaultSeat");
         var cur = sel.value;
@@ -648,17 +730,31 @@
         return new Blob([buf], { type: rec.type || "application/octet-stream" });
       }
 
+      var thumbUrls = [];
+      function clearThumbUrls() {
+        thumbUrls.forEach(function (u) {
+          try { URL.revokeObjectURL(u); } catch (e) {}
+        });
+        thumbUrls = [];
+      }
+
       function renderScans() {
         return scanAll().then(function (rows) {
           var list = document.getElementById("scanList");
           var empty = document.getElementById("scanEmpty");
+          clearThumbUrls();
           list.innerHTML = "";
           empty.style.display = rows.length ? "none" : "block";
           rows.forEach(function (rec) {
             var li = document.createElement("li");
             li.className = "scan-item";
-            var seatVal = rec.seatId || document.getElementById("defaultSeat").value || "01";
-            var roundVal = rec.round || parseInt(document.getElementById("defaultRound").value, 10) || 1;
+            var guessed = guessSeatRound(
+              rec.name,
+              rec.seatId || document.getElementById("defaultSeat").value || "01",
+              rec.round || parseInt(document.getElementById("defaultRound").value, 10) || 1
+            );
+            var seatVal = rec.seatId || guessed.seatId;
+            var roundVal = rec.round || guessed.round;
             var outName = suggestName(seatVal, roundVal, rec.name, rec.type);
             li.innerHTML =
               "<strong>" + outName + "</strong>" +
@@ -681,7 +777,7 @@
               o.textContent = id;
               seatPick.appendChild(o);
             });
-            seatPick.value = seatVal;
+            if (state.seats[seatVal]) seatPick.value = seatVal;
             var roundPick = li.querySelector(".round-pick");
             roundPick.value = roundVal;
             function refreshTitle() {
@@ -694,8 +790,15 @@
               var img = document.createElement("img");
               img.className = "thumb";
               img.alt = "預覽";
-              img.src = URL.createObjectURL(bufferToBlob(rec));
+              var u = URL.createObjectURL(bufferToBlob(rec));
+              thumbUrls.push(u);
+              img.src = u;
               li.insertBefore(img, li.querySelector(".row"));
+            } else {
+              var badge = document.createElement("div");
+              badge.className = "pdf-badge";
+              badge.textContent = "此為 PDF／檔案：請下載後用電腦開啟；檔名會改成座號-次數。";
+              li.insertBefore(badge, li.querySelector(".row"));
             }
 
             li.querySelector(".act-save").addEventListener("click", function () {
@@ -709,10 +812,12 @@
             li.querySelector(".act-dl").addEventListener("click", function () {
               var name = suggestName(seatPick.value, roundPick.value, rec.name, rec.type);
               var a = document.createElement("a");
-              a.href = URL.createObjectURL(bufferToBlob(rec));
+              var du = URL.createObjectURL(bufferToBlob(rec));
+              a.href = du;
               a.download = name;
               a.click();
-              toast("已下載 " + name + " → 傳到電腦練習回傳");
+              setTimeout(function () { URL.revokeObjectURL(du); }, 1500);
+              toast("已下載 " + name + " → 放到電腦「習作台資料\\掃描匯入」");
             });
             li.querySelector(".act-pend").addEventListener("click", function () {
               var sid = seatPick.value;
@@ -745,21 +850,22 @@
       function ingestFiles(fileList) {
         var files = Array.prototype.slice.call(fileList || []);
         if (!files.length) return Promise.resolve();
-        var seat = document.getElementById("defaultSeat").value || "01";
-        var round = parseInt(document.getElementById("defaultRound").value, 10) || 1;
+        var fallbackSeat = document.getElementById("defaultSeat").value || "01";
+        var fallbackRound = parseInt(document.getElementById("defaultRound").value, 10) || 1;
         var now = Date.now();
         var chain = Promise.resolve();
         files.forEach(function (f, i) {
           chain = chain.then(function () {
             return f.arrayBuffer().then(function (buf) {
+              var g = guessSeatRound(f.name, fallbackSeat, fallbackRound + i);
               return scanPut({
                 id: "file-" + now + "-" + i,
                 name: f.name || ("scan-" + (i + 1)),
                 type: f.type || "application/octet-stream",
                 size: buf.byteLength,
                 buffer: buf,
-                seatId: seat,
-                round: round,
+                seatId: g.seatId,
+                round: g.round,
                 createdAt: now + i,
                 source: "picker"
               });
@@ -768,6 +874,8 @@
         });
         return chain.then(function () {
           toast("已匯入 " + files.length + " 個掃描檔");
+          var sec = document.getElementById("scanSection");
+          if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
           return renderScans();
         });
       }

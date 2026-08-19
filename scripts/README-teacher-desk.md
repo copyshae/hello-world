@@ -1,50 +1,66 @@
-# 習作台｜電腦完整版＋手機版（繁體中文）
+# 習作台｜老師掌握與發送（繁體中文介面）
 
-## 電腦完整版包含
+桌面視窗與手機網頁 App 皆為**繁體中文介面**（zh-Hant）。只用座號，不存姓名。
 
-| 捷徑 | 用途 |
-|------|------|
-| **習作台.cmd** | 掌握程度／發送狀態／篩選／管道／LINE 文案／匯入匯出／掃描夾 |
-| **習作批改.vbs** | 載入答案、批閱、自產練習、數位發放循環 |
+## 功能對照
 
-## 另一台電腦也有 Cursor
+| 功能 | 手機網頁 App | 桌面 |
+|------|--------------|------|
+| 程度／發送狀態 | ✓ | ✓ |
+| 篩選、發放／回傳管道 | ✓ | （精簡版暫無） |
+| 複製群發文 | ✓ | ✓ |
+| 未發→已發、已發→待回 | ✓ | ✓ |
+| 班級資料互通 | ✓ | ✓ |
+| 掃描王匯入 | ✓（裝置內暫存） | ✓（掃描匯入夾） |
 
-1. 同一 Cursor 帳號登入（帶回 User Rules）。
-2. Cursor 開啟 `桌面\hello-world`（沒有就 clone `https://github.com/copyshae/hello-world.git`）。
-3. 對 Agent 說：**裝習作台和習作批改**。  
-   或在終端機執行：
-
-```powershell
-irm https://raw.githubusercontent.com/copyshae/hello-world/master/scripts/bootstrap-desktop-apps.ps1 | iex
-```
-
-4. 雙擊桌面 **習作台.cmd**、**習作批改.vbs**。  
-5. 金鑰從密碼管理器放到 `桌面\MathGrading\gemini-api-key.txt`，不要 git。
-
-線上步驟：https://copyshae.github.io/hello-world/directory/apps/desktop-install.html
-
-## 一鍵安裝（已有倉庫）
+## 桌面安裝
 
 ```powershell
 cd $env:USERPROFILE\Desktop\hello-world
 git pull origin master
-powershell -ExecutionPolicy Bypass -File .\scripts\install-desktop-apps.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\install-teacher-desk.ps1
 ```
 
-若 git pull 失敗，可直接下載安裝習作台：
+或跑 `.\scripts\install-desktop-apps.ps1`（若有一併安裝批改）。
 
-```powershell
-$desk=[Environment]::GetFolderPath('Desktop'); $app=Join-Path $desk '習作台程式'; $work=Join-Path $desk '習作台資料'; New-Item -ItemType Directory -Force -Path $app,$work | Out-Null; $t=(Invoke-WebRequest 'https://raw.githubusercontent.com/copyshae/hello-world/master/scripts/teacher-desk-app.ps1' -UseBasicParsing).Content; [IO.File]::WriteAllText((Join-Path $app 'teacher-desk-app.ps1'), $t, (New-Object Text.UTF8Encoding $true)); Invoke-WebRequest 'https://raw.githubusercontent.com/copyshae/hello-world/master/scripts/install-teacher-desk.ps1' -OutFile (Join-Path $env:TEMP 'install-teacher-desk.ps1') -UseBasicParsing; powershell -ExecutionPolicy Bypass -File (Join-Path $env:TEMP 'install-teacher-desk.ps1')
-```
+桌面捷徑：**習作台.vbs**／**習作台.cmd**
 
-請雙擊 **習作台.cmd**（不要只貼說明文字到 PowerShell）。
+資料夾：
+- `桌面\習作台程式\`
+- `桌面\習作台資料\班級狀態.json`
+- `桌面\習作台資料\掃描匯入\` ← 放手機下載的 `05-R01.pdf`
+- `桌面\習作台資料\練習回傳\` ← 「處理掃描匯入」輸出
+- `桌面\習作台資料\匯出給手機\`
 
-## 手機版
+### 若雙擊「習作台.vbs」出現 Windows Script Host 80070002（找不到檔案）
 
-https://copyshae.github.io/hello-world/directory/apps/teacher-desk/  
-Safari → 分享 → 加入主畫面
+舊版安裝會用 ASCII 寫入捷徑，中文路徑變成亂碼。請重新跑上方 `install-teacher-desk.ps1`（會覆寫桌面捷徑；`習作台資料` 不會清掉），再雙擊 **習作台.vbs**。
 
-## 分工
+## 手機
 
-- **習作批改**：電腦批閱、產練習檔  
-- **習作台**（電腦或手機）：誰該發、貼 LINE、追蹤回傳、與手機互通班級資料
+https://copyshae.github.io/hello-world/directory/apps/teacher-desk/
+
+瀏覽器 → 分享 → **加入主畫面**
+
+### 掃描王流程（手機）
+
+1. 掃描王匯出 PDF／圖片  
+2. 分享 →「儲存到檔案」→ 打開習作台 →「匯入掃描檔」  
+3. 確認座號（檔名含 `05-R01` 會自動帶入）→「標待回」→「下載」  
+4. 把下載檔傳到電腦 `習作台資料\掃描匯入`
+
+### 掃描流程（電腦）
+
+1. 把 `05-R01.pdf` 等放入 `掃描匯入`  
+2. 習作台按「處理掃描匯入」→ 複製到 `練習回傳` 並標該座「待回」
+
+## 手機 ↔ 電腦 ↔ 另一台電腦
+
+換機請帶兩份檔（見 `README-sync.md`）：
+
+1. `班級狀態.json`（習作台匯出）→ 另一端「匯入班級資料」
+2. `習作批改進度.json`（批改匯出）→ 習作台「匯入批改進度（只更新程度）」或批改「匯入批改進度」
+
+桌面習作台另有「從批改進度匯入程度」。掃描仍用 `05-R01` 檔案通道。
+
+檔名：`班級狀態.json`（亦相容舊名 `class-state.json`）。

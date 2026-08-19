@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260819 學習日誌・連接 GitHub 遠端與工作日誌推送</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0.5rem; }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+    </nav>
+    <article>
+      <h1>20260819 連接 GitHub 遠端與工作日誌推送</h1>
+      <p class="lead">今日主線：在 Cloud Agent 環境中確認並連接 GitHub 遠端，將工作日誌推送到兩個倉庫。</p>
+
+      <h2>一｜確認倉庫遠端連線</h2>
+      <ul>
+        <li>Cloud Agent 環境內 <code>git remote</code> 可能尚未設定，需手動補上。</li>
+        <li>使用 <code>gh repo view --json nameWithOwner,url</code> 可快速查出目前倉庫對應的 GitHub 位址。</li>
+        <li>確認 <code>copyshae/-</code> 倉庫遠端為 <code>https://github.com/copyshae/-</code>。</li>
+        <li>以 <code>git remote set-url origin &lt;url&gt;</code> 設定或修正遠端。</li>
+      </ul>
+
+      <h2>二｜推送流程驗證</h2>
+      <ul>
+        <li>推送前先 <code>git fetch origin main</code> 確認網路與憑證皆正常。</li>
+        <li>建立功能分支、commit、push 三步驟完成日誌更新。</li>
+        <li>在 <code>copyshae/-</code> 倉庫的 <code>工作日誌.md</code> 補記今日內容。</li>
+      </ul>
+
+      <h2>三｜跨倉庫學習日誌同步</h2>
+      <ul>
+        <li><code>copyshae/-</code> 倉庫：以 Markdown 格式記錄於 <code>工作日誌.md</code>。</li>
+        <li><code>copyshae/hello-world</code> 倉庫：以 HTML 頁面記錄於 <code>directory/logs/</code>，可在 GitHub Pages 上瀏覽。</li>
+        <li>兩邊日誌各自獨立維護，內容可交叉對照。</li>
+      </ul>
+
+      <div class="callout">
+        學習重點：<code>gh</code> CLI 已預先授權，可快速查詢倉庫資訊；Cloud Agent 中操作 git 與本機相同，但要注意 remote 設定。
+      </div>
+
+      <p class="note">
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/logs/20260819-learning-log.html">https://copyshae.github.io/hello-world/directory/logs/20260819-learning-log.html</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>

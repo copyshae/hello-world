@@ -1,5 +1,5 @@
 /* 習作台：快取＋接收分享的掃描檔 */
-const CACHE = "teacher-desk-v6";
+const CACHE = "teacher-desk-preview-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -54,7 +54,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Web Share Target POST → 存 IndexedDB → 導回主畫面
+  // 網頁分享目標：接收後寫入暫存匣，再導回主畫面
   if (event.request.method === "POST" && url.pathname.endsWith("/share.html")) {
     event.respondWith(
       (async () => {

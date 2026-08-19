@@ -43,7 +43,7 @@ try {
     else { $WorkDir = $cand }
   }
   New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
-  foreach ($sub in @('掃描匯入', '匯出給手機')) {
+  foreach ($sub in @('掃描匯入', '練習回傳', '匯出給手機')) {
     New-Item -ItemType Directory -Force -Path (Join-Path $WorkDir $sub) | Out-Null
   }
 
@@ -191,6 +191,36 @@ try {
     }
   }
 
+  function Get-SeatRoundFromName([string]$fileName) {
+    $base = [System.IO.Path]::GetFileNameWithoutExtension($fileName)
+    $seat = ''
+    $round = 1
+    $m = [regex]::Match($base, '(\d{1,2})\s*[-_ ]\s*[RrＲｒ]\s*0*(\d{1,2})\b')
+    if ($m.Success) {
+      $seat = '{0:D2}' -f [int]$m.Groups[1].Value
+      $round = [Math]::Max(1, [int]$m.Groups[2].Value)
+      return @{ SeatId = $seat; Round = $round }
+    }
+    $m = [regex]::Match($base, '^(\d{1,2})$')
+    if ($m.Success) {
+      $seat = '{0:D2}' -f [int]$m.Groups[1].Value
+      return @{ SeatId = $seat; Round = $round }
+    }
+    $m = [regex]::Match($base, '(?:座號|座)\s*(\d{1,2})\b')
+    if ($m.Success) {
+      $seat = '{0:D2}' -f [int]$m.Groups[1].Value
+      return @{ SeatId = $seat; Round = $round }
+    }
+    return @{ SeatId = $seat; Round = $round }
+  }
+
+  function Get-SuggestedScanName([string]$seatId, [int]$round, [string]$fileName) {
+    $sid = if ($seatId) { $seatId } else { '00' }
+    $ext = [System.IO.Path]::GetExtension($fileName)
+    if ([string]::IsNullOrWhiteSpace($ext)) { $ext = '.pdf' }
+    return ('{0}-R{1:D2}{2}' -f $sid, $round, $ext.ToLowerInvariant())
+  }
+
   function Test-SeatFilter($s) {
     switch ($script:Filter) {
       '未發' { return ($s.send -eq '未發') }
@@ -255,7 +285,7 @@ try {
   $uiFont = New-UiFont 10
   $form = New-Object System.Windows.Forms.Form
   $form.Text = '習作台｜電腦完整版'
-  $form.Size = New-Object System.Drawing.Size(980, 680)
+  $form.Size = New-Object System.Drawing.Size(980, 720)
   $form.StartPosition = 'CenterScreen'
   $form.Font = $uiFont
   $form.BackColor = [System.Drawing.Color]::FromArgb(232, 239, 230)
@@ -441,6 +471,15 @@ try {
   $btnScanFolder.Location = New-Object System.Drawing.Point(180, 306)
   $btnScanFolder.Size = New-Object System.Drawing.Size(170, 28)
   $right.Controls.Add($btnScanFolder)
+
+  $btnProcessScan = New-Object System.Windows.Forms.Button
+  $btnProcessScan.Text = '處理掃描匯入'
+  $btnProcessScan.Location = New-Object System.Drawing.Point(0, 340)
+  $btnProcessScan.Size = New-Object System.Drawing.Size(350, 30)
+  $btnProcessScan.BackColor = [System.Drawing.Color]::FromArgb(45, 106, 79)
+  $btnProcessScan.ForeColor = [System.Drawing.Color]::White
+  $btnProcessScan.FlatStyle = 'Flat'
+  $right.Controls.Add($btnProcessScan)
 
   $txtPreview = New-Object System.Windows.Forms.TextBox
   $txtPreview.Multiline = $true; $txtPreview.ScrollBars = 'Vertical'; $txtPreview.ReadOnly = $true
@@ -646,6 +685,43 @@ try {
     $scan = Join-Path $WorkDir '掃描匯入'
     New-Item -ItemType Directory -Force -Path $scan | Out-Null
     Start-Process explorer.exe $scan
+  })
+  $btnProcessScan.Add_Click({
+    Persist-Header
+    $scanDir = Join-Path $WorkDir '掃描匯入'
+    $outDir = Join-Path $WorkDir '練習回傳'
+    New-Item -ItemType Directory -Force -Path $scanDir, $outDir | Out-Null
+    $files = @(Get-ChildItem -LiteralPath $scanDir -File -ErrorAction SilentlyContinue |
+      Where-Object { $_.Extension -match '\.(pdf|png|jpe?g|gif|webp|heic|heif)$' })
+    if ($files.Count -eq 0) {
+      [void][System.Windows.Forms.MessageBox]::Show("掃描匯入夾沒有 PDF／圖片檔。`r`n請把手機下載的 05-R01.pdf 放到：`r`n$scanDir", '習作台')
+      return
+    }
+    $done = 0
+    $lines = New-Object System.Collections.Generic.List[string]
+    foreach ($f in $files) {
+      $g = Get-SeatRoundFromName $f.Name
+      $sid = $g.SeatId
+      if (-not $sid -or -not $script:State.seats.ContainsKey($sid)) {
+        $lines.Add(("略過 {0}（無法對應座號）" -f $f.Name))
+        continue
+      }
+      $round = [int]$g.Round
+      if ($round -lt 1) { $round = 1 }
+      $outName = Get-SuggestedScanName $sid $round $f.Name
+      $dest = Join-Path $outDir $outName
+      Copy-Item -LiteralPath $f.FullName -Destination $dest -Force
+      $script:State.seats[$sid].send = '待回'
+      if (-not $script:State.seats[$sid].note) {
+        $script:State.seats[$sid].note = ('掃描回傳 R{0:D2}' -f $round)
+      }
+      $done++
+      $lines.Add(("$($f.Name) → $outName（座號 $sid 標待回）"))
+    }
+    Save-StateFile $script:State $script:StatePath
+    Refresh-Grid
+    $msg = "已處理 $done 個檔，輸出到：`r`n$outDir`r`n`r`n" + ($lines -join "`r`n")
+    [void][System.Windows.Forms.MessageBox]::Show($msg, '習作台｜掃描匯入')
   })
   $form.Add_FormClosing({
     try {
