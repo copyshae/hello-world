@@ -1,0 +1,3640 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a5c45" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="掃具台" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>掃具台｜校園掃具請領</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a2e24;
+      --paper: #eaf4ee;
+      --accent: #1a5c45;
+      --accent-soft: #2d8a66;
+      --muted: #4f6a5c;
+      --line: rgba(26, 92, 69, 0.2);
+      --ok: #d4f0e0;
+      --warn: #fff3cd;
+      --plain: #f5faf7;
+      --nav-h: 3.6rem;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", "PingFang TC", "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      line-height: 1.55;
+      background:
+        radial-gradient(ellipse 75% 45% at 8% 0%, rgba(45, 138, 102, 0.22), transparent 55%),
+        linear-gradient(160deg, #f7fcf9 0%, var(--paper) 50%, #d5e8dc 100%);
+    }
+    .wrap {
+      max-width: 28rem;
+      margin: 0 auto;
+      padding: 1rem 1rem calc(var(--nav-h) + var(--safe-b) + 1rem);
+    }
+    .hero { padding: 0.75rem 0 0.4rem; animation: rise 0.55s ease-out both; }
+    .brand {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(2rem, 9vw, 2.55rem);
+      color: var(--accent);
+      letter-spacing: 0.03em;
+    }
+    .lead { margin-top: 0.3rem; color: var(--muted); font-size: 0.9rem; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.9rem;
+    }
+    .stat {
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--line);
+      padding: 0.7rem 0.8rem;
+      border-radius: 0.5rem;
+    }
+    .stat .num { font-size: 1.55rem; font-weight: 700; color: var(--accent); line-height: 1.1; }
+    .stat .lbl { font-size: 0.76rem; color: var(--muted); margin-top: 0.12rem; }
+    section { margin-top: 1.15rem; animation: rise 0.6s 0.05s ease-out both; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.22rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.84);
+      border: 1px solid var(--line);
+      border-radius: 0.55rem;
+      padding: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.4rem; }
+    .card-title { font-weight: 600; font-size: 0.95rem; }
+    .meta { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+    .items-line { font-size: 0.84rem; margin-top: 0.4rem; color: var(--ink); }
+    .items-line span {
+      display: inline-block;
+      background: var(--ok);
+      color: #166534;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 0.12rem 0.4rem;
+      border-radius: 999px;
+      margin: 0.15rem 0.2rem 0 0;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; align-items: center; }
+    label { font-size: 0.84rem; color: var(--muted); min-width: 3.4rem; }
+    input, select, textarea, button {
+      font: inherit; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92); color: var(--ink);
+      padding: 0.55rem 0.65rem; border-radius: 0.35rem;
+    }
+    input, select { min-height: 2.45rem; }
+    input[type="text"], input[type="date"], input[type="search"], input[type="month"] { flex: 1; min-width: 6rem; }
+    select.grow { flex: 1; min-width: 7rem; }
+    textarea { width: 100%; min-height: 3.8rem; resize: vertical; line-height: 1.45; font-size: 0.9rem; }
+    .filters { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem; }
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.65);
+      padding: 0.3rem 0.5rem;
+      font-size: 0.76rem;
+      cursor: pointer;
+      color: var(--muted);
+      border-radius: 999px;
+    }
+    .chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn {
+      display: block; width: 100%; text-align: center;
+      padding: 0.75rem 1rem; border: none; border-radius: 0.4rem;
+      background: var(--accent); color: #fff; font-weight: 600;
+      cursor: pointer; font-size: 0.92rem;
+    }
+    .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .btn.danger { background: #b91c1c; }
+    .btn-row { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+    .btn-row .btn { flex: 1; padding: 0.5rem 0.35rem; font-size: 0.8rem; }
+    .actions { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.5rem; }
+    .empty { text-align: center; padding: 1.8rem 1rem; color: var(--muted); font-size: 0.9rem; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      height: calc(var(--nav-h) + var(--safe-b));
+      padding-bottom: var(--safe-b);
+      background: rgba(255,255,255,0.95);
+      border-top: 1px solid var(--line);
+      display: flex; z-index: 30;
+      backdrop-filter: blur(8px);
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 0.08rem;
+      border: none; background: none; color: var(--muted);
+      font-size: 0.66rem; cursor: pointer; padding: 0.3rem 0;
+    }
+    .nav-item .ico { font-size: 1.2rem; line-height: 1; }
+    .nav-item.on { color: var(--accent); font-weight: 600; }
+    .toast {
+      position: fixed; left: 50%;
+      bottom: calc(var(--nav-h) + var(--safe-b) + 0.8rem);
+      transform: translateX(-50%) translateY(120%);
+      background: var(--ink); color: #fff;
+      padding: 0.65rem 1rem; font-size: 0.86rem;
+      border-radius: 0.45rem; opacity: 0;
+      transition: 0.25s ease; z-index: 40;
+      max-width: 92vw; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .modal-back {
+      position: fixed; inset: 0;
+      background: rgba(26, 46, 36, 0.45);
+      z-index: 50; display: none;
+      align-items: flex-end; justify-content: center;
+    }
+    .modal-back.open { display: flex; }
+    .modal {
+      background: #fff; width: 100%; max-width: 28rem;
+      max-height: 92vh; overflow-y: auto;
+      border-radius: 1rem 1rem 0 0;
+      padding: 1.05rem 1rem calc(1rem + var(--safe-b));
+      animation: slideUp 0.28s ease-out;
+    }
+    .modal h3 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.18rem; color: var(--accent); margin-bottom: 0.7rem;
+    }
+    .modal-close {
+      float: right; border: none; background: none;
+      font-size: 1.4rem; color: var(--muted); cursor: pointer;
+      line-height: 1; padding: 0 0.2rem;
+    }
+    .qty-grid { display: flex; flex-direction: column; gap: 0.35rem; margin: 0.4rem 0 0.7rem; }
+    .qty-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.55rem;
+      background: var(--plain);
+      border: 1px solid var(--line);
+      border-radius: 0.4rem;
+    }
+    .qty-row .name { font-size: 0.88rem; font-weight: 500; }
+    .qty-ctrl { display: flex; align-items: center; gap: 0.25rem; }
+    .qty-ctrl button {
+      width: 2.1rem; height: 2.1rem; padding: 0;
+      font-size: 1.15rem; font-weight: 700;
+      border: 1px solid var(--line); background: #fff;
+      color: var(--accent); cursor: pointer; border-radius: 0.35rem;
+    }
+    .qty-ctrl input {
+      width: 3rem; text-align: center; min-height: 2.1rem;
+      padding: 0.2rem; font-weight: 600;
+    }
+    .rank-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.5rem 0; border-bottom: 1px solid var(--line); font-size: 0.88rem;
+    }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-item .bar-wrap { flex: 1; margin: 0 0.6rem; height: 0.4rem; background: #e2ebe6; border-radius: 99px; overflow: hidden; }
+    .rank-item .bar { height: 100%; background: var(--accent-soft); border-radius: 99px; }
+    .tips { font-size: 0.84rem; color: var(--muted); }
+    .tips li { margin: 0.18rem 0 0.18rem 1rem; }
+    .hidden { display: none !important; }
+    .fab {
+      position: sticky; bottom: 0.5rem; z-index: 5;
+      margin-top: 0.75rem;
+    }
+    .inv-conds {
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+      margin-top: 0.45rem;
+    }
+    .inv-cond {
+      font-size: 0.78rem; font-weight: 600;
+      padding: 0.2rem 0.45rem; border-radius: 0.35rem;
+      border: 1px solid var(--line);
+    }
+    .inv-cond.new { background: #dbeafe; color: #1e40af; }
+    .inv-cond.old { background: #fef3c7; color: #92400e; }
+    .inv-cond.fair { background: var(--ok); color: #166534; }
+    .inv-total {
+      font-size: 0.82rem; font-weight: 700; color: var(--accent);
+      white-space: nowrap;
+    }
+    .inv-table-head {
+      display: grid;
+      grid-template-columns: 1.4fr repeat(3, 1fr) 0.7fr;
+      gap: 0.25rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 0.35rem 0.55rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 0.25rem;
+    }
+    .inv-table-row {
+      display: grid;
+      grid-template-columns: 1.4fr repeat(3, 1fr) 0.7fr;
+      gap: 0.25rem;
+      align-items: center;
+      font-size: 0.82rem;
+      padding: 0.45rem 0.55rem;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .inv-table-row:last-child { border-bottom: none; }
+    .inv-table-row:active { background: var(--plain); }
+    .inv-table-row .n { text-align: center; font-weight: 600; }
+    .inv-table-row .name { font-weight: 500; }
+    .cond-block { margin-bottom: 0.55rem; }
+    .cond-block .cond-label {
+      font-size: 0.82rem; font-weight: 600; margin-bottom: 0.3rem;
+    }
+    .cond-block.new .cond-label { color: #1e40af; }
+    .cond-block.old .cond-label { color: #92400e; }
+    .inv-table-row .name .tag-other {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: #7c3aed;
+      background: #ede9fe;
+      padding: 0.05rem 0.3rem;
+      border-radius: 0.2rem;
+      margin-left: 0.25rem;
+      vertical-align: middle;
+    }
+    .qty-section-title {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 0.65rem 0 0.35rem;
+    }
+    .qty-section-title.other { color: #6d28d9; }
+    .scan-thumb {
+      width: 100%; max-height: 11rem; object-fit: contain;
+      border-radius: 0.45rem; background: var(--plain);
+      border: 1px solid var(--line); margin-bottom: 0.55rem;
+    }
+    .scan-preview-line {
+      font-size: 0.86rem; padding: 0.35rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .scan-preview-line:last-child { border-bottom: none; }
+    .scan-warn { color: #b45309; font-size: 0.82rem; margin-top: 0.4rem; }
+    .manual-confirm-line {
+      font-size: 0.86rem; padding: 0.35rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .manual-confirm-line:last-child { border-bottom: none; }
+    .confirm-all-wrap {
+      max-height: 14rem;
+      overflow: auto;
+      margin: 0.45rem 0 0.2rem;
+      border: 1px solid var(--line);
+      border-radius: 0.4rem;
+    }
+    .confirm-all-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .confirm-all-table th, .confirm-all-table td {
+      padding: 0.35rem 0.45rem;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .confirm-all-table th:first-child,
+    .confirm-all-table td:first-child { text-align: left; min-width: 5.5rem; }
+    .confirm-all-table th {
+      position: sticky; top: 0;
+      background: var(--plain);
+      font-weight: 600;
+      z-index: 1;
+    }
+    .confirm-all-table tr.row-on td { font-weight: 700; color: var(--accent); }
+    .confirm-all-table tr.row-off td { color: #94a3b8; }
+    .toast.with-action {
+      pointer-events: auto;
+      display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap;
+      justify-content: center;
+    }
+    .toast .toast-action {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.38);
+      color: #fff;
+      padding: 0.22rem 0.55rem;
+      border-radius: 0.3rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .log-move { font-size: 0.84rem; padding: 0.45rem 0; border-bottom: 1px solid var(--line); }
+    .log-move:last-child { border-bottom: none; }
+    .log-move .act-in { color: #1e40af; font-weight: 600; }
+    .log-move .act-out { color: #b45309; font-weight: 600; }
+    .req-table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -0.15rem;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      background: rgba(255,255,255,0.88);
+    }
+    .req-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .req-table th, .req-table td {
+      border: 1px solid var(--line);
+      padding: 0.38rem 0.45rem;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .req-table th {
+      background: var(--plain);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.72rem;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .req-table th.sticky-col, .req-table td.sticky-col {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #fff;
+      text-align: left;
+      min-width: 4.5rem;
+    }
+    .req-table th.sticky-col-2, .req-table td.sticky-col-2 { left: 4.5rem; min-width: 3rem; }
+    .req-table th.sticky-col-3, .req-table td.sticky-col-3 { left: 7.5rem; min-width: 3.2rem; }
+    .req-table td.num-on { font-weight: 700; color: var(--accent); }
+    .req-table td.num-off { color: #cbd5e1; }
+    .req-table .act-cell { min-width: 4.2rem; }
+    .req-table .act-cell button {
+      font-size: 0.72rem;
+      padding: 0.25rem 0.35rem;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--accent);
+      border-radius: 0.25rem;
+      cursor: pointer;
+      margin: 0.05rem;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(0.55rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="brand">掃具台</div>
+      <p class="lead" id="schoolLead">校園掃具請領 · 對齊 Excel 領用表</p>
+    </header>
+
+    <!-- 總覽 -->
+    <div class="view active" id="view-home">
+      <div class="stats" id="statsGrid"></div>
+      <section>
+        <h2>庫存概況</h2>
+        <div class="card" id="homeInvSummary"></div>
+      </section>
+      <section>
+        <h2>今日領用</h2>
+        <div id="todayList"></div>
+      </section>
+      <section>
+        <h2>快速操作</h2>
+        <div class="actions">
+          <button class="btn" type="button" id="btnPhotoScan">拍照／相簿登記</button>
+          <button class="btn secondary" type="button" id="btnNewReq">手動新增請領</button>
+          <button class="btn secondary" type="button" id="btnManualPaste">手動貼文字</button>
+          <button class="btn secondary" type="button" id="btnGoStats">本月統計</button>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" capture="environment" class="hidden" />
+      </section>
+      <section>
+        <h2>使用提示</h2>
+        <ul class="tips">
+          <li>請領表每種掃具<strong>獨立一欄</strong>，可左右滑動；CSV 匯出欄位相同</li>
+          <li>請領表依<strong>班級</strong>累加各掃具數量，起始為 0；同班再次請領會加總</li>
+          <li>請領列表「修正」可改寫該班累計總量（可同步調整庫存差額）</li>
+          <li>掃具欄位可隨時新增或刪除（設定、庫存、請領表單皆可）</li>
+          <li>領用人（導師／處室）可直接輸入；非班級領用時班級可留空</li>
+          <li>AI 辨識為選用；辨識不清或無法使用時，改<strong>手動貼文字</strong>或<strong>手動新增請領</strong></li>
+          <li>手動請領：<strong>全部種類輸入完</strong>後按「前往確認」，確認視窗顯示完整一列再累加；可按「恢復」返回修改</li>
+          <li>庫存依掃具種類登記，每種分「新、舊、尚可」統計數量</li>
+          <li>欄位對齊「115 學年掃具請領」表：日期、班級、導師、各品項各自一欄</li>
+          <li>可匯出 CSV，直接貼回 Excel 或用試算表開啟</li>
+          <li>資料存本機；換手機請用「設定 → 匯出備份」</li>
+        </ul>
+      </section>
+    </div>
+
+    <!-- 請領紀錄 -->
+    <div class="view" id="view-list">
+      <section>
+        <div class="row">
+          <input type="search" id="listSearch" placeholder="搜尋班級、領用人、品項…" />
+        </div>
+        <div class="filters" id="gradeFilters"></div>
+        <p class="tips" style="margin-bottom:0.45rem">每班一列、各掃具累計數量（起始 0）；左右滑動可查看全部品項。</p>
+        <div id="reqList"></div>
+        <button class="btn fab" type="button" id="btnNewReq2">新增請領</button>
+      </section>
+    </div>
+
+    <!-- 統計 -->
+    <div class="view" id="view-stats">
+      <section>
+        <div class="row">
+          <label for="statsMonth">月份</label>
+          <input type="month" id="statsMonth" />
+        </div>
+        <h2>品項領用排行</h2>
+        <div class="card" id="itemRank"></div>
+      </section>
+      <section>
+        <h2>班級累計品項</h2>
+        <div class="card" id="classRank"></div>
+      </section>
+      <section>
+        <h2>匯出／匯入</h2>
+        <div class="actions">
+          <button class="btn secondary" type="button" id="btnExportCsv">匯出本月 CSV（Excel 可用）</button>
+          <button class="btn secondary" type="button" id="btnExportAllCsv">匯出全部 CSV</button>
+          <button class="btn secondary" type="button" id="btnImportCsv">匯入 CSV</button>
+          <input type="file" id="importCsvFile" accept=".csv,text/csv" class="hidden" />
+        </div>
+      </section>
+    </div>
+
+    <!-- 庫存 -->
+    <div class="view" id="view-stock">
+      <section>
+        <div class="stats" id="stockStats"></div>
+      </section>
+      <section>
+        <div class="row">
+          <input type="search" id="stockSearch" placeholder="搜尋掃具種類…" />
+        </div>
+        <div class="filters" id="stockFilters"></div>
+        <div class="card">
+          <div class="inv-table-head">
+            <span>種類</span><span>新</span><span>舊</span><span>尚可</span><span>計</span>
+          </div>
+          <div id="stockList"></div>
+        </div>
+        <div class="actions" style="margin-top:0.6rem">
+          <button class="btn" type="button" id="btnStockIn">進貨入庫</button>
+          <button class="btn secondary" type="button" id="btnStockReturn">送還入庫</button>
+          <button class="btn secondary" type="button" id="btnPhotoScanStock">拍照登記</button>
+          <button class="btn secondary" type="button" id="btnAddItemStock">新增欄位</button>
+          <button class="btn secondary" type="button" id="btnExportInvCsv">匯出庫存 CSV</button>
+        </div>
+      </section>
+      <section>
+        <h2>庫存異動紀錄</h2>
+        <div class="card" id="stockLogList"></div>
+    </div>
+
+    <!-- 設定 -->
+    <div class="view" id="view-settings">
+      <section>
+        <h2>基本設定</h2>
+        <div class="row">
+          <label for="schoolName">校名</label>
+          <input id="schoolName" type="text" maxlength="40" placeholder="例：○○國中" />
+        </div>
+        <div class="row">
+          <label for="schoolYear">學年</label>
+          <input id="schoolYear" type="text" maxlength="20" placeholder="例：115 學年" />
+        </div>
+        <button class="btn" type="button" id="btnSaveSettings" style="margin-top:0.45rem">儲存設定</button>
+      </section>
+      <section>
+        <h2>拍照辨識（Gemini，選用）</h2>
+        <p class="tips" style="margin-bottom:0.5rem">有金鑰可嘗試辨識手寫；<strong>無金鑰或辨識失敗時請改手動輸入</strong>（手動貼文字／手動新增請領）。</p>
+        <div class="row">
+          <label for="geminiKey">Gemini 金鑰</label>
+          <input id="geminiKey" type="password" autocomplete="off" placeholder="選填" />
+        </div>
+        <div class="btn-row">
+          <button class="btn secondary" type="button" id="btnSaveGemini">儲存金鑰</button>
+          <button class="btn secondary" type="button" id="btnClearGemini">清除</button>
+        </div>
+      </section>
+      <section>
+        <h2>資料備份</h2>
+        <div class="actions">
+          <button class="btn secondary" type="button" id="btnExportJson">匯出備份（JSON）</button>
+          <button class="btn secondary" type="button" id="btnImportJson">匯入備份</button>
+          <input type="file" id="importFile" accept=".json,application/json" class="hidden" />
+        </div>
+      </section>
+      <section>
+        <h2>掃具欄位</h2>
+        <p class="tips" style="margin-bottom:0.5rem">每種掃具獨立一欄，可<strong>隨時新增或刪除</strong>；請領表、CSV 與庫存同步更新。</p>
+        <div id="itemDefList"></div>
+        <button class="btn" type="button" id="btnAddOtherItem" style="margin-top:0.55rem">新增欄位</button>
+        <button class="btn secondary" type="button" id="btnResetItems" style="margin-top:0.45rem">還原預設種類</button>
+      </section>
+      <section>
+        <h2>導師現任班級</h2>
+        <p class="tips" style="margin-bottom:0.5rem">115 學年度<strong>官方 34 班</strong>（101–111、201–212、301–311）以內建名單為準，匯入或手動<strong>無法改動</strong>。特教、處室等非官方班級請用下方「新增」或「匯入」合併。</p>
+        <div id="classMapList"></div>
+        <div class="btn-row" style="margin-top:0.55rem">
+          <button class="btn" type="button" id="btnLoadTeacherPreset">還原官方34班</button>
+          <button class="btn secondary" type="button" id="btnImportTeacherClass">匯入其他班級</button>
+          <button class="btn secondary" type="button" id="btnExportTeacherClass">匯出導師名單</button>
+        </div>
+        <button class="btn secondary" type="button" id="btnAddClass" style="margin-top:0.45rem">新增其他班級（特教、處室等）</button>
+      </section>
+      <section>
+        <h2>示範資料</h2>
+        <p class="tips" style="margin-bottom:0.45rem">載入範例庫存（新／舊／尚可）與請領紀錄。</p>
+        <button class="btn secondary" type="button" id="btnDemo">載入示範資料</button>
+      </section>
+      <section>
+        <h2>應用程式更新</h2>
+        <p class="tips" style="margin-bottom:0.45rem">若資料顯示異常或版本未更新，點下方按鈕清除快取並重新載入（<strong>不會</strong>刪除已儲存的請領與庫存資料）。</p>
+        <button class="btn secondary" type="button" id="btnClearCache">清除快取並重新載入</button>
+      </section>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" aria-label="主選單">
+    <button class="nav-item on" type="button" data-view="home"><span class="ico">🏠</span>總覽</button>
+    <button class="nav-item" type="button" data-view="list"><span class="ico">📋</span>請領</button>
+    <button class="nav-item" type="button" data-view="stock"><span class="ico">📦</span>庫存</button>
+    <button class="nav-item" type="button" data-view="stats"><span class="ico">📊</span>統計</button>
+    <button class="nav-item" type="button" data-view="settings"><span class="ico">⚙️</span>設定</button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+  <div class="modal-back" id="modalBack">
+    <div class="modal" id="modalBody"></div>
+  </div>
+
+  <script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "scan-equip-requisition-v5";
+
+  /** 對齊 Excel「115 學年掃具請領」標準欄位 */
+  var DEFAULT_ITEMS = [
+    { id: "bamboo_broom", name: "竹掃把", kind: "standard" },
+    { id: "tongs", name: "夾子", kind: "standard" },
+    { id: "broom", name: "掃把", kind: "standard" },
+    { id: "mop", name: "拖把", kind: "standard" },
+    { id: "dustpan", name: "畚斗", kind: "standard" },
+    { id: "detergent", name: "清潔劑", kind: "standard" },
+    { id: "trash_can", name: "垃圾桶", kind: "standard" },
+    { id: "trash_bag", name: "垃圾袋", kind: "standard" },
+    { id: "toilet_brush", name: "馬桶刷", kind: "standard" },
+    { id: "laundry", name: "洗衣粉", kind: "standard" },
+    { id: "rake", name: "耙子", kind: "standard" },
+    { id: "squeegee", name: "趕水器", kind: "standard" },
+    { id: "long_brush", name: "長柄刷", kind: "standard" }
+  ];
+
+  /** 其他細項：各為獨立掃具種類（對齊 Excel 其他細項常見項目） */
+  var DEFAULT_OTHER_ITEMS = [
+    { id: "other_window_wiper", name: "氣窗擦", kind: "other" },
+    { id: "other_small_trash", name: "小垃圾桶", kind: "other" },
+    { id: "other_hcl", name: "鹽酸", kind: "other" },
+    { id: "other_soap", name: "肥皂", kind: "other" },
+    { id: "other_bucket", name: "水桶", kind: "other" },
+    { id: "other_short_brush", name: "短刷子", kind: "other" },
+    { id: "other_spin_mop", name: "旋轉拖把桶", kind: "other" },
+    { id: "other_coconut_broom", name: "椰鬃掃把", kind: "other" }
+  ];
+
+  /** 舊稱或手寫別名 → 正式品名（椰鬃拖把屬掃把，非拖把） */
+  var ITEM_NAME_ALIASES = {
+    "椰鬃拖把": "椰鬃掃把"
+  };
+
+  /** 品項 id 更名遷移（舊 id → 新 id） */
+  var RENAMED_ITEM_IDS = {
+    other_coconut_mop: "other_coconut_broom"
+  };
+
+  /** 115 學年度導師名單版本（與使用者提供名單圖同步；更新時遞增） */
+  var TEACHER_PRESET_ID = "cajh-115-v6";
+
+  /** 115 學年度班級導師名單（101–111、201–212、301–311，共 34 班）— 以此表為準 */
+  var TEACHER_CLASS_PRESET_CAJH_115 = [
+    { className: "101", teacher: "施奕廷" },
+    { className: "102", teacher: "呂慧君" },
+    { className: "103", teacher: "蕭秀綿" },
+    { className: "104", teacher: "張燕妮" },
+    { className: "105", teacher: "洪銘謙" },
+    { className: "106", teacher: "黃雅冠" },
+    { className: "107", teacher: "洪志寬" },
+    { className: "108", teacher: "李姿葶" },
+    { className: "109", teacher: "吳姗珊" },
+    { className: "110", teacher: "蕭家盈" },
+    { className: "111", teacher: "劉雅菁" },
+    { className: "201", teacher: "徐詩媛" },
+    { className: "202", teacher: "林志賢" },
+    { className: "203", teacher: "洪美麗" },
+    { className: "204", teacher: "許珮瑜" },
+    { className: "205", teacher: "周齊恩" },
+    { className: "206", teacher: "陳怡儒" },
+    { className: "207", teacher: "施惠芳" },
+    { className: "208", teacher: "黃齡儀" },
+    { className: "209", teacher: "楊宜蓁" },
+    { className: "210", teacher: "張信忠" },
+    { className: "211", teacher: "黃敏華" },
+    { className: "212", teacher: "陳映慈" },
+    { className: "301", teacher: "施榮鍾" },
+    { className: "302", teacher: "孫聖提" },
+    { className: "303", teacher: "莊于慧" },
+    { className: "304", teacher: "陳梅婷" },
+    { className: "305", teacher: "凌惠菁" },
+    { className: "306", teacher: "鄭漪珮" },
+    { className: "307", teacher: "鄭雅霙" },
+    { className: "308", teacher: "洪敏甄" },
+    { className: "309", teacher: "郭梅琪" },
+    { className: "310", teacher: "林惠蘭" },
+    { className: "311", teacher: "蔡佩悌" }
+  ];
+
+  /** 官方 34 班班級代碼 → 導師（匯入／手動不可覆寫） */
+  var PRESET_CLASS_NAMES = {};
+  TEACHER_CLASS_PRESET_CAJH_115.forEach(function (r) {
+    PRESET_CLASS_NAMES[r.className] = r.teacher;
+  });
+
+  function isPresetClass(className) {
+    return Object.prototype.hasOwnProperty.call(PRESET_CLASS_NAMES, normKey(className));
+  }
+
+  function collectManualTeacherClassExtras() {
+    var extras = [];
+    Object.keys(state.teacherClassMap || {}).forEach(function (t) {
+      var cls = state.teacherClassMap[t];
+      if (!isPresetClass(cls)) extras.push({ teacher: t, className: cls });
+    });
+    return extras;
+  }
+
+  function applyOfficialPresetClasses() {
+    TEACHER_CLASS_PRESET_CAJH_115.forEach(function (r) {
+      syncClassMapsFromTeacher(r.teacher, r.className);
+    });
+  }
+
+  var GEMINI_KEY_STORAGE = "scan-equip-gemini-key";
+  var GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
+  var INBOX_DB = "scan-equip-inbox";
+  var INBOX_STORE = "photos";
+
+  /** 庫存狀態：新、舊、尚可 */
+  var CONDITIONS = [
+    { id: "new", name: "新" },
+    { id: "old", name: "舊" },
+    { id: "fair", name: "尚可" }
+  ];
+
+  var state = loadState();
+  var toastTimer = null;
+  var undoToastTimer = null;
+  var lastManualUndo = null;
+  var gradeFilter = "all";
+  var listSearch = "";
+  var stockSearch = "";
+  var stockFilter = "all";
+
+  function allDefaultItems() {
+    return DEFAULT_ITEMS.concat(DEFAULT_OTHER_ITEMS).map(function (x) {
+      return Object.assign({}, x);
+    });
+  }
+
+  function isOtherItem(it) {
+    return it && it.kind === "other";
+  }
+
+  function standardItems() {
+    return state.items.filter(function (it) { return !isOtherItem(it); });
+  }
+
+  function otherItems() {
+    return state.items.filter(function (it) { return isOtherItem(it); });
+  }
+
+  /** 欄位順序：標準 13 項 → 預設其他 → 自訂種類（與 CSV／Excel 一致） */
+  function sortedItems() {
+    var order = [];
+    DEFAULT_ITEMS.forEach(function (d) { order.push(d.id); });
+    DEFAULT_OTHER_ITEMS.forEach(function (d) { order.push(d.id); });
+    var sorted = [];
+    order.forEach(function (id) {
+      var it = state.items.find(function (x) { return x.id === id; });
+      if (it) sorted.push(it);
+    });
+    state.items.forEach(function (it) {
+      if (!sorted.some(function (s) { return s.id === it.id; })) sorted.push(it);
+    });
+    return sorted;
+  }
+
+  function itemByName(name) {
+    var n = String(name || "").trim();
+    return state.items.find(function (it) { return it.name === n; });
+  }
+
+  function itemUsedCount(itemId) {
+    var n = 0;
+    state.records.forEach(function (r) {
+      if ((Number(r.qtys[itemId]) || 0) > 0) n++;
+    });
+    return n;
+  }
+
+  function isDefaultItemId(itemId) {
+    return DEFAULT_ITEMS.some(function (d) { return d.id === itemId; }) ||
+      DEFAULT_OTHER_ITEMS.some(function (d) { return d.id === itemId; });
+  }
+
+  function ensureRemovedIds() {
+    if (!state.removedItemIds) state.removedItemIds = [];
+  }
+
+  function addItem(name) {
+    name = String(name || "").trim();
+    if (!name) return null;
+    if (itemByName(name)) {
+      toast("已有此種類：" + name);
+      return itemByName(name);
+    }
+    var it = { id: slugOtherId(name), name: name, kind: "other" };
+    state.items.push(it);
+    state.inventory[it.id] = emptyStockEntry();
+    saveState();
+    return it;
+  }
+
+  function addOtherItem(name) { return addItem(name); }
+
+  function removeItem(itemId) {
+    var it = state.items.find(function (x) { return x.id === itemId; });
+    if (!it) return false;
+    var hasStock = stockTotal(state.inventory[itemId]) > 0;
+    var used = itemUsedCount(itemId) > 0;
+    var warn = "";
+    if (hasStock && used) warn = "尚有庫存且請領紀錄含此欄位";
+    else if (hasStock) warn = "尚有庫存";
+    else if (used) warn = "請領紀錄含此欄位";
+    var msg = warn
+      ? "「" + it.name + "」" + warn + "，確定刪除此欄位？相關數量將一併清除。"
+      : "確定刪除欄位「" + it.name + "」？";
+    if (!confirm(msg)) return false;
+
+    state.records.forEach(function (r) {
+      if (r.qtys && r.qtys[itemId] != null) delete r.qtys[itemId];
+    });
+    delete state.inventory[itemId];
+    state.items = state.items.filter(function (x) { return x.id !== itemId; });
+    if (isDefaultItemId(itemId)) {
+      ensureRemovedIds();
+      if (state.removedItemIds.indexOf(itemId) < 0) state.removedItemIds.push(itemId);
+    }
+    saveState();
+    return true;
+  }
+
+  function removeOtherItem(itemId) {
+    return removeItem(itemId);
+  }
+
+  function parseReqQty(n) {
+    n = parseInt(n, 10);
+    if (isNaN(n)) return 0;
+    return n;
+  }
+
+  function qtyRowsHtml(qtys, list) {
+    return list.map(function (it) {
+      var v = parseReqQty(qtys[it.id]);
+      return '<div class="qty-row"><div class="name">' + esc(it.name) + "</div>" +
+        '<div class="qty-ctrl">' +
+        '<button type="button" data-dec="' + it.id + '">−</button>' +
+        '<input type="number" min="-999" data-qty="' + it.id + '" value="' + v + '" inputmode="numeric" />' +
+        '<button type="button" data-inc="' + it.id + '">＋</button>' +
+        "</div></div>";
+    }).join("");
+  }
+
+  function slugOtherId(name) {
+    return "other_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 5);
+  }
+
+  function parseOtherText(text, items) {
+    var result = {};
+    if (!text) return result;
+    var parts = String(text).split(/[、,，;；\n]+/);
+    parts.forEach(function (part) {
+      var s = part.trim();
+      if (!s) return;
+      var m = s.match(/^(.+?)[x\*×]?(\d+)?/);
+      if (!m) return;
+      var name = m[1].replace(/[盒個支把組]/g, "").trim();
+      var qty = parseInt(m[2], 10) || 1;
+      if (!name) return;
+      var it = items.find(function (x) { return x.name === name; });
+      if (!it) {
+        it = { id: slugOtherId(name), name: name, kind: "other" };
+        items.push(it);
+      }
+      result[it.id] = (result[it.id] || 0) + qty;
+    });
+    return result;
+  }
+
+  function migrateState(p) {
+    var items = (p.items && p.items.length) ? p.items.slice() : allDefaultItems();
+    items = items.map(function (it) {
+      var kind = it.kind || (DEFAULT_ITEMS.some(function (d) { return d.id === it.id; }) ? "standard" : "other");
+      return Object.assign({ kind: kind }, it);
+    });
+    var removed = p.removedItemIds || [];
+    var have = {};
+    items.forEach(function (it) { have[it.id] = true; });
+    DEFAULT_ITEMS.forEach(function (it) {
+      if (!have[it.id] && removed.indexOf(it.id) < 0) items.unshift(Object.assign({}, it));
+    });
+    DEFAULT_OTHER_ITEMS.forEach(function (it) {
+      if (!have[it.id] && removed.indexOf(it.id) < 0) items.push(Object.assign({}, it));
+    });
+
+    items = items.map(function (it) {
+      var newId = RENAMED_ITEM_IDS[it.id];
+      if (newId) {
+        var def = DEFAULT_OTHER_ITEMS.find(function (d) { return d.id === newId; });
+        if (def) return Object.assign({}, it, { id: newId, name: def.name });
+      }
+      if (it.name === "椰鬃拖把") return Object.assign({}, it, { id: "other_coconut_broom", name: "椰鬃掃把" });
+      return it;
+    });
+    items = items.filter(function (it, i, arr) {
+      return arr.findIndex(function (x) { return x.id === it.id; }) === i;
+    });
+
+    var inventory = p.inventory || {};
+    Object.keys(RENAMED_ITEM_IDS).forEach(function (oldId) {
+      var newId = RENAMED_ITEM_IDS[oldId];
+      if (!inventory[oldId]) return;
+      inventory[newId] = inventory[newId] || emptyStockEntry();
+      CONDITIONS.forEach(function (c) {
+        inventory[newId][c.id] = (Number(inventory[newId][c.id]) || 0) + (Number(inventory[oldId][c.id]) || 0);
+      });
+      delete inventory[oldId];
+    });
+
+    var rawRecords = (p.records || []).map(function (r) {
+      var qtys = Object.assign({}, r.qtys || {});
+      Object.keys(RENAMED_ITEM_IDS).forEach(function (oldId) {
+        var newId = RENAMED_ITEM_IDS[oldId];
+        if (qtys[oldId]) {
+          qtys[newId] = (Number(qtys[newId]) || 0) + (Number(qtys[oldId]) || 0);
+          delete qtys[oldId];
+        }
+      });
+      if (r.other) {
+        var parsed = parseOtherText(r.other, items);
+        Object.keys(parsed).forEach(function (id) {
+          qtys[id] = (Number(qtys[id]) || 0) + parsed[id];
+        });
+      }
+      var copy = Object.assign({}, r, { qtys: qtys });
+      delete copy.other;
+      return copy;
+    });
+    var records = rawRecords;
+
+    return {
+      settings: migrateSettings(Object.assign(defaultState().settings, p.settings || {})),
+      items: items,
+      classMap: p.classMap || {},
+      teacherClassMap: migrateTeacherClassMap(p.classMap || {}, p.teacherClassMap || {}),
+      records: records,
+      stockLogs: p.stockLogs || [],
+      inventory: inventory,
+      removedItemIds: removed
+    };
+  }
+
+  /** 班級排序權重（年級高者優先，供導師對多班級時取現任班級） */
+  function gradeRank(cls) {
+    var s = String(cls || "");
+    if (/^暑/.test(s)) return 1000;
+    var m = s.match(/^(\d)(\d+)/);
+    if (m) return parseInt(m[1], 10) * 100 + (parseInt(m[2], 10) || 0);
+    return 0;
+  }
+
+  function migrateTeacherClassMap(classMap, existing) {
+    var map = Object.assign({}, existing || {});
+    Object.keys(classMap || {}).forEach(function (cls) {
+      var t = normKey(classMap[cls]);
+      if (!t) return;
+      if (!map[t] || gradeRank(cls) >= gradeRank(map[t])) map[t] = cls;
+    });
+    return map;
+  }
+
+  function syncClassMapsFromTeacher(teacher, className) {
+    teacher = normKey(teacher);
+    className = normKey(className);
+    if (!teacher || !className) return;
+    state.teacherClassMap[teacher] = className;
+    state.classMap[className] = teacher;
+    ensureClassRequisitionRows();
+  }
+
+  function removeTeacherClass(teacher) {
+    teacher = normKey(teacher);
+    var cls = state.teacherClassMap[teacher];
+    if (isPresetClass(cls)) {
+      toast("官方 34 班不可移除，請按「還原官方34班」");
+      return false;
+    }
+    delete state.teacherClassMap[teacher];
+    if (cls && normKey(state.classMap[cls]) === teacher) delete state.classMap[cls];
+    return true;
+  }
+
+  function normalizeTeacherName(name) {
+    return String(name || "").trim().replace(/老師$|師$/g, "");
+  }
+
+  function parseTeacherClassText(text) {
+    var rows = [];
+    var seen = {};
+    String(text || "").split(/\n+/).forEach(function (line) {
+      line = line.trim();
+      if (!line || /^班級/.test(line) || /^導師/.test(line) || /^分機/.test(line)) return;
+      var parts = line.split(/[\t,，;；|]+/).map(function (x) { return x.trim(); }).filter(Boolean);
+      if (parts.length >= 2 && /^\d{3}$|^特教\d$|^樂學班$|^暑/.test(parts[0])) {
+        var t0 = normalizeTeacherName(parts[1]);
+        if (t0 && !seen[parts[0] + "\t" + t0]) {
+          seen[parts[0] + "\t" + t0] = true;
+          rows.push({ className: parts[0], teacher: t0 });
+        }
+        return;
+      }
+      var re = /(?:^|[\s(（])(\d{3}|特教\d|樂學班|暑[\u4e00-\u9fff\d]+)\s*[,，:\s]+([\u4e00-\u9fff]{2,4})(?:老師|師)?/g;
+      var m;
+      while ((m = re.exec(line)) !== null) {
+        var cls = m[1];
+        var tch = normalizeTeacherName(m[2]);
+        if (!tch || seen[cls + "\t" + tch]) continue;
+        seen[cls + "\t" + tch] = true;
+        rows.push({ className: cls, teacher: tch });
+      }
+    });
+    return rows;
+  }
+
+  function pruneOrphanClassRows() {
+    var validClass = {};
+    Object.keys(state.classMap || {}).forEach(function (c) {
+      validClass[normKey(c)] = true;
+    });
+    state.records = state.records.filter(function (r) {
+      var cls = normKey(r.className);
+      if (!cls) return true;
+      if (validClass[cls]) return true;
+      if (sumQty(r.qtys) > 0) return true;
+      return false;
+    });
+    sortRecordsByClass();
+  }
+
+  function applyTeacherClassRows(rows, replace) {
+    rows = rows || [];
+    var applied = 0;
+    var skipped = 0;
+    if (replace) {
+      var extras = collectManualTeacherClassExtras();
+      state.teacherClassMap = {};
+      state.classMap = {};
+      applyOfficialPresetClasses();
+      extras.forEach(function (r) {
+        syncClassMapsFromTeacher(r.teacher, r.className);
+      });
+    }
+    rows.forEach(function (r) {
+      if (isPresetClass(r.className)) {
+        skipped++;
+        return;
+      }
+      syncClassMapsFromTeacher(r.teacher, r.className);
+      applied++;
+    });
+    applyOfficialPresetClasses();
+    saveState();
+    return { applied: applied, skipped: skipped };
+  }
+
+  function ensure115TeacherClassPreset() {
+    if (Object.keys(state.teacherClassMap || {}).length) return;
+    loadTeacherClassPreset(TEACHER_CLASS_PRESET_CAJH_115, true);
+  }
+
+  function syncRecordTeachersFromMap() {
+    state.records.forEach(function (r) {
+      var cls = normKey(r.className);
+      if (cls && state.classMap[cls]) {
+        r.teacher = normKey(state.classMap[cls]);
+      }
+    });
+  }
+
+  function loadTeacherClassPreset(preset, replace) {
+    preset = preset || TEACHER_CLASS_PRESET_CAJH_115;
+    if (replace) {
+      var extras = collectManualTeacherClassExtras();
+      state.teacherClassMap = {};
+      state.classMap = {};
+      preset.forEach(function (r) {
+        syncClassMapsFromTeacher(r.teacher, r.className);
+      });
+      extras.forEach(function (r) {
+        syncClassMapsFromTeacher(r.teacher, r.className);
+      });
+    } else {
+      preset.forEach(function (r) {
+        syncClassMapsFromTeacher(r.teacher, r.className);
+      });
+    }
+    applyOfficialPresetClasses();
+    syncRecordTeachersFromMap();
+    pruneOrphanClassRows();
+    ensureClassRequisitionRows();
+    state.settings.schoolName = state.settings.schoolName || "彰化縣立彰安國民中學";
+    state.settings.schoolYear = "115 學年";
+    state.settings.teacherPresetId = TEACHER_PRESET_ID;
+    saveState();
+    return preset.length;
+  }
+
+  function sync115TeacherPreset() {
+    var upgraded = (state.settings.teacherPresetId || "") !== TEACHER_PRESET_ID;
+    ensure115TeacherClassPreset();
+    applyOfficialPresetClasses();
+    syncRecordTeachersFromMap();
+    ensureClassRequisitionRows();
+    if (upgraded) {
+      state.settings.teacherPresetId = TEACHER_PRESET_ID;
+      saveState();
+    }
+    return upgraded;
+  }
+
+  function exportTeacherClassJson() {
+    var rows = Object.keys(state.teacherClassMap || {}).sort().map(function (t) {
+      return { className: state.teacherClassMap[t], teacher: t };
+    }).sort(function (a, b) {
+      return gradeRank(a.className) - gradeRank(b.className) || a.className.localeCompare(b.className);
+    });
+    var blob = new Blob([JSON.stringify({
+      schoolName: state.settings.schoolName || "",
+      schoolYear: state.settings.schoolYear || "",
+      teacherClass: rows
+    }, null, 2)], { type: "application/json" });
+    downloadBlob(blob, "導師名單_" + todayStr() + ".json");
+    toast("已匯出導師名單（" + rows.length + " 筆）");
+  }
+
+  function showImportTeacherClassModal() {
+    openModal(
+      '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+      "<h3>匯入其他班級</h3>" +
+      '<p class="tips" style="margin-bottom:0.45rem">每行一筆，格式：<strong>班級 導師</strong>（例：特教2 王小明）。官方 34 班（101–311）會自動略過，以內建名單為準。</p>' +
+      '<textarea id="teacherImportText" placeholder="特教2 王小明&#10;特教3 李小華&#10;樂學班 陳〇〇&#10;總務處 林〇〇" style="min-height:9rem"></textarea>' +
+      '<button class="btn" type="button" id="teacherImportSave" style="margin-top:0.65rem">合併匯入</button>'
+    );
+    document.getElementById("modalX").onclick = closeModal;
+    document.getElementById("teacherImportSave").onclick = function () {
+      var txt = document.getElementById("teacherImportText").value.trim();
+      if (!txt) { toast("請貼上名單"); return; }
+      var rows = parseTeacherClassText(txt);
+      if (!rows.length) { toast("無法解析，請確認格式"); return; }
+      var result = applyTeacherClassRows(rows, false);
+      syncRecordTeachersFromMap();
+      pruneOrphanClassRows();
+      ensureClassRequisitionRows();
+      saveState();
+      closeModal();
+      var msg = "已合併 " + result.applied + " 筆";
+      if (result.skipped) msg += "（略過官方班 " + result.skipped + " 筆）";
+      toast(msg);
+      renderSettings();
+    };
+  }
+
+  /** 領用人／班級：保留輸入原文；僅在另一欄空白且完全吻合對照表時帶出建議 */
+  function normalizeRequisitionParty(className, teacher) {
+    className = normKey(className);
+    teacher = normKey(teacher);
+    if (teacher && !className && state.teacherClassMap[teacher]) {
+      className = state.teacherClassMap[teacher];
+    } else if (className && !teacher && state.classMap[className]) {
+      teacher = normKey(state.classMap[className]);
+    }
+    return { className: className, teacher: teacher };
+  }
+
+  function emptyStockEntry() {
+    return { new: 0, old: 0, fair: 0 };
+  }
+
+  function emptyInventory() {
+    var inv = {};
+    allDefaultItems().forEach(function (it) { inv[it.id] = emptyStockEntry(); });
+    return inv;
+  }
+
+  function ensureInventory(inv) {
+    var base = {};
+    state.items.forEach(function (it) {
+      base[it.id] = Object.assign(emptyStockEntry(), (inv && inv[it.id]) || {});
+      CONDITIONS.forEach(function (c) {
+        base[it.id][c.id] = Math.max(0, parseInt(base[it.id][c.id], 10) || 0);
+      });
+    });
+    return base;
+  }
+
+  function stockTotal(entry) {
+    if (!entry) return 0;
+    return CONDITIONS.reduce(function (a, c) { return a + (Number(entry[c.id]) || 0); }, 0);
+  }
+
+  function inventoryGrandTotals() {
+    var t = { new: 0, old: 0, fair: 0, total: 0 };
+    state.items.forEach(function (it) {
+      var e = state.inventory[it.id] || emptyStockEntry();
+      CONDITIONS.forEach(function (c) {
+        t[c.id] += Number(e[c.id]) || 0;
+      });
+      t.total += stockTotal(e);
+    });
+    return t;
+  }
+
+  function migrateSettings(settings) {
+    var s = Object.assign({}, settings || {});
+    if (!/115/.test(String(s.schoolYear || ""))) s.schoolYear = "115 學年";
+    if (!s.schoolName) s.schoolName = "彰化縣立彰安國民中學";
+    return s;
+  }
+
+  function defaultState() {
+    return {
+      settings: { schoolName: "彰化縣立彰安國民中學", schoolYear: "115 學年" },
+      items: allDefaultItems(),
+      inventory: emptyInventory(),
+      classMap: {},
+      teacherClassMap: {},
+      records: [],
+      stockLogs: [],
+      removedItemIds: []
+    };
+  }
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        var legacy = localStorage.getItem("scan-equip-requisition-v4") ||
+          localStorage.getItem("scan-equip-requisition-v3");
+        if (legacy) raw = legacy;
+      }
+      if (!raw) return defaultState();
+      var p = JSON.parse(raw);
+      var s = migrateState(p);
+      s.inventory = ensureInventory(s.inventory || p.inventory);
+      if (!s.removedItemIds) s.removedItemIds = p.removedItemIds || [];
+      return s;
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function uid() {
+    return "r-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+  }
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+
+  function monthStr(d) {
+    d = d || new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1);
+  }
+
+  function fmtDate(ts) {
+    if (!ts) return "—";
+    var d = new Date(ts);
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+
+  function fmtDateTime(ts) {
+    if (!ts) return "—";
+    var d = new Date(ts);
+    return fmtDate(ts) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+
+  function esc(s) {
+    if (!s) return "";
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    el.className = "toast";
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    clearTimeout(undoToastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2300);
+  }
+
+  function toastWithUndo(msg, onUndo) {
+    var el = document.getElementById("toast");
+    el.className = "toast with-action";
+    el.innerHTML = esc(msg) + ' <button type="button" class="toast-action" id="toastUndoBtn">恢復</button>';
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    clearTimeout(undoToastTimer);
+    document.getElementById("toastUndoBtn").onclick = function () {
+      el.classList.remove("show");
+      clearTimeout(undoToastTimer);
+      if (onUndo) onUndo();
+    };
+    undoToastTimer = setTimeout(function () {
+      el.classList.remove("show");
+      lastManualUndo = null;
+    }, 60000);
+  }
+
+  function detectManualReqWarnings(className, teacher, qtys, editRec) {
+    var warnings = [];
+    className = normKey(className);
+    teacher = normKey(teacher);
+    var existing = editRec || findRecordByClass(className, teacher);
+    var prevQtys = existing ? Object.assign(emptyQtys(), existing.qtys) : emptyQtys();
+    if (className && isPresetClass(className)) {
+      var official = PRESET_CLASS_NAMES[className];
+      if (teacher && official && teacher !== official) {
+        warnings.push("班級 " + className + " 官方導師為「" + official + "」，目前為「" + teacher + "」");
+      }
+    }
+    if (teacher && state.teacherClassMap[teacher]) {
+      var mapped = state.teacherClassMap[teacher];
+      if (className && mapped !== className) {
+        warnings.push("導師「" + teacher + "」對照班級為「" + mapped + "」，目前班級為「" + className + "」");
+      }
+    }
+    state.items.forEach(function (it) {
+      var n = Number(qtys[it.id]) || 0;
+      if (!editRec && n < 0) warnings.push(it.name + " 為負數（" + n + "），將從累計中扣回");
+      if (!editRec && n > 50) warnings.push(it.name + " 本次 " + n + " 件，數量偏多");
+      if (editRec) {
+        var after = Number(qtys[it.id]) || 0;
+        var prev = Number(prevQtys[it.id]) || 0;
+        if (after - prev > 50) warnings.push(it.name + " 增加 " + (after - prev) + " 件，增量偏多");
+      }
+    });
+    state.items.forEach(function (it) {
+      var deductQty = 0;
+      if (editRec) {
+        deductQty = Math.max(0, (Number(qtys[it.id]) || 0) - (Number(prevQtys[it.id]) || 0));
+      } else {
+        deductQty = Math.max(0, Number(qtys[it.id]) || 0);
+      }
+      if (deductQty <= 0) return;
+      var orig = Object.assign(emptyStockEntry(), state.inventory[it.id] || emptyStockEntry());
+      state.inventory[it.id] = Object.assign(emptyStockEntry(), orig);
+      var dr = deductStock(it.id, deductQty);
+      state.inventory[it.id] = orig;
+      if (dr.shortfall > 0) warnings.push(it.name + " 庫存不足 " + dr.shortfall + " 件");
+    });
+    return warnings;
+  }
+
+  function buildManualReqPreview(payload) {
+    var editRec = payload.editRec;
+    var newQtys = payload.qtys;
+    var existing = editRec || findRecordByClass(payload.className, payload.teacher);
+    var prevQtys = existing ? Object.assign(emptyQtys(), existing.qtys) : emptyQtys();
+    var lines = [];
+    sortedItems().forEach(function (it) {
+      if (editRec) {
+        var after = Math.max(0, Number(newQtys[it.id]) || 0);
+        var prev = Number(prevQtys[it.id]) || 0;
+        var delta = after - prev;
+        lines.push({ name: it.name, prev: prev, delta: delta, after: after, thisTime: delta, active: delta !== 0 || after > 0 });
+      } else {
+        var add = Number(newQtys[it.id]) || 0;
+        var p = Number(prevQtys[it.id]) || 0;
+        lines.push({ name: it.name, prev: p, delta: add, after: p + add, thisTime: add, active: add !== 0 });
+      }
+    });
+    return {
+      lines: lines,
+      warnings: detectManualReqWarnings(payload.className, payload.teacher, newQtys, editRec),
+      merged: !!existing && !editRec,
+      hasChange: lines.some(function (ln) { return ln.thisTime !== 0; })
+    };
+  }
+
+  function manualConfirmTableHtml(lines, isEdit) {
+    var head = isEdit
+      ? "<tr><th>掃具</th><th>原累計</th><th>新累計</th><th>差額</th></tr>"
+      : "<tr><th>掃具</th><th>本次</th><th>原累計</th><th>累加後</th></tr>";
+    var body = lines.map(function (ln) {
+      var cls = ln.active ? "row-on" : "row-off";
+      var deltaStr = ln.delta > 0 ? "+" + ln.delta : String(ln.delta);
+      if (isEdit) {
+        return '<tr class="' + cls + '"><td>' + esc(ln.name) + "</td><td>" + ln.prev +
+          "</td><td>" + ln.after + "</td><td>" + deltaStr + "</td></tr>";
+      }
+      return '<tr class="' + cls + '"><td>' + esc(ln.name) + "</td><td>" + ln.thisTime +
+        "</td><td>" + ln.prev + "</td><td>" + ln.after + "</td></tr>";
+    }).join("");
+    return '<div class="confirm-all-wrap"><table class="confirm-all-table"><thead>' + head +
+      "</thead><tbody>" + body + "</tbody></table></div>";
+  }
+
+  function captureManualUndoBefore(payload) {
+    var rec = payload.editRec;
+    var existing = rec || findRecordByClass(payload.className, payload.teacher);
+    var snap = {
+      kind: rec ? "edit" : "add",
+      prevRecord: existing ? {
+        id: existing.id,
+        date: existing.date,
+        className: existing.className,
+        teacher: existing.teacher,
+        qtys: Object.assign(emptyQtys(), existing.qtys),
+        updatedAt: existing.updatedAt,
+        source: existing.source
+      } : null,
+      prevInv: {},
+      prevLogLen: (state.stockLogs || []).length,
+      syncStock: payload.syncStock,
+      createdRecordId: null
+    };
+    if (payload.syncStock) {
+      state.items.forEach(function (it) {
+        var d = 0;
+        if (rec) {
+          d = (Number(payload.qtys[it.id]) || 0) - (Number(snap.prevRecord.qtys[it.id]) || 0);
+        } else {
+          d = Number(payload.qtys[it.id]) || 0;
+        }
+        if (d !== 0) {
+          snap.prevInv[it.id] = Object.assign(emptyStockEntry(), state.inventory[it.id] || emptyStockEntry());
+        }
+      });
+    }
+    return snap;
+  }
+
+  function undoLastManualReq() {
+    var u = lastManualUndo;
+    if (!u) { toast("無可恢復的操作"); return false; }
+    if (u.kind === "add") {
+      if (!u.prevRecord && u.createdRecordId) {
+        state.records = state.records.filter(function (r) { return r.id !== u.createdRecordId; });
+      } else if (u.prevRecord) {
+        var rec = state.records.find(function (r) { return r.id === u.prevRecord.id; });
+        if (rec) {
+          rec.qtys = Object.assign(emptyQtys(), u.prevRecord.qtys);
+          rec.date = u.prevRecord.date;
+          rec.className = u.prevRecord.className;
+          rec.teacher = u.prevRecord.teacher;
+          rec.updatedAt = u.prevRecord.updatedAt;
+        }
+      }
+    } else if (u.kind === "edit" && u.prevRecord) {
+      var editRec = state.records.find(function (r) { return r.id === u.prevRecord.id; });
+      if (editRec) {
+        editRec.date = u.prevRecord.date;
+        editRec.className = u.prevRecord.className;
+        editRec.teacher = u.prevRecord.teacher;
+        editRec.qtys = Object.assign(emptyQtys(), u.prevRecord.qtys);
+        editRec.updatedAt = u.prevRecord.updatedAt;
+      }
+    }
+    Object.keys(u.prevInv || {}).forEach(function (id) {
+      state.inventory[id] = Object.assign(emptyStockEntry(), u.prevInv[id]);
+    });
+    if (state.stockLogs && u.prevLogLen != null) {
+      state.stockLogs = state.stockLogs.slice(0, u.prevLogLen);
+    }
+    saveState();
+    lastManualUndo = null;
+    toast("已恢復手動請領");
+    renderHome();
+    renderList();
+    renderStats();
+    renderStock();
+    return true;
+  }
+
+  function commitManualReq(payload) {
+    var undoSnap = captureManualUndoBefore(payload);
+    var rec = payload.editRec;
+
+    if (rec) {
+      var oldQtys = Object.assign(emptyQtys(), rec.qtys);
+      rec.date = payload.date;
+      rec.className = payload.className;
+      rec.teacher = payload.teacher;
+      rec.qtys = Object.assign(emptyQtys(), payload.qtys);
+      rec.updatedAt = Date.now();
+      if (payload.syncStock) {
+        applyStockCorrection(computeQtyDelta(oldQtys, payload.qtys), payload.className, rec.id);
+      }
+      undoSnap.createdRecordId = rec.id;
+      saveState();
+      lastManualUndo = undoSnap;
+      _reqDraft = null; _onModalClose = null; try { sessionStorage.removeItem("reqDraft"); } catch(e){}
+      closeModal();
+      toastWithUndo("已更新累計", undoLastManualReq);
+    } else {
+      var result = createRequisition({
+        date: payload.date,
+        className: payload.className,
+        teacher: payload.teacher,
+        qtys: payload.qtys,
+        source: "manual"
+      });
+      if (payload.syncStock) {
+        deductStockByDeltas(result.deltas, payload.className || payload.teacher, result.record.id, "手動請領；");
+      }
+      undoSnap.createdRecordId = result.record.id;
+      saveState();
+      lastManualUndo = undoSnap;
+      _reqDraft = null; _onModalClose = null; try { sessionStorage.removeItem("reqDraft"); } catch(e){}
+      closeModal();
+      toastWithUndo(result.merged ? "已累加至班級累計" : "已新增請領", undoLastManualReq);
+    }
+    renderHome();
+    renderList();
+    renderStats();
+    renderStock();
+  }
+
+  function showManualReqConfirmModal(payload, onRestore) {
+    var preview = buildManualReqPreview(payload);
+    var isEdit = !!payload.editRec;
+    if (!isEdit && !preview.lines.some(function (ln) { return ln.thisTime !== 0; })) {
+      toast("請至少填一項數量（可為負數，代表扣回）");
+      return;
+    }
+    if (isEdit && !preview.hasChange) {
+      toast("數量未變更");
+      return;
+    }
+    var title = isEdit ? "全部種類確認（修正累計）" : "全部種類確認（累加請領）";
+    var tableHtml = manualConfirmTableHtml(preview.lines, isEdit);
+    var warnHtml = preview.warnings.length
+      ? '<p class="scan-warn">⚠ 可能錯誤：' + esc(preview.warnings.join("；")) +
+        "。請按「恢復」返回修改。</p>" : "";
+    var party = payload.className
+      ? esc(payload.className) + (payload.teacher ? " · " + esc(payload.teacher) : "")
+      : esc(payload.teacher || "（未填）");
+    openModal(
+      '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+      "<h3>" + title + "</h3>" +
+      '<p class="tips" style="margin-bottom:0.35rem">' + esc(payload.date) + " · " + party +
+      (preview.merged && !isEdit ? " · 將累加至既有紀錄" : "") +
+      " · 共 " + preview.lines.length + " 種</p>" +
+      '<p class="tips" style="margin-bottom:0.35rem">以下為<strong>全部掃具種類</strong>，請逐項核對後確認。</p>' +
+      tableHtml +
+      warnHtml +
+      '<div class="btn-row" style="margin-top:0.75rem">' +
+      '<button class="btn secondary" type="button" id="btnManualRestore">恢復</button>' +
+      '<button class="btn" type="button" id="btnManualConfirm">' + (isEdit ? "確認儲存" : "確認累加") + "</button>" +
+      "</div>"
+    );
+    document.getElementById("modalX").onclick = function () {
+      if (onRestore) onRestore();
+    };
+    document.getElementById("btnManualRestore").onclick = function () {
+      if (onRestore) onRestore();
+    };
+    document.getElementById("btnManualConfirm").onclick = function () {
+      commitManualReq(payload);
+    };
+  }
+
+  function emptyQtys() {
+    var q = {};
+    state.items.forEach(function (it) { q[it.id] = 0; });
+    return q;
+  }
+
+  function sumQty(qtys) {
+    var n = 0;
+    Object.keys(qtys || {}).forEach(function (k) { n += Number(qtys[k]) || 0; });
+    return n;
+  }
+
+  function reqTableHtml(records, showActions) {
+    var items = sortedItems();
+    if (!records.length) {
+      return '<div class="empty">尚無請領紀錄</div>';
+    }
+    var head = '<tr><th class="sticky-col">最後請領</th><th class="sticky-col sticky-col-2">班級</th>' +
+      '<th class="sticky-col sticky-col-3">領用人</th>' +
+      items.map(function (it) {
+        return '<th title="' + esc(it.name) + '">' + esc(it.name) + '</th>';
+      }).join("") +
+      (showActions ? '<th class="act-cell">操作</th>' : '') + '</tr>';
+
+    var body = records.map(function (r) {
+      var cells = items.map(function (it) {
+        var n = Number(r.qtys[it.id]) || 0;
+        return '<td class="' + (n !== 0 ? "num-on" : "num-off") + '">' + (n !== 0 ? n : "0") + '</td>';
+      }).join("");
+      var acts = showActions
+        ? '<td class="act-cell">' +
+          '<button type="button" data-act="correct" data-id="' + r.id + '">修正</button>' +
+          '<button type="button" data-act="del" data-id="' + r.id + '">刪</button></td>'
+        : "";
+      return '<tr><td class="sticky-col">' + esc(r.date) + '</td>' +
+        '<td class="sticky-col sticky-col-2">' + (r.className ? esc(r.className) : "—") + '</td>' +
+        '<td class="sticky-col sticky-col-3">' + (r.teacher ? esc(r.teacher) : "—") + '</td>' +
+        cells + acts + '</tr>';
+    }).join("");
+
+    return '<div class="req-table-wrap"><table class="req-table"><thead>' + head +
+      '</thead><tbody>' + body + '</tbody></table></div>';
+  }
+
+  function itemsSummary(rec) {
+    var parts = [];
+    sortedItems().forEach(function (it) {
+      var n = Number(rec.qtys[it.id]) || 0;
+      if (n > 0) parts.push(it.name + "×" + n);
+    });
+    return parts;
+  }
+
+  function recordSearchHay(r) {
+    var names = itemsSummary(r).join(" ");
+    return (r.className + " " + r.teacher + " " + names).toLowerCase();
+  }
+
+  function gradeOf(klass) {
+    var s = String(klass || "");
+    if (!s) return "其他";
+    if (/^暑/.test(s)) return "暑期";
+    var m = s.match(/^(\d)/);
+    return m ? m[1] + "年級" : "其他";
+  }
+
+  function switchView(name) {
+    document.querySelectorAll(".view").forEach(function (v) { v.classList.remove("active"); });
+    document.getElementById("view-" + name).classList.add("active");
+    document.querySelectorAll(".nav-item").forEach(function (n) {
+      n.classList.toggle("on", n.dataset.view === name);
+    });
+    if (name === "home") renderHome();
+    if (name === "list") renderList();
+    if (name === "stock") { renderStock(); renderStockLogs(); }
+    if (name === "stats") renderStats();
+    if (name === "settings") renderSettings();
+  }
+
+  /*
+   * 下載 Blob：
+   * - 支援 Web Share API（iOS Safari）→ 用系統分享選單，使用者可選存到本機或 AirDrop
+   * - 其他平台 → 直接 a.click() 下載
+   */
+  function downloadBlob(blob, filename) {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS && navigator.canShare) {
+      var file = new File([blob], filename, { type: blob.type });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: filename })
+          .catch(function () { /* 使用者取消，不處理 */ });
+        return;
+      }
+    }
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 300);
+  }
+
+  function openModal(html) {
+    document.getElementById("modalBody").innerHTML = html;
+    document.getElementById("modalBack").classList.add("open");
+  }
+
+  var _onModalClose = null;
+  function closeModal() {
+    if (_onModalClose) { try { _onModalClose(); } catch (e) {} _onModalClose = null; }
+    document.getElementById("modalBack").classList.remove("open");
+  }
+
+  /* 自訂確認框，取代 confirm()（iOS PWA 模式下 confirm() 會被略過） */
+  function confirmModal(msg, onOk) {
+    openModal(
+      '<button class="modal-close" id="modalX" aria-label="關閉">×</button>' +
+      '<h3>請確認</h3>' +
+      '<p style="color:var(--muted);font-size:0.92rem;margin-bottom:1.1rem;white-space:pre-wrap">' + msg + '</p>' +
+      '<div style="display:flex;gap:0.5rem">' +
+        '<button type="button" class="btn secondary" style="flex:1" id="confirmNo">取消</button>' +
+        '<button type="button" class="btn" style="flex:1" id="confirmOk">確定匯出</button>' +
+      '</div>'
+    );
+    document.getElementById("modalX").onclick = closeModal;
+    document.getElementById("confirmOk").onclick = function () { closeModal(); onOk(); };
+    document.getElementById("confirmNo").onclick = closeModal;
+  }
+
+  function renderHome() {
+    var sy = state.settings.schoolYear || "";
+    var sn = state.settings.schoolName || "";
+    document.getElementById("schoolLead").textContent =
+      (sn ? sn + " · " : "") + (sy ? sy + " · " : "") + "掃具請領與庫存";
+
+    var inv = inventoryGrandTotals();
+    var today = todayStr();
+    var month = monthStr();
+    var todayRecs = state.records.filter(function (r) { return r.date === today; });
+    var monthRecs = state.records.filter(function (r) { return r.date.slice(0, 7) === month; });
+
+    document.getElementById("statsGrid").innerHTML =
+      '<div class="stat"><div class="num">' + inv.total + '</div><div class="lbl">庫存合計</div></div>' +
+      '<div class="stat"><div class="num">' + inv.new + '</div><div class="lbl">新</div></div>' +
+      '<div class="stat"><div class="num">' + inv.old + '</div><div class="lbl">舊</div></div>' +
+      '<div class="stat"><div class="num">' + inv.fair + '</div><div class="lbl">尚可</div></div>';
+
+    var homeInv = document.getElementById("homeInvSummary");
+    var rows = state.items.map(function (it) {
+      var e = state.inventory[it.id] || emptyStockEntry();
+      return { name: it.name, id: it.id, e: e, total: stockTotal(e) };
+    }).filter(function (x) { return x.total > 0; }).sort(function (a, b) { return b.total - a.total; }).slice(0, 6);
+
+    if (!rows.length) {
+      homeInv.innerHTML = '<div class="empty">尚未登記庫存，請至「庫存」分頁點選種類編輯</div>';
+    } else {
+      homeInv.innerHTML = rows.map(function (x) {
+        var it = state.items.find(function (i) { return i.id === x.id; });
+        return '<div class="inv-table-row" data-stock="' + x.id + '" style="cursor:pointer">' +
+          '<span class="name">' + esc(x.name) +
+          (it && isOtherItem(it) ? '<span class="tag-other">其他</span>' : '') + '</span>' +
+          '<span class="n">' + x.e.new + '</span><span class="n">' + x.e.old + '</span>' +
+          '<span class="n">' + x.e.fair + '</span><span class="n">' + x.total + '</span></div>';
+      }).join("") +
+        '<p class="tips" style="margin-top:0.5rem;text-align:center">點列可編輯 · 今日請領 ' + todayRecs.length + ' 筆 · 本月 ' + monthRecs.length + ' 筆</p>';
+      homeInv.querySelectorAll("[data-stock]").forEach(function (row) {
+        row.onclick = function () {
+          switchView("stock");
+          showStockForm(row.dataset.stock);
+        };
+      });
+    }
+
+    var el = document.getElementById("todayList");
+    if (!todayRecs.length) {
+      el.innerHTML = '<div class="empty">今日尚無請領紀錄</div>';
+    } else {
+      el.innerHTML = reqTableHtml(todayRecs, true);
+      bindCardActions(el);
+    }
+  }
+
+  function bindCardActions(container) {
+    container.querySelectorAll("[data-act]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (btn.dataset.act === "correct") showReqForm(btn.dataset.id);
+        if (btn.dataset.act === "edit") showReqForm(btn.dataset.id);
+        if (btn.dataset.act === "del") {
+          if (!confirm("確定刪除此班／單位的累計紀錄？")) return;
+          state.records = state.records.filter(function (r) { return r.id !== btn.dataset.id; });
+          saveState();
+          toast("已刪除");
+          renderHome();
+          renderList();
+          renderStats();
+        }
+      };
+    });
+  }
+
+  function renderGradeFilters() {
+    var grades = ["all", "1年級", "2年級", "3年級", "暑期", "其他"];
+    document.getElementById("gradeFilters").innerHTML = grades.map(function (g) {
+      var label = g === "all" ? "全部" : g;
+      return '<button type="button" class="chip' + (gradeFilter === g ? " on" : "") + '" data-grade="' + g + '">' + label + "</button>";
+    }).join("");
+  }
+
+  function filteredRecords() {
+    ensureClassRequisitionRows();
+    var q = listSearch.toLowerCase();
+    return state.records.filter(function (r) {
+      if (!normKey(r.className) && !normKey(r.teacher)) return false;
+      if (gradeFilter !== "all" && gradeOf(r.className) !== gradeFilter) return false;
+      if (q) {
+        if (recordSearchHay(r).indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderList() {
+    renderGradeFilters();
+    var list = filteredRecords();
+    var el = document.getElementById("reqList");
+    if (!list.length) {
+      el.innerHTML = '<div class="empty">此條件尚無請領紀錄</div>';
+      return;
+    }
+    el.innerHTML = reqTableHtml(list, true);
+    bindCardActions(el);
+  }
+
+  function renderStats() {
+    var input = document.getElementById("statsMonth");
+    if (!input.value) input.value = monthStr();
+    var month = input.value;
+    var recs = state.records.filter(function (r) { return r.date.slice(0, 7) === month; });
+
+    var itemTotals = {};
+    state.items.forEach(function (it) { itemTotals[it.id] = 0; });
+    recs.forEach(function (r) {
+      state.items.forEach(function (it) {
+        itemTotals[it.id] += Number(r.qtys[it.id]) || 0;
+      });
+    });
+
+    var itemSorted = state.items.map(function (it) {
+      return { name: it.name, n: itemTotals[it.id] };
+    }).filter(function (x) { return x.n !== 0; }).sort(function (a, b) { return b.n - a.n; });
+
+    var maxItem = itemSorted.length ? itemSorted[0].n : 1;
+    var itemEl = document.getElementById("itemRank");
+    if (!itemSorted.length) {
+      itemEl.innerHTML = '<div class="empty">本月尚無品項數量</div>';
+    } else {
+      itemEl.innerHTML = itemSorted.map(function (x) {
+        return '<div class="rank-item"><span>' + esc(x.name) + "</span>" +
+          '<div class="bar-wrap"><div class="bar" style="width:' + Math.round(x.n / maxItem * 100) + '%"></div></div>' +
+          "<strong>" + x.n + "</strong></div>";
+      }).join("");
+    }
+
+    var classQty = {};
+    recs.forEach(function (r) {
+      var ck = r.className || r.teacher || "其他";
+      classQty[ck] = (classQty[ck] || 0) + sumQty(r.qtys);
+    });
+
+    var classSorted = Object.keys(classQty).map(function (k) {
+      return { name: k, n: classQty[k] };
+    }).filter(function (x) { return x.n > 0; }).sort(function (a, b) { return b.n - a.n; });
+    var maxC = classSorted.length ? classSorted[0].n : 1;
+    var classEl = document.getElementById("classRank");
+    if (!classSorted.length) {
+      classEl.innerHTML = '<div class="empty">本月尚無班級累計</div>';
+    } else {
+      classEl.innerHTML = classSorted.slice(0, 20).map(function (x) {
+        return '<div class="rank-item"><span>' + esc(x.name) + "</span>" +
+          '<div class="bar-wrap"><div class="bar" style="width:' + Math.round(x.n / maxC * 100) + '%"></div></div>' +
+          "<strong>" + x.n + " 件</strong></div>";
+      }).join("");
+    }
+  }
+
+  function renderStock() {
+    var inv = inventoryGrandTotals();
+    document.getElementById("stockStats").innerHTML =
+      '<div class="stat"><div class="num">' + inv.total + '</div><div class="lbl">庫存合計</div></div>' +
+      '<div class="stat"><div class="num">' + inv.new + '</div><div class="lbl">新</div></div>' +
+      '<div class="stat"><div class="num">' + inv.old + '</div><div class="lbl">舊</div></div>' +
+      '<div class="stat"><div class="num">' + inv.fair + '</div><div class="lbl">尚可</div></div>';
+
+    var filters = [
+      { k: "all", l: "全部" },
+      { k: "standard", l: "標準" },
+      { k: "other", l: "其他細項" },
+      { k: "has", l: "有庫存" },
+      { k: "zero", l: "零庫存" },
+      { k: "no_new", l: "無新品" }
+    ];
+    document.getElementById("stockFilters").innerHTML = filters.map(function (f) {
+      return '<button type="button" class="chip' + (stockFilter === f.k ? " on" : "") + '" data-sfilter="' + f.k + '">' + f.l + '</button>';
+    }).join("");
+
+    var q = stockSearch.toLowerCase();
+    var list = state.items.filter(function (it) {
+      if (q && it.name.toLowerCase().indexOf(q) === -1) return false;
+      if (stockFilter === "standard" && isOtherItem(it)) return false;
+      if (stockFilter === "other" && !isOtherItem(it)) return false;
+      var e = state.inventory[it.id] || emptyStockEntry();
+      var total = stockTotal(e);
+      if (stockFilter === "has" && total === 0) return false;
+      if (stockFilter === "zero" && total > 0) return false;
+      if (stockFilter === "no_new" && (Number(e.new) || 0) > 0) return false;
+      return true;
+    });
+    list = sortedItems().filter(function (it) {
+      return list.some(function (x) { return x.id === it.id; });
+    });
+
+    var el = document.getElementById("stockList");
+    if (!list.length) {
+      el.innerHTML = '<div class="empty">無符合條件的掃具種類</div>';
+      return;
+    }
+    el.innerHTML = list.map(function (it) {
+      var e = state.inventory[it.id] || emptyStockEntry();
+      var total = stockTotal(e);
+      return '<div class="inv-table-row" data-stock="' + it.id + '">' +
+        '<span class="name">' + esc(it.name) +
+        (isOtherItem(it) ? '<span class="tag-other">其他</span>' : '') + '</span>' +
+        '<span class="n">' + e.new + '</span><span class="n">' + e.old + '</span>' +
+        '<span class="n">' + e.fair + '</span><span class="n">' + total + '</span></div>';
+    }).join("");
+    el.querySelectorAll("[data-stock]").forEach(function (row) {
+      row.onclick = function () { showStockForm(row.dataset.stock); };
+    });
+    renderStockLogs();
+  }
+
+  function showStockForm(itemId) {
+    var it = state.items.find(function (x) { return x.id === itemId; });
+    if (!it) return;
+    var e = Object.assign(emptyStockEntry(), state.inventory[itemId] || {});
+
+    var blocks = CONDITIONS.map(function (c) {
+      var v = Number(e[c.id]) || 0;
+      return '<div class="cond-block ' + c.id + '">' +
+        '<div class="cond-label">' + c.name + '</div>' +
+        '<div class="qty-ctrl">' +
+        '<button type="button" data-dec="' + c.id + '">−</button>' +
+        '<input type="number" min="0" max="999" data-cond="' + c.id + '" value="' + v + '" />' +
+        '<button type="button" data-inc="' + c.id + '">＋</button>' +
+        '</div></div>';
+    }).join("");
+
+    openModal(
+      '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+      '<h3>庫存 · ' + esc(it.name) + '</h3>' +
+      '<p class="tips" style="margin-bottom:0.55rem">依「新、舊、尚可」登記此掃具種類數量</p>' +
+      '<div id="condGrid">' + blocks + '</div>' +
+      '<p class="meta" id="stockSumLine" style="margin:0.5rem 0">合計：' + stockTotal(e) + '</p>' +
+      '<button class="btn" type="button" id="stockSave">儲存庫存</button>' +
+      '<button class="btn secondary" type="button" id="stockDelete" style="margin-top:0.45rem">刪除此欄位</button>' +
+      '<button class="btn secondary" type="button" id="stockZero" style="margin-top:0.45rem">全部歸零</button>'
+    );
+
+    function refreshSum() {
+      var sum = 0;
+      document.querySelectorAll("[data-cond]").forEach(function (inp) {
+        sum += Math.max(0, parseInt(inp.value, 10) || 0);
+      });
+      document.getElementById("stockSumLine").textContent = "合計：" + sum;
+    }
+
+    document.getElementById("modalX").onclick = closeModal;
+    document.getElementById("condGrid").onclick = function (ev) {
+      var t = ev.target;
+      if (t.dataset.inc || t.dataset.dec) {
+        var id = t.dataset.inc || t.dataset.dec;
+        var input = document.querySelector('[data-cond="' + id + '"]');
+        var n = Number(input.value) || 0;
+        input.value = t.dataset.inc ? n + 1 : Math.max(0, n - 1);
+        refreshSum();
+      }
+    };
+    document.querySelectorAll("[data-cond]").forEach(function (inp) {
+      inp.oninput = refreshSum;
+    });
+
+    document.getElementById("stockZero").onclick = function () {
+      if (!confirm("確定將「" + it.name + "」全部歸零？")) return;
+      CONDITIONS.forEach(function (c) {
+        document.querySelector('[data-cond="' + c.id + '"]').value = 0;
+      });
+      refreshSum();
+    };
+
+    document.getElementById("stockSave").onclick = function () {
+      var entry = emptyStockEntry();
+      document.querySelectorAll("[data-cond]").forEach(function (inp) {
+        entry[inp.dataset.cond] = Math.max(0, parseInt(inp.value, 10) || 0);
+      });
+      state.inventory[itemId] = entry;
+      saveState();
+      closeModal();
+      toast("已更新庫存");
+      renderStock();
+      renderHome();
+    };
+
+    document.getElementById("stockDelete").onclick = function () {
+      if (!removeItem(itemId)) return;
+      closeModal();
+      toast("已刪除欄位");
+      renderSettings();
+      renderStock();
+      renderHome();
+      renderList();
+    };
+  }
+
+  function exportInvCsv() {
+    var items = sortedItems();
+    var headers = ["掃具種類", "新", "舊", "尚可", "合計"];
+    var rows = [headers.join(",")];
+    items.forEach(function (it) {
+      var e = state.inventory[it.id] || emptyStockEntry();
+      var cols = [it.name, e.new, e.old, e.fair, stockTotal(e)];
+      rows.push(cols.map(csvEscape).join(","));
+    });
+    var inv = inventoryGrandTotals();
+    rows.push(["合計", inv.new, inv.old, inv.fair, inv.total].map(csvEscape).join(","));
+    var bom = "\uFEFF";
+    var blob = new Blob([bom + rows.join("\n")], { type: "text/csv;charset=utf-8" });
+    downloadBlob(blob, "掃具庫存_" + todayStr() + ".csv");
+    toast("已匯出庫存 CSV");
+  }
+
+  function renderItemCard(it, i) {
+    var e = state.inventory[it.id] || emptyStockEntry();
+    return '<div class="card"><div class="card-title">' + (i + 1) + ". " + esc(it.name) +
+      (isOtherItem(it) ? ' <span class="tag-other">自訂</span>' : '') +
+      '</div><div class="meta">庫存：新 ' + e.new + ' · 舊 ' + e.old + ' · 尚可 ' + e.fair + '</div>' +
+      '<div class="btn-row">' +
+      '<button class="btn secondary" type="button" data-delitem="' + it.id + '">刪除欄位</button></div></div>';
+  }
+
+  function renderItemDefs() {
+    var items = sortedItems();
+    document.getElementById("itemDefList").innerHTML = items.length
+      ? items.map(function (it, i) { return renderItemCard(it, i); }).join("")
+      : '<div class="empty">尚無掃具種類</div>';
+
+    document.querySelectorAll("[data-delitem]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (!removeItem(btn.dataset.delitem)) return;
+        toast("已刪除欄位");
+        renderSettings();
+        renderStock();
+        renderHome();
+        renderList();
+      };
+    });
+
+    var keys = Object.keys(state.teacherClassMap || {}).sort(function (a, b) {
+      var ca = state.teacherClassMap[a];
+      var cb = state.teacherClassMap[b];
+      var ga = gradeRank(ca) - gradeRank(cb);
+      if (ga) return ga;
+      return normKey(ca).localeCompare(normKey(cb), "zh-Hant");
+    });
+    var mapEl = document.getElementById("classMapList");
+    if (!keys.length) {
+      mapEl.innerHTML = '<div class="empty">尚無導師現任班級，請按「還原官方34班」或手動新增</div>';
+    } else {
+      var official = keys.filter(function (t) { return isPresetClass(state.teacherClassMap[t]); });
+      var manual = keys.filter(function (t) { return !isPresetClass(state.teacherClassMap[t]); });
+      function classCard(t, removable) {
+        var cls = state.teacherClassMap[t];
+        var badge = removable ? "" : '<span class="tag" style="margin-left:0.35rem;font-size:0.72rem">官方</span>';
+        var delBtn = removable
+          ? '<div class="btn-row"><button class="btn secondary" type="button" data-delteacher="' + esc(t) + '">移除</button></div>'
+          : "";
+        return '<div class="card"><div class="card-head"><div class="card-title">' + esc(t) + badge +
+          '</div><div class="meta">現任班級：' + esc(cls) + "</div></div>" + delBtn + "</div>";
+      }
+      var html = "";
+      if (official.length) {
+        html += '<p class="tips" style="margin:0 0 0.35rem">官方 34 班（' + official.length + " 班）</p>";
+        html += official.map(function (t) { return classCard(t, false); }).join("");
+      }
+      if (manual.length) {
+        html += '<p class="tips" style="margin:0.65rem 0 0.35rem">其他班級（' + manual.length + " 班，可移除）</p>";
+        html += manual.map(function (t) { return classCard(t, true); }).join("");
+      }
+      mapEl.innerHTML = html;
+      mapEl.querySelectorAll("[data-delteacher]").forEach(function (btn) {
+        btn.onclick = function () {
+          if (!removeTeacherClass(btn.dataset.delteacher)) return;
+          saveState();
+          renderSettings();
+          toast("已移除");
+        };
+      });
+    }
+  }
+
+  function renderItems() {
+    renderItemDefs();
+  }
+
+  function renderSettings() {
+    document.getElementById("schoolName").value = state.settings.schoolName || "";
+    document.getElementById("schoolYear").value = state.settings.schoolYear || "";
+    document.getElementById("geminiKey").value = getGeminiKey() ? "••••••••" : "";
+    renderItemDefs();
+  }
+
+  var _reqDraft = null;
+
+  function _saveReqDraft() {
+    try {
+      var d = document.getElementById("fDate");
+      var t = document.getElementById("fTeacher");
+      var c = document.getElementById("fClass");
+      if (!d) return;
+      var qtys = {};
+      document.querySelectorAll("[data-qty]").forEach(function (inp) {
+        qtys[inp.dataset.qty] = parseReqQty(inp.value);
+      });
+      var hasAny = Object.keys(qtys).some(function (k) { return qtys[k] > 0; });
+      if (!hasAny && !t.value.trim() && !c.value.trim()) {
+        _reqDraft = null;
+        try { sessionStorage.removeItem("reqDraft"); } catch (e2) {}
+        return;
+      }
+      _reqDraft = { date: d.value, teacher: t.value, className: c.value, qtys: qtys };
+      try { sessionStorage.setItem("reqDraft", JSON.stringify(_reqDraft)); } catch (e2) {}
+    } catch (e) { /* modal already gone */ }
+  }
+
+  (function () {
+    try {
+      var s = sessionStorage.getItem("reqDraft");
+      if (s) _reqDraft = JSON.parse(s);
+    } catch (e) {}
+  })();
+
+  function showReqForm(editId, initial) {
+    initial = initial || {};
+    var rec = editId ? state.records.find(function (r) { return r.id === editId; }) : null;
+    var draft = (!rec && !initial.qtys && _reqDraft) ? _reqDraft : null;
+    var date = rec ? rec.date : (draft ? draft.date : (initial.date || todayStr()));
+    var className = rec ? rec.className : (draft ? draft.className : (initial.className || ""));
+    var teacher = rec ? rec.teacher : (draft ? draft.teacher : (initial.teacher || ""));
+    var formQtys = rec
+      ? Object.assign(emptyQtys(), rec.qtys)
+      : Object.assign(emptyQtys(), draft ? draft.qtys : (initial.qtys || {}));
+    if (draft) { _reqDraft = null; try { sessionStorage.removeItem("reqDraft"); } catch(e){} setTimeout(function () { toast("已恢復上次未送出的草稿"); }, 150); }
+
+    function cumulativeHintHtml(cls, tch) {
+      if (rec) return "";
+      var ex = findRecordByClass(cls, tch);
+      if (!ex) return "";
+      var parts = itemsSummary(ex);
+      if (!parts.length) {
+        return '<p class="tips" style="margin-bottom:0.35rem">該班累計目前皆為 <strong>0</strong></p>';
+      }
+      return '<p class="tips" style="margin-bottom:0.35rem">該班目前累計：' + esc(parts.join("、")) + "</p>";
+    }
+
+    function reqFormBody(currentQtys) {
+      currentQtys = currentQtys || formQtys;
+      var cls = className;
+      var tch = teacher;
+      try {
+        cls = document.getElementById("fClass").value.trim();
+        tch = document.getElementById("fTeacher").value.trim();
+      } catch (e) { /* modal 初開 */ }
+      var modeTips = rec
+        ? '<p class="tips" style="margin-bottom:0.45rem">逐項填寫該班<strong>全部掃具</strong>累計總量（0 也要確認），全部輸入完後按「前往確認」</p>'
+        : '<p class="tips" style="margin-bottom:0.45rem">逐項填寫<strong>全部掃具</strong>本次數量（未領填 0），全部輸入完後按「前往確認」再累加</p>' +
+          cumulativeHintHtml(cls, tch);
+      var title = rec ? "修正累計" : "請領登記（累加）";
+      var qtyTitle = rec ? "各掃具累計數量" : "本次請領數量";
+      var syncLabel = rec
+        ? "同步調整庫存（依差額加減，減少還庫至尚可）"
+        : "同步扣減庫存（僅扣本次增量；尚可→舊→新）";
+      return '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+        "<h3>" + title + "</h3>" +
+        modeTips +
+        '<div class="row"><label>領用日期</label><input id="fDate" type="date" value="' + esc(date) + '" /></div>' +
+        '<div class="row"><label>領用人</label><input id="fTeacher" type="text" maxlength="30" list="teacherList" value="' + esc(teacher) + '" placeholder="導師、處室或單位" /></div>' +
+        '<datalist id="teacherList">' + Object.keys(state.teacherClassMap || {}).map(function (t) {
+          return '<option value="' + esc(t) + '"></option>';
+        }).join("") + "</datalist>" +
+        '<div class="row"><label>班級</label><input id="fClass" type="text" maxlength="20" list="classList" value="' + esc(className) + '" placeholder="有班級者必填以累加" /></div>' +
+        '<datalist id="classList">' + Object.keys(state.classMap).map(function (k) {
+          return '<option value="' + esc(k) + '"></option>';
+        }).join("") + "</datalist>" +
+        '<div class="qty-section-title">' + qtyTitle + '</div>' +
+        '<div class="qty-grid" id="qtyGridAll">' + qtyRowsHtml(currentQtys, sortedItems()) + '</div>' +
+        '<button class="btn secondary" type="button" id="btnAddOtherInForm" style="margin-top:0.35rem">新增欄位</button>' +
+        '<label style="display:flex;align-items:center;gap:0.4rem;margin-top:0.55rem;font-size:0.86rem;color:var(--muted)">' +
+        '<input type="checkbox" id="syncStock" checked /> ' + syncLabel + '</label>' +
+        '<button class="btn" type="button" id="fSave" style="margin-top:0.65rem">全部種類輸入完，前往確認</button>';
+    }
+
+    openModal(reqFormBody(formQtys));
+    bindReqForm(rec, reqFormBody);
+  }
+
+  function bindReqForm(rec, reqFormBody) {
+    _onModalClose = rec ? null : _saveReqDraft;
+    document.getElementById("modalX").onclick = closeModal;
+
+    function suggestClassIfEmpty() {
+      var t = document.getElementById("fTeacher").value.trim();
+      var clsEl = document.getElementById("fClass");
+      if (t && !clsEl.value.trim() && state.teacherClassMap[t]) {
+        clsEl.value = state.teacherClassMap[t];
+      }
+    }
+
+    document.getElementById("fTeacher").oninput = suggestClassIfEmpty;
+    document.getElementById("fClass").oninput = function () {
+      var c = document.getElementById("fClass").value.trim();
+      var tEl = document.getElementById("fTeacher");
+      if (c && !tEl.value.trim() && state.classMap[c]) {
+        tEl.value = state.classMap[c];
+      }
+    };
+    suggestClassIfEmpty();
+
+    function bindQtyGrid(id) {
+      var grid = document.getElementById(id);
+      if (!grid) return;
+      grid.onclick = function (ev) {
+        var t = ev.target;
+        if (t.dataset.inc || t.dataset.dec) {
+          var itemId = t.dataset.inc || t.dataset.dec;
+          var input = grid.querySelector('[data-qty="' + itemId + '"]');
+          var n = parseReqQty(input.value);
+          input.value = t.dataset.inc ? n + 1 : n - 1;
+        }
+      };
+    }
+    bindQtyGrid("qtyGridAll");
+
+    document.getElementById("btnAddOtherInForm").onclick = function () {
+      showAddOtherItemForm(function (it) {
+        if (!it) return;
+        var date = document.getElementById("fDate").value;
+        var className = document.getElementById("fClass").value;
+        var teacher = document.getElementById("fTeacher").value;
+        var newQtys = emptyQtys();
+        document.querySelectorAll("[data-qty]").forEach(function (inp) {
+          newQtys[inp.dataset.qty] = parseReqQty(inp.value);
+        });
+        openModal(reqFormBody(newQtys));
+        bindReqForm(rec, reqFormBody);
+        document.getElementById("fDate").value = date;
+        document.getElementById("fClass").value = className;
+        document.getElementById("fTeacher").value = teacher;
+        document.querySelectorAll("[data-qty]").forEach(function (inp) {
+          if (newQtys[inp.dataset.qty]) inp.value = newQtys[inp.dataset.qty];
+        });
+        var newInput = document.querySelector('[data-qty="' + it.id + '"]');
+        if (newInput) newInput.value = 1;
+        toast("已新增欄位：" + it.name);
+      });
+    };
+
+    document.getElementById("fSave").onclick = function () {
+      var d = document.getElementById("fDate").value;
+      var c = document.getElementById("fClass").value.trim();
+      var tch = document.getElementById("fTeacher").value.trim();
+      if (!d) { toast("請填寫日期"); return; }
+      if (!c && !tch) { toast("請填領用人或班級"); return; }
+      var newQtys = emptyQtys();
+      document.querySelectorAll("[data-qty]").forEach(function (inp) {
+        newQtys[inp.dataset.qty] = parseReqQty(inp.value);
+      });
+      var hasAnyQty = Object.keys(newQtys).some(function (k) { return (Number(newQtys[k]) || 0) !== 0; });
+      if (!rec && !hasAnyQty) {
+        toast("請至少填一項數量（可為負數，代表扣回）");
+        return;
+      }
+      if (rec) {
+        var prevQtys = Object.assign(emptyQtys(), rec.qtys);
+        var changed = state.items.some(function (it) {
+          return parseReqQty(newQtys[it.id]) !== parseReqQty(prevQtys[it.id]);
+        });
+        if (!changed) {
+          toast("數量未變更，請修改後再確認");
+          return;
+        }
+      }
+      var syncStock = document.getElementById("syncStock") && document.getElementById("syncStock").checked;
+      var payload = {
+        date: d,
+        className: c,
+        teacher: tch,
+        qtys: newQtys,
+        syncStock: syncStock,
+        editRec: rec
+      };
+      showManualReqConfirmModal(payload, function () {
+        openModal(reqFormBody(newQtys));
+        bindReqForm(rec, reqFormBody);
+        document.getElementById("fDate").value = d;
+        document.getElementById("fClass").value = c;
+        document.getElementById("fTeacher").value = tch;
+        if (document.getElementById("syncStock")) {
+          document.getElementById("syncStock").checked = syncStock;
+        }
+      });
+    };
+  }
+
+  function showAddOtherItemForm(onDone) {
+    openModal(
+      '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+      "<h3>新增掃具欄位</h3>" +
+      '<p class="tips" style="margin-bottom:0.5rem">新增後請領表、CSV 與庫存會多一欄。</p>' +
+      '<div class="row"><label>種類名稱</label><input id="oName" type="text" maxlength="30" placeholder="例：延長線、漂白水" list="otherNames" /></div>' +
+      '<datalist id="otherNames">' + DEFAULT_OTHER_ITEMS.map(function (it) {
+        return '<option value="' + esc(it.name) + '"></option>';
+      }).join("") + "</datalist>" +
+      '<button class="btn" type="button" id="oSave">新增</button>'
+    );
+    document.getElementById("modalX").onclick = function () {
+      closeModal();
+      if (onDone) onDone(null);
+    };
+    document.getElementById("oSave").onclick = function () {
+      var name = document.getElementById("oName").value.trim();
+      if (!name) { toast("請填寫種類名稱"); return; }
+      var existing = itemByName(name);
+      if (existing) {
+        closeModal();
+        if (onDone) onDone(existing);
+        return;
+      }
+      var it = addItem(name);
+      closeModal();
+      toast("已新增欄位");
+      if (onDone) onDone(it);
+      else {
+        renderSettings();
+        renderStock();
+      }
+    };
+  }
+
+  function showClassForm() {
+    openModal(
+      '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+      "<h3>新增其他班級</h3>" +
+      '<p class="tips" style="margin-bottom:0.5rem">供<strong>特教、處室、樂學班</strong>等非官方班級。官方 34 班（101–311）請用「還原官方34班」，勿在此修改。</p>' +
+      '<div class="row"><label>領用人／導師</label><input id="cTeacher" type="text" maxlength="20" placeholder="例：王小明、總務處" /></div>' +
+      '<div class="row"><label>班級或單位</label><input id="cClass" type="text" maxlength="20" placeholder="例：特教2、樂學班" /></div>' +
+      '<button class="btn" type="button" id="cSave">儲存</button>'
+    );
+    document.getElementById("modalX").onclick = closeModal;
+    document.getElementById("cSave").onclick = function () {
+      var c = document.getElementById("cClass").value.trim();
+      var t = document.getElementById("cTeacher").value.trim();
+      if (!c || !t) { toast("請填寫領用人與班級"); return; }
+      if (isPresetClass(c)) {
+        toast("班級 " + c + " 為官方名單，請按「還原官方34班」");
+        return;
+      }
+      syncClassMapsFromTeacher(t, c);
+      saveState();
+      closeModal();
+      toast("已儲存");
+      renderSettings();
+    };
+  }
+
+  function csvEscape(s) {
+    s = String(s == null ? "" : s);
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function exportCsv(monthOnly) {
+    var items = sortedItems();
+    var headers = ["領用日期", "領用班級", "導師姓名"]
+      .concat(items.map(function (it) { return it.name; }));
+    var rows = [headers.join(",")];
+    var month = document.getElementById("statsMonth").value || monthStr();
+    var list = state.records.slice().sort(function (a, b) {
+      var ga = gradeRank(a.className) - gradeRank(b.className);
+      if (ga) return ga;
+      return normKey(a.className).localeCompare(normKey(b.className), "zh-Hant");
+    });
+    if (monthOnly) list = list.filter(function (r) { return r.date.slice(0, 7) === month; });
+
+    function doExportCsv() {
+      list.forEach(function (r) {
+        var cols = [r.date, r.className, r.teacher]
+          .concat(items.map(function (it) { return Number(r.qtys[it.id]) || 0; }));
+        rows.push(cols.map(csvEscape).join(","));
+      });
+      var bom = "\uFEFF";
+      var blob = new Blob([bom + rows.join("\n")], { type: "text/csv;charset=utf-8" });
+      downloadBlob(blob, (monthOnly ? "掃具請領_" + month : "掃具請領_全部") + ".csv");
+      toast("已匯出 CSV（" + list.length + " 筆）");
+    }
+
+    var label = monthOnly ? ("本月（" + month + "）") : "全部";
+    var countMsg = list.length > 0 ? ("共 " + list.length + " 筆請領紀錄。") : "⚠️ 尚無請領紀錄，將匯出空白檔案。";
+    confirmModal("匯出" + label + " CSV\n" + countMsg + "\n\n確定要下載嗎？", doExportCsv);
+  }
+
+  function parseCsvRows(text) {
+    var rows = [];
+    var lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+    lines.forEach(function (line) {
+      if (!line.trim()) return;
+      var cols = [];
+      var cur = "";
+      var inQ = false;
+      for (var i = 0; i < line.length; i++) {
+        var ch = line[i];
+        if (inQ) {
+          if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+          else if (ch === '"') inQ = false;
+          else cur += ch;
+        } else {
+          if (ch === '"') inQ = true;
+          else if (ch === ',') { cols.push(cur); cur = ""; }
+          else cur += ch;
+        }
+      }
+      cols.push(cur);
+      rows.push(cols);
+    });
+    return rows;
+  }
+
+  function importCsvText(text) {
+    var rows = parseCsvRows(text);
+    if (rows.length < 2) { toast("CSV 內容不足，至少需要標題列與一筆資料"); return; }
+    var headers = rows[0].map(function (h) { return h.trim(); });
+    var dateIdx = headers.indexOf("領用日期");
+    var classIdx = headers.indexOf("領用班級");
+    var teacherIdx = headers.indexOf("導師姓名");
+    if (dateIdx < 0) { toast("找不到「領用日期」欄，請確認為掃具台匯出的 CSV"); return; }
+
+    var itemCols = [];
+    headers.forEach(function (h, i) {
+      if (i === dateIdx || i === classIdx || i === teacherIdx) return;
+      var it = state.items.find(function (x) { return x.name === h; });
+      if (it) itemCols.push({ idx: i, itemId: it.id });
+    });
+
+    var added = 0, skipped = 0;
+    rows.slice(1).forEach(function (cols) {
+      var date = (cols[dateIdx] || "").trim();
+      if (!date) { skipped++; return; }
+      var className = classIdx >= 0 ? (cols[classIdx] || "").trim() : "";
+      var teacher = teacherIdx >= 0 ? (cols[teacherIdx] || "").trim() : "";
+      var qtys = emptyQtys();
+      itemCols.forEach(function (ic) {
+        qtys[ic.itemId] = parseInt(cols[ic.idx], 10) || 0;
+      });
+      var existing = state.records.find(function (r) {
+        return r.date === date && r.className === className && r.teacher === teacher;
+      });
+      if (existing) {
+        existing.qtys = Object.assign(emptyQtys(), qtys);
+        existing.updatedAt = Date.now();
+      } else {
+        state.records.push({
+          id: "csv_" + Date.now() + "_" + Math.random().toString(36).slice(2),
+          date: date,
+          className: className,
+          teacher: teacher,
+          qtys: qtys,
+          source: "csv",
+          updatedAt: Date.now()
+        });
+        added++;
+      }
+    });
+    saveState();
+    renderHome(); renderList(); renderStats();
+    toast("CSV 匯入完成：新增 " + added + " 筆，更新 " + (rows.length - 1 - added - skipped) + " 筆" + (skipped ? "，略過 " + skipped + " 筆" : ""));
+  }
+
+  function loadDemoInventory() {
+    var demo = {
+      bamboo_broom: { new: 8, old: 12, fair: 5 },
+      tongs: { new: 15, old: 6, fair: 4 },
+      broom: { new: 10, old: 18, fair: 7 },
+      mop: { new: 6, old: 14, fair: 9 },
+      dustpan: { new: 12, old: 10, fair: 3 },
+      detergent: { new: 20, old: 0, fair: 2 },
+      trash_can: { new: 4, old: 8, fair: 6 },
+      trash_bag: { new: 30, old: 0, fair: 0 },
+      toilet_brush: { new: 5, old: 7, fair: 4 },
+      laundry: { new: 8, old: 2, fair: 1 },
+      rake: { new: 3, old: 5, fair: 2 },
+      squeegee: { new: 2, old: 4, fair: 3 },
+      other_spin_mop: { new: 1, old: 2, fair: 1 },
+      other_coconut_broom: { new: 3, old: 6, fair: 4 }
+    };
+    demo.bamboo_broom = { new: 15, old: 20, fair: 10 };
+    Object.keys(demo).forEach(function (id) {
+      state.inventory[id] = demo[id];
+    });
+  }
+
+  function computeQtyDelta(oldQtys, newQtys) {
+    var deltas = emptyQtys();
+    state.items.forEach(function (it) {
+      var d = (Number(newQtys[it.id]) || 0) - (Number(oldQtys[it.id]) || 0);
+      if (d !== 0) deltas[it.id] = d;
+    });
+    return deltas;
+  }
+
+  function applyStockCorrection(deltas, className, recordId) {
+    state.items.forEach(function (it) {
+      var d = Number(deltas[it.id]) || 0;
+      if (d === 0) return;
+      if (d > 0) {
+        var dr = deductStock(it.id, d);
+        logStockMove({
+          type: "修正扣庫",
+          itemId: it.id,
+          itemName: it.name,
+          qty: d - dr.shortfall,
+          className: className,
+          recordId: recordId,
+          note: "總量修正增加" + (dr.shortfall ? "；不足" + dr.shortfall : "")
+        });
+      } else {
+        addStockQty(it.id, -d, "fair");
+        logStockMove({
+          type: "修正還庫",
+          itemId: it.id,
+          itemName: it.name,
+          qty: -d,
+          condition: "fair",
+          className: className,
+          recordId: recordId,
+          note: "總量修正減少"
+        });
+      }
+    });
+  }
+
+  function normKey(s) {
+    return String(s || "").trim();
+  }
+
+  /** 依班級（或非班級依領用人）合併舊版多筆紀錄為累計一列 */
+  function consolidateRecordsByClass(records, items) {
+    var byClass = {};
+    var byTeacher = {};
+    (records || []).forEach(function (r) {
+      var qtys = Object.assign(emptyQtys(), r.qtys || {});
+      var cls = normKey(r.className);
+      var teacher = normKey(r.teacher);
+      if (cls) {
+        if (!byClass[cls]) {
+          byClass[cls] = {
+            id: r.id || uid(),
+            date: r.date || todayStr(),
+            className: cls,
+            teacher: teacher,
+            qtys: Object.assign(emptyQtys(), qtys),
+            createdAt: r.createdAt || Date.now(),
+            updatedAt: r.updatedAt || Date.now(),
+            source: r.source || "manual"
+          };
+        } else {
+          var m = byClass[cls];
+          items.forEach(function (it) {
+            m.qtys[it.id] = (Number(m.qtys[it.id]) || 0) + (Number(qtys[it.id]) || 0);
+          });
+          if ((r.date || "") >= (m.date || "")) m.date = r.date;
+          if ((r.updatedAt || 0) >= (m.updatedAt || 0)) m.updatedAt = r.updatedAt;
+          if (teacher) m.teacher = teacher;
+        }
+        return;
+      }
+      if (!teacher) return;
+      if (!byTeacher[teacher]) {
+        byTeacher[teacher] = {
+          id: r.id || uid(),
+          date: r.date || todayStr(),
+          className: "",
+          teacher: teacher,
+          qtys: Object.assign(emptyQtys(), qtys),
+          createdAt: r.createdAt || Date.now(),
+          updatedAt: r.updatedAt || Date.now(),
+          source: r.source || "manual"
+        };
+      } else {
+        var t = byTeacher[teacher];
+        items.forEach(function (it) {
+          t.qtys[it.id] = (Number(t.qtys[it.id]) || 0) + (Number(qtys[it.id]) || 0);
+        });
+        if ((r.date || "") >= (t.date || "")) t.date = r.date;
+        if ((r.updatedAt || 0) >= (t.updatedAt || 0)) t.updatedAt = r.updatedAt;
+      }
+    });
+    return Object.keys(byClass).map(function (k) { return byClass[k]; })
+      .concat(Object.keys(byTeacher).map(function (k) { return byTeacher[k]; }));
+  }
+
+  function findRecordByClass(className, teacher) {
+    className = normKey(className);
+    teacher = normKey(teacher);
+    if (className) {
+      return state.records.find(function (r) { return normKey(r.className) === className; }) || null;
+    }
+    if (teacher) {
+      return state.records.find(function (r) {
+        return !normKey(r.className) && normKey(r.teacher) === teacher;
+      }) || null;
+    }
+    return null;
+  }
+
+  function sortRecordsByClass() {
+    state.records.sort(function (a, b) {
+      var ga = gradeRank(a.className);
+      var gb = gradeRank(b.className);
+      if (ga !== gb) return ga - gb;
+      return normKey(a.className).localeCompare(normKey(b.className), "zh-Hant") ||
+        normKey(a.teacher).localeCompare(normKey(b.teacher), "zh-Hant");
+    });
+  }
+
+  /** 導師名單上的各班建立累計列，各品項起始 0 */
+  function ensureClassRequisitionRows() {
+    var touched = false;
+    Object.keys(state.classMap || {}).forEach(function (cls) {
+      cls = normKey(cls);
+      if (!cls || findRecordByClass(cls, "")) return;
+      state.records.push({
+        id: uid(),
+        date: todayStr(),
+        className: cls,
+        teacher: normKey(state.classMap[cls]) || "",
+        qtys: emptyQtys(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        source: "init"
+      });
+      touched = true;
+    });
+    if (touched) sortRecordsByClass();
+    return touched;
+  }
+
+  /** 新增或累加請領：同班級（或非班級同領用人）合併數量，庫存只扣增量 */
+  function createRequisition(opts) {
+    var className = normKey(opts.className);
+    var teacher = normKey(opts.teacher);
+    var date = opts.date || todayStr();
+    var addQtys = opts.qtys || {};
+
+    if (!className && !teacher) throw new Error("請填領用人或班級");
+
+    var existing = findRecordByClass(className, teacher);
+    var deltas = emptyQtys();
+
+    if (existing) {
+      state.items.forEach(function (it) {
+        var add = parseInt(addQtys[it.id], 10) || 0;
+        if (add !== 0) {
+          existing.qtys[it.id] = (Number(existing.qtys[it.id]) || 0) + add;
+          deltas[it.id] = add;
+        }
+      });
+      existing.date = date;
+      if (teacher) existing.teacher = teacher;
+      if (className) existing.className = className;
+      existing.updatedAt = Date.now();
+      sortRecordsByClass();
+      return { record: existing, deltas: deltas, merged: true };
+    }
+
+    var rec = {
+      id: uid(),
+      date: date,
+      className: className,
+      teacher: teacher,
+      qtys: emptyQtys(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      source: opts.source || "manual"
+    };
+
+    state.items.forEach(function (it) {
+      var q = parseInt(addQtys[it.id], 10) || 0;
+      if (q !== 0) {
+        rec.qtys[it.id] = q;
+        deltas[it.id] = q;
+      }
+    });
+
+    state.records.push(rec);
+    sortRecordsByClass();
+    return { record: rec, deltas: deltas, merged: false };
+  }
+
+  function parsedItemsToQtys(items) {
+    var qtys = emptyQtys();
+    (items || []).forEach(function (row) {
+      var it = resolveItemByName(row.name);
+      if (it && row.qty > 0) qtys[it.id] = (Number(qtys[it.id]) || 0) + row.qty;
+    });
+    return qtys;
+  }
+
+  function deductStockByDeltas(deltas, className, recordId, notePrefix) {
+    state.items.forEach(function (it) {
+      var q = Number(deltas[it.id]) || 0;
+      if (q <= 0) return;
+      var dr = deductStock(it.id, q);
+      logStockMove({
+        type: "領用扣庫",
+        itemId: it.id,
+        itemName: it.name,
+        qty: q - dr.shortfall,
+        className: className,
+        recordId: recordId,
+        note: (notePrefix || "") + (dr.shortfall ? "；不足" + dr.shortfall : "")
+      });
+    });
+  }
+
+  function getGeminiKey() {
+    return localStorage.getItem(GEMINI_KEY_STORAGE) || "";
+  }
+
+  function setGeminiKey(k) {
+    if (k) localStorage.setItem(GEMINI_KEY_STORAGE, k);
+    else localStorage.removeItem(GEMINI_KEY_STORAGE);
+  }
+
+  function logStockMove(entry) {
+    if (!state.stockLogs) state.stockLogs = [];
+    state.stockLogs.unshift(Object.assign({ id: uid(), at: Date.now() }, entry));
+    if (state.stockLogs.length > 300) state.stockLogs.length = 300;
+  }
+
+  function condLabel(id) {
+    var c = CONDITIONS.find(function (x) { return x.id === id; });
+    return c ? c.name : id;
+  }
+
+  function resolveItemByName(name) {
+    name = String(name || "").trim().replace(/\s+/g, "");
+    if (!name) return null;
+    if (ITEM_NAME_ALIASES[name]) name = ITEM_NAME_ALIASES[name];
+    var it = itemByName(name);
+    if (it) return it;
+    var fuzzy = state.items.filter(function (x) {
+      return name.indexOf(x.name) >= 0 || x.name.indexOf(name) >= 0;
+    }).sort(function (a, b) { return b.name.length - a.name.length; });
+    if (fuzzy.length === 1) return fuzzy[0];
+    if (fuzzy.length > 1) {
+      var exactLen = fuzzy.filter(function (x) { return x.name === name; });
+      if (exactLen.length === 1) return exactLen[0];
+    }
+    return addOtherItem(name);
+  }
+
+  function deductStock(itemId, qty) {
+    qty = Math.max(0, parseInt(qty, 10) || 0);
+    if (!qty) return { ok: true, shortfall: 0, lines: [] };
+    var e = state.inventory[itemId] || emptyStockEntry();
+    var order = ["fair", "old", "new"];
+    var left = qty;
+    var lines = [];
+    order.forEach(function (cid) {
+      if (left <= 0) return;
+      var have = Number(e[cid]) || 0;
+      var take = Math.min(have, left);
+      if (take > 0) {
+        e[cid] = have - take;
+        lines.push({ cond: cid, n: take });
+        left -= take;
+      }
+    });
+    state.inventory[itemId] = e;
+    return { ok: left === 0, shortfall: left, lines: lines };
+  }
+
+  function addStockQty(itemId, qty, condition) {
+    qty = Math.max(0, parseInt(qty, 10) || 0);
+    if (!qty) return;
+    var cid = condition || "new";
+    if (CONDITIONS.every(function (c) { return c.id !== cid; })) cid = "new";
+    var e = state.inventory[itemId] || emptyStockEntry();
+    e[cid] = (Number(e[cid]) || 0) + qty;
+    state.inventory[itemId] = e;
+  }
+
+  function parseNoteText(text) {
+    var s = String(text || "").trim();
+    var action = "領用";
+    if (/進貨|入庫|入库/.test(s)) action = "進貨";
+    else if (/送還|歸還|归还/.test(s)) action = "送還";
+
+    var className = "";
+    var cm = s.match(/(?:^|[\s(（])(\d{3}|暑[\u4e00-\u9fff\d]+)/);
+    if (cm) className = cm[1];
+
+    var teacher = "";
+    var tm = s.match(/([\u4e00-\u9fff]{2,8}(?:老師|師))/);
+    if (tm) teacher = tm[1];
+    else {
+      var om = s.match(/([\u4e00-\u9fff]{2,10}(?:處|室|組))/);
+      if (om) teacher = om[1];
+    }
+
+    var condition = action === "進貨" ? "new" : action === "送還" ? "fair" : "";
+    if (/新/.test(s) && action !== "領用") condition = "new";
+    if (/舊|旧/.test(s) && action !== "領用") condition = "old";
+    if (/尚可/.test(s) && action !== "領用") condition = "fair";
+
+    var items = [];
+    var re = /([\u4e00-\u9fff][\u4e00-\u9fffA-Za-z0-9]*)\s*[x×\*＊]\s*(\d+)/gi;
+    var m;
+    while ((m = re.exec(s)) !== null) {
+      var nm = m[1].replace(/[()（）領用進貨送還]/g, "").trim();
+      if (!nm || nm.length < 2) continue;
+      items.push({ name: nm, qty: parseInt(m[2], 10) || 1 });
+    }
+    return { action: action, className: className, teacher: teacher, items: items, condition: condition };
+  }
+
+  function parsedItemsToFormQtys(items) {
+    var qtys = emptyQtys();
+    (items || []).forEach(function (row) {
+      var it = resolveItemByName(row.name);
+      if (it && row.qty > 0) qtys[it.id] = (Number(qtys[it.id]) || 0) + row.qty;
+    });
+    return qtys;
+  }
+
+  function manualInputBlock(errMsg, aiOk) {
+    var hint = errMsg
+      ? '<p class="scan-warn">' + esc(errMsg) + '</p>'
+      : (aiOk
+        ? '<p class="tips" style="margin-top:0.35rem">辨識結果不符？可改用手動輸入</p>'
+        : '<p class="tips" style="margin-top:0.35rem">請直接手動輸入（不必等 AI）</p>');
+    return hint +
+      '<label style="font-size:0.86rem;font-weight:600;margin-top:0.45rem;display:block">手動貼上文字</label>' +
+      '<textarea id="manualNote" placeholder="例：101 陳老師 竹掃把x5 椰鬃掃把x4 (領用)&#10;總務處 垃圾袋x10 (領用)"></textarea>' +
+      '<div class="btn-row" style="margin-top:0.45rem">' +
+      '<button class="btn secondary" type="button" id="btnParseText">解析文字</button>' +
+      '<button class="btn secondary" type="button" id="btnManualForm">改用手動表單</button>' +
+      '</div>';
+  }
+
+  function showManualPasteModal() {
+    openModal(
+      '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+      '<h3>手動貼文字</h3>' +
+      '<p class="tips" style="margin-bottom:0.45rem">AI 無法使用或辨識不清時，直接貼上或輸入文字；也可改用手動表單逐項填寫。</p>' +
+      manualInputBlock("", false) +
+      '<button class="btn" type="button" id="btnPasteToForm" style="margin-top:0.65rem">解析並開啟手動表單</button>'
+    );
+    document.getElementById("modalX").onclick = closeModal;
+    document.getElementById("btnParseText").onclick = function () {
+      var txt = document.getElementById("manualNote").value.trim();
+      if (!txt) { toast("請貼上或輸入文字"); return; }
+      var p = parseNoteText(txt);
+      if (!p.items.length) { toast("無法解析品項，請改用手動表單"); return; }
+      closeModal();
+      showReqForm(null, {
+        className: p.className,
+        teacher: p.teacher,
+        qtys: parsedItemsToFormQtys(p.items)
+      });
+      toast("已解析，請確認後儲存");
+    };
+    document.getElementById("btnManualForm").onclick = function () {
+      closeModal();
+      showReqForm(null);
+    };
+    document.getElementById("btnPasteToForm").onclick = function () {
+      document.getElementById("btnParseText").click();
+    };
+  }
+
+  function blobToBase64(blob) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () {
+        var res = r.result || "";
+        resolve(String(res).split(",")[1] || "");
+      };
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  function extractJson(text) {
+    if (!text) return null;
+    var t = String(text).trim();
+    if (t.indexOf("```") >= 0) {
+      t = t.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+    }
+    try { return JSON.parse(t); } catch (e) {
+      var i = t.indexOf("{");
+      var j = t.lastIndexOf("}");
+      if (i >= 0 && j > i) {
+        try { return JSON.parse(t.slice(i, j + 1)); } catch (e2) {}
+      }
+    }
+    return null;
+  }
+
+  async function parsePhotoWithGemini(blob, mime) {
+    var key = getGeminiKey();
+    if (!key) return null;
+    var b64 = await blobToBase64(blob);
+    var names = state.items.map(function (it) { return it.name; }).join("、");
+    var prompt =
+      "這是校園掃具手寫單照片（繁體中文）。已知掃具種類：" + names +
+      "。領用人（導師、處室等）與班級請照手寫原文填入 teacher／className，辨識不清也保留原文，勿對照改名。班級可留空（非班級領用）。若手寫「椰鬃拖把」請對應「椰鬃掃把」（屬掃把非拖把）。若出現未列出的種類，name 照實填寫。判斷是「領用」「進貨」或「送還」。" +
+      "只回 JSON，不要 markdown：{\"action\":\"領用|進貨|送還\",\"className\":\"班級如101或留空\",\"teacher\":\"領用人\",\"items\":[{\"name\":\"竹掃把\",\"qty\":5}],\"condition\":\"新|舊|尚可\"}。" +
+      "進貨預設 condition 新；送還預設 尚可；領用 omit condition。";
+
+    var part = { inline_data: { mime_type: mime || "image/jpeg", data: b64 } };
+    var lastErr = "";
+    for (var i = 0; i < GEMINI_MODELS.length; i++) {
+      var model = GEMINI_MODELS[i];
+      var url = "https://generativelanguage.googleapis.com/v1beta/models/" +
+        encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(key);
+      try {
+        var res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }, part] }],
+            generationConfig: { temperature: 0.1, maxOutputTokens: 1024 }
+          })
+        });
+        if (!res.ok) {
+          lastErr = res.status + "";
+          continue;
+        }
+        var data = await res.json();
+        var txt = (((data.candidates || [])[0] || {}).content || {}).parts;
+        txt = (txt || []).map(function (p) { return p.text || ""; }).join("");
+        var parsed = extractJson(txt);
+        if (parsed && parsed.items) return normalizeParsed(parsed);
+      } catch (err) {
+        lastErr = err.message || "error";
+      }
+    }
+    throw new Error(lastErr || "辨識失敗");
+  }
+
+  function normalizeParsed(raw) {
+    var action = String(raw.action || "領用").trim();
+    if (action.indexOf("進") >= 0) action = "進貨";
+    else if (action.indexOf("送") >= 0 || action.indexOf("還") >= 0) action = "送還";
+    else action = "領用";
+
+    var condMap = { "新": "new", "舊": "old", "旧": "old", "尚可": "fair" };
+    var condition = condMap[String(raw.condition || "").trim()] || "";
+    if (!condition) {
+      condition = action === "進貨" ? "new" : action === "送還" ? "fair" : "";
+    }
+
+    var items = (raw.items || []).map(function (x) {
+      return { name: String(x.name || "").trim(), qty: Math.max(0, parseInt(x.qty, 10) || 0) };
+    }).filter(function (x) { return x.name && x.qty > 0; });
+
+    return {
+      action: action,
+      className: String(raw.className || raw.class || "").trim(),
+      teacher: String(raw.teacher || "").trim(),
+      items: items,
+      condition: condition
+    };
+  }
+
+  function buildApplyPreview(parsed) {
+    var lines = [];
+    var warnings = [];
+
+    parsed.items.forEach(function (row) {
+      var it = resolveItemByName(row.name);
+      if (!it) return;
+      var e = state.inventory[it.id] || emptyStockEntry();
+      var before = stockTotal(e);
+      if (parsed.action === "領用") {
+        var sim = Object.assign(emptyStockEntry(), e);
+        state.inventory[it.id] = sim;
+        var dr = deductStock(it.id, row.qty);
+        state.inventory[it.id] = e;
+        var detail = dr.lines.map(function (l) { return condLabel(l.cond) + "−" + l.n; }).join("、");
+        lines.push({
+          name: it.name, qty: row.qty, before: before, after: Math.max(0, before - row.qty),
+          note: "新增請領 · " + parsed.action + (detail ? "（" + detail + "）" : "")
+        });
+        if (dr.shortfall > 0) warnings.push(it.name + " 庫存不足 " + dr.shortfall + " 件");
+      } else {
+        var cid = parsed.condition || "new";
+        var after = before + row.qty;
+        lines.push({
+          name: it.name, qty: row.qty, before: before, after: after,
+          note: parsed.action + "→" + condLabel(cid) + "＋" + row.qty
+        });
+      }
+    });
+    return { lines: lines, warnings: warnings };
+  }
+
+  function applyParsedScan(parsed, noteExtra) {
+    if (!parsed.items.length) throw new Error("無品項");
+    var recordId = null;
+    var accumMsg = "";
+
+    var addQtys = parsedItemsToQtys(parsed.items);
+
+    if (parsed.action === "領用") {
+      var undoSnap = captureManualUndoBefore({
+        className: parsed.className,
+        teacher: parsed.teacher,
+        qtys: addQtys,
+        syncStock: true,
+        editRec: null
+      });
+      var result = createRequisition({
+        date: parsed.date || todayStr(),
+        className: parsed.className,
+        teacher: parsed.teacher,
+        qtys: addQtys,
+        source: "photo"
+      });
+      recordId = result.record.id;
+      accumMsg = result.merged ? "已累加請領" : "已新增請領";
+      deductStockByDeltas(result.deltas, result.record.className || result.record.teacher, recordId, (noteExtra || "拍照") + "；");
+      undoSnap.createdRecordId = recordId;
+      lastManualUndo = undoSnap;
+    }
+
+    parsed.items.forEach(function (row) {
+      var it = resolveItemByName(row.name);
+      if (!it) return;
+      if (parsed.action !== "領用") {
+        var cid = parsed.condition || (parsed.action === "進貨" ? "new" : "fair");
+        addStockQty(it.id, row.qty, cid);
+        logStockMove({
+          type: parsed.action,
+          itemId: it.id,
+          itemName: it.name,
+          qty: row.qty,
+          condition: cid,
+          className: parsed.className,
+          note: noteExtra || ""
+        });
+      }
+    });
+    saveState();
+    return accumMsg || "已更新";
+  }
+
+  function openInboxDb() {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open(INBOX_DB, 1);
+      req.onupgradeneeded = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(INBOX_STORE)) {
+          db.createObjectStore(INBOX_STORE, { keyPath: "id" });
+        }
+      };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error); };
+    });
+  }
+
+  async function takeInboxPhotos() {
+    var db = await openInboxDb();
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(INBOX_STORE, "readonly");
+      var req = tx.objectStore(INBOX_STORE).getAll();
+      req.onsuccess = function () { resolve(req.result || []); };
+      req.onerror = function () { reject(req.error); };
+    });
+  }
+
+  async function clearInboxPhotos() {
+    var db = await openInboxDb();
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(INBOX_STORE, "readwrite");
+      tx.objectStore(INBOX_STORE).clear();
+      tx.oncomplete = function () { resolve(); };
+      tx.onerror = function () { reject(tx.error); };
+    });
+  }
+
+  function renderStockLogs() {
+    var el = document.getElementById("stockLogList");
+    if (!el) return;
+    var logs = (state.stockLogs || []).slice(0, 40);
+    if (!logs.length) {
+      el.innerHTML = '<div class="empty">尚無庫存異動</div>';
+      return;
+    }
+    el.innerHTML = logs.map(function (l) {
+      var cls = l.type === "領用扣庫" || l.type === "修正扣庫" ? "act-out" : "act-in";
+      var cond = l.condition ? " · " + condLabel(l.condition) : "";
+      var clsName = l.className ? " · " + esc(l.className) : "";
+      return '<div class="log-move"><span class="' + cls + '">' + esc(l.type) + '</span> · ' +
+        esc(l.itemName) + " ×" + l.qty + cond + clsName +
+        '<div class="meta">' + fmtDateTime(l.at) + (l.note ? " · " + esc(l.note) : "") + "</div></div>";
+    }).join("");
+  }
+
+  async function processPhotoBlob(blob, mime, name) {
+    if (!getGeminiKey()) {
+      showScanConfirmModal(blob, mime, null, "未設定 AI 金鑰，請直接手動輸入", name);
+      return;
+    }
+
+    var url = URL.createObjectURL(blob);
+    openModal(
+      '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+      '<h3>辨識中…</h3>' +
+      '<img class="scan-thumb" src="' + url + '" alt="照片" />' +
+      '<p class="tips">正在分析手寫領用／進貨／送還單…</p>'
+    );
+    document.getElementById("modalX").onclick = function () {
+      URL.revokeObjectURL(url);
+      closeModal();
+    };
+
+    var parsed = null;
+    var errMsg = "";
+    try {
+      parsed = await parsePhotoWithGemini(blob, mime);
+      if (!parsed || !parsed.items || !parsed.items.length) {
+        errMsg = "未能辨識品項，請改用手動輸入";
+      }
+    } catch (e) {
+      errMsg = (e.message || "辨識失敗") + "，請改用手動輸入";
+    }
+    URL.revokeObjectURL(url);
+    showScanConfirmModal(blob, mime, parsed, errMsg, name);
+  }
+
+  function showScanConfirmModal(blob, mime, parsed, errMsg, name) {
+    var url = URL.createObjectURL(blob);
+    parsed = parsed || { action: "領用", className: "", teacher: "", items: [], condition: "" };
+
+    var manualBlock = manualInputBlock(errMsg, parsed.items.length > 0);
+
+    /** 將 AI 辨識 items 對應到所有掃具 id，回傳 {id: qty} */
+    function parsedItemsToScanQtys(items) {
+      var qtys = emptyQtys();
+      (items || []).forEach(function (row) {
+        var it = resolveItemByName(row.name);
+        if (it && row.qty > 0) qtys[it.id] = (Number(qtys[it.id]) || 0) + row.qty;
+      });
+      return qtys;
+    }
+
+    /** 從確認視窗的數量格讀回 qtys，轉成 items 陣列 */
+    function readScanQtyInputs() {
+      var items = [];
+      sortedItems().forEach(function (it) {
+        var inp = document.querySelector('[data-scan-qty="' + it.id + '"]');
+        if (!inp) return;
+        var q = Math.max(0, parseInt(inp.value, 10) || 0);
+        if (q > 0) items.push({ name: it.name, qty: q });
+      });
+      return items;
+    }
+
+    /** 全部種類確認表（可編輯數量）*/
+    function scanQtyTableHtml(action, aiQtys) {
+      var isRequisition = action === "領用";
+      var rows = sortedItems().map(function (it) {
+        var q = Number(aiQtys[it.id]) || 0;
+        var cls = q > 0 ? "row-on" : "row-off";
+        var stock = isRequisition
+          ? (function () {
+              var e = state.inventory[it.id] || emptyStockEntry();
+              return stockTotal(e);
+            })() : "";
+        var stockCell = isRequisition ? "<td>" + stock + "</td>" : "";
+        return '<tr class="' + cls + '"><td>' + esc(it.name) + "</td>" +
+          "<td>" +
+          '<div class="qty-ctrl" style="justify-content:flex-end">' +
+          '<button type="button" data-scan-dec="' + it.id + '">−</button>' +
+          '<input type="number" min="0" data-scan-qty="' + it.id + '" value="' + q + '" inputmode="numeric" style="width:3.2rem" />' +
+          '<button type="button" data-scan-inc="' + it.id + '">＋</button>' +
+          "</div></td>" +
+          stockCell + "</tr>";
+      }).join("");
+      var head = isRequisition
+        ? "<tr><th>掃具</th><th>數量</th><th>庫存</th></tr>"
+        : "<tr><th>掃具</th><th>數量</th></tr>";
+      return '<p class="tips" style="margin:0.45rem 0 0.25rem">AI 辨識結果已帶入，請逐項核對後修正再確認。</p>' +
+        '<div class="confirm-all-wrap"><table class="confirm-all-table"><thead>' + head +
+        "</thead><tbody>" + rows + "</tbody></table></div>";
+    }
+
+    function bodyHtml(p) {
+      var aiQtys = parsedItemsToScanQtys(p.items);
+      var warn = "";
+      if (p.action === "領用") {
+        var warnings = [];
+        sortedItems().forEach(function (it) {
+          var q = Number(aiQtys[it.id]) || 0;
+          if (q <= 0) return;
+          var orig = Object.assign(emptyStockEntry(), state.inventory[it.id] || emptyStockEntry());
+          state.inventory[it.id] = Object.assign(emptyStockEntry(), orig);
+          var dr = deductStock(it.id, q);
+          state.inventory[it.id] = orig;
+          if (dr.shortfall > 0) warnings.push(it.name + " 庫存不足 " + dr.shortfall + " 件");
+        });
+        if (warnings.length) warn = '<p class="scan-warn">⚠ ' + esc(warnings.join("；")) + "</p>";
+      }
+
+      return '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+        '<h3>確認登記</h3>' +
+        '<img class="scan-thumb" src="' + url + '" alt="照片" />' +
+        '<p class="tips" style="margin-bottom:0.35rem">領用人／班級以手寫原文為準，可修改</p>' +
+        '<div class="row"><label>類型</label><select id="scanAction" class="grow">' +
+        ["領用", "進貨", "送還"].map(function (a) {
+          return '<option value="' + a + '"' + (p.action === a ? " selected" : "") + ">" + a + "</option>";
+        }).join("") + "</select></div>" +
+        '<div class="row"><label>領用日期</label><input id="scanDate" type="date" value="' + esc(p.date || todayStr()) + '" /></div>' +
+        '<div class="row"><label>領用人</label><input id="scanTeacher" type="text" list="scanTeacherList" value="' + esc(p.teacher) + '" placeholder="導師、處室或單位" /></div>' +
+        '<datalist id="scanTeacherList">' + Object.keys(state.teacherClassMap || {}).map(function (t) {
+          return '<option value="' + esc(t) + '"></option>';
+        }).join("") + "</datalist>" +
+        '<div class="row"><label>班級</label><input id="scanClass" type="text" value="' + esc(p.className) + '" list="scanClassList" placeholder="選填" /></div>' +
+        '<datalist id="scanClassList">' + Object.keys(state.classMap).map(function (k) {
+          return '<option value="' + esc(k) + '"></option>';
+        }).join("") + "</datalist>" +
+        (p.action !== "領用"
+          ? '<div class="row"><label>入庫狀態</label><select id="scanCond" class="grow">' +
+            CONDITIONS.map(function (c) {
+              var sel = (p.condition || "new") === c.id ? " selected" : "";
+              return '<option value="' + c.id + '"' + sel + ">" + c.name + "</option>";
+            }).join("") + "</select></div>"
+          : "") +
+        scanQtyTableHtml(p.action, aiQtys) +
+        warn +
+        manualBlock +
+        '<div class="btn-row" style="margin-top:0.65rem">' +
+        '<button class="btn secondary" type="button" id="btnManualForm">改用手動表單</button>' +
+        '<button class="btn" type="button" id="btnApplyScan">確認累加並更新庫存</button>' +
+        '</div>';
+    }
+
+    openModal(bodyHtml(parsed));
+
+    function bindScanTeacherFill() {
+      var teacherEl = document.getElementById("scanTeacher");
+      var classEl = document.getElementById("scanClass");
+      if (!teacherEl || !classEl) return;
+      teacherEl.oninput = function () {
+        var t = teacherEl.value.trim();
+        if (t && !classEl.value.trim() && state.teacherClassMap[t]) {
+          classEl.value = state.teacherClassMap[t];
+        }
+      };
+    }
+
+    function bindQtyGridScan() {
+      document.querySelectorAll("[data-scan-inc],[data-scan-dec]").forEach(function (btn) {
+        btn.onclick = function () {
+          var id = btn.dataset.scanInc || btn.dataset.scanDec;
+          var inp = document.querySelector('[data-scan-qty="' + id + '"]');
+          if (!inp) return;
+          var n = Math.max(0, parseInt(inp.value, 10) || 0);
+          inp.value = btn.dataset.scanInc ? n + 1 : Math.max(0, n - 1);
+          inp.closest("tr").className = inp.value > 0 ? "row-on" : "row-off";
+        };
+      });
+      document.querySelectorAll("[data-scan-qty]").forEach(function (inp) {
+        inp.oninput = function () {
+          inp.closest("tr").className = (parseInt(inp.value, 10) || 0) > 0 ? "row-on" : "row-off";
+        };
+      });
+    }
+
+    function readForm() {
+      var action = document.getElementById("scanAction").value;
+      return {
+        action: action,
+        date: document.getElementById("scanDate").value || todayStr(),
+        className: document.getElementById("scanClass").value.trim(),
+        teacher: document.getElementById("scanTeacher").value.trim(),
+        items: readScanQtyInputs(),
+        condition: action === "領用" ? "" : ((document.getElementById("scanCond") || {}).value || "new")
+      };
+    }
+
+    function rebind() {
+      document.getElementById("modalX").onclick = function () {
+        URL.revokeObjectURL(url);
+        closeModal();
+      };
+      bindScanTeacherFill();
+      bindQtyGridScan();
+
+      document.getElementById("scanAction").onchange = function () {
+        var p = readForm();
+        parsed = p;
+        openModal(bodyHtml(parsed));
+        rebind();
+      };
+
+      var parseBtn = document.getElementById("btnParseText");
+      if (parseBtn) {
+        parseBtn.onclick = function () {
+          var txt = document.getElementById("manualNote").value.trim();
+          if (!txt) { toast("請貼上或輸入文字"); return; }
+          var parsedText = parseNoteText(txt);
+          if (!parsedText.items.length) { toast("無法解析品項"); return; }
+          parsed.items = parsedText.items;
+          if (!parsed.className) parsed.className = parsedText.className || "";
+          if (!parsed.teacher) parsed.teacher = parsedText.teacher || "";
+          openModal(bodyHtml(parsed));
+          rebind();
+        };
+      }
+
+      document.getElementById("btnManualForm").onclick = function () {
+        var p = readForm();
+        URL.revokeObjectURL(url);
+        closeModal();
+        showReqForm(null, {
+          date: p.date,
+          className: p.className,
+          teacher: p.teacher,
+          qtys: parsedItemsToFormQtys(p.items)
+        });
+        toast("已帶入手動表單，請確認後儲存");
+      };
+
+      document.getElementById("btnApplyScan").onclick = function () {
+        var p = readForm();
+        if (p.action === "領用" && !p.className && !p.teacher) { toast("領用請填領用人或班級"); return; }
+        if (!p.items.length) { toast("請至少填一種掃具數量"); return; }
+        try {
+          var msg = applyParsedScan(p, name || "拍照");
+          URL.revokeObjectURL(url);
+          closeModal();
+          toastWithUndo(msg + "並更新庫存", function () {
+            undoLastManualReq();
+          });
+          renderHome();
+          renderList();
+          renderStats();
+          renderStock();
+        } catch (e) {
+          toast(e.message || "失敗");
+        }
+      };
+    }
+    rebind();
+  }
+
+  function showStockMoveForm(kind) {
+    var isIn = kind === "進貨";
+    var itemOpts = state.items.map(function (it) {
+      return '<option value="' + it.id + '">' + esc(it.name) + "</option>";
+    }).join("");
+    var condOpts = CONDITIONS.map(function (c) {
+      var def = isIn ? "new" : "fair";
+      return '<option value="' + c.id + '"' + (c.id === def ? " selected" : "") + ">" + c.name + "</option>";
+    }).join("");
+
+    openModal(
+      '<button class="modal-close" type="button" id="modalX">&times;</button>' +
+      "<h3>" + (isIn ? "進貨入庫" : "送還入庫") + "</h3>" +
+      '<div class="row"><label>掃具</label><select id="mvItem" class="grow">' + itemOpts + "</select></div>" +
+      '<div class="row"><label>數量</label><input id="mvQty" type="number" min="1" max="999" value="1" style="width:5rem" /></div>' +
+      '<div class="row"><label>狀態</label><select id="mvCond" class="grow">' + condOpts + "</select></div>" +
+      '<div class="row"><label>備註</label><input id="mvNote" type="text" maxlength="60" placeholder="選填" /></div>' +
+      '<button class="btn" type="button" id="mvSave">確認入庫</button>'
+    );
+    document.getElementById("modalX").onclick = closeModal;
+    document.getElementById("mvSave").onclick = function () {
+      var itemId = document.getElementById("mvItem").value;
+      var qty = parseInt(document.getElementById("mvQty").value, 10) || 0;
+      var cond = document.getElementById("mvCond").value;
+      var note = document.getElementById("mvNote").value.trim();
+      if (!qty) { toast("請填數量"); return; }
+      var it = state.items.find(function (x) { return x.id === itemId; });
+      addStockQty(itemId, qty, cond);
+      logStockMove({ type: kind, itemId: itemId, itemName: it.name, qty: qty, condition: cond, note: note });
+      saveState();
+      closeModal();
+      toast("已入庫 +" + qty);
+      renderStock();
+      renderHome();
+    };
+  }
+
+  async function handleInboxOnLoad() {
+    if (!/scan=1/.test(location.search)) return;
+    try {
+      var photos = await takeInboxPhotos();
+      await clearInboxPhotos();
+      history.replaceState(null, "", "./index.html");
+      if (photos.length) {
+        var p = photos[photos.length - 1];
+        var blob = new Blob([p.buffer], { type: p.type || "image/jpeg" });
+        processPhotoBlob(blob, p.type, p.name);
+      }
+    } catch (e) {}
+  }
+
+  function loadDemo() {
+    if ((state.records.some(function (r) { return sumQty(r.qtys) > 0; }) || inventoryGrandTotals().total) &&
+        !confirm("已有資料，仍要追加示範？")) return;
+    syncClassMapsFromTeacher("陳老師", "101");
+    syncClassMapsFromTeacher("林老師", "102");
+    syncClassMapsFromTeacher("黃老師", "201");
+    syncClassMapsFromTeacher("吳老師", "暑新一");
+    ensureClassRequisitionRows();
+    var demos = [
+      { date: "2026-02-25", className: "101", teacher: "陳老師", qtys: { bamboo_broom: 1, broom: 1, mop: 1, dustpan: 1 } },
+      { date: "2026-03-13", className: "102", teacher: "林老師", qtys: { mop: 2, trash_bag: 1, other_window_wiper: 2 } },
+      { date: "2026-03-20", className: "201", teacher: "黃老師", qtys: { broom: 1, dustpan: 1, detergent: 1, other_bucket: 2 } },
+      { date: todayStr(), className: "101", teacher: "陳老師", qtys: { bamboo_broom: 5, other_coconut_broom: 4 }, source: "photo" },
+      { date: todayStr(), className: "101", teacher: "陳老師", qtys: { trash_can: 2, detergent: 1 }, source: "manual" },
+      { date: todayStr(), className: "暑新一", teacher: "吳老師", qtys: { toilet_brush: 1, laundry: 1, other_soap: 1 } },
+      { date: todayStr(), className: "", teacher: "總務處", qtys: { trash_bag: 5, detergent: 2 }, source: "manual" }
+    ];
+    demos.forEach(function (d) {
+      createRequisition({
+        date: d.date,
+        className: d.className,
+        teacher: d.teacher,
+        qtys: d.qtys,
+        source: d.source || "demo"
+      });
+    });
+    loadDemoInventory();
+    saveState();
+    toast("已載入示範庫存與請領");
+    renderHome();
+    renderList();
+    renderStats();
+    renderStock();
+  }
+
+  // Events
+  document.querySelectorAll(".nav-item").forEach(function (btn) {
+    btn.onclick = function () { switchView(btn.dataset.view); };
+  });
+  document.getElementById("btnPhotoScan").onclick = function () {
+    document.getElementById("photoInput").click();
+  };
+  document.getElementById("btnPhotoScanStock").onclick = function () {
+    document.getElementById("photoInput").click();
+  };
+  document.getElementById("photoInput").onchange = function (ev) {
+    var file = ev.target.files && ev.target.files[0];
+    ev.target.value = "";
+    if (file) processPhotoBlob(file, file.type, file.name);
+  };
+  document.getElementById("btnStockIn").onclick = function () { showStockMoveForm("進貨"); };
+  document.getElementById("btnStockReturn").onclick = function () { showStockMoveForm("送還"); };
+  document.getElementById("btnSaveGemini").onclick = function () {
+    var v = document.getElementById("geminiKey").value.trim();
+    if (v && v.indexOf("•") >= 0) { toast("金鑰已儲存"); return; }
+    setGeminiKey(v);
+    toast(v ? "金鑰已儲存" : "請貼上金鑰");
+  };
+  document.getElementById("btnClearGemini").onclick = function () {
+    setGeminiKey("");
+    document.getElementById("geminiKey").value = "";
+    toast("已清除金鑰");
+  };
+
+  document.getElementById("btnNewReq").onclick = function () { showReqForm(null); };
+  document.getElementById("btnNewReq2").onclick = function () { showReqForm(null); };
+  document.getElementById("btnManualPaste").onclick = showManualPasteModal;
+  document.getElementById("btnGoStats").onclick = function () { switchView("stats"); };
+
+  document.getElementById("stockSearch").oninput = function (ev) {
+    stockSearch = ev.target.value;
+    renderStock();
+  };
+  document.getElementById("stockFilters").onclick = function (ev) {
+    var chip = ev.target.closest("[data-sfilter]");
+    if (!chip) return;
+    stockFilter = chip.dataset.sfilter;
+    renderStock();
+  };
+  document.getElementById("btnExportInvCsv").onclick = exportInvCsv;
+
+  document.getElementById("listSearch").oninput = function (ev) {
+    listSearch = ev.target.value;
+    renderList();
+  };
+  document.getElementById("gradeFilters").onclick = function (ev) {
+    var chip = ev.target.closest("[data-grade]");
+    if (!chip) return;
+    gradeFilter = chip.dataset.grade;
+    renderList();
+  };
+
+  document.getElementById("statsMonth").onchange = renderStats;
+  document.getElementById("btnExportCsv").onclick = function () { exportCsv(true); };
+  document.getElementById("btnExportAllCsv").onclick = function () { exportCsv(false); };
+  document.getElementById("btnImportCsv").onclick = function () {
+    document.getElementById("importCsvFile").click();
+  };
+  document.getElementById("importCsvFile").onchange = function (ev) {
+    var file = ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () { importCsvText(reader.result); };
+    reader.readAsText(file, "UTF-8");
+    ev.target.value = "";
+  };
+
+  document.getElementById("btnResetItems").onclick = function () {
+    if (!confirm("還原成預設掃具種類（標準 13 項 + 7 項其他細項）？自訂其他種類與庫存數字會保留同名項目。")) return;
+    var customOther = otherItems().filter(function (it) {
+      return !DEFAULT_OTHER_ITEMS.some(function (d) { return d.id === it.id; });
+    });
+    state.items = allDefaultItems().concat(customOther);
+    state.removedItemIds = [];
+    state.inventory = ensureInventory(state.inventory);
+    saveState();
+    toast("已還原預設種類");
+    renderSettings();
+    renderStock();
+    renderHome();
+  };
+  document.getElementById("btnAddOtherItem").onclick = function () {
+    showAddOtherItemForm(null);
+  };
+  document.getElementById("btnAddItemStock").onclick = function () {
+    showAddOtherItemForm(function () {
+      renderStock();
+      renderHome();
+    });
+  };
+  document.getElementById("btnAddClass").onclick = showClassForm;
+  document.getElementById("btnLoadTeacherPreset").onclick = function () {
+    var manual = collectManualTeacherClassExtras().length;
+    var msg = manual
+      ? "將還原官方 34 班名單；已手動新增的 " + manual + " 筆其他班級會保留。確定？"
+      : "還原115學年度官方 34 班名單？";
+    if (!confirm(msg)) return;
+    var n = loadTeacherClassPreset(TEACHER_CLASS_PRESET_CAJH_115, true);
+    toast("已還原官方 " + n + " 班" + (manual ? "（保留其他 " + manual + " 班）" : ""));
+    renderSettings();
+    renderHome();
+  };
+  document.getElementById("btnImportTeacherClass").onclick = showImportTeacherClassModal;
+  document.getElementById("btnExportTeacherClass").onclick = exportTeacherClassJson;
+
+  document.getElementById("btnSaveSettings").onclick = function () {
+    state.settings.schoolName = document.getElementById("schoolName").value.trim();
+    state.settings.schoolYear = document.getElementById("schoolYear").value.trim();
+    saveState();
+    toast("設定已儲存");
+    renderHome();
+  };
+  document.getElementById("btnExportJson").onclick = function () {
+    var hasRecords = state.records && state.records.length > 0;
+    var hasStock = inventoryGrandTotals().total > 0;
+    function doExportJson() {
+      var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      downloadBlob(blob, "掃具台備份_" + todayStr() + ".json");
+      toast("已匯出備份");
+    }
+    var recCount = (state.records && state.records.length) || 0;
+    var stockTotal2 = inventoryGrandTotals().total;
+    var summaryMsg = recCount > 0
+      ? ("共 " + recCount + " 筆請領紀錄，庫存總量 " + stockTotal2 + "。")
+      : "⚠️ 目前沒有請領紀錄" + (stockTotal2 > 0 ? "，庫存總量 " + stockTotal2 + "。" : " 且庫存全為零。");
+    confirmModal("匯出備份（JSON）\n" + summaryMsg + "\n\n確定要下載嗎？", doExportJson);
+  };
+  document.getElementById("btnImportJson").onclick = function () {
+    document.getElementById("importFile").click();
+  };
+  document.getElementById("importFile").onchange = function (ev) {
+    var file = ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        if (!data.records) throw new Error("格式錯誤");
+        state = migrateState(data);
+        state.inventory = ensureInventory(state.inventory || data.inventory);
+        state.stockLogs = data.stockLogs || state.stockLogs || [];
+        saveState();
+        toast("匯入成功");
+        renderSettings();
+        renderHome();
+        renderStock();
+      } catch (e) {
+        toast("匯入失敗");
+      }
+    };
+    reader.readAsText(file);
+    ev.target.value = "";
+  };
+  document.getElementById("btnDemo").onclick = loadDemo;
+
+  document.getElementById("btnClearCache").onclick = function () {
+    if (!confirm("確定要清除快取並重新載入嗎？\n（請領與庫存資料不會刪除）")) return;
+    if ("serviceWorker" in navigator && "caches" in window) {
+      caches.keys().then(function (keys) {
+        return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+      }).then(function () {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          Promise.all(regs.map(function (r) { return r.unregister(); })).then(function () {
+            window.location.reload(true);
+          });
+        });
+      });
+    } else {
+      window.location.reload(true);
+    }
+  };
+
+  document.getElementById("modalBack").onclick = function (ev) {
+    if (ev.target === document.getElementById("modalBack")) closeModal();
+  };
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  }
+
+  document.getElementById("statsMonth").value = monthStr();
+  state.settings = migrateSettings(state.settings);
+  state.inventory = ensureInventory(state.inventory);
+  if (!state.stockLogs) state.stockLogs = [];
+  ensure115TeacherClassPreset();
+  if (sync115TeacherPreset()) {
+    toast("已套用115學年度官方導師名單");
+  }
+  ensureClassRequisitionRows();
+  renderHome();
+  handleInboxOnLoad();
+})();
+  </script>
+</body>
+</html>

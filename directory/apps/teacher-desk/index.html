@@ -125,6 +125,28 @@
       from { opacity: 0; transform: translateY(0.8rem); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .modal-back {
+      position: fixed; inset: 0;
+      background: rgba(26,46,36,0.45);
+      z-index: 50; display: none;
+      align-items: flex-end; justify-content: center;
+    }
+    .modal-back.open { display: flex; }
+    .modal {
+      background: #fff; width: 100%; max-width: 28rem;
+      border-radius: 1rem 1rem 0 0;
+      padding: 1.05rem 1rem calc(1rem + env(safe-area-inset-bottom,0px));
+      animation: slideUp 0.28s ease-out;
+    }
+    .modal h3 { font-size: 1.1rem; color: var(--accent); margin-bottom: 0.7rem; }
+    .modal-close {
+      float: right; border: none; background: none;
+      font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; padding: 0 0.2rem;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -264,6 +286,9 @@
     </p>
   </div>
   <div class="toast" id="toast" role="status"></div>
+  <div class="modal-back" id="modalBack">
+    <div class="modal" id="modalBody"></div>
+  </div>
 
   <script>
     (function () {
@@ -323,6 +348,49 @@
         el.classList.add("show");
         clearTimeout(toast._t);
         toast._t = setTimeout(function () { el.classList.remove("show"); }, 2200);
+      }
+
+      function openModal(html) {
+        document.getElementById("modalBody").innerHTML = html;
+        document.getElementById("modalBack").classList.add("open");
+      }
+      function closeModal() {
+        document.getElementById("modalBack").classList.remove("open");
+      }
+      document.getElementById("modalBack").onclick = function (ev) {
+        if (ev.target === document.getElementById("modalBack")) closeModal();
+      };
+
+      function confirmModal(msg, onOk) {
+        openModal(
+          '<button class="modal-close" id="modalX">×</button>' +
+          '<h3>請確認</h3>' +
+          '<p style="color:#4f6a5c;font-size:0.92rem;margin-bottom:1.1rem;white-space:pre-wrap">' + msg + '</p>' +
+          '<div style="display:flex;gap:0.5rem">' +
+            '<button type="button" class="btn secondary" style="flex:1" id="confirmNo">取消</button>' +
+            '<button type="button" class="btn" style="flex:1" id="confirmOk">確定匯出</button>' +
+          '</div>'
+        );
+        document.getElementById("modalX").onclick = closeModal;
+        document.getElementById("confirmNo").onclick = closeModal;
+        document.getElementById("confirmOk").onclick = function () { closeModal(); onOk(); };
+      }
+
+      function downloadBlob(blob, filename) {
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS && navigator.canShare) {
+          var file = new File([blob], filename, { type: blob.type });
+          if (navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: filename }).catch(function () {});
+            return;
+          }
+        }
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = filename; a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 300);
       }
 
       function matchFilter(s) {
@@ -523,13 +591,28 @@
 
       document.getElementById("btnExport").addEventListener("click", function () {
         persistHeader();
-        var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-        var a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "班級狀態.json";
-        a.click();
-        URL.revokeObjectURL(a.href);
-        toast("已匯出，可傳到電腦習作台匯入");
+        /* 若所有座號都還是預設值，可能是剛開啟尚未載入真實資料，先確認 */
+        var seats = state.seats;
+        var hasRealData = Object.keys(seats).some(function (k) {
+          if (k === "00") return false;
+          return seats[k].level !== "未標" || seats[k].send !== "未發";
+        });
+        var json = JSON.stringify(state, null, 2);
+        var newSize = new Blob([json]).size;
+        var EXPORT_SIZE_KEY = "teacher-desk-last-export-size";
+        var lastSize = parseInt(localStorage.getItem(EXPORT_SIZE_KEY), 10) || 0;
+        function doExport() {
+          localStorage.setItem(EXPORT_SIZE_KEY, newSize);
+          downloadBlob(new Blob([json], { type: "application/json" }), "班級狀態.json");
+          toast("已匯出，可傳到電腦習作台匯入");
+        }
+        if (!hasRealData) {
+          confirmModal("目前所有座號都還是初始狀態（未標／未發）。\n確定要匯出這份空白資料嗎？\n\n若您有真實紀錄，請先確認頁面已正確載入。", doExport);
+        } else if (lastSize > 0 && newSize < lastSize) {
+          confirmModal("⚠️ 本次匯出檔案（" + newSize + " bytes）比上次（" + lastSize + " bytes）小。\n\n資料可能比上次少，確定要覆蓋嗎？", doExport);
+        } else {
+          doExport();
+        }
       });
 
       document.getElementById("btnSyncGrader").addEventListener("click", function () {
@@ -811,12 +894,7 @@
             });
             li.querySelector(".act-dl").addEventListener("click", function () {
               var name = suggestName(seatPick.value, roundPick.value, rec.name, rec.type);
-              var a = document.createElement("a");
-              var du = URL.createObjectURL(bufferToBlob(rec));
-              a.href = du;
-              a.download = name;
-              a.click();
-              setTimeout(function () { URL.revokeObjectURL(du); }, 1500);
+              downloadBlob(bufferToBlob(rec), name);
               toast("已下載 " + name + " → 放到電腦「習作台資料\\掃描匯入」");
             });
             li.querySelector(".act-pend").addEventListener("click", function () {
