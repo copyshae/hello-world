@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260818 學習日誌・習作批改手機版 ChatPlayground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#1a1f1c; --paper:#e8efe6; --accent:#2d6a4f; --muted:#4a5c52; --line:rgba(45,106,79,.2); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      min-height:100vh; font-family:"DM Sans",sans-serif; color:var(--ink); line-height:1.7;
+      background: radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149,213,178,.35), transparent 55%),
+        linear-gradient(160deg,#f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width:52rem; margin:0 auto; padding:2rem 1.35rem 4rem; }
+    .nav { display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; font-size:.95rem; }
+    .nav a { color:var(--accent); text-decoration:none; font-weight:500; }
+    article { background:rgba(255,255,255,.55); border:1px solid var(--line); padding:1.75rem 1.5rem 2.5rem; }
+    h1 { font-family:"Instrument Serif",Georgia,serif; font-size:clamp(1.45rem,4.5vw,2rem); font-weight:400; color:var(--accent); line-height:1.35; margin-bottom:.75rem; }
+    .lead { color:var(--muted); margin-bottom:1.5rem; }
+    h2 { font-family:"Instrument Serif",Georgia,serif; font-size:1.3rem; font-weight:400; color:var(--accent); margin:1.75rem 0 .85rem; padding-top:.75rem; border-top:1px solid var(--line); }
+    ul, ol { margin:.5rem 0 .85rem 1.35rem; }
+    li { margin:.3rem 0; }
+    code { font-size:.9em; background:rgba(45,106,79,.1); padding:.1em .35em; }
+    a.inline { color:var(--accent); word-break:break-all; }
+    .callout { margin:1rem 0; padding:.85rem 1rem; border-left:3px solid var(--accent); background:rgba(45,106,79,.08); font-size:.95rem; }
+    .note { font-size:.85rem; color:var(--muted); margin-top:1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+    </nav>
+    <article>
+      <h1>20260818 習作批改手機版：ChatPlayground 與貼上自動批閱</h1>
+      <p class="lead">接 0817 換機安裝。一天一獨立主題；本則是 0818，下一則 0819 掃具台（掃具台當日各項合併進 0819，不另開 0820）。</p>
+
+      <h2>一｜怎麼批（手機）</h2>
+      <ol>
+        <li>打開 <a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/math-grader/">習作批改</a>，掃描王匯入（檔名只要座號）。</li>
+        <li>「ChatPlayground AI 自動批閱」：複製提示、下載試卷、開網站。整班用連續批。</li>
+        <li>到 ChatPlayground 貼上並上傳試卷；把回覆貼回「貼上自動批閱」才變已批。</li>
+        <li>維護中改 ChatGPT 免費版，流程相同。手機複製改長按，不要用 Ctrl+C 彈窗。</li>
+      </ol>
+      <div class="callout">網頁版沒有對外 API，不會在背景自己寫回格子。電腦規格仍以 <a class="inline" href="./20260803-learning-log.html">0803</a> 為準。</div>
+
+      <h2>二｜金鑰（選用）</h2>
+      <ul>
+        <li>預設不必填。需要時才「改 Gemini 自動批」。</li>
+        <li>不要把金鑰貼進對話或提交 Git。</li>
+      </ul>
+
+      <p class="note">
+        線上：<a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260818-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260818-learning-log.html</a>
+        ｜下一則：<a class="inline" href="./20260819-learning-log.html">0819 掃具台</a>
+        ｜上一則：<a class="inline" href="./20260817-learning-log.html">0817</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>

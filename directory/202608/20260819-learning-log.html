@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260819 學習日誌・掃具台上線與 CSV 匯入負數</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+    </nav>
+    <article>
+      <h1>20260819 掃具台上線與 CSV 匯入負數</h1>
+      <p class="lead">獨立主題系列最後一篇（只到 0819）。掃具台當日各晚間項合併本篇，不另開 0820。上一則是 <a class="inline" href="./20260818-learning-log.html">0818 ChatPlayground</a>。</p>
+
+      <h2>一｜掃具台新增上線</h2>
+      <ul>
+        <li>路徑：<code>directory/apps/scan-equip/</code></li>
+        <li>正式網址：<a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/scan-equip/">https://copyshae.github.io/hello-world/directory/apps/scan-equip/</a></li>
+        <li>來源在 dash 倉庫 <code>copyshae/-</code> 的 <code>_export/hello-world/</code>，再套到本倉庫推 Pages。</li>
+        <li>安裝／桌面腳本：<code>scripts/install-scan-equip.ps1</code>、<code>scripts/scan-equip-app.ps1</code>、<code>scripts/README-scan-equip.md</code></li>
+      </ul>
+
+      <h2>二｜CSV 匯入負數不再變 0</h2>
+      <ul>
+        <li>問題：匯入時數量若為負數（例如 <code>-2</code>，代表扣回）會變成 <code>0</code>。</li>
+        <li>原因：匯入用了 <code>Math.max(0, parseInt(...))</code>，和手動請領可接受負數不一致。</li>
+        <li>修正後：CSV 匯入保留負數，與手動請領／扣回相同。</li>
+      </ul>
+      <div class="callout">
+        掃具台允許負數是刻意的（扣回、修正），不要再用 <code>Math.max(0, …)</code> 把數量夾成 0。
+      </div>
+
+      <h2>三｜匯出同步腳本已支援掃具台</h2>
+      <ul>
+        <li><code>scripts/pull-export-from-dash-repo.ps1</code> 把 scan-equip 列入下載與 <code>git add</code> 清單。</li>
+        <li>推送前自動切到 hello-world 的 <code>master</code> 分支，避免 GitHub Pages 還停在別的分支而 404。</li>
+        <li>Pages 設定維持：Branch <code>master</code>、Folder <code>/ (root)</code>。不要改成 <code>docs</code>。</li>
+      </ul>
+
+      <h2>四｜當日各項合併（不另開 0820）</h2>
+      <ul>
+        <li>庫存：新／舊／尚可；其他細項各為獨立種類。</li>
+        <li>拍照／相簿／分享辨識；無 AI 改手動貼文字。領用扣庫存，進貨／送還入庫。</li>
+        <li>每次請領各一列（Excel 欄）；確認視窗後再寫入，可恢復。</li>
+        <li>領用人可導師或處室；班級選填。欄位可增刪。</li>
+        <li>115 學年官方 34 班導師名單為準（不可覆寫）；其餘班級可手動。</li>
+        <li>只用導師／班級／處室名稱，不把學生姓名寫進檔名與日誌。</li>
+      </ul>
+
+      <p class="note">
+        線上：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260819-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260819-learning-log.html</a>
+        ｜掃具台：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/scan-equip/">https://copyshae.github.io/hello-world/directory/apps/scan-equip/</a>
+        ｜上一則：
+        <a class="inline" href="./20260818-learning-log.html">0818</a>
+        ｜排程：
+        <a class="inline" href="./20260818-push-logs.html">0818–0819 補推</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
