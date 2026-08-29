@@ -1,0 +1,26 @@
+{
+  "name": "每日14樣功課",
+  "short_name": "14樣功課",
+  "description": "超級生命密碼每日14樣功課。做完一項消失一項，隔日自動重新開始。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff6e6",
+  "theme_color": "#c45c26",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

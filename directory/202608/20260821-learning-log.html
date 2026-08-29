@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>20260821 學習日誌・每日14樣功課備忘錄</title>
+  <title>20260821 學習日誌・七個好習慣分類（獨立 App）</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
@@ -72,45 +72,67 @@
       <a href="../../index.html">← 首頁</a>
       <a href="../index.html">← 學習日誌</a>
       <a href="./index.html">← 日誌列表</a>
-      <a href="../apps/daily-14/">開啟每日14樣功課</a>
+      <a href="../apps/habits-7/">開啟七個好習慣分類</a>
     </nav>
     <article>
-      <h1>20260821 每日14樣功課備忘錄</h1>
-      <p class="lead">接日誌 <a class="inline" href="./20260819-learning-log.html">0819 掃具台</a>，本日主題為「每日14樣功課」手機勾選備忘錄（可加主畫面、每日重置）。</p>
+      <h1>20260821 七個好習慣分類（獨立 App）</h1>
+      <p class="lead">接日誌 <a class="inline" href="./20260820-learning-log.html">0820 每日14樣功課</a>（再接 0819）。本日新增「七個好習慣＋時間象限」手機 App；<strong>與每日14樣功課完全分開</strong>，14 項功課仍只在 daily-14。</p>
 
-      <div class="callout"><strong>手機立刻可開：</strong><br /><a class="inline" href="https://copyshae.github.io/-/directory/202608/20260821-learning-log.html">https://copyshae.github.io/-/directory/202608/20260821-learning-log.html</a></div>
-
-      <h2>一｜入口</h2>
-      <ul>
-        <li>路徑：<code>directory/apps/daily-14/</code></li>
-        <li>正式網址：<a class="inline" href="https://copyshae.github.io/-/directory/apps/daily-14/">https://copyshae.github.io/-/directory/apps/daily-14/</a></li>
-        <li>dash 預覽（Pages）：<a class="inline" href="https://copyshae.github.io/-/daily-14/">https://copyshae.github.io/-/daily-14/</a></li>
-        <li>來源在 <code>copyshae/-</code> 的 <code>_export/hello-world/</code> 與 <code>docs/daily-14/</code>，套用後推 hello-world Pages。</li>
-      </ul>
-
-      <h2>二｜行為</h2>
-      <ul>
-        <li>14 項功課：聆聽「富有」「注入彩虹」、弟子規、懺悔發願、寫心得、秒秒感恩、去我、太陽心法、照鏡子、秒秒轉念、秒秒參悟空、營造生活、網絡共修（每週）、渡人。</li>
-        <li>點一下＝完成並從清單消失（可撤銷上一項／重設今日）。</li>
-        <li>進度存本機瀏覽器；日期以 <code>Asia/Taipei</code> 計算，隔日（或跨午夜）自動全部重來。</li>
-      </ul>
       <div class="callout">
-        加到主畫面：Safari／Chrome 開啟頁面 →「分享」或選單 →「加入主畫面」。之後像 App 一樣每天打開勾選。
+        <strong>手機立刻可開（dash Pages 鏡射，免開電腦）：</strong><br />
+        <a class="inline" href="https://copyshae.github.io/-/directory/202608/20260821-learning-log.html">https://copyshae.github.io/-/directory/202608/20260821-learning-log.html</a><br />
+        正式 hello-world 網址（待寫入權限同步）：
+        <a class="inline" href="https://copyshae.github.io/-/directory/202608/20260821-learning-log.html">https://copyshae.github.io/-/directory/202608/20260821-learning-log.html</a>
       </div>
 
-      <h2>三｜匯出同步</h2>
+      <h2>一｜入口（兩支 App 分開）</h2>
       <ul>
-        <li><code>scripts/pull-export-from-dash-repo.ps1</code> 與 <code>apply-to-hello-world.ps1</code> 已列入 <code>daily-14</code>。</li>
-        <li>學習日誌列表與「最新」導向會改到本篇（0821）。</li>
+        <li>七習慣路徑：<code>directory/apps/habits-7/</code></li>
+        <li>正式網址：<a class="inline" href="https://copyshae.github.io/-/directory/apps/habits-7/">https://copyshae.github.io/-/directory/apps/habits-7/</a></li>
+        <li>dash 預覽：<a class="inline" href="https://copyshae.github.io/-/habits-7/">https://copyshae.github.io/-/habits-7/</a></li>
+        <li>每日14樣功課（不變）：<a class="inline" href="https://copyshae.github.io/-/daily-14/">https://copyshae.github.io/-/daily-14/</a></li>
+      </ul>
+      <div class="callout">
+        不要把七習慣勾選混進 14 樣功課清單。兩支可各自「加入主畫面」。
+      </div>
+
+      <h2>二｜功能（對應教師／衛生組長背景）</h2>
+      <ul>
+        <li><strong>做事歸類</strong>：口說或打字輸入人事時地物（人／時／地／事），自動歸到柯維七習慣之一，並標時間象限（重要×緊急四象限）。</li>
+        <li><strong>今天上課建議</strong>：選康軒國一（七上／七下）單元 → 每日一則建議，對應習慣＋象限；可再口說補充學生狀況。</li>
+        <li>紀錄存本機瀏覽器（台北時區日期）；不上傳。</li>
+      </ul>
+
+      <h2>三｜七習慣速記</h2>
+      <ol>
+        <li>主動積極</li>
+        <li>以終為始</li>
+        <li>要事第一</li>
+        <li>雙贏思維</li>
+        <li>知彼解己</li>
+        <li>統合綜效</li>
+        <li>不斷更新</li>
+      </ol>
+
+      <h2>四｜匯出／匯入（SW v24）</h2>
+      <ul>
+        <li>今日紀錄可匯出 <strong>JSON／CSV／TXT／MD</strong>，並有對應四種<strong>匯入</strong>按鈕。</li>
+        <li>匯入可選「合併」或「覆蓋」今日紀錄；可與電腦／另一台手機互傳。</li>
+      </ul>
+
+      <h2>五｜匯出同步</h2>
+      <ul>
+        <li>來源：<code>copyshae/-</code> 的 <code>docs/habits-7/</code> 與 <code>_export/hello-world/</code></li>
+        <li><code>scripts/pull-export-from-dash-repo.ps1</code> 已列入 habits-7 與本篇日誌 0821。</li>
       </ul>
 
       <p class="note">
         線上：
         <a class="inline" href="https://copyshae.github.io/-/directory/202608/20260821-learning-log.html">https://copyshae.github.io/-/directory/202608/20260821-learning-log.html</a>
-        ｜備忘錄：
-        <a class="inline" href="https://copyshae.github.io/-/directory/apps/daily-14/">https://copyshae.github.io/-/directory/apps/daily-14/</a>
+        ｜App：
+        <a class="inline" href="https://copyshae.github.io/-/directory/apps/habits-7/">https://copyshae.github.io/-/directory/apps/habits-7/</a>
         ｜上一則：
-        <a class="inline" href="./20260819-learning-log.html">0819</a>
+        <a class="inline" href="./20260820-learning-log.html">0820</a>
       </p>
     </article>
   </div>

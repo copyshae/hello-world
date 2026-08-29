@@ -1,0 +1,28 @@
+{
+  "name": "七個好習慣分類",
+  "short_name": "七習慣",
+  "description": "輸入或口說人事時地物，歸類到七個好習慣與時間象限；康軒國一數學上課給每日建議。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#e8f4ef",
+  "theme_color": "#1b6b5a",
+  "lang": "zh-Hant",
+  "categories": ["education", "productivity"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

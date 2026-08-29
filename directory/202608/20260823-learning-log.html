@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>20260823 學習日誌・看書／看文件（doc-reader）</title>
+  <title>20260823 學習日誌・弟子規 41 集 PWA（蔡禮旭老師 · 1.75／2 倍速）</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
@@ -72,55 +72,45 @@
       <a href="../../index.html">← 首頁</a>
       <a href="../index.html">← 學習日誌</a>
       <a href="./index.html">← 日誌列表</a>
-      <a href="../apps/doc-reader/">開啟看書／看文件</a>
+      <a href="../apps/dizigui-41/">開啟弟子規 41 集</a>
     </nav>
     <article>
-      <h1>20260823 看書／看文件（doc-reader）</h1>
-      <p class="lead">接日誌 <a class="inline" href="./20260822-learning-log.html">0822 七個好習慣分類</a>。本日把尚未上線的「看書／看文件」App 與後續修正一次推上日誌：拍照／檔案／網址／貼上 → 中英讀誦 → 英文可逐句或全文譯中並朗讀 → 節錄四面向建議 → 可疊加七習慣今日紀錄。</p>
+      <h1>20260823 弟子規 41 集 PWA（蔡禮旭老師 · 1.75／2 倍速）</h1>
+      <p class="lead">接日誌 <a class="inline" href="./20260822-learning-log.html">0822 看書／看文件</a>。本日新增蔡禮旭老師《細講弟子規》第 1～41 集手機 PWA：可選 1.75 倍或 2 倍速連播，加入主畫面後像獨立 App 使用。</p>
 
       <div class="callout"><strong>手機立刻可開（免開電腦）：</strong><br />
         <a class="inline" href="https://copyshae.github.io/-/directory/202608/20260823-learning-log.html">https://copyshae.github.io/-/directory/202608/20260823-learning-log.html</a><br />
         正式 hello-world：
-        <a class="inline" href="https://copyshae.github.io/-/directory/202608/20260823-learning-log.html">https://copyshae.github.io/-/directory/202608/20260823-learning-log.html</a>
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260823-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260823-learning-log.html</a>
       </div>
 
       <h2>一｜入口</h2>
       <ul>
-        <li>主版（dash Pages）：<a class="inline" href="https://copyshae.github.io/-/doc-reader/">https://copyshae.github.io/-/doc-reader/</a></li>
-        <li>hello-world 鏡像：<a class="inline" href="https://copyshae.github.io/-/directory/apps/doc-reader/">https://copyshae.github.io/-/directory/apps/doc-reader/</a></li>
-        <li>七習慣分頁「看書文件」：<a class="inline" href="https://copyshae.github.io/-/directory/apps/habits-7/">https://copyshae.github.io/-/directory/apps/habits-7/</a></li>
-        <li>電腦版：<a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/life-desk/">https://copyshae.github.io/hello-world/directory/apps/life-desk/</a></li>
-        <li>來源：<code>docs/doc-reader/</code>（SW <code>doc-reader-v11</code>）</li>
+        <li>主版（dash Pages）：<a class="inline" href="https://copyshae.github.io/-/dizigui-41/">https://copyshae.github.io/-/dizigui-41/</a></li>
+        <li>加入主畫面說明：<a class="inline" href="https://copyshae.github.io/-/dizigui-41/share.html">https://copyshae.github.io/-/dizigui-41/share.html</a></li>
+        <li>hello-world 鏡像：<a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/dizigui-41/">https://copyshae.github.io/hello-world/directory/apps/dizigui-41/</a></li>
+        <li>習作工具主頁：<a class="inline" href="https://copyshae.github.io/-/">https://copyshae.github.io/-/</a> →「打開弟子規41集」</li>
+        <li>來源：<code>docs/dizigui-41/</code>（集數清單 <code>episodes.js</code>）</li>
       </ul>
-
-      <h2>二｜匯入與辨識</h2>
+      <h2>二｜播放與倍速</h2>
       <ul>
-        <li>拍照／PDF／文字／網址／貼上（CSV 自動整理）；純圖改圖搜；可取消／重選檔案。</li>
+        <li>第 1～41 集清單；點選單集或「從第 1 集開始連播」。</li>
+        <li>倍速：原速、1.75×、2×；偏好存本機。</li>
+        <li>YouTube 嵌入播放；可暫停、上一集／下一集。</li>
       </ul>
-
-      <h2>三｜讀誦與英文翻譯</h2>
+      <h2>三｜加入主畫面</h2>
       <ul>
-        <li>中英讀誦、暫停／取消；英文輸入可逐句或全文譯中並朗讀。</li>
-        <li>圈選／點字查解釋；節錄四面向；疊加七習慣今日紀錄。</li>
-      </ul>
-
-      <h2>四｜iPhone 與 UX</h2>
-      <ul>
-        <li>圈選快取、防連按、解釋視窗讀完不自動關閉；貼上文字改 overlay。</li>
-      </ul>
-
-      <h2>五｜匯出同步</h2>
-      <ul>
-        <li><code>scripts/pull-export-from-dash-repo.ps1</code> 已列入 0823 與 doc-reader。</li>
+        <li>Safari／Chrome →「加入主畫面」；圖示為弟子規卷軸（<code>dizigui-icon-*.png</code>）。</li>
+        <li>修正 iPhone 仍顯示七習慣「7」圖示的快取：圖示檔名獨立、SW 網路優先、版本參數強制更新。</li>
       </ul>
 
       <p class="note">
         hello-world：
-        <a class="inline" href="https://copyshae.github.io/-/directory/202608/20260823-learning-log.html">https://copyshae.github.io/-/directory/202608/20260823-learning-log.html</a>
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260823-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260823-learning-log.html</a>
         ｜App：
-        <a class="inline" href="https://copyshae.github.io/-/directory/apps/doc-reader/">https://copyshae.github.io/-/directory/apps/doc-reader/</a>
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/dizigui-41/">https://copyshae.github.io/hello-world/directory/apps/dizigui-41/</a>
         ｜上一則：
-        <a class="inline" href="./20260822-learning-log.html">0822</a>
+        <a class="inline" href="./20260822-learning-log.html">0822 看書／看文件（doc-reader）</a>
       </p>
     </article>
   </div>

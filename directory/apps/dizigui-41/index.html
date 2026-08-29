@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#8b1a1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="弟子規41集" />
+  <meta name="description" content="蔡禮旭老師細講《弟子規》第1～41集，可選1.75倍或2倍速播放。" />
+  <link rel="manifest" href="manifest.json?v=20260829" />
+  <link rel="icon" href="dizigui-icon-192.png?v=20260829" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="dizigui-icon-180.png?v=20260829" sizes="180x180" />
+  <link rel="apple-touch-icon" href="dizigui-icon-192.png?v=20260829" sizes="192x192" />
+  <link rel="apple-touch-icon" href="dizigui-icon-512.png?v=20260829" sizes="512x512" />
+  <title>蔡禮旭老師｜細講弟子規</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #2a1810;
+      --muted: #6b5344;
+      --paper: #f5efe3;
+      --accent: #8b1a1a;
+      --accent-soft: #c44a3a;
+      --line: rgba(139, 26, 26, 0.18);
+      --ok: #2d6a4f;
+      --card: rgba(255, 255, 255, 0.72);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: "Noto Sans TC", "PingFang TC", sans-serif;
+      color: var(--ink);
+      line-height: 1.55;
+      background:
+        radial-gradient(ellipse 90% 50% at 50% -5%, rgba(255, 220, 180, 0.55), transparent 55%),
+        linear-gradient(180deg, #faf6ef 0%, var(--paper) 50%, #e8ddd0 100%);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; }
+    header { text-align: center; margin-bottom: 1rem; }
+    .brand {
+      font-family: "Noto Serif TC", "Songti TC", serif;
+      font-size: clamp(1.45rem, 6.5vw, 1.85rem);
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+    .sub { margin-top: 0.35rem; color: var(--muted); font-size: 0.88rem; }
+    .pill-row {
+      margin-top: 0.65rem;
+      display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center;
+    }
+    .pill {
+      font-size: 0.75rem; color: var(--accent);
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+    }
+    .player-shell {
+      background: #111;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 8px 24px rgba(42, 24, 16, 0.18);
+    }
+    #player { width: 100%; height: 100%; }
+    .now-playing {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.85rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0.45rem;
+    }
+    .now-playing h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .now-playing p {
+      margin-top: 0.25rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .controls {
+      margin-top: 0.65rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.4rem;
+    }
+    .controls button, .toolbar button, .ep-item {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      padding: 0.55rem 0.35rem;
+      border-radius: 0.35rem;
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+    .controls button:active, .toolbar button:active, .ep-item:active {
+      transform: scale(0.98);
+    }
+    .controls button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .controls button:disabled, .toolbar button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .toolbar {
+      margin-top: 0.55rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .toolbar label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 0.45rem 0.65rem;
+      border-radius: 0.35rem;
+      cursor: pointer;
+    }
+    .toolbar input[type="checkbox"] { width: 1rem; height: 1rem; accent-color: var(--accent); }
+    .speed-row {
+      margin-top: 0.55rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .speed-row span.label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .speed-pick {
+      display: flex;
+      gap: 0.35rem;
+      flex: 1;
+    }
+    .speed-pick button {
+      flex: 1;
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      padding: 0.5rem 0.35rem;
+      border-radius: 0.35rem;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+    .speed-pick button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .speed-badge {
+      margin-left: auto;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent-soft);
+      padding: 0.35rem 0.6rem;
+      border-radius: 999px;
+    }
+    .hint {
+      margin-top: 0.85rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding: 0.65rem 0.75rem;
+      background: rgba(255,255,255,0.45);
+      border: 1px dashed var(--line);
+      border-radius: 0.35rem;
+    }
+    .hint strong { color: var(--accent); font-weight: 700; }
+    .section-title {
+      margin: 1.25rem 0 0.55rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .ep-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+    }
+    .ep-item {
+      text-align: center;
+      padding: 0.65rem 0.25rem;
+      position: relative;
+    }
+    .ep-item.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .ep-item.done::after {
+      content: "✓";
+      position: absolute;
+      top: 0.15rem;
+      right: 0.25rem;
+      font-size: 0.65rem;
+      color: var(--ok);
+      font-weight: 700;
+    }
+    .ep-item.active.done::after { color: #b8f0d0; }
+    .footer-note {
+      margin-top: 1.2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .footer-note a { color: var(--accent); }
+    .home-card {
+      margin-top: 1rem;
+      padding: 0.9rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0.55rem;
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+    }
+    .home-icon {
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 1rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(42, 24, 16, 0.15);
+    }
+    .home-card-body { flex: 1; min-width: 0; }
+    .home-card-body h3 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .home-card-body p {
+      margin-top: 0.25rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .home-card-body .name {
+      margin-top: 0.35rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    @media (max-width: 360px) {
+      .ep-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">細講《弟子規》</h1>
+      <p class="sub">蔡禮旭老師主講 · 2005 幸福人生講座 · 共 41 集</p>
+      <div class="pill-row">
+        <span class="pill">可選 1.75／2 倍速</span>
+        <span class="pill">可連續播放</span>
+        <span class="pill">可加入主畫面</span>
+      </div>
+    </header>
+
+    <section class="home-card" aria-label="主畫面圖示預覽">
+      <img class="home-icon" src="dizigui-icon-192.png?v=20260829" width="192" height="192" alt="弟子規主畫面圖示" />
+      <div class="home-card-body">
+        <h3>加到主畫面</h3>
+        <p>加入後主畫面會顯示左側這個圖示（弟子規卷軸）。</p>
+        <p class="name">圖示名稱：弟子規41集</p>
+      </div>
+    </section>
+
+    <div class="player-shell">
+      <div id="player"></div>
+    </div>
+
+    <div class="now-playing">
+      <h2 id="epTitle">第 1 集</h2>
+      <p id="epMeta">載入播放器中…</p>
+    </div>
+
+    <div class="controls">
+      <button type="button" id="btnPrev" disabled aria-label="上一集">◀ 上一集</button>
+      <button type="button" id="btnPlay" class="primary" aria-label="播放或暫停">▶ 播放</button>
+      <button type="button" id="btnNext" aria-label="下一集">下一集 ▶</button>
+    </div>
+
+    <div class="toolbar">
+      <label>
+        <input type="checkbox" id="autoNext" checked />
+        播完自動下一集
+      </label>
+      <button type="button" id="btnResume">接續上次</button>
+    </div>
+
+    <div class="speed-row" role="group" aria-label="播放倍速">
+      <span class="label">倍速</span>
+      <div class="speed-pick">
+        <button type="button" class="speed-btn" data-rate="1.75">1.75×</button>
+        <button type="button" class="speed-btn active" data-rate="2">2×</button>
+      </div>
+      <span class="speed-badge" id="speedBadge">2× 倍速</span>
+    </div>
+
+    <p class="hint">
+      <strong>加入主畫面：</strong>iPhone 請用 <strong>Safari</strong> 開啟 → 分享 →「加入主畫面」。Android 請用 <strong>Chrome</strong> → ⋮ →「加入主畫面」。若仍顯示綠色「7」舊圖示，請清除 Safari 網站資料後重新開啟本頁再加入（設定→Safari→進階→網站資料→刪除 copyshae.github.io）。
+    </p>
+
+    <h2 class="section-title">選集（第 1～41 集）</h2>
+    <div class="ep-grid" id="epGrid" aria-label="弟子規集數列表"></div>
+
+    <p class="footer-note">
+      影片來源：<a id="ytLink" href="#" target="_blank" rel="noopener">YouTube</a> · 內容版權歸原頻道所有
+    </p>
+  </div>
+
+  <script src="episodes.js"></script>
+  <script>
+    const SPEED_OPTIONS = [1.75, 2];
+    const DEFAULT_SPEED = 2;
+    const STORAGE_KEY = "dizigui41-last";
+    const SPEED_KEY = "dizigui41-speed";
+    const DONE_KEY = "dizigui41-done";
+    const EPISODES = window.DIZIGUI_EPISODES || [];
+
+    let playbackRate = DEFAULT_SPEED;
+    let player = null;
+    let currentIndex = 0;
+    let apiReady = false;
+    let pendingIndex = 0;
+
+    const $ = (id) => document.getElementById(id);
+    const epTitle = $("epTitle");
+    const epMeta = $("epMeta");
+    const epGrid = $("epGrid");
+    const ytLink = $("ytLink");
+    const btnPrev = $("btnPrev");
+    const btnNext = $("btnNext");
+    const btnPlay = $("btnPlay");
+    const btnResume = $("btnResume");
+    const autoNext = $("autoNext");
+    const speedBadge = $("speedBadge");
+    const speedBtns = document.querySelectorAll(".speed-btn");
+
+    function loadSpeed() {
+      const saved = parseFloat(localStorage.getItem(SPEED_KEY) || String(DEFAULT_SPEED));
+      return SPEED_OPTIONS.includes(saved) ? saved : DEFAULT_SPEED;
+    }
+
+    function saveSpeed(rate) {
+      localStorage.setItem(SPEED_KEY, String(rate));
+    }
+
+    function updateSpeedUI() {
+      speedBtns.forEach((btn) => {
+        const rate = parseFloat(btn.dataset.rate);
+        btn.classList.toggle("active", rate === playbackRate);
+      });
+    }
+
+    function setSpeed(rate) {
+      if (!SPEED_OPTIONS.includes(rate)) return;
+      playbackRate = rate;
+      saveSpeed(rate);
+      updateSpeedUI();
+      applySpeed();
+    }
+
+    speedBtns.forEach((btn) => {
+      btn.addEventListener("click", () => setSpeed(parseFloat(btn.dataset.rate)));
+    });
+
+    playbackRate = loadSpeed();
+    updateSpeedUI();
+
+    function loadDoneSet() {
+      try {
+        const raw = localStorage.getItem(DONE_KEY);
+        return new Set(raw ? JSON.parse(raw) : []);
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveDoneSet(set) {
+      localStorage.setItem(DONE_KEY, JSON.stringify([...set]));
+    }
+
+    let doneSet = loadDoneSet();
+
+    function watchUrl(id) {
+      return "https://www.youtube.com/watch?v=" + id;
+    }
+
+    function embedUrl(id) {
+      return "https://www.youtube.com/embed/" + id + "?enablejsapi=1&playsinline=1&rel=0&modestbranding=1&origin=" + encodeURIComponent(location.origin);
+    }
+
+    function applySpeed() {
+      if (!player || typeof player.setPlaybackRate !== "function") return;
+      try {
+        player.setPlaybackRate(playbackRate);
+        const rates = player.getAvailablePlaybackRates ? player.getAvailablePlaybackRates() : [];
+        const label = playbackRate === 1.75 ? "1.75×" : playbackRate + "×";
+        if (rates.length && !rates.includes(playbackRate)) {
+          speedBadge.textContent = "倍速受限";
+          speedBadge.style.background = "#6b5344";
+        } else {
+          speedBadge.textContent = label + " 倍速";
+          speedBadge.style.background = "";
+        }
+      } catch (_) { /* 部分環境不支援 */ }
+    }
+
+    function updateUI() {
+      const ep = EPISODES[currentIndex];
+      if (!ep) return;
+      epTitle.textContent = "第 " + ep.n + " 集";
+      epMeta.textContent = "蔡禮旭老師 · 細講《弟子規》";
+      ytLink.href = watchUrl(ep.id);
+      ytLink.textContent = "YouTube 第 " + ep.n + " 集";
+      btnPrev.disabled = currentIndex <= 0;
+      btnNext.disabled = currentIndex >= EPISODES.length - 1;
+
+      epGrid.querySelectorAll(".ep-item").forEach((el) => {
+        const idx = Number(el.dataset.index);
+        el.classList.toggle("active", idx === currentIndex);
+        el.classList.toggle("done", doneSet.has(EPISODES[idx].n));
+      });
+
+      localStorage.setItem(STORAGE_KEY, String(currentIndex));
+    }
+
+    function renderGrid() {
+      epGrid.innerHTML = EPISODES.map((ep, i) =>
+        '<button type="button" class="ep-item' +
+        (doneSet.has(ep.n) ? " done" : "") +
+        (i === currentIndex ? " active" : "") +
+        '" data-index="' + i + '" aria-label="第' + ep.n + '集">' +
+        ep.n + "</button>"
+      ).join("");
+
+      epGrid.addEventListener("click", (e) => {
+        const btn = e.target.closest(".ep-item");
+        if (!btn) return;
+        playAt(Number(btn.dataset.index));
+      });
+    }
+
+    function createPlayer(index) {
+      const ep = EPISODES[index];
+      if (!ep) return;
+      if (player) {
+        player.loadVideoById(ep.id);
+        currentIndex = index;
+        updateUI();
+        return;
+      }
+      player = new YT.Player("player", {
+        height: "100%",
+        width: "100%",
+        videoId: ep.id,
+        playerVars: {
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1,
+          enablejsapi: 1,
+          origin: location.origin
+        },
+        events: {
+          onReady: onPlayerReady,
+          onStateChange: onPlayerStateChange
+        }
+      });
+      currentIndex = index;
+      updateUI();
+    }
+
+    function onPlayerReady() {
+      applySpeed();
+      const label = playbackRate === 1.75 ? "1.75" : String(playbackRate);
+      epMeta.textContent = "已就緒 · " + label + " 倍速";
+      updatePlayBtn(false);
+    }
+
+    function onPlayerStateChange(e) {
+      if (e.data === YT.PlayerState.PLAYING) {
+        applySpeed();
+        updatePlayBtn(true);
+      } else if (e.data === YT.PlayerState.PAUSED) {
+        updatePlayBtn(false);
+      } else if (e.data === YT.PlayerState.ENDED) {
+        updatePlayBtn(false);
+        const ep = EPISODES[currentIndex];
+        if (ep) {
+          doneSet.add(ep.n);
+          saveDoneSet(doneSet);
+          updateUI();
+        }
+        if (autoNext.checked && currentIndex < EPISODES.length - 1) {
+          setTimeout(() => playAt(currentIndex + 1, true), 600);
+        }
+      }
+    }
+
+    function updatePlayBtn(playing) {
+      btnPlay.textContent = playing ? "⏸ 暫停" : "▶ 播放";
+      btnPlay.setAttribute("aria-label", playing ? "暫停" : "播放");
+    }
+
+    function playAt(index, autoplay) {
+      if (index < 0 || index >= EPISODES.length) return;
+      pendingIndex = index;
+      if (apiReady) {
+        createPlayer(index);
+        if (autoplay !== false && player && player.playVideo) {
+          setTimeout(() => {
+            player.playVideo();
+            applySpeed();
+          }, 400);
+        }
+      } else {
+        currentIndex = index;
+        updateUI();
+      }
+    }
+
+    btnPrev.addEventListener("click", () => playAt(currentIndex - 1));
+    btnNext.addEventListener("click", () => playAt(currentIndex + 1));
+    btnPlay.addEventListener("click", () => {
+      if (!player) return;
+      const state = player.getPlayerState();
+      if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+      else {
+        player.playVideo();
+        applySpeed();
+      }
+    });
+    btnResume.addEventListener("click", () => {
+      const saved = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+      playAt(Number.isFinite(saved) ? saved : 0);
+    });
+
+    window.onYouTubeIframeAPIReady = function () {
+      apiReady = true;
+      const saved = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+      const start = Number.isFinite(saved) ? saved : pendingIndex;
+      createPlayer(start);
+    };
+
+    renderGrid();
+    const saved = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+    currentIndex = Number.isFinite(saved) ? saved : 0;
+    pendingIndex = currentIndex;
+    updateUI();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js?v=20260829").then(function (reg) {
+        reg.addEventListener("updatefound", function () {
+          var nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener("statechange", function () {
+            if (nw.state === "installed" && navigator.serviceWorker.controller) {
+              nw.postMessage({ type: "SKIP_WAITING" });
+            }
+          });
+        });
+      }).catch(function () {});
+      var reloaded = sessionStorage.getItem("dizigui41-sw-reload");
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        if (reloaded) return;
+        sessionStorage.setItem("dizigui41-sw-reload", "1");
+        location.reload();
+      });
+    }
+  </script>
+  <script src="https://www.youtube.com/iframe_api" async></script>
+</body>
+</html>

@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45a10" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="盛德歌曲" />
+  <meta name="description" content="太陽盛德導師：注入彩虹、富有各連播三次；著作歌曲各一次。可更新 YouTube 曲庫。" />
+  <link rel="manifest" href="manifest.json?v=20260829" />
+  <link rel="icon" href="taiyang-icon-192.png?v=20260829" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="taiyang-icon-180.png?v=20260829" sizes="180x180" />
+  <link rel="apple-touch-icon" href="taiyang-icon-192.png?v=20260829" sizes="192x192" />
+  <title>太陽盛德導師｜歌曲連播</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #3a2208;
+      --muted: #7a5c3a;
+      --paper: #fff8e8;
+      --accent: #c45a10;
+      --accent2: #e8a020;
+      --line: rgba(196, 90, 16, 0.2);
+      --card: rgba(255, 255, 255, 0.78);
+      --ok: #2d6a4f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans TC", "PingFang TC", sans-serif;
+      color: var(--ink);
+      line-height: 1.55;
+      background: linear-gradient(180deg, #fffbf0 0%, var(--paper) 45%, #ffe8c4 100%);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; }
+    header { text-align: center; }
+    .brand { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    .sub { margin-top: 0.3rem; font-size: 0.86rem; color: var(--muted); }
+    .pill-row { margin-top: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+    .pill { font-size: 0.72rem; color: var(--accent); background: var(--card); border: 1px solid var(--line); padding: 0.2rem 0.5rem; border-radius: 999px; }
+    .home-card {
+      margin-top: 0.85rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line);
+      border-radius: 0.5rem; display: flex; gap: 0.75rem; align-items: center;
+    }
+    .home-icon { width: 3.6rem; height: 3.6rem; border-radius: 0.85rem; flex-shrink: 0; }
+    .home-card p { font-size: 0.78rem; color: var(--muted); }
+    .player-shell { margin-top: 0.85rem; background: #111; border-radius: 0.5rem; overflow: hidden; aspect-ratio: 16/9; }
+    #player { width: 100%; height: 100%; }
+    .now { margin-top: 0.7rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.45rem; }
+    .now h2 { font-size: 1rem; color: var(--accent); font-weight: 700; }
+    .now p { margin-top: 0.2rem; font-size: 0.8rem; color: var(--muted); }
+    .progress-bar { margin-top: 0.5rem; height: 0.35rem; background: rgba(196,90,16,0.15); border-radius: 999px; overflow: hidden; }
+    .progress-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.3s; }
+    .controls { margin-top: 0.6rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; }
+    button {
+      font: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--card);
+      color: var(--ink); padding: 0.55rem 0.3rem; border-radius: 0.35rem; font-weight: 600; font-size: 0.82rem;
+    }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .toolbar { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+    .toolbar .meta { margin-left: auto; font-size: 0.75rem; color: var(--muted); }
+    .hint { margin-top: 0.75rem; font-size: 0.76rem; color: var(--muted); padding: 0.65rem; background: rgba(255,255,255,0.5); border: 1px dashed var(--line); border-radius: 0.35rem; }
+    .section { margin-top: 1rem; font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+    .song-picker { margin-top: 0.45rem; }
+    .song-picker-top {
+      margin-top: 0.85rem;
+      padding: 0.75rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+    }
+    body.ktv-mode .song-picker-top {
+      margin-top: 0.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .play-mode-pick {
+      margin-top: 0.65rem;
+      padding: 0.65rem;
+      background: rgba(196, 90, 16, 0.08);
+      border: 1px dashed var(--accent);
+      border-radius: 0.4rem;
+      display: none;
+    }
+    .play-mode-pick.on { display: block; }
+    .play-mode-pick p { font-size: 0.82rem; color: var(--ink); font-weight: 600; }
+    .play-mode-pick .song-name { color: var(--accent); }
+    .play-mode-actions { margin-top: 0.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+    .play-mode-actions button { padding: 0.6rem 0.4rem; font-size: 0.82rem; }
+    .play-mode-actions .ktv-pick { background: linear-gradient(135deg, #e8a020, #c45a10); color: #fff; border-color: #c45a10; }
+    .picker-label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; font-weight: 500; }
+    .song-select {
+      width: 100%;
+      font: inherit;
+      font-size: 0.88rem;
+      padding: 0.65rem 0.7rem;
+      border: 1px solid var(--line);
+      border-radius: 0.35rem;
+      background: var(--card);
+      color: var(--ink);
+      appearance: auto;
+    }
+    .filter-row { margin-top: 0.55rem; display: flex; gap: 0.35rem; }
+    .filter-row button { flex: 1; font-size: 0.78rem; padding: 0.45rem 0.25rem; }
+    .filter-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); }
+    .controls-extra { margin-top: 0.4rem; grid-template-columns: 1fr 1fr; display: grid; gap: 0.35rem; }
+    button.ktv-on { background: linear-gradient(135deg, #e8a020, #c45a10); color: #fff; border-color: #c45a10; }
+    button.karaoke-on { background: #2d6a4f; color: #fff; border-color: #2d6a4f; }
+    .ktv-panel {
+      margin-top: 0.65rem;
+      padding: 1rem 0.85rem 1.1rem;
+      border-radius: 0.55rem;
+      background: linear-gradient(180deg, #1a1208 0%, #2d1f0a 100%);
+      color: #fff8e8;
+      min-height: 9rem;
+      text-align: center;
+      display: none;
+    }
+    .ktv-panel.on { display: block; }
+    .ktv-badge { font-size: 0.72rem; letter-spacing: 0.15em; color: #e8a020; font-weight: 700; }
+    .ktv-title { margin-top: 0.35rem; font-size: clamp(1.1rem, 4.5vw, 1.35rem); font-weight: 700; color: #ffd88a; }
+    .ktv-line {
+      margin-top: 0.85rem;
+      font-size: clamp(1.65rem, 7.5vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.35;
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.45);
+      min-height: 3.2em;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ktv-next { margin-top: 0.35rem; font-size: clamp(0.95rem, 4vw, 1.15rem); color: rgba(255,248,232,0.45); min-height: 1.4em; }
+    .ktv-hint { margin-top: 0.55rem; font-size: 0.72rem; color: rgba(255,248,232,0.55); }
+    body.ktv-mode .normal-only { display: none !important; }
+    body.ktv-mode .player-shell { margin-top: 0.5rem; }
+    body.ktv-mode .wrap { max-width: 32rem; }
+    .ktv-score {
+      margin-top: 0.75rem;
+      padding: 1rem 0.85rem;
+      border-radius: 0.55rem;
+      background: rgba(255, 248, 232, 0.08);
+      border: 1px solid rgba(232, 160, 32, 0.35);
+      text-align: left;
+      display: none;
+    }
+    .ktv-score.on { display: block; }
+    .ktv-score-head { display: flex; align-items: center; gap: 0.75rem; }
+    .ktv-score-num {
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #ffd88a;
+      min-width: 3.2rem;
+      text-align: center;
+    }
+    .ktv-score-num small { font-size: 0.95rem; font-weight: 500; color: rgba(255,248,232,0.6); }
+    .ktv-score-grade { font-size: 1.05rem; font-weight: 700; color: #fff; }
+    .ktv-score-sub { margin-top: 0.15rem; font-size: 0.72rem; color: rgba(255,248,232,0.55); }
+    .ktv-score-stars { margin-top: 0.15rem; font-size: 1rem; letter-spacing: 0.08em; color: #e8a020; }
+    .ktv-score-tips { margin-top: 0.65rem; }
+    .ktv-score-tips h3 { font-size: 0.78rem; color: #e8a020; font-weight: 700; margin-bottom: 0.35rem; }
+    .ktv-score-tips ul { margin: 0; padding-left: 1.1rem; font-size: 0.78rem; color: rgba(255,248,232,0.88); line-height: 1.5; }
+    .ktv-score-tips li + li { margin-top: 0.25rem; }
+    .ktv-score-actions { margin-top: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+    .ktv-score-actions button {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,248,232,0.25);
+      color: #fff8e8;
+      font-size: 0.82rem;
+      padding: 0.55rem 0.4rem;
+    }
+    .ktv-score-actions button.primary {
+      background: linear-gradient(135deg, #e8a020, #c45a10);
+      border-color: #c45a10;
+      color: #fff;
+    }
+    .ktv-score-history {
+      margin-top: 0.5rem;
+      font-size: 0.74rem;
+      color: rgba(255,248,232,0.7);
+      padding: 0.4rem 0.5rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 0.35rem;
+    }
+    .ktv-score-history .up { color: #7dffb3; }
+    .ktv-score-history .down { color: #ffb4a2; }
+    .ktv-self-rate { margin-top: 0.55rem; font-size: 0.76rem; color: rgba(255,248,232,0.75); }
+    .self-rate-stars { margin-top: 0.25rem; display: flex; gap: 0.15rem; }
+    .self-rate-stars button {
+      background: none; border: none; font-size: 1.35rem; padding: 0.1rem;
+      color: rgba(255,248,232,0.35); cursor: pointer; line-height: 1;
+    }
+    .self-rate-stars button.on { color: #e8a020; }
+    .ktv-hotspot {
+      margin-top: 0.45rem;
+      font-size: 0.74rem;
+      color: #ffd88a;
+      padding: 0.35rem 0.5rem;
+      background: rgba(232,160,32,0.12);
+      border-radius: 0.35rem;
+      display: none;
+    }
+    .ktv-hotspot.on { display: block; }
+    .ktv-score-actions { grid-template-columns: 1fr 1fr; }
+    .ktv-score-actions .wide { grid-column: 1 / -1; }
+    .ktv-loop-bar {
+      margin-top: 0.55rem;
+      display: none;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      align-items: center;
+      justify-content: center;
+    }
+    .ktv-loop-bar.on { display: flex; }
+    .ktv-loop-bar button {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,248,232,0.25);
+      color: #fff8e8;
+      font-size: 0.72rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 0.3rem;
+    }
+    .ktv-loop-bar button.loop-on { background: #2d6a4f; border-color: #2d6a4f; }
+    .ktv-loop-bar span { font-size: 0.68rem; color: rgba(255,248,232,0.55); width: 100%; text-align: center; }
+    .ktv-session {
+      margin-top: 0.75rem;
+      padding: 1rem 0.85rem;
+      border-radius: 0.55rem;
+      background: rgba(45, 106, 79, 0.25);
+      border: 1px solid rgba(125, 255, 179, 0.3);
+      text-align: left;
+      display: none;
+    }
+    .ktv-session.on { display: block; }
+    .ktv-session h3 { font-size: 0.9rem; color: #7dffb3; font-weight: 700; }
+    .ktv-session p { margin-top: 0.35rem; font-size: 0.78rem; color: rgba(255,248,232,0.88); line-height: 1.5; }
+    .ktv-session ul { margin: 0.4rem 0 0; padding-left: 1.1rem; font-size: 0.76rem; color: rgba(255,248,232,0.85); }
+    .ktv-session-actions { margin-top: 0.65rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+    .ktv-session-actions button {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,248,232,0.25);
+      color: #fff8e8;
+      font-size: 0.82rem;
+      padding: 0.55rem 0.4rem;
+    }
+    .ktv-panel.singing .ktv-line,
+    .ktv-panel.singing .ktv-next,
+    .ktv-panel.singing .ktv-hint { opacity: 0.35; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="normal-only">
+      <h1 class="brand">太陽盛德導師</h1>
+      <p class="sub">注入彩虹、富有各×3 · 導師親唱 · 其他演唱者</p>
+      <div class="pill-row">
+        <span class="pill">連續播放</span>
+        <span class="pill">可更新曲庫</span>
+        <span class="pill">加入主畫面</span>
+      </div>
+    </header>
+
+    <section class="home-card normal-only">
+      <img class="home-icon" src="taiyang-icon-192.png?v=20260829" width="192" height="192" alt="盛德歌曲圖示" />
+      <div>
+        <p><strong>主畫面圖示：盛德歌曲</strong></p>
+        <p>Safari／Chrome → <a href="./share.html" style="color:var(--accent);">加入主畫面說明</a></p>
+      </div>
+    </section>
+
+    <section class="song-picker-top" aria-label="歌曲選單">
+      <h2 class="section" style="margin-top:0">歌曲選單 <span id="listCount" style="font-weight:400;font-size:0.78rem;color:var(--muted)"></span></h2>
+      <div class="filter-row" role="tablist" aria-label="歌曲分類">
+        <button type="button" class="active" data-filter="all" role="tab">全部</button>
+        <button type="button" data-filter="master" role="tab">導師親唱</button>
+        <button type="button" data-filter="other" role="tab">其他演唱者</button>
+      </div>
+      <div class="song-picker">
+        <label for="songSelect" class="picker-label">選擇歌曲，再決定 KTV 或一般播放</label>
+        <select id="songSelect" class="song-select" aria-label="歌曲選單">
+          <option value="">— 請選擇歌曲 —</option>
+        </select>
+      </div>
+      <div id="playModePick" class="play-mode-pick" aria-live="polite">
+        <p>〈<span id="playModeSongName" class="song-name">—</span>〉要如何播放？</p>
+        <div class="play-mode-actions">
+          <button type="button" id="btnPickKtv" class="ktv-pick">🎤 KTV 模式</button>
+          <button type="button" id="btnPickNormal">▶ 一般播放</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="player-shell"><div id="player"></div></div>
+
+    <div id="ktvPanel" class="ktv-panel" aria-live="polite">
+      <div class="ktv-badge">KTV 大字幕</div>
+      <div id="ktvTitle" class="ktv-title">—</div>
+      <div id="ktvLine" class="ktv-line">按下 KTV 後開始播放，字幕會自動顯示</div>
+      <div id="ktvNext" class="ktv-next"></div>
+      <p id="ktvHint" class="ktv-hint">伴唱：有伴奏版時自動切換；也可按「伴唱」切換</p>
+      <div id="ktvLoopBar" class="ktv-loop-bar">
+        <button type="button" id="btnSetA">A 點</button>
+        <button type="button" id="btnSetB">B 點</button>
+        <button type="button" id="btnLoopGo">循環練習</button>
+        <button type="button" id="btnLoopOff">取消循環</button>
+        <span id="loopStatus">A-B 段：練習難句時可設起訖點循環播放</span>
+      </div>
+      <div id="ktvScore" class="ktv-score" aria-live="polite">
+        <div class="ktv-score-head">
+          <div id="scoreNum" class="ktv-score-num">—<small>分</small></div>
+          <div>
+            <div id="scoreGrade" class="ktv-score-grade">—</div>
+            <div id="scoreStars" class="ktv-score-stars" aria-hidden="true">★★★★★</div>
+            <div id="scoreSub" class="ktv-score-sub">—</div>
+          </div>
+        </div>
+        <div id="scoreHistory" class="ktv-score-history"></div>
+        <div class="ktv-self-rate">
+          <span>你覺得這次表現？</span>
+          <div id="selfRateStars" class="self-rate-stars" role="group" aria-label="自評星等"></div>
+        </div>
+        <div id="scoreHotspot" class="ktv-hotspot"></div>
+        <div class="ktv-score-tips">
+          <h3>提升建議</h3>
+          <ul id="scoreTips"></ul>
+        </div>
+        <div class="ktv-score-actions">
+          <button type="button" id="btnScoreLoop">↻ 重練難段</button>
+          <button type="button" id="btnScoreRetry">↺ 再唱一次</button>
+          <button type="button" id="btnScoreShare">📷 成果卡</button>
+          <button type="button" id="btnScoreNext" class="primary">下一首 ▶</button>
+        </div>
+      </div>
+      <div id="ktvSession" class="ktv-session" aria-live="polite">
+        <h3>🎉 本場練唱小結</h3>
+        <p id="sessionSummary"></p>
+        <ul id="sessionList"></ul>
+        <div class="ktv-session-actions">
+          <button type="button" id="btnSessionShare">📷 本場成果卡</button>
+          <button type="button" id="btnSessionClose">關閉</button>
+        </div>
+      </div>
+    </div>
+    <canvas id="shareCanvas" width="600" height="400" hidden aria-hidden="true"></canvas>
+
+    <div class="now normal-only">
+      <h2 id="nowTitle">準備播放</h2>
+      <p id="nowMeta">載入曲庫中…</p>
+      <div class="progress-bar" aria-hidden="true"><i id="progressFill"></i></div>
+    </div>
+
+    <div class="controls">
+      <button type="button" id="btnPrev" disabled>◀ 上一首</button>
+      <button type="button" id="btnPlay" class="primary">▶ 開始連播</button>
+      <button type="button" id="btnNext">下一首 ▶</button>
+    </div>
+
+    <div class="controls controls-extra">
+      <button type="button" id="btnKtv" title="快捷鍵 K">🎤 KTV 模式</button>
+      <button type="button" id="btnKaraoke" title="切換伴唱／原唱">🎵 伴唱</button>
+    </div>
+
+    <div class="toolbar normal-only">
+      <button type="button" id="btnRefresh">🔄 更新曲庫</button>
+      <button type="button" id="btnRestart">從頭播放</button>
+      <span class="meta" id="catalogMeta">—</span>
+    </div>
+
+    <p class="hint normal-only">
+      <strong>播放順序：</strong>① 注入彩虹×3 → ② 富有×3 → ③ 導師親唱 → ④ 其他演唱者。KTV 模式含評分、練唱紀錄、A-B 循環與成果卡（快捷鍵 <strong>K</strong>）。
+    </p>
+
+    <p class="status" id="statusLine"></p>
+  </div>
+
+  <script>
+    const PRIORITY_IDS = { "hTEv2f-9WIM": 3, "tkYxdmQlhtQ": 3 };
+    const CATALOG_URL = "./catalog.json";
+    const PRACTICE_KEY = "taiyang-practice-log";
+    const LYRICS_CACHE_KEY = "taiyang-lyrics-cache";
+    const MAX_HISTORY = 30;
+
+    let catalog = { songs: [] };
+    let queue = [];
+    let qIndex = 0;
+    let player = null;
+    let apiReady = false;
+    let autoPlay = false;
+    let listFilter = "all";
+    let ktvMode = localStorage.getItem("taiyang-ktv") === "1";
+    let useKaraoke = localStorage.getItem("taiyang-karaoke") !== "0";
+    let captionLines = [];
+    let captionTimer = null;
+    let lastCaptionText = "";
+    let captionPlainLines = null;
+    let captionSource = "none";
+    let captionRetimed = false;
+    let singSession = null;
+    let playTickTimer = null;
+    let pendingAutoNext = false;
+    let scorePanelOpen = false;
+    let practiceLog = { bySong: {} };
+    let currentSelfRating = 0;
+    let lastScoreResult = null;
+    let abLoopStart = null;
+    let abLoopEnd = null;
+    let abLoopActive = false;
+    let ktvSession = null;
+    let pendingSongId = null;
+
+    const SONG_TIPS = {
+      "注入彩虹": [
+        "開頭「注入彩虹」四字要咬字清楚，氣息從丹田穩穩送出",
+        "副歌高音區先以半聲練習，確認音準再逐步放開",
+        "情緒由內而外，想像光能注入時的感恩與喜悅"
+      ],
+      "富有": [
+        "「富有」重在節奏穩定，先跟著伴奏打拍子再開口",
+        "中低音區要放鬆喉嚨，避免擠壓造成音準偏移",
+        "結尾長音可漸弱收束，展現歌曲的寧靜力量"
+      ]
+    };
+
+    const GRADE_LABELS = [
+      { min: 95, label: "完美演繹", stars: 5 },
+      { min: 88, label: "非常出色", stars: 5 },
+      { min: 80, label: "表現良好", stars: 4 },
+      { min: 72, label: "穩步進步", stars: 3 },
+      { min: 65, label: "繼續加油", stars: 2 },
+      { min: 0, label: "多練幾次", stars: 1 }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+
+    function loadPracticeLog() {
+      try {
+        const raw = localStorage.getItem(PRACTICE_KEY);
+        if (raw) practiceLog = JSON.parse(raw);
+        if (!practiceLog.bySong) practiceLog = { bySong: {} };
+      } catch (_) {
+        practiceLog = { bySong: {} };
+      }
+    }
+
+    function persistPracticeLog() {
+      localStorage.setItem(PRACTICE_KEY, JSON.stringify(practiceLog));
+    }
+
+    function getSongPractice(name) {
+      return practiceLog.bySong[name] || { bestScore: 0, attempts: 0, history: [] };
+    }
+
+    function formatTime(sec) {
+      if (!sec || sec < 0) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return m + ":" + String(s).padStart(2, "0");
+    }
+
+    function savePracticeRecord(item, score, stats, selfRating) {
+      const name = item.name || "未知";
+      const entry = getSongPractice(name);
+      const record = {
+        date: new Date().toISOString().slice(0, 10),
+        score,
+        selfRating: selfRating || 0,
+        completionPct: stats.completionPct,
+        pauseCount: stats.pauseCount,
+        usedKaraoke: stats.usedKaraoke
+      };
+      entry.history.unshift(record);
+      if (entry.history.length > MAX_HISTORY) entry.history.length = MAX_HISTORY;
+      entry.attempts = (entry.attempts || 0) + 1;
+      if (score > (entry.bestScore || 0)) entry.bestScore = score;
+      practiceLog.bySong[name] = entry;
+      persistPracticeLog();
+      return record;
+    }
+
+    function renderSelfRateStars(selected) {
+      currentSelfRating = selected || 0;
+      const parts = [];
+      for (let i = 1; i <= 5; i++) {
+        parts.push(
+          '<button type="button" data-v="' + i + '" class="' + (i <= currentSelfRating ? "on" : "") + '" aria-label="' + i + ' 星">★</button>'
+        );
+      }
+      $("selfRateStars").innerHTML = parts.join("");
+      $("selfRateStars").querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => renderSelfRateStars(Number(btn.dataset.v)));
+      });
+    }
+
+    function updateScoreHistoryDisplay(item, score) {
+      const pr = getSongPractice(item.name);
+      const el = $("scoreHistory");
+      if (!pr.attempts) {
+        el.textContent = "首次練唱這首歌，繼續加油！";
+        return;
+      }
+      const prev = pr.history[0];
+      const prevScore = prev ? prev.score : 0;
+      const best = pr.bestScore || 0;
+      let diff = "";
+      if (prev && prevScore !== score) {
+        const d = score - prevScore;
+        diff = d > 0
+          ? ' · 較上次 <span class="up">+' + d + "</span>"
+          : ' · 較上次 <span class="down">' + d + "</span>";
+      }
+      if (score > best) {
+        el.innerHTML = '<span class="up">新紀錄！</span> ' + score + " 分 · 已練 " + pr.attempts + " 次" + diff;
+      } else {
+        el.innerHTML = "歷史最佳 " + best + " 分 · 已練 " + pr.attempts + " 次" + diff;
+      }
+    }
+
+    function analyzeHotspot(pausePoints, durationSec) {
+      if (!pausePoints || !pausePoints.length) return null;
+      const sorted = pausePoints.slice().sort((a, b) => a.sec - b.sec);
+      let bestCluster = null;
+      let i = 0;
+      while (i < sorted.length) {
+        const cluster = [sorted[i]];
+        let j = i + 1;
+        while (j < sorted.length && sorted[j].sec - sorted[i].sec <= 12) {
+          cluster.push(sorted[j]);
+          j++;
+        }
+        if (!bestCluster || cluster.length > bestCluster.length) bestCluster = cluster;
+        i = j;
+      }
+      if (!bestCluster || bestCluster.length < 1) return null;
+      const center = bestCluster.reduce((s, p) => s + p.sec, 0) / bestCluster.length;
+      const pad = 8;
+      let start = Math.max(0, center - pad);
+      let end = Math.min(durationSec || center + pad + 15, center + pad);
+      if (end - start < 10) end = start + 12;
+      const caption = bestCluster.find((p) => p.text)?.text || "";
+      return {
+        start,
+        end,
+        center,
+        count: bestCluster.length,
+        caption: caption.slice(0, 24)
+      };
+    }
+
+    function updateLoopStatus() {
+      const el = $("loopStatus");
+      if (abLoopActive && abLoopStart != null && abLoopEnd != null) {
+        el.textContent = "循環中 " + formatTime(abLoopStart) + " → " + formatTime(abLoopEnd);
+        $("btnLoopGo").classList.add("loop-on");
+      } else if (abLoopStart != null && abLoopEnd != null) {
+        el.textContent = "已設 " + formatTime(abLoopStart) + " → " + formatTime(abLoopEnd) + "，按「循環練習」";
+        $("btnLoopGo").classList.remove("loop-on");
+      } else if (abLoopStart != null) {
+        el.textContent = "A 點 " + formatTime(abLoopStart) + "，請設 B 點";
+        $("btnLoopGo").classList.remove("loop-on");
+      } else {
+        el.textContent = "A-B 段：練習難句時可設起訖點循環播放";
+        $("btnLoopGo").classList.remove("loop-on");
+      }
+    }
+
+    function setAbLoop(start, end, activate) {
+      abLoopStart = start;
+      abLoopEnd = end;
+      abLoopActive = !!activate;
+      updateLoopStatus();
+      if (abLoopActive && player && player.seekTo) {
+        try {
+          player.seekTo(abLoopStart, true);
+          player.playVideo();
+        } catch (_) {}
+      }
+    }
+
+    function clearAbLoop() {
+      abLoopStart = null;
+      abLoopEnd = null;
+      abLoopActive = false;
+      updateLoopStatus();
+    }
+
+    function checkAbLoop() {
+      if (!abLoopActive || abLoopStart == null || abLoopEnd == null || !player) return;
+      try {
+        const t = player.getCurrentTime();
+        if (t >= abLoopEnd - 0.25) player.seekTo(abLoopStart, true);
+      } catch (_) {}
+    }
+
+    function ensureKtvSession() {
+      if (!ktvSession) ktvSession = { songs: [], startedAt: Date.now() };
+    }
+
+    function addToKtvSession(item, score, stats, selfRating) {
+      ensureKtvSession();
+      ktvSession.songs.push({
+        name: item.name,
+        score,
+        selfRating: selfRating || 0,
+        completionPct: stats.completionPct,
+        at: Date.now()
+      });
+    }
+
+    function showSessionSummary() {
+      if (!ktvSession || !ktvSession.songs.length) return;
+      const songs = ktvSession.songs;
+      const scores = songs.map((s) => s.score);
+      const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+      const best = songs.reduce((a, b) => (b.score > a.score ? b : a), songs[0]);
+      const names = songs.map((s) => s.name);
+      $("sessionSummary").textContent =
+        "本場共練 " + songs.length + " 首，平均 " + avg + " 分；最高〈" + best.name + "〉" + best.score + " 分。";
+      $("sessionList").innerHTML = songs.map((s) =>
+        "<li>〈" + s.name + "〉 " + s.score + " 分" +
+        (s.selfRating ? " · 自評 " + "★".repeat(s.selfRating) : "") + "</li>"
+      ).join("");
+      $("ktvSession").classList.add("on");
+      $("ktvScore").classList.remove("on");
+      $("ktvPanel").classList.add("singing");
+      updateKtvUI();
+    }
+
+    function hideSessionSummary() {
+      $("ktvSession").classList.remove("on");
+      ktvSession = null;
+      updateKtvUI();
+    }
+
+    function generateShareCard(title, subtitle, score, gradeLabel, extra) {
+      const canvas = $("shareCanvas");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      const grd = ctx.createLinearGradient(0, 0, 0, h);
+      grd.addColorStop(0, "#1a1208");
+      grd.addColorStop(1, "#3d2a0a");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#e8a020";
+      ctx.font = "bold 22px 'Noto Sans TC', sans-serif";
+      ctx.fillText("太陽盛德導師 · KTV 練唱", 36, 52);
+      ctx.fillStyle = "#ffd88a";
+      ctx.font = "bold 36px 'Noto Sans TC', sans-serif";
+      const titleShort = (title || "").slice(0, 14);
+      ctx.fillText("《" + titleShort + "》", 36, 110);
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 72px 'Noto Sans TC', sans-serif";
+      ctx.fillText(String(score), 36, 210);
+      ctx.fillStyle = "rgba(255,248,232,0.65)";
+      ctx.font="24px 'Noto Sans TC', sans-serif";
+      ctx.fillText("分", 36 + ctx.measureText(String(score)).width + 8, 205);
+      ctx.fillStyle = "#e8a020";
+      ctx.font = "bold 26px 'Noto Sans TC', sans-serif";
+      ctx.fillText(gradeLabel || "", 36, 260);
+      ctx.fillStyle = "rgba(255,248,232,0.55)";
+      ctx.font = "18px 'Noto Sans TC', sans-serif";
+      ctx.fillText(subtitle || "", 36, 300);
+      if (extra) {
+        ctx.font = "16px 'Noto Sans TC', sans-serif";
+        ctx.fillText(extra, 36, 340);
+      }
+      ctx.fillStyle = "rgba(255,248,232,0.35)";
+      ctx.font = "14px 'Noto Sans TC', sans-serif";
+      ctx.fillText(new Date().toLocaleDateString("zh-TW"), 36, h - 28);
+      return canvas.toDataURL("image/png");
+    }
+
+    function downloadShareCard(dataUrl, filename) {
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = filename || "盛德KTV成果.png";
+      a.click();
+    }
+
+    function normName(s) {
+      return (s || "").replace(/\s/g, "");
+    }
+
+    function findKaraokeInCatalog(item) {
+      if (item.karaokeId) return item.karaokeId;
+      const n = normName(item.name);
+      for (const s of catalog.songs || []) {
+        if (s.id === item.id) continue;
+        const t = s.title || "";
+        if (!/伴奏|演奏版|伴奏版/.test(t)) continue;
+        if (/導師演唱版|导师演唱版/.test(t) && !/伴奏/.test(t)) continue;
+        const sn = normName(s.name);
+        if (sn === n || sn.includes(n) || n.includes(sn)) return s.id;
+      }
+      return null;
+    }
+
+    function resolveVideoId(item) {
+      if (ktvMode && useKaraoke) {
+        const kid = findKaraokeInCatalog(item);
+        if (kid) return kid;
+      }
+      return item.id;
+    }
+
+    function parseVttTime(s) {
+      const p = s.trim().split(":");
+      if (p.length === 3) return parseFloat(p[0]) * 3600 + parseFloat(p[1]) * 60 + parseFloat(p[2]);
+      if (p.length === 2) return parseFloat(p[0]) * 60 + parseFloat(p[1]);
+      return parseFloat(s) || 0;
+    }
+
+    function parseVtt(vtt) {
+      const out = [];
+      if (!vtt || vtt.indexOf("-->") < 0) return out;
+      const blocks = vtt.replace(/\r/g, "").split(/\n\n+/);
+      for (const block of blocks) {
+        const lines = block.split("\n");
+        let i = 0;
+        if (/^\d+$/.test(lines[0])) i = 1;
+        const timeLine = lines[i];
+        if (!timeLine || timeLine.indexOf("-->") < 0) continue;
+        const m = timeLine.match(/([\d:.]+)\s*-->\s*([\d:.]+)/);
+        if (!m) continue;
+        const text = lines.slice(i + 1).join(" ").replace(/<[^>]+>/g, "").trim();
+        if (!text) continue;
+        out.push({ start: parseVttTime(m[1]), end: parseVttTime(m[2]), text });
+      }
+      return out;
+    }
+
+    async function fetchYouTubeCaptions(videoId) {
+      const langs = ["zh-Hant", "zh-TW", "zh-Hans", "zh", "en"];
+      for (const lang of langs) {
+        for (const fmt of ["vtt", "json3"]) {
+          const url = "https://www.youtube.com/api/timedtext?v=" + encodeURIComponent(videoId) +
+            "&lang=" + encodeURIComponent(lang) + "&fmt=" + fmt;
+          try {
+            const res = await fetch(url);
+            if (!res.ok) continue;
+            const text = await res.text();
+            if (!text) continue;
+            if (fmt === "vtt") {
+              const lines = parseVtt(text);
+              if (lines.length) return lines;
+            } else {
+              const lines = parseJson3Captions(text);
+              if (lines.length) return lines;
+            }
+          } catch (_) {}
+        }
+      }
+      return [];
+    }
+
+    function parseJson3Captions(raw) {
+      const out = [];
+      try {
+        const data = JSON.parse(raw);
+        const events = data.events || [];
+        for (const ev of events) {
+          if (!ev.segs) continue;
+          const text = ev.segs.map((s) => s.utf8 || "").join("").replace(/\n/g, " ").trim();
+          if (!text) continue;
+          const start = (ev.tStartMs || 0) / 1000;
+          const dur = (ev.dDurationMs || 2000) / 1000;
+          out.push({ start, end: start + dur, text });
+        }
+      } catch (_) {}
+      return out;
+    }
+
+    function getLyricsCache() {
+      try {
+        const raw = localStorage.getItem(LYRICS_CACHE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function saveLyricsCache(videoId, data) {
+      try {
+        const cache = getLyricsCache();
+        cache[videoId] = { ...data, savedAt: Date.now() };
+        localStorage.setItem(LYRICS_CACHE_KEY, JSON.stringify(cache));
+      } catch (_) {}
+    }
+
+    function buildTimedFromPlainLines(lines, durationSec) {
+      if (!lines || !lines.length) return [];
+      const dur = Math.max(60, durationSec || 300);
+      const intro = Math.min(10, dur * 0.04);
+      const outro = Math.min(8, dur * 0.03);
+      const usable = dur - intro - outro;
+      const weights = lines.map((l) => Math.max(4, (l || "").replace(/\s/g, "").length));
+      const totalWeight = weights.reduce((a, b) => a + b, 0);
+      let t = intro;
+      const out = [];
+      for (let i = 0; i < lines.length; i++) {
+        const seg = (weights[i] / totalWeight) * usable;
+        const text = (lines[i] || "").trim();
+        if (!text) continue;
+        out.push({ start: t, end: t + seg, text });
+        t += seg;
+      }
+      if (out.length) out[out.length - 1].end = dur - outro;
+      return out;
+    }
+
+    function packLyricsResult(data, durationSec) {
+      if (!data) return { lines: [], source: "none", plain: null };
+      if (data.timed && data.timed.length) {
+        return { lines: data.timed, source: data.source || "timed", plain: null };
+      }
+      const plain = data.lines || [];
+      if (!plain.length) return { lines: [], source: "none", plain: null };
+      const dur = durationSec || data.duration || 300;
+      return {
+        lines: buildTimedFromPlainLines(plain, dur),
+        source: data.source || "plain",
+        plain: plain.slice()
+      };
+    }
+
+    async function fetchBundledLyrics(videoId, item) {
+      const urls = [
+        "./lyrics/" + videoId + ".json",
+        "./lyrics/" + encodeURIComponent(item.name) + ".json"
+      ];
+      for (const url of urls) {
+        try {
+          const res = await fetch(url + "?t=" + Date.now(), { cache: "no-store" });
+          if (!res.ok) continue;
+          return await res.json();
+        } catch (_) {}
+      }
+      try {
+        const idx = await fetch("./lyrics/index.json?t=" + Date.now());
+        if (idx.ok) {
+          const meta = await idx.json();
+          const file = (meta.byVideoId || {})[videoId];
+          if (file) {
+            const res = await fetch("./lyrics/" + file + "?t=" + Date.now());
+            if (res.ok) return await res.json();
+          }
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    async function resolveLyrics(videoId, item) {
+      const cache = getLyricsCache();
+      if (cache[videoId]) {
+        const r = packLyricsResult(cache[videoId], cache[videoId].duration);
+        if (r.lines.length) return r;
+      }
+
+      const bundled = await fetchBundledLyrics(videoId, item);
+      if (bundled && (bundled.lines || bundled.timed)) {
+        saveLyricsCache(videoId, bundled);
+        const r = packLyricsResult(bundled, bundled.duration);
+        if (r.lines.length) return r;
+      }
+
+      const yt = await fetchYouTubeCaptions(videoId);
+      if (yt.length) {
+        saveLyricsCache(videoId, { source: "youtube", timed: yt, name: item.name });
+        return { lines: yt, source: "youtube", plain: null };
+      }
+
+      return { lines: [], source: "none", plain: null };
+    }
+
+    function maybeRetimeCaptions() {
+      if (!captionPlainLines || !captionPlainLines.length || !player || captionRetimed) return;
+      try {
+        const d = player.getDuration();
+        if (d && d > 30) {
+          captionLines = buildTimedFromPlainLines(captionPlainLines, d);
+          captionRetimed = true;
+          if (ktvMode && captionLines.length) {
+            const src = captionSource === "plain" || captionSource === "manual" ? "內建歌詞" : "歌詞";
+            $("ktvHint").textContent = src + "已依片長 " + formatTime(d) + " 同步（" + captionLines.length + " 段）";
+          }
+        }
+      } catch (_) {}
+    }
+
+    function applyLyricsResult(result, item) {
+      captionLines = result.lines || [];
+      captionPlainLines = result.plain;
+      captionSource = result.source;
+      captionRetimed = !result.plain;
+      if (ktvMode) {
+        if (captionLines.length) {
+          const label = { youtube: "YouTube", manual: "內建", plain: "內建", cache: "快取", timed: "內建" };
+          $("ktvHint").textContent = (label[captionSource] || "歌詞") + "字幕（" + captionLines.length + " 段，隨播放更新）";
+          startCaptionSync();
+        } else {
+          $("ktvLine").textContent = item.name;
+          $("ktvHint").textContent = "此曲暫無歌詞；可開 YouTube 播放器字幕";
+        }
+      }
+    }
+
+    async function fetchCaptions(videoId, item) {
+      return resolveLyrics(videoId, item);
+    }
+
+    function stopPlayTick() {
+      if (playTickTimer) {
+        clearInterval(playTickTimer);
+        playTickTimer = null;
+      }
+    }
+
+    function resetSingSession(item) {
+      singSession = {
+        item: item,
+        startedAt: Date.now(),
+        playedMs: 0,
+        pauseCount: 0,
+        pausePoints: [],
+        lastTickAt: null,
+        durationSec: 0,
+        hadCaptions: false,
+        usedKaraoke: false,
+        hasPlayed: false
+      };
+      if (ktvMode) ensureKtvSession();
+    }
+
+    function startPlayTick() {
+      stopPlayTick();
+      if (!singSession) return;
+      singSession.lastTickAt = Date.now();
+      playTickTimer = setInterval(() => {
+        if (!player || !singSession) return;
+        let st = -1;
+        try { st = player.getPlayerState(); } catch (_) { return; }
+        if (st !== YT.PlayerState.PLAYING) return;
+        const now = Date.now();
+        if (singSession.lastTickAt) singSession.playedMs += now - singSession.lastTickAt;
+        singSession.lastTickAt = now;
+        try {
+          const d = player.getDuration();
+          if (d && d > 0) singSession.durationSec = d;
+        } catch (_) {}
+        checkAbLoop();
+        maybeRetimeCaptions();
+      }, 500);
+    }
+
+    function pausePlayTick() {
+      if (singSession && singSession.lastTickAt) {
+        singSession.playedMs += Date.now() - singSession.lastTickAt;
+        singSession.lastTickAt = null;
+      }
+    }
+
+    function hideScorePanel() {
+      scorePanelOpen = false;
+      $("ktvScore").classList.remove("on");
+      if (!$("ktvSession").classList.contains("on")) {
+        $("ktvPanel").classList.remove("singing");
+      }
+    }
+
+    function showScorePanel(item, stats) {
+      const score = computeScore(stats);
+      const grade = GRADE_LABELS.find((g) => score >= g.min) || GRADE_LABELS[GRADE_LABELS.length - 1];
+      const hotspot = analyzeHotspot(stats.pausePoints, stats.durationSec);
+      stats.hotspot = hotspot;
+      const tips = buildTips(item, stats, score);
+
+      $("scoreNum").innerHTML = score + "<small>分</small>";
+      $("scoreGrade").textContent = grade.label;
+      $("scoreStars").textContent = "★".repeat(grade.stars) + "☆".repeat(5 - grade.stars);
+      $("scoreSub").textContent = buildScoreSummary(stats, score);
+      updateScoreHistoryDisplay(item, score);
+      renderSelfRateStars(0);
+      $("scoreTips").innerHTML = tips.map((t) => "<li>" + t + "</li>").join("");
+
+      const hotEl = $("scoreHotspot");
+      if (hotspot && hotspot.count >= 1) {
+        hotEl.classList.add("on");
+        hotEl.textContent = "暫停熱點：約 " + formatTime(hotspot.center) +
+          (hotspot.caption ? "（" + hotspot.caption + "…）" : "") +
+          " · 可按「重練難段」循環此段";
+        $("btnScoreLoop").disabled = false;
+      } else {
+        hotEl.classList.remove("on");
+        $("btnScoreLoop").disabled = true;
+      }
+
+      const isLast = qIndex >= queue.length - 1;
+      $("btnScoreNext").textContent = isLast ? "完成 ✓" : "下一首 ▶";
+
+      lastScoreResult = { item, stats, score, grade: grade.label };
+
+      $("ktvLine").textContent = "本首演唱結束";
+      $("ktvNext").textContent = item.name;
+      $("ktvScore").classList.add("on");
+      $("ktvSession").classList.remove("on");
+      $("ktvPanel").classList.add("singing");
+      scorePanelOpen = true;
+      stopCaptionSync();
+      stopPlayTick();
+      updateKtvUI();
+    }
+
+    function buildScoreSummary(stats, score) {
+      const pct = stats.completionPct;
+      const parts = ["完成度 " + pct + "%"];
+      if (stats.usedKaraoke) parts.push("伴唱模式");
+      if (stats.pauseCount > 0) parts.push("暫停 " + stats.pauseCount + " 次");
+      parts.push("綜合 " + score + " 分");
+      return parts.join(" · ");
+    }
+
+    function computeScore(stats) {
+      let score = 62 + stats.completionPct * 0.33;
+      if (stats.usedKaraoke) score += 4;
+      if (stats.hadCaptions) score += 3;
+      if (stats.completionPct >= 92) score += 5;
+      if (stats.pauseCount <= 1) score += 2;
+      else score -= Math.min(8, (stats.pauseCount - 1) * 2);
+      if (stats.completionPct < 50) score -= 6;
+      score = Math.round(Math.max(58, Math.min(98, score)));
+      return score;
+    }
+
+    function buildTips(item, stats, score) {
+      const tips = [];
+      const name = item.name || "";
+      const songTips = SONG_TIPS[name];
+      if (songTips) tips.push(songTips[Math.floor(Math.random() * songTips.length)]);
+
+      if (stats.usedKaraoke) {
+        tips.push("伴唱練熟後，可切換「原唱」對照導師咬字與情感處理");
+      } else {
+        tips.push("建議開啟「伴唱」多練幾遍，熟悉後再對照原唱調整細節");
+      }
+
+      if (!stats.hadCaptions) {
+        tips.push("此曲字幕較少，可先聽導師親唱熟悉歌詞與旋律節奏");
+      } else if (stats.completionPct < 85) {
+        tips.push("跟著大字幕練唱時，盡量唱完整句再換氣，培養語句連貫感");
+      }
+
+      if (stats.hotspot && stats.hotspot.count >= 2) {
+        tips.push("約 " + formatTime(stats.hotspot.center) + " 附近較常停頓，建議用 A-B 循環單練此段");
+      } else if (stats.pauseCount >= 3) {
+        tips.push("暫停次數較多，可先分段練副歌或難句，再串連整首");
+      } else if (score >= 88) {
+        tips.push("表現穩定！可挑戰下一首或錄音回放，微調音準與共鳴位置");
+      } else {
+        tips.push("每天固定練同一首 2～3 遍，比一次唱很多首更有感");
+      }
+
+      if (item.performer === "master" && name !== "注入彩虹" && name !== "富有") {
+        tips.push("對照導師親唱版，留意重音與停頓位置，學習情感表達");
+      }
+
+      return tips.slice(0, 4);
+    }
+
+    function finalizeSingSession() {
+      if (!singSession || !ktvMode) return null;
+      pausePlayTick();
+      const stats = {
+        playedMs: singSession.playedMs,
+        durationSec: singSession.durationSec,
+        pauseCount: singSession.pauseCount,
+        pausePoints: singSession.pausePoints || [],
+        hadCaptions: captionLines.length > 0,
+        usedKaraoke: !!(ktvMode && useKaraoke && findKaraokeInCatalog(singSession.item)),
+        completionPct: 0
+      };
+      if (stats.durationSec > 0) {
+        stats.completionPct = Math.min(100, Math.round((stats.playedMs / 1000 / stats.durationSec) * 100));
+      } else if (singSession.playedMs > 60000) {
+        stats.completionPct = 85;
+      } else {
+        stats.completionPct = Math.min(100, Math.round(singSession.playedMs / 600));
+      }
+      return { item: singSession.item, stats };
+    }
+
+    function commitScoreAndProceed(replay, showSummary) {
+      if (lastScoreResult) {
+        const { item, stats, score } = lastScoreResult;
+        savePracticeRecord(item, score, stats, currentSelfRating);
+        addToKtvSession(item, score, stats, currentSelfRating);
+        lastScoreResult = null;
+      }
+      hideScorePanel();
+      pendingAutoNext = false;
+      if (replay) {
+        loadVideo(queue[qIndex], true);
+        return;
+      }
+      if (showSummary) {
+        showSessionSummary();
+        autoPlay = false;
+        return;
+      }
+      if (qIndex < queue.length - 1) {
+        qIndex += 1;
+        autoPlay = true;
+        loadVideo(queue[qIndex], true);
+      } else {
+        if (ktvSession && ktvSession.songs.length) {
+          showSessionSummary();
+        } else {
+          $("statusLine").textContent = "全部播放完畢";
+        }
+        autoPlay = false;
+        $("ktvLine").textContent = "全部唱完，辛苦了！";
+        $("ktvNext").textContent = "";
+      }
+    }
+
+    function proceedAfterScore(replay) {
+      const isLast = qIndex >= queue.length - 1;
+      commitScoreAndProceed(replay, !replay && isLast);
+    }
+
+    function startHotspotLoop() {
+      if (!lastScoreResult || !lastScoreResult.stats.hotspot) return;
+      const h = lastScoreResult.stats.hotspot;
+      const { item, stats, score } = lastScoreResult;
+      savePracticeRecord(item, score, stats, currentSelfRating);
+      addToKtvSession(item, score, stats, currentSelfRating);
+      lastScoreResult = null;
+      hideScorePanel();
+      $("ktvPanel").classList.remove("singing");
+      setAbLoop(h.start, h.end, true);
+      $("ktvLine").textContent = "重練難段中…";
+      $("ktvNext").textContent = formatTime(h.start) + " → " + formatTime(h.end);
+      updateKtvUI();
+    }
+
+    function shareCurrentScore() {
+      if (!lastScoreResult) return;
+      const { item, score, grade } = lastScoreResult;
+      const pr = getSongPractice(item.name);
+      const extra = "歷史最佳 " + (pr.bestScore || score) + " 分";
+      const url = generateShareCard(item.name, grade, score, grade, extra);
+      downloadShareCard(url, "盛德KTV-" + item.name + ".png");
+    }
+
+    function shareSessionCard() {
+      if (!ktvSession || !ktvSession.songs.length) return;
+      const songs = ktvSession.songs;
+      const avg = Math.round(songs.reduce((s, x) => s + x.score, 0) / songs.length);
+      const best = songs.reduce((a, b) => (b.score > a.score ? b : a), songs[0]);
+      const url = generateShareCard(
+        "本場 " + songs.length + " 首",
+        "平均 " + avg + " 分",
+        best.score,
+        "最高〈" + best.name + "〉",
+        songs.map((s) => s.name).slice(0, 3).join("、")
+      );
+      downloadShareCard(url, "盛德KTV本場小結.png");
+    }
+
+    function stopCaptionSync() {
+      if (captionTimer) {
+        clearInterval(captionTimer);
+        captionTimer = null;
+      }
+    }
+
+    function startCaptionSync() {
+      stopCaptionSync();
+      if (!ktvMode) return;
+      captionTimer = setInterval(() => {
+        if (!player || !player.getCurrentTime) return;
+        let t = 0;
+        try { t = player.getCurrentTime(); } catch (_) { return; }
+        let line = null;
+        let next = null;
+        for (let i = 0; i < captionLines.length; i++) {
+          const L = captionLines[i];
+          if (t >= L.start && t < L.end) {
+            line = L;
+            next = captionLines[i + 1] || null;
+            break;
+          }
+          if (t < L.start) {
+            next = L;
+            break;
+          }
+        }
+        if (line) {
+          lastCaptionText = line.text;
+          $("ktvLine").textContent = line.text;
+          $("ktvNext").textContent = next && next !== line ? next.text : "";
+        } else if (next) {
+          $("ktvLine").textContent = next.text;
+          const ni = captionLines.indexOf(next);
+          $("ktvNext").textContent = ni >= 0 && captionLines[ni + 1] ? captionLines[ni + 1].text : "";
+        } else if (captionLines.length) {
+          const last = captionLines[captionLines.length - 1];
+          $("ktvLine").textContent = last.text;
+          $("ktvNext").textContent = "";
+        }
+      }, 180);
+    }
+
+    function enablePlayerCaptions() {
+      if (!player || !player.loadModule) return;
+      try {
+        player.loadModule("captions");
+        player.setOption("captions", "track", { languageCode: "zh-Hant" });
+        player.setOption("captions", "fontSize", 3);
+      } catch (_) {}
+    }
+
+    function updateKtvUI() {
+      const sessionOpen = $("ktvSession").classList.contains("on");
+      document.body.classList.toggle("ktv-mode", ktvMode || sessionOpen);
+      $("ktvPanel").classList.toggle("on", ktvMode || sessionOpen);
+      $("btnKtv").classList.toggle("ktv-on", ktvMode);
+      $("btnKtv").textContent = ktvMode ? "🎤 KTV 開" : "🎤 KTV 模式";
+      const item = queue[qIndex];
+      const hasK = item && findKaraokeInCatalog(item);
+      $("btnKaraoke").disabled = !ktvMode;
+      $("btnKaraoke").classList.toggle("karaoke-on", ktvMode && useKaraoke && !!hasK);
+      $("btnKaraoke").textContent = useKaraoke ? "🎵 伴唱中" : "🎵 原唱";
+      const showLoop = ktvMode && !scorePanelOpen && !$("ktvSession").classList.contains("on");
+      $("ktvLoopBar").classList.toggle("on", showLoop);
+      if (item && ktvMode) {
+        $("ktvTitle").textContent = item.name + (useKaraoke && hasK ? " · 伴唱" : " · 原唱");
+        if (!captionLines.length) {
+          $("ktvLine").textContent = item.name;
+          $("ktvHint").textContent = hasK
+            ? "已切換伴奏版（若無字幕將顯示歌名大字）"
+            : "此曲暫無伴奏版，使用原唱；字幕取自 YouTube";
+        }
+      }
+    }
+
+    function applyKtvMode(useKtv, options) {
+      const opts = options || {};
+      if (!useKtv && ktvSession && ktvSession.songs.length && opts.showSummary !== false) {
+        showSessionSummary();
+      }
+      ktvMode = !!useKtv;
+      localStorage.setItem("taiyang-ktv", ktvMode ? "1" : "0");
+      if (!ktvMode) {
+        clearAbLoop();
+        hideScorePanel();
+      } else {
+        hideSessionSummary();
+      }
+      stopPlayTick();
+      updateKtvUI();
+      if (opts.reload && ktvMode && queue[qIndex]) {
+        loadVideo(queue[qIndex], autoPlay || false);
+      } else if (!ktvMode) {
+        stopCaptionSync();
+      }
+    }
+
+    function setKtvMode(on) {
+      applyKtvMode(on, { reload: true, showSummary: true });
+    }
+
+    function hidePlayModePick() {
+      $("playModePick").classList.remove("on");
+      pendingSongId = null;
+    }
+
+    function showPlayModePick(songId) {
+      const song = (catalog.songs || []).find((s) => s.id === songId);
+      pendingSongId = songId;
+      $("playModeSongName").textContent = song ? song.name : "—";
+      $("playModePick").classList.add("on");
+    }
+
+    function playSongWithMode(songId, useKtv) {
+      const i = queue.findIndex((q) => q.id === songId);
+      if (i < 0) return;
+      hidePlayModePick();
+      applyKtvMode(useKtv, { reload: false, showSummary: false });
+      jumpTo(i, true);
+    }
+
+    function toggleKaraoke() {
+      if (!ktvMode) return;
+      useKaraoke = !useKaraoke;
+      localStorage.setItem("taiyang-karaoke", useKaraoke ? "1" : "0");
+      updateKtvUI();
+      if (queue[qIndex]) loadVideo(queue[qIndex], true);
+    }
+
+    function buildQueue(songs) {
+      const ordered = [];
+      const pri = songs.filter((s) => s.repeat === 3 || PRIORITY_IDS[s.id]);
+      const masters = songs.filter((s) => !pri.includes(s) && s.performer === "master");
+      const others = songs.filter((s) => !pri.includes(s) && s.performer === "other");
+      const add = (s, times) => {
+        const n = times || s.repeat || 1;
+        for (let i = 0; i < n; i++) {
+          ordered.push({
+            id: s.id,
+            name: s.name,
+            title: s.title,
+            performer: s.performer || "master",
+            performerLabel: s.performerLabel || "太陽盛德導師",
+            karaokeId: s.karaokeId || null,
+            karaokeTitle: s.karaokeTitle || null,
+            pass: i + 1,
+            total: n
+          });
+        }
+      };
+      pri.forEach((s) => add(s, 3));
+      masters.forEach((s) => add(s, 1));
+      others.forEach((s) => add(s, 1));
+      return ordered;
+    }
+
+    function sortSongs(songs) {
+      const pri = songs.filter((s) => s.repeat === 3);
+      const masters = songs.filter((s) => s.repeat !== 3 && s.performer === "master");
+      const others = songs.filter((s) => s.repeat !== 3 && s.performer === "other");
+      pri.sort((a, b) => {
+        if (a.id === "hTEv2f-9WIM") return -1;
+        if (b.id === "hTEv2f-9WIM") return 1;
+        if (a.id === "tkYxdmQlhtQ") return -1;
+        if (b.id === "tkYxdmQlhtQ") return 1;
+        return 0;
+      });
+      masters.sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+      others.sort((a, b) => {
+        const c = (a.name || "").localeCompare(b.name || "", "zh-Hant");
+        return c !== 0 ? c : (a.performerLabel || "").localeCompare(b.performerLabel || "", "zh-Hant");
+      });
+      return [...pri, ...masters, ...others];
+    }
+
+    function mergeCatalog(remote, local) {
+      const map = new Map();
+      (local.songs || []).forEach((s) => map.set(s.id, s));
+      (remote.songs || []).forEach((s) => map.set(s.id, s));
+      const songs = sortSongs([...map.values()]);
+      return {
+        updatedAt: remote.updatedAt || local.updatedAt,
+        artist: remote.artist || "太陽盛德導師",
+        counts: remote.counts || local.counts,
+        songs
+      };
+    }
+
+    async function loadCatalog(force) {
+      $("statusLine").textContent = force ? "正在更新曲庫…" : "載入曲庫…";
+      let remote = null;
+      try {
+        const res = await fetch(CATALOG_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (res.ok) remote = await res.json();
+      } catch (_) {}
+      if (!remote) {
+        try {
+          const res = await fetch(CATALOG_URL);
+          if (res.ok) remote = await res.json();
+        } catch (_) {}
+      }
+      if (remote) {
+        catalog = mergeCatalog(remote, catalog);
+        localStorage.setItem("taiyang-catalog", JSON.stringify(catalog));
+      } else {
+        try {
+          const saved = localStorage.getItem("taiyang-catalog");
+          if (saved) catalog = JSON.parse(saved);
+        } catch (_) {}
+      }
+      rebuildQueue();
+      const c = catalog.counts || {};
+      const mc = c.master || catalog.songs.filter((s) => s.performer === "master").length;
+      const oc = c.other || catalog.songs.filter((s) => s.performer === "other").length;
+      $("catalogMeta").textContent = "導師 " + mc + " · 其他 " + oc + " · " + (catalog.updatedAt || "").slice(0, 10);
+      $("statusLine").textContent = remote
+        ? "曲庫已更新（導師 " + mc + " 首、其他演唱 " + oc + " 首）"
+        : "使用快取曲庫（導師 " + mc + "、其他 " + oc + "）";
+    }
+
+    function renderSongMenu() {
+      const sel = $("songSelect");
+      const songs = catalog.songs || [];
+      let filtered = songs;
+      if (listFilter === "master") filtered = songs.filter((s) => s.performer === "master");
+      else if (listFilter === "other") filtered = songs.filter((s) => s.performer === "other");
+
+      const groups = [
+        { label: "優先連播 ×3", items: filtered.filter((s) => s.repeat === 3 || PRIORITY_IDS[s.id]) },
+        { label: "導師親唱", items: filtered.filter((s) => s.repeat !== 3 && !PRIORITY_IDS[s.id] && s.performer === "master") },
+        { label: "其他演唱者", items: filtered.filter((s) => s.repeat !== 3 && !PRIORITY_IDS[s.id] && s.performer === "other") }
+      ];
+
+      let html = "";
+      groups.forEach((g) => {
+        if (!g.items.length) return;
+        html += '<optgroup label="' + g.label + '">';
+        g.items.forEach((s) => {
+          const pr = getSongPractice(s.name);
+          const extra = pr.bestScore ? " · 最佳 " + pr.bestScore + " 分" : "";
+          const who = s.performer === "master" ? "導師" : (s.performerLabel || "其他");
+          html += '<option value="' + s.id + '">' + s.name + "（" + who + "）" + extra + "</option>";
+        });
+        html += "</optgroup>";
+      });
+
+      if (!html) html = '<option value="">此分類尚無歌曲</option>';
+      sel.innerHTML = html;
+
+      const current = queue[qIndex];
+      if (current && filtered.some((s) => s.id === current.id)) {
+        sel.value = current.id;
+      }
+
+      $("listCount").textContent = "（共 " + filtered.length + " 首）";
+    }
+
+    function rebuildQueue() {
+      queue = buildQueue(catalog.songs || []);
+      if (qIndex >= queue.length) qIndex = 0;
+      updateNow();
+    }
+
+    function updateNow() {
+      const item = queue[qIndex];
+      const total = queue.length;
+      if (!item) {
+        $("nowTitle").textContent = "尚無曲目";
+        $("nowMeta").textContent = "請更新曲庫";
+        $("progressFill").style.width = "0%";
+        return;
+      }
+      const rep = item.total > 1 ? "（第 " + item.pass + " 次／共 " + item.total + " 次）" : "";
+      const who = item.performer === "master" ? "導師親唱" : ("演唱：" + (item.performerLabel || "其他"));
+      $("nowTitle").textContent = item.name + rep;
+      $("nowMeta").textContent = "第 " + (qIndex + 1) + "／" + total + " 段 · " + who + " · " + item.title.slice(0, 36);
+      $("progressFill").style.width = total ? ((qIndex + 1) / total * 100) + "%" : "0%";
+      $("btnPrev").disabled = qIndex <= 0;
+      $("btnNext").disabled = qIndex >= total - 1;
+      renderSongMenu();
+    }
+
+    function jumpToSongId(songId) {
+      if (!songId) return;
+      const i = queue.findIndex((q) => q.id === songId);
+      if (i >= 0) jumpTo(i, true);
+    }
+
+    function loadVideo(item, play) {
+      if (!item) return;
+      hideScorePanel();
+      $("ktvSession").classList.remove("on");
+      const vid = resolveVideoId(item);
+      captionLines = [];
+      captionPlainLines = null;
+      captionSource = "none";
+      captionRetimed = false;
+      lastCaptionText = item.name;
+      stopCaptionSync();
+      stopPlayTick();
+      if (ktvMode) resetSingSession(item);
+      if (player && player.loadVideoById) {
+        player.loadVideoById(vid);
+        if (play) setTimeout(() => {
+          if (player.playVideo) player.playVideo();
+          enablePlayerCaptions();
+        }, 400);
+      } else if (apiReady) {
+        createPlayer(vid, play);
+      }
+      fetchCaptions(vid, item).then((result) => {
+        applyLyricsResult(result, item);
+        updateKtvUI();
+      });
+      updateNow();
+      updateKtvUI();
+    }
+
+    function createPlayer(videoId, play) {
+      player = new YT.Player("player", {
+        height: "100%", width: "100%", videoId,
+        playerVars: {
+          playsinline: 1, rel: 0, modestbranding: 1, enablejsapi: 1,
+          cc_load_policy: ktvMode ? 1 : 0,
+          cc_lang_pref: "zh-Hant",
+          origin: location.origin
+        },
+        events: {
+          onReady: () => {
+            enablePlayerCaptions();
+            if (play) player.playVideo();
+            maybeRetimeCaptions();
+            if (ktvMode) startCaptionSync();
+          },
+          onStateChange: onStateChange
+        }
+      });
+    }
+
+    function onStateChange(e) {
+      if (e.data === YT.PlayerState.PLAYING) {
+        $("btnPlay").textContent = "⏸ 暫停";
+        if (ktvMode) {
+          if (singSession) singSession.hasPlayed = true;
+          maybeRetimeCaptions();
+          startCaptionSync();
+          startPlayTick();
+        }
+      } else if (e.data === YT.PlayerState.PAUSED) {
+        $("btnPlay").textContent = "▶ 播放";
+        if (ktvMode && singSession && singSession.hasPlayed) {
+          singSession.pauseCount += 1;
+          pausePlayTick();
+          try {
+            const sec = player.getCurrentTime();
+            singSession.pausePoints.push({ sec, text: lastCaptionText || "" });
+          } catch (_) {}
+        }
+      } else if (e.data === YT.PlayerState.ENDED) {
+        $("btnPlay").textContent = "▶ 播放";
+        pausePlayTick();
+        if (ktvMode) {
+          const result = finalizeSingSession();
+          if (result) {
+            showScorePanel(result.item, result.stats);
+            pendingAutoNext = autoPlay;
+            autoPlay = false;
+            return;
+          }
+        }
+        if (autoPlay && qIndex < queue.length - 1) {
+          qIndex += 1;
+          loadVideo(queue[qIndex], true);
+        } else if (autoPlay) {
+          $("statusLine").textContent = "全部播放完畢";
+          autoPlay = false;
+        }
+      }
+    }
+
+    function jumpTo(i, play) {
+      if (i < 0 || i >= queue.length) return;
+      qIndex = i;
+      autoPlay = !!play;
+      loadVideo(queue[qIndex], play);
+    }
+
+    $("btnPlay").addEventListener("click", () => {
+      if (!queue.length) return;
+      if (!player) { autoPlay = true; loadVideo(queue[qIndex], true); return; }
+      const st = player.getPlayerState();
+      if (st === YT.PlayerState.PLAYING) player.pauseVideo();
+      else { autoPlay = true; player.playVideo(); }
+    });
+    $("btnPrev").addEventListener("click", () => jumpTo(qIndex - 1, true));
+    $("btnNext").addEventListener("click", () => jumpTo(qIndex + 1, true));
+    $("btnRestart").addEventListener("click", () => jumpTo(0, true));
+    $("btnRefresh").addEventListener("click", () => loadCatalog(true));
+    $("btnKtv").addEventListener("click", () => setKtvMode(!ktvMode));
+    $("btnKaraoke").addEventListener("click", toggleKaraoke);
+    $("btnScoreRetry").addEventListener("click", () => proceedAfterScore(true));
+    $("btnScoreNext").addEventListener("click", () => proceedAfterScore(false));
+    $("btnScoreLoop").addEventListener("click", startHotspotLoop);
+    $("btnScoreShare").addEventListener("click", shareCurrentScore);
+    $("btnSessionShare").addEventListener("click", shareSessionCard);
+    $("btnSessionClose").addEventListener("click", hideSessionSummary);
+
+    $("btnSetA").addEventListener("click", () => {
+      if (!player) return;
+      try {
+        abLoopStart = player.getCurrentTime();
+        if (abLoopEnd != null && abLoopEnd <= abLoopStart) abLoopEnd = null;
+        abLoopActive = false;
+        updateLoopStatus();
+      } catch (_) {}
+    });
+    $("btnSetB").addEventListener("click", () => {
+      if (!player) return;
+      try {
+        const t = player.getCurrentTime();
+        if (abLoopStart == null || t > abLoopStart) abLoopEnd = t;
+        else { abLoopEnd = abLoopStart; abLoopStart = t; }
+        abLoopActive = false;
+        updateLoopStatus();
+      } catch (_) {}
+    });
+    $("btnLoopGo").addEventListener("click", () => {
+      if (abLoopStart != null && abLoopEnd != null) setAbLoop(abLoopStart, abLoopEnd, true);
+    });
+    $("btnLoopOff").addEventListener("click", clearAbLoop);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+      if (e.key === "k" || e.key === "K") {
+        e.preventDefault();
+        setKtvMode(!ktvMode);
+      }
+    });
+
+    document.querySelectorAll(".filter-row button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-row button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        listFilter = btn.dataset.filter;
+        renderSongMenu();
+      });
+    });
+
+    $("songSelect").addEventListener("change", () => {
+      const id = $("songSelect").value;
+      if (!id) {
+        hidePlayModePick();
+        return;
+      }
+      showPlayModePick(id);
+    });
+
+    $("btnPickKtv").addEventListener("click", () => {
+      if (pendingSongId) playSongWithMode(pendingSongId, true);
+    });
+    $("btnPickNormal").addEventListener("click", () => {
+      if (pendingSongId) playSongWithMode(pendingSongId, false);
+    });
+
+    window.onYouTubeIframeAPIReady = function () {
+      apiReady = true;
+      if (queue.length && autoPlay) loadVideo(queue[qIndex], true);
+    };
+
+    loadPracticeLog();
+    loadCatalog(false).then(() => {
+      updateKtvUI();
+      if (queue.length) $("nowMeta").textContent = "共 " + queue.length + " 段連播 · 按「開始連播」或 KTV";
+    });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js?v=20260908").catch(() => {});
+    }
+  </script>
+  <script src="https://www.youtube.com/iframe_api" async></script>
+</body>
+</html>

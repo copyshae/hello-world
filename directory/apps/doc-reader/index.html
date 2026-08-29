@@ -1,0 +1,2555 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1b6b5a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="看書文件" />
+  <meta name="description" content="拍照或上傳文件，跳出文字視窗逐頁讀誦，並整理身心靈／數學／衛生建議" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>看書／看文件｜讀誦＋重點</title>
+  <style>
+    :root {
+      --ink: #14352e; --muted: #4a6b62; --accent: #1b6b5a; --line: rgba(27,107,90,.22);
+      --paper: #eef7f3; --ok: #0e7a4c; --warn: #b54708; --danger: #b42318;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color: var(--ink); line-height: 1.55;
+      background: linear-gradient(180deg, #f4faf6, #dceee6);
+      min-height: 100vh;
+      padding: env(safe-area-inset-top) 1rem calc(1.5rem + env(safe-area-inset-bottom));
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; }
+    h1 { font-size: 1.45rem; color: var(--accent); margin: 0.85rem 0 0.25rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.85rem; }
+    .card {
+      background: rgba(255,255,255,0.78); border: 1px solid var(--line);
+      padding: 0.85rem; margin: 0.65rem 0;
+    }
+    .card h2 { font-size: 1.05rem; color: var(--accent); margin-bottom: 0.4rem; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
+    button, .file-btn {
+      font: inherit; cursor: pointer; border: 1px solid var(--line);
+      background: #fff; color: var(--accent); padding: 0.55rem 0.85rem; font-weight: 700;
+      min-height: 2.75rem; touch-action: manipulation;
+    }
+    button.primary, .file-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.danger { color: #fff; background: var(--danger); border-color: var(--danger); }
+    button:disabled { opacity: 0.4; cursor: default; }
+    input[type="file"] { display: none; }
+    textarea, select, input[type="password"], input[type="text"], input[type="url"] {
+      width: 100%; font: inherit; font-size: 16px; padding: 0.55rem 0.6rem;
+      border: 1px solid var(--line); background: #fff; line-height: 1.5;
+    }
+    textarea { min-height: 6rem; resize: vertical; }
+    #pasteTextArea { min-height: 12rem; font-size: 16px; line-height: 1.65; }
+    label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--muted); margin: 0.4rem 0 0.2rem; }
+    .status { font-size: 0.85rem; color: var(--ok); font-weight: 700; min-height: 1.2rem; margin-top: 0.35rem; }
+    .status.warn { color: var(--warn); }
+    .status.err { color: var(--danger); }
+    footer { text-align: center; font-size: 0.78rem; color: var(--muted); margin-top: 1.2rem; }
+    footer a { color: var(--accent); }
+
+    /* reader modal */
+    .overlay {
+      position: fixed; inset: 0; z-index: 90;
+      background: rgba(15, 35, 30, 0.5);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 0.6rem;
+    }
+    .overlay[hidden] { display: none !important; }
+    .sheet {
+      width: min(34rem, 100%);
+      max-height: min(92vh, 48rem);
+      overflow: auto;
+      background: #f7fcf9;
+      border: 1px solid var(--line);
+      padding: 0.9rem 0.85rem 1rem;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.2);
+    }
+    .sheet h3 { color: var(--accent); font-size: 1.1rem; margin-bottom: 0.35rem; }
+    .page-meta { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.45rem; }
+    .page-text {
+      white-space: pre-wrap; word-break: break-word;
+      background: #fff; border: 1px solid var(--line);
+      padding: 0.85rem; min-height: 10rem; max-height: 45vh; overflow: auto;
+      font-size: 1.08rem; line-height: 1.85;
+      -webkit-user-select: text; user-select: text;
+    }
+    .sel-preview {
+      font-size: 0.85rem; color: var(--ok); font-weight: 700;
+      margin: 0.35rem 0; padding: 0.45rem 0.55rem;
+      background: rgba(14,122,76,0.1); border: 1px solid rgba(14,122,76,0.25);
+      border-radius: 0.25rem;
+    }
+    .sel-preview[hidden] { display: none !important; }
+    .reader-status { font-size: 0.85rem; font-weight: 700; min-height: 1.2rem; margin: 0.25rem 0; }
+    .reader-status.warn { color: var(--warn); }
+    .reader-status.err { color: var(--danger); }
+    .reader-status.ok { color: var(--ok); }
+    .insight-box {
+      margin-top: 0.65rem; background: #fff; border: 1px solid var(--line); padding: 0.7rem;
+    }
+    .insight-box h4 { color: var(--accent); font-size: 0.95rem; margin: 0.45rem 0 0.25rem; }
+    .insight-box ul { margin-left: 1.1rem; font-size: 0.9rem; }
+    .insight-box li { margin: 0.25rem 0; }
+    .thumb-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
+    .thumb-row img {
+      width: 4.2rem; height: 4.2rem; object-fit: cover; border: 1px solid var(--line); background: #fff;
+    }
+    .url-row { display: flex; gap: 0.35rem; margin-top: 0.45rem; flex-wrap: wrap; }
+    .url-row input[type="url"] { flex: 1 1 12rem; min-width: 0; }
+    .choice-list { display: grid; gap: 0.45rem; margin: 0.55rem 0; }
+    .choice-list button { text-align: left; width: 100%; }
+    .bilingual-pair {
+      border: 1px solid var(--line); background: #fff; padding: 0.55rem 0.6rem; margin: 0.4rem 0;
+    }
+    .bilingual-pair .zh { color: var(--ink); margin-bottom: 0.25rem; }
+    .bilingual-pair .en { color: #1a4f7a; line-height: 1.75; }
+    .en-clickable {
+      cursor: pointer; border-bottom: 1px dotted rgba(26,79,122,.45);
+      padding: 0 0.05rem;
+    }
+    .en-clickable:hover, .en-clickable:focus {
+      background: rgba(27,107,90,.14); outline: none;
+    }
+    .word-popup {
+      position: fixed; z-index: 120; left: 50%; bottom: max(1rem, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(22rem, calc(100% - 1.2rem));
+      background: #14352e; color: #f4faf6;
+      border: 1px solid rgba(255,255,255,.2);
+      padding: 0.75rem 0.85rem;
+      box-shadow: 0 12px 36px rgba(0,0,0,.35);
+    }
+    .word-popup[hidden] { display: none !important; }
+    .word-popup .w-head { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .word-popup .w-phon { opacity: 0.8; font-size: 0.85rem; margin-bottom: 0.35rem; }
+    .word-popup .w-zh { font-size: 1rem; line-height: 1.5; }
+    .word-popup .w-actions { display: flex; gap: 0.35rem; margin-top: 0.55rem; flex-wrap: wrap; }
+    .word-popup button {
+      background: #fff; color: var(--accent); border-color: transparent; font-size: 0.85rem;
+    }
+    .sel-bar {
+      position: sticky; bottom: 0; z-index: 2;
+      display: none; gap: 0.35rem; flex-wrap: wrap;
+      margin-top: 0.35rem; padding: 0.35rem 0;
+      background: linear-gradient(180deg, transparent, #f7fcf9 30%);
+    }
+    .sel-bar.show { display: flex; }
+    .def-body {
+      white-space: pre-wrap; word-break: break-word;
+      background: #fff; border: 1px solid var(--line);
+      padding: 0.85rem; max-height: 50vh; overflow: auto;
+      font-size: 1.08rem; line-height: 1.85; margin-top: 0.4rem;
+      min-height: 10rem;
+    }
+    .def-source { font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem; }
+    .page-text::selection, .study-text::selection { background: rgba(27,107,90,.28); }
+    .study-text {
+      white-space: pre-wrap; word-break: break-word;
+      background: #fff; border: 1px solid var(--line);
+      padding: 0.75rem; min-height: 8rem; max-height: 42vh; overflow: auto;
+      font-size: 1rem; line-height: 1.85;
+    }
+    @media (min-width: 560px) {
+      .overlay { align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>看書／看文件</h1>
+    <p class="sub">首要：身心靈提升｜靈命持續成長<br />拍照／檔案／網址 → 文字辨識或圖搜 → 中英讀誦／翻譯 → 節錄重點</p>
+
+    <div class="card">
+      <h2>1. 匯入文件</h2>
+      <p class="hint">支援：拍照／相簿、PDF、TXT、MD、網址、貼上文字。英文輸入可選「逐句」或「全文」中文翻譯並朗讀；純圖改走圖搜。</p>
+      <div class="actions">
+        <label class="file-btn primary">
+          📷 拍照／選圖
+          <input id="fileImage" type="file" accept="image/*" capture="environment" multiple />
+        </label>
+        <label class="file-btn">
+          📄 選 PDF／文字檔
+          <input id="fileDoc" type="file" accept="application/pdf,.pdf,text/plain,.txt,.md,text/markdown" multiple />
+        </label>
+        <button type="button" id="btnPaste">貼上文字</button>
+        <button type="button" class="danger" id="btnCancelInput">⏹ 取消輸入</button>
+        <button type="button" id="btnReinput">🔄 重新輸入其他檔案</button>
+      </div>
+      <label for="articleUrl">網路文章網址</label>
+      <div class="url-row">
+        <input id="articleUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://… 貼上文章網址" />
+        <button type="button" class="primary" id="btnFetchUrl">讀取網頁</button>
+        <button type="button" class="danger" id="btnCancelUrl" disabled>取消讀取</button>
+      </div>
+      <p class="hint">可隨時「取消輸入」；要換檔請按「重新輸入其他檔案」（會中止目前處理並清空，再選新檔）。</p>
+      <div class="thumb-row" id="thumbRow"></div>
+      <p class="status" id="loadStatus"></p>
+    </div>
+
+    <div class="card">
+      <h2>2. 讀誦聲音</h2>
+      <label for="ttsGender">性別偏好</label>
+      <select id="ttsGender">
+        <option value="F">女聲</option>
+        <option value="M">男聲模式（明顯低沉）</option>
+        <option value="all">全部</option>
+      </select>
+      <label for="ttsVoice">選擇聲音</label>
+      <select id="ttsVoice"></select>
+      <div class="actions">
+        <button type="button" id="ttsPreview">試聽</button>
+      </div>
+      <p class="hint" id="ttsVoiceHint">讀誦可隨時暫停／取消。</p>
+    </div>
+
+    <div class="card">
+      <h2>3. 可選：AI 加強摘要</h2>
+      <p class="hint">未填金鑰也會用本機規則節錄重點。若此裝置曾在「習作批改」存過 Gemini 金鑰，可自動帶入。</p>
+      <label for="geminiKey">Gemini 金鑰（選填）</label>
+      <input id="geminiKey" type="password" autocomplete="off" placeholder="貼上 AI Studio 金鑰（選填）" />
+      <div class="actions">
+        <button type="button" id="btnSaveKey">記住金鑰（本機）</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4. 開始閱讀</h2>
+      <div class="actions">
+        <button type="button" class="primary" id="btnOpenReader" disabled>打開文字視窗</button>
+        <button type="button" id="btnClear">清除本次內容</button>
+        <button type="button" class="danger" id="btnCancelAll">⏹ 取消目前工作</button>
+      </div>
+      <p class="hint">打開後可：中文／英文讀誦；圈選生字查解釋；進行中可隨時取消輸入／讀誦。</p>
+    </div>
+
+    <footer>
+      <a href="../habits-7/">回七習慣</a> ｜
+      <a href="../daily-14/">每日14樣</a> ｜
+      <a href="../life-desk/">電腦版</a> ｜
+      <a href="../">主頁</a>
+    </footer>
+  </div>
+
+  <!-- paste text modal -->
+  <div class="overlay" id="pasteOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pasteTitle">
+      <h3 id="pasteTitle">貼上文字</h3>
+      <p class="hint">長按輸入框 → 貼上。CSV 會自動整理成易讀格式。</p>
+      <textarea id="pasteTextArea" placeholder="在此貼上要讀誦的文字…"></textarea>
+      <div class="actions">
+        <button type="button" class="primary" id="btnPasteConfirm">✓ 開始閱讀</button>
+        <button type="button" id="btnPasteCancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- reader overlay -->
+  <div class="overlay" id="readerOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="readerTitle">
+      <h3 id="readerTitle">文件讀誦視窗</h3>
+      <p class="page-meta" id="pageMeta">第 0／0 頁</p>
+      <p class="hint">① 長按拖曳圈選　② 看到綠色「已記住圈選」　③ 再按「查解釋」（請勿連按）</p>
+      <div class="page-text" id="pageText" aria-live="polite"></div>
+      <p class="sel-preview" id="selPreview" hidden></p>
+      <p class="reader-status" id="readerStatus"></p>
+      <div class="sel-bar" id="selBar">
+        <button type="button" class="primary" id="btnLookupSel">🔍 查解釋（跳出視窗）</button>
+        <button type="button" id="btnSpeakSel">🔊 先讀圈選</button>
+        <button type="button" id="btnClearSel">取消圈選</button>
+      </div>
+      <p class="status" data-tts-status hidden></p>
+      <div class="actions">
+        <button type="button" id="btnPrev">上一頁</button>
+        <button type="button" id="btnNext">下一頁</button>
+        <button type="button" class="primary" id="btnSpeakPage">🔊 中文・念本頁</button>
+        <button type="button" class="primary" id="btnSpeakAll">🔊 中文・連續念</button>
+        <button type="button" class="primary" id="btnSpeakPageEn">🔤 英文・念本頁</button>
+        <button type="button" class="primary" id="btnSpeakAllEn">🔤 英文・連續念</button>
+        <button type="button" data-tts-pause id="btnPause">⏸ 暫停</button>
+        <button type="button" data-tts-stop id="btnStop">取消讀誦</button>
+      </div>
+      <div class="actions">
+        <button type="button" id="btnOpenStudy">中英學習視窗</button>
+        <button type="button" id="btnTranslateToZh">🌐 英文→中文翻譯</button>
+        <button type="button" class="primary" id="btnInsight">✨ 看完／聽完・節錄重點與建議</button>
+        <button type="button" id="btnSpeakInsight" disabled>🔊 念節錄</button>
+        <button type="button" id="btnAddHabits">疊加建議到七習慣今日紀錄</button>
+        <button type="button" id="btnCloseReader">關閉視窗</button>
+      </div>
+      <div class="insight-box" id="insightBox" hidden>
+        <h4>節錄重點｜對你四個面向的貢獻與建議</h4>
+        <p class="hint">①身心靈／靈命　②數學課程　③衛生組工作　④其他可行動</p>
+        <div id="insightContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- after English: choose study mode -->
+  <div class="overlay" id="enChoiceOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="enChoiceTitle">
+      <h3 id="enChoiceTitle">讀誦完成｜接下來？</h3>
+      <p class="hint" id="enChoiceHint">可選翻譯方式並附加朗讀。過程中可隨時暫停／取消。</p>
+      <div class="choice-list">
+        <button type="button" class="primary" id="btnModeBilingual">① 逐句對照＋朗讀</button>
+        <button type="button" class="primary" id="btnModeFullEn">② 全文翻譯＋朗讀</button>
+        <button type="button" id="btnModeSkip">先不用，稍後再開「中英學習視窗」</button>
+      </div>
+      <div class="actions">
+        <button type="button" data-tts-pause>⏸ 暫停</button>
+        <button type="button" data-tts-stop>取消讀誦</button>
+        <button type="button" id="btnCloseEnChoice">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- bilingual / full EN study -->
+  <div class="overlay" id="studyOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="studyTitle">
+      <h3 id="studyTitle">中英學習視窗</h3>
+      <p class="page-meta" id="studyMeta"></p>
+      <p class="hint">點擊藍色底線的英文單字，或圈選中文詞句 →「查解釋」跳出視窗並可讀誦。讀誦可隨時暫停／取消。</p>
+      <div id="studyBody" class="study-text"></div>
+      <p class="sel-preview" id="studySelPreview" hidden></p>
+      <div class="sel-bar" id="studySelBar">
+        <button type="button" class="primary" id="btnStudyLookupSel">🔍 查解釋（跳出視窗）</button>
+        <button type="button" id="btnStudySpeakSel">🔊 先讀圈選</button>
+      </div>
+      <p class="status" data-tts-status hidden></p>
+      <div class="actions">
+        <button type="button" class="primary" id="btnStudySpeak">🔊 讀誦此內容</button>
+        <button type="button" data-tts-pause>⏸ 暫停</button>
+        <button type="button" data-tts-stop>取消讀誦</button>
+        <button type="button" id="btnStudySwitchBi">改為中英逐句</button>
+        <button type="button" id="btnStudySwitchEn">改為全文英譯</button>
+        <button type="button" id="btnCloseStudy">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- image search / photo result modal -->
+  <div class="overlay" id="imgSearchOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="imgSearchTitle">
+      <h3 id="imgSearchTitle">圖搜／影像結果</h3>
+      <p class="page-meta" id="imgSearchMeta"></p>
+      <div id="imgSearchPreview" style="text-align:center;margin:0.4rem 0;"></div>
+      <div class="def-body" id="imgSearchBody">處理中…</div>
+      <p class="def-source" id="imgSearchSource"></p>
+      <p class="status" data-tts-status hidden></p>
+      <div class="actions">
+        <button type="button" class="primary" id="btnImgSearchSpeak">🔊 讀誦結果</button>
+        <button type="button" data-tts-pause>⏸ 暫停</button>
+        <button type="button" data-tts-stop>取消讀誦</button>
+        <button type="button" id="btnImgSearchGoogle">開 Google 圖搜</button>
+        <button type="button" id="btnImgSearchBing">開 Bing 圖搜</button>
+        <button type="button" id="btnImgSearchYandex">開 Yandex 圖搜</button>
+        <button type="button" id="btnCloseImgSearch">關閉視窗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- English → Chinese translate choice -->
+  <div class="overlay" id="enToZhOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="enToZhTitle">
+      <h3 id="enToZhTitle">偵測到英文內容</h3>
+      <p class="hint">可選「中英逐句」或「全文翻譯成中文」，並附加朗讀。也可先保留英文原文。</p>
+      <div class="choice-list">
+        <button type="button" class="primary" id="btnEnZhSentence">① 中英逐句翻譯＋朗讀</button>
+        <button type="button" class="primary" id="btnDoEnToZh">② 全文翻譯中文＋朗讀</button>
+        <button type="button" id="btnKeepEnOnly">③ 先保留英文原文</button>
+        <button type="button" id="btnShowBothEnZh">④ 整篇中英對照陳列</button>
+      </div>
+      <div class="actions">
+        <button type="button" id="btnCloseEnToZh">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- definition modal window -->
+  <div class="overlay" id="defOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="defTitle">
+      <h3 id="defTitle">生字／詞句解釋</h3>
+      <p class="hint">視窗會保留至您按「關閉」；讀誦結束不會自動消失。</p>
+      <p class="page-meta" id="defTerm"></p>
+      <p class="hint" id="defPhon"></p>
+      <div class="def-body" id="defBody">查詢中…</div>
+      <p class="def-source" id="defSource"></p>
+      <p class="status" data-tts-status hidden></p>
+      <div class="actions">
+        <button type="button" class="primary" id="btnDefSpeak">🔊 讀誦解釋</button>
+        <button type="button" data-tts-pause>⏸ 暫停</button>
+        <button type="button" data-tts-stop>取消讀誦</button>
+        <button type="button" id="btnDefOpenWeb">開網路辭典</button>
+        <button type="button" id="btnCloseDef">關閉視窗</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- legacy compact popup kept hidden for safety -->
+  <div class="word-popup" id="wordPopup" hidden role="dialog" aria-live="polite">
+    <div class="w-head" id="wordHead"></div>
+    <div class="w-phon" id="wordPhon"></div>
+    <div class="w-zh" id="wordZh"></div>
+    <div class="w-actions">
+      <button type="button" id="btnWordSpeak">🔊 讀單字與解釋</button>
+      <button type="button" id="btnWordClose">關閉</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="./tts-voices.js?v=26"></script>
+  <script>
+    (function () {
+      const PAGE_CHARS = 420;
+      const GEMINI_KEY = "math-grader-gemini-key";
+      const DOC_KEY = "doc-reader-gemini-key";
+      const HABITS_KEY = "habits7-v1";
+
+      let pages = [];
+      let pageIndex = 0;
+      let sourceName = "";
+      let continuous = false;
+      let speakLang = "zh"; // zh | en
+      let ocrWorker = null;
+      let lastInsight = null;
+      let studyMode = "bilingual"; // bilingual | full-en | en-zh | full-zh
+      let studyPairs = [];
+      let studyFullEn = "";
+      let studyFullZh = "";
+      let wordCache = {};
+      let lastWord = null;
+      let lastImageBlobUrl = "";
+      let lastImageFile = null;
+      let lastOcrText = "";
+      let lastImgSearchText = "";
+      let pendingEnSource = "";
+      let jobToken = 0;
+      let jobAbort = null;
+      let jobBusy = false;
+      let jobLabel = "";
+      // iPhone 按鈕會清掉圈選，需快取最後圈選文字
+      let selectionCache = { page: "", study: "", ts: 0 };
+      try {
+        wordCache = JSON.parse(localStorage.getItem("doc-reader-word-cache-v1") || "{}") || {};
+      } catch (e) { wordCache = {}; }
+
+      const loadStatus = document.getElementById("loadStatus");
+      const thumbRow = document.getElementById("thumbRow");
+      const btnOpenReader = document.getElementById("btnOpenReader");
+
+      function setStatus(msg, kind) {
+        loadStatus.textContent = msg || "";
+        loadStatus.className = "status" + (kind ? " " + kind : "");
+      }
+
+      function setReaderStatus(msg, kind) {
+        const el = document.getElementById("readerStatus");
+        if (!el) return;
+        el.textContent = msg || "";
+        el.className = "reader-status" + (kind ? " " + kind : "");
+      }
+
+      /** 避免連按：按鈕至少間隔 ms 毫秒 */
+      function guardFastClick(ms) {
+        ms = ms || 750;
+        let last = 0;
+        return function () {
+          const now = Date.now();
+          if (now - last < ms) {
+            const msg = "請稍候再按（避免連按太快）";
+            setStatus(msg, "warn");
+            setReaderStatus(msg, "warn");
+            return false;
+          }
+          last = now;
+          return true;
+        };
+      }
+
+      const guardAction = guardFastClick(650);
+
+      function normalizeImportedText(text, name) {
+        let t = String(text || "").replace(/\r/g, "").trim();
+        if (!t) return t;
+        const fname = String(name || "").toLowerCase();
+        const looksCsv = fname.endsWith(".csv") || (
+          t.includes(",") &&
+          t.split("\n").length <= 500 &&
+          !t.includes("http://") &&
+          !t.includes("https://")
+        );
+        if (looksCsv) {
+          const lines = t.split("\n").map((l) => l.trim()).filter(Boolean);
+          const formatted = lines.map((line, i) => {
+            const cells = line.split(",").map((c) => c.trim().replace(/^["']|["']$/g, ""));
+            if (i === 0 && /代號|名稱|code|name/i.test(line)) {
+              return "【表頭】 " + cells.join(" ｜ ");
+            }
+            return cells.join(" ｜ ");
+          });
+          return formatted.join("\n");
+        }
+        return t;
+      }
+
+      function refreshSelPreview(cacheKey) {
+        const t = selectionCache[cacheKey] || "";
+        const el = cacheKey === "page"
+          ? document.getElementById("selPreview")
+          : document.getElementById("studySelPreview");
+        if (!el) return;
+        if (t) {
+          el.hidden = false;
+          el.textContent = "已記住圈選：「" + t + "」→ 可按「查解釋」";
+        } else {
+          el.hidden = true;
+          el.textContent = "";
+        }
+      }
+
+      function syncCancelButtons() {
+        const on = !!jobBusy;
+        const btnIn = document.getElementById("btnCancelInput");
+        const btnUrl = document.getElementById("btnCancelUrl");
+        const btnAll = document.getElementById("btnCancelAll");
+        if (btnIn) btnIn.disabled = false;
+        if (btnAll) btnAll.disabled = false;
+        if (btnUrl) btnUrl.disabled = !(on && /網址|網頁|讀取網/.test(jobLabel || ""));
+      }
+
+      function beginJob(label) {
+        jobToken += 1;
+        const token = jobToken;
+        if (jobAbort) {
+          try { jobAbort.abort(); } catch (e) {}
+        }
+        jobAbort = (typeof AbortController !== "undefined") ? new AbortController() : null;
+        jobBusy = true;
+        jobLabel = label || "處理中";
+        syncCancelButtons();
+        return token;
+      }
+
+      function isJobActive(token) {
+        return token === jobToken && jobBusy;
+      }
+
+      function throwIfCancelled(token) {
+        if (!isJobActive(token)) {
+          const err = new Error("已取消");
+          err.cancelled = true;
+          throw err;
+        }
+      }
+
+      function endJob(token, opts) {
+        opts = opts || {};
+        if (token != null && token !== jobToken && !opts.force) return;
+        jobBusy = false;
+        jobLabel = "";
+        syncCancelButtons();
+      }
+
+      function clearFileInputs() {
+        ["fileImage", "fileDoc"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+      }
+
+      function resetImportedContent() {
+        pages = [];
+        pageIndex = 0;
+        sourceName = "";
+        lastInsight = null;
+        lastOcrText = "";
+        pendingEnSource = "";
+        lastImgSearchText = "";
+        lastImageFile = null;
+        if (lastImageBlobUrl) {
+          try { URL.revokeObjectURL(lastImageBlobUrl); } catch (e) {}
+          lastImageBlobUrl = "";
+        }
+        thumbRow.innerHTML = "";
+        btnOpenReader.disabled = true;
+        const insightBox = document.getElementById("insightBox");
+        if (insightBox) insightBox.hidden = true;
+        const speakBtn = document.getElementById("btnSpeakInsight");
+        if (speakBtn) speakBtn.disabled = true;
+        const pageText = document.getElementById("pageText");
+        if (pageText) pageText.textContent = "";
+        const pageMeta = document.getElementById("pageMeta");
+        if (pageMeta) pageMeta.textContent = "第 0／0 頁";
+        try { document.getElementById("readerOverlay").hidden = true; } catch (e) {}
+      }
+
+      function cancelCurrentJob(reason) {
+        const why = reason || "已取消輸入／處理";
+        jobToken += 1;
+        jobBusy = false;
+        jobLabel = "";
+        if (jobAbort) {
+          try { jobAbort.abort(); } catch (e) {}
+          jobAbort = null;
+        }
+        clearFileInputs();
+        continuous = false;
+        if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+        else try { speechSynthesis.cancel(); } catch (e) {}
+        closeTransientPopups();
+        syncCancelButtons();
+        setStatus(why, "warn");
+      }
+
+      function reinputOtherFiles(kind) {
+        // 中止目前工作並清空，讓使用者重新選其他檔案
+        cancelCurrentJob("已取消，可重新輸入其他檔案");
+        resetImportedContent();
+        clearFileInputs();
+        const urlEl = document.getElementById("articleUrl");
+        if (urlEl) urlEl.value = "";
+        setStatus("請重新選擇檔案／拍照／網址", "warn");
+        // 打開對應檔案選擇器
+        setTimeout(() => {
+          const target = kind === "doc"
+            ? document.getElementById("fileDoc")
+            : document.getElementById("fileImage");
+          if (target) target.click();
+        }, 120);
+      }
+
+      function todayKey() {
+        return new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
+        }).format(new Date());
+      }
+
+      function splitPages(text) {
+        const raw = String(text || "").replace(/\r/g, "").trim();
+        if (!raw) return [];
+        // 先依明顯分頁符號切
+        let parts = raw.split(/\n\s*(?:---+|===+|\f|【?\s*第\s*\d+\s*頁\s*】?)\s*\n/g);
+        parts = parts.map((p) => p.trim()).filter(Boolean);
+        const out = [];
+        parts.forEach((part) => {
+          if (part.length <= PAGE_CHARS) {
+            out.push(part);
+            return;
+          }
+          // 依句號／換行切成約 PAGE_CHARS
+          let buf = "";
+          const chunks = part.split(/(?<=[。！？；\n])/);
+          chunks.forEach((c) => {
+            if ((buf + c).length > PAGE_CHARS && buf) {
+              out.push(buf.trim());
+              buf = c;
+            } else {
+              buf += c;
+            }
+          });
+          if (buf.trim()) out.push(buf.trim());
+        });
+        return out.length ? out : [raw];
+      }
+
+      function setPages(text, name) {
+        const normalized = normalizeImportedText(text, name);
+        pages = splitPages(normalized);
+        pageIndex = 0;
+        sourceName = name || "本次文件";
+        btnOpenReader.disabled = !pages.length;
+        setStatus(pages.length ? `已就緒：${sourceName}（共 ${pages.length} 頁文字）` : "沒有讀到文字", pages.length ? "" : "err");
+        renderPage();
+      }
+
+      function renderPage() {
+        const meta = document.getElementById("pageMeta");
+        const box = document.getElementById("pageText");
+        if (!pages.length) {
+          meta.textContent = "尚無內容";
+          box.textContent = "";
+          return;
+        }
+        meta.textContent = `${sourceName}｜第 ${pageIndex + 1}／${pages.length} 頁`;
+        const text = pages[pageIndex] || "";
+        const info = analyzeOcrText(text);
+        // 英文為主：可點單字查解釋；中文為主：保留純文字方便圈選
+        if (info.isMostlyEnglish || (info.latin > 20 && info.latin > info.cjk)) {
+          box.innerHTML = wrapEnWords(text);
+        } else {
+          box.textContent = text;
+        }
+      }
+
+      function openReader() {
+        if (!pages.length) {
+          alert("請先匯入文件或貼上文字");
+          return;
+        }
+        document.getElementById("readerOverlay").hidden = false;
+        document.getElementById("insightBox").hidden = true;
+        const speakBtn = document.getElementById("btnSpeakInsight");
+        if (speakBtn) speakBtn.disabled = true;
+        renderPage();
+      }
+
+      function closeReader() {
+        continuous = false;
+        stopSpeak();
+        document.getElementById("readerOverlay").hidden = true;
+      }
+
+      function stopSpeak() {
+        continuous = false;
+        if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+        else try { speechSynthesis.cancel(); } catch (e) {}
+        closeTransientPopups();
+      }
+
+      function pauseSpeak() {
+        if (window.TtsVoices && window.TtsVoices.togglePauseSpeakQueue) {
+          window.TtsVoices.togglePauseSpeakQueue();
+        } else {
+          try {
+            if (speechSynthesis.paused) speechSynthesis.resume();
+            else speechSynthesis.pause();
+          } catch (e) {}
+        }
+        // 跳出視窗在暫停後消失
+        closeTransientPopups();
+      }
+
+      function speakText(text, onDone, opts) {
+        opts = opts || {};
+        if (!window.speechSynthesis) {
+          alert("此瀏覽器不支援語音讀誦");
+          return;
+        }
+        if (window.TtsVoices && window.TtsVoices.speakQueued) {
+          window.TtsVoices.speakQueued(text, opts);
+          if (!onDone) return;
+          const started = Date.now();
+          const t0 = setInterval(() => {
+            const s = window.TtsVoices.getSpeakState();
+            if (Date.now() - started < 600) return;
+            if (!s.active) {
+              clearInterval(t0);
+              onDone();
+            }
+          }, 350);
+          return;
+        }
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = opts.lang || "zh-TW";
+        u.onend = () => onDone && onDone();
+        speechSynthesis.speak(u);
+      }
+
+      function speakOptsFor(lang) {
+        if (lang === "en") return { lang: "en-US", maxLen: 160, pitch: 1, rate: 0.95 };
+        return { lang: "zh-TW" };
+      }
+
+      function openEnChoice() {
+        const full = getStudySourceText();
+        const lang = detectContentLang(full);
+        const title = document.getElementById("enChoiceTitle");
+        const hint = document.getElementById("enChoiceHint");
+        const biBtn = document.getElementById("btnModeBilingual");
+        const fullBtn = document.getElementById("btnModeFullEn");
+        if (lang === "en") {
+          if (title) title.textContent = "英文讀誦完成｜要中文翻譯嗎？";
+          if (hint) hint.textContent = "可選中英逐句對照，或全文翻譯成中文，並附加朗讀。";
+          if (biBtn) {
+            biBtn.textContent = "① 中英逐句翻譯＋朗讀";
+            biBtn.dataset.mode = "en-zh";
+          }
+          if (fullBtn) {
+            fullBtn.textContent = "② 全文翻譯中文＋朗讀";
+            fullBtn.dataset.mode = "full-zh";
+          }
+        } else {
+          if (title) title.textContent = "讀誦完成｜接下來？";
+          if (hint) hint.textContent = "可選中英逐句對照（譯成英文）或全文英譯陳列，並附加朗讀。";
+          if (biBtn) {
+            biBtn.textContent = "① 中英文逐句陳列＋朗讀";
+            biBtn.dataset.mode = "bilingual";
+          }
+          if (fullBtn) {
+            fullBtn.textContent = "② 全文翻譯英文陳列＋朗讀";
+            fullBtn.dataset.mode = "full-en";
+          }
+        }
+        document.getElementById("enChoiceOverlay").hidden = false;
+      }
+
+      function closeEnChoice() {
+        document.getElementById("enChoiceOverlay").hidden = true;
+      }
+
+      function speakCurrentPage(thenNext) {
+        if (!pages.length) return;
+        const text = pages[pageIndex];
+        const isEn = speakLang === "en";
+        const prefix = isEn
+          ? `Page ${pageIndex + 1} of ${pages.length}. `
+          : `第 ${pageIndex + 1} 頁，共 ${pages.length} 頁。`;
+        const opts = speakOptsFor(speakLang);
+        speakText(prefix + text, () => {
+          if (!(thenNext && continuous)) {
+            if (isEn && !thenNext) openEnChoice();
+            return;
+          }
+          if (pageIndex < pages.length - 1) {
+            pageIndex += 1;
+            renderPage();
+            setTimeout(() => speakCurrentPage(true), 400);
+          } else {
+            continuous = false;
+            if (isEn) {
+              setStatus("英文已念完，請選擇中英學習方式", "");
+              openEnChoice();
+            } else {
+              setStatus("已逐頁念完，正在節錄重點與建議…", "warn");
+              buildInsight({ autoSpeak: false, fromListen: true });
+            }
+          }
+        }, opts);
+      }
+
+      function normalizeUrl(raw) {
+        let u = String(raw || "").trim();
+        if (!u) return "";
+        if (!/^https?:\/\//i.test(u)) u = "https://" + u;
+        try {
+          const parsed = new URL(u);
+          if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return "";
+          return parsed.href;
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function htmlToText(html) {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        doc.querySelectorAll("script,style,noscript,iframe,svg").forEach((n) => n.remove());
+        const title = (doc.querySelector("title") && doc.querySelector("title").textContent || "").trim();
+        let main = doc.querySelector("article") || doc.querySelector("main") || doc.body;
+        let text = (main && main.innerText) || "";
+        text = text.replace(/\n{3,}/g, "\n\n").trim();
+        if (title && text && !text.startsWith(title)) text = title + "\n\n" + text;
+        return text;
+      }
+
+      async function fetchArticleFromUrl(rawUrl, token) {
+        const url = normalizeUrl(rawUrl);
+        if (!url) throw new Error("網址格式不正確");
+        setStatus("讀取網頁中…（可按取消）", "warn");
+        const proxies = [
+          { name: "jina", build: (u) => "https://r.jina.ai/" + u },
+          { name: "allorigins", build: (u) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u) }
+        ];
+        let lastErr = null;
+        for (const p of proxies) {
+          throwIfCancelled(token);
+          try {
+            setStatus("讀取網頁（" + p.name + "）…可取消", "warn");
+            const res = await fetch(p.build(url), {
+              method: "GET",
+              signal: jobAbort ? jobAbort.signal : undefined
+            });
+            throwIfCancelled(token);
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const raw = await res.text();
+            throwIfCancelled(token);
+            let text = "";
+            if (p.name === "jina") {
+              text = String(raw || "")
+                .replace(/^Title:\s*.+$/mi, (m) => m.replace(/^Title:\s*/i, ""))
+                .replace(/^URL Source:.*$/gmi, "")
+                .replace(/^Published Time:.*$/gmi, "")
+                .replace(/^Markdown Content:\s*/mi, "")
+                .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+                .replace(/#{1,6}\s+/g, "")
+                .replace(/\n{3,}/g, "\n\n")
+                .trim();
+            } else {
+              text = htmlToText(raw);
+            }
+            if (!text || text.length < 40) throw new Error("擷取內容過短");
+            if (text.length > 60000) text = text.slice(0, 60000) + "\n\n…（已截斷）";
+            return { text, url, via: p.name };
+          } catch (e) {
+            if (e && (e.cancelled || e.name === "AbortError")) throw e;
+            lastErr = e;
+          }
+        }
+        throw lastErr || new Error("無法讀取此網頁");
+      }
+
+      async function handleFetchUrl() {
+        const input = document.getElementById("articleUrl");
+        const raw = (input && input.value) || "";
+        const token = beginJob("讀取網頁");
+        try {
+          const { text, url, via } = await fetchArticleFromUrl(raw, token);
+          throwIfCancelled(token);
+          setPages(text, "網頁：" + url);
+          setStatus("已讀取網頁（" + via + "）", "");
+          openReader();
+          offerEnglishInputChoice(text);
+          endJob(token);
+        } catch (e) {
+          endJob(token, { force: true });
+          if (e && (e.cancelled || e.name === "AbortError" || /已取消/.test(e.message || ""))) {
+            setStatus("已取消網頁讀取", "warn");
+            return;
+          }
+          console.warn(e);
+          setStatus("網頁讀取失敗：" + (e.message || e), "err");
+          alert("網頁讀取失敗：" + (e.message || e) + "\n\n可改用複製網頁正文後按「貼上文字」。");
+        }
+      }
+
+      function splitZhSentences(text) {
+        return String(text || "")
+          .replace(/\s+/g, " ")
+          .split(/(?<=[。！？；!?;\n])/)
+          .map((s) => s.trim())
+          .filter((s) => s.length >= 2);
+      }
+
+      function splitEnSentences(text) {
+        return String(text || "")
+          .replace(/\s+/g, " ")
+          .split(/(?<=[.!?;])\s+|\n+/)
+          .map((s) => s.trim())
+          .filter((s) => s.length >= 2);
+      }
+
+      function detectContentLang(text) {
+        const info = analyzeOcrText(text);
+        if (info.isMostlyEnglish) return "en";
+        if (info.cjk >= 8 && info.cjk > info.latin * 1.2) return "zh";
+        return "mixed";
+      }
+
+      function getStudySourceText() {
+        return (pendingEnSource || pages.join("\n") || lastOcrText || "").trim();
+      }
+
+      function offerEnglishInputChoice(text) {
+        const info = analyzeOcrText(text);
+        if (!info.isMostlyEnglish) return false;
+        pendingEnSource = String(text || "").trim();
+        openEnToZhChoice(pendingEnSource);
+        setStatus("偵測到英文，請選逐句或全文中文翻譯", "");
+        return true;
+      }
+
+      function getGeminiKey() {
+        return (document.getElementById("geminiKey").value || "").trim()
+          || localStorage.getItem(DOC_KEY)
+          || localStorage.getItem(GEMINI_KEY)
+          || "";
+      }
+
+      async function translateChunk(text, target) {
+        // target: "en" | "zh-TW"
+        const t = String(text || "").trim();
+        if (!t) return "";
+        const key = getGeminiKey();
+        if (key) {
+          try {
+            const prompt = target === "en"
+              ? "Translate the following Traditional Chinese (or mixed) text into natural English only. No commentary.\n\n" + t
+              : "Translate the following English into Traditional Chinese only. No commentary.\n\n" + t;
+            const models = ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-flash-latest"];
+            for (const model of models) {
+              const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
+                encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(key);
+              const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+              });
+              const data = await res.json();
+              if (!res.ok) continue;
+              const out = (((data.candidates || [])[0] || {}).content || {}).parts
+                ? data.candidates[0].content.parts.map((p) => p.text || "").join("")
+                : "";
+              if (out.trim()) return out.trim();
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+        // MyMemory fallback（有長度限制，分段呼叫）
+        const pair = target === "en" ? "zh-TW|en" : "en|zh-TW";
+        const pieces = [];
+        for (let i = 0; i < t.length; i += 420) pieces.push(t.slice(i, i + 420));
+        const outs = [];
+        for (const piece of pieces) {
+          const api = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(piece) + "&langpair=" + encodeURIComponent(pair);
+          const res = await fetch(api);
+          const data = await res.json();
+          const translated = data && data.responseData && data.responseData.translatedText;
+          if (!translated) throw new Error("翻譯失敗");
+          outs.push(translated);
+        }
+        return outs.join(" ");
+      }
+
+      async function buildEnZhBilingualPairs(sourceText, token) {
+        const sents = splitEnSentences(sourceText).slice(0, 50);
+        const pairs = [];
+        setStatus("準備英中逐句翻譯…（可取消）", "warn");
+        const batchSize = 4;
+        for (let i = 0; i < sents.length; i += batchSize) {
+          throwIfCancelled(token);
+          const batch = sents.slice(i, i + batchSize);
+          const joined = batch.map((s, idx) => (idx + 1) + ". " + s).join("\n");
+          let zhBlock = "";
+          try {
+            zhBlock = await translateChunk(joined, "zh-TW");
+          } catch (e) {
+            zhBlock = batch.map(() => "（翻譯暫不可用）").join("\n");
+          }
+          const zhLines = zhBlock.split(/\n+/).map((x) => x.replace(/^\d+\.\s*/, "").trim()).filter(Boolean);
+          batch.forEach((en, j) => {
+            pairs.push({ en, zh: zhLines[j] || zhLines[0] || "" });
+          });
+          setStatus("英中逐句 " + Math.min(i + batchSize, sents.length) + "／" + sents.length + "（可取消）", "warn");
+        }
+        return pairs;
+      }
+
+      async function buildBilingualPairs(sourceText, token) {
+        const sents = splitZhSentences(sourceText).slice(0, 40);
+        const pairs = [];
+        setStatus("準備中英逐句對照…（可取消）", "warn");
+        // 批次翻譯以減少請求
+        const batchSize = 6;
+        for (let i = 0; i < sents.length; i += batchSize) {
+          throwIfCancelled(token);
+          const batch = sents.slice(i, i + batchSize);
+          const joined = batch.map((s, idx) => (idx + 1) + ". " + s).join("\n");
+          let enBlock = "";
+          try {
+            enBlock = await translateChunk(joined, "en");
+          } catch (e) {
+            enBlock = batch.map(() => "(translation unavailable)").join("\n");
+          }
+          const enLines = enBlock.split(/\n+/).map((x) => x.replace(/^\d+\.\s*/, "").trim()).filter(Boolean);
+          batch.forEach((zh, j) => {
+            pairs.push({ zh, en: enLines[j] || enLines[0] || "" });
+          });
+          setStatus("中英對照進度 " + Math.min(i + batchSize, sents.length) + "／" + sents.length, "warn");
+        }
+        return pairs;
+      }
+
+      function wrapEnWords(enText) {
+        const s = escapeHtml(enText || "");
+        // wrap alphabetic words
+        return s.replace(/[A-Za-z][A-Za-z'-]*/g, (w) => {
+          if (w.length < 2 && !/^[AI]$/i.test(w)) return w;
+          return `<span class="en-clickable" tabindex="0" data-word="${w}">${w}</span>`;
+        });
+      }
+
+      function updateStudySwitchButtons() {
+        const lang = detectContentLang(getStudySourceText());
+        const bi = document.getElementById("btnStudySwitchBi");
+        const full = document.getElementById("btnStudySwitchEn");
+        if (!bi || !full) return;
+        if (lang === "en") {
+          bi.textContent = "改為英中逐句";
+          full.textContent = "改為全文中文";
+        } else {
+          bi.textContent = "改為中英逐句";
+          full.textContent = "改為全文英譯";
+        }
+      }
+
+      function renderStudy() {
+        const body = document.getElementById("studyBody");
+        const meta = document.getElementById("studyMeta");
+        if (studyMode === "en-zh") {
+          meta.textContent = "模式：英中逐句對照（點英文生字看解釋）｜共 " + studyPairs.length + " 句";
+          body.innerHTML = studyPairs.map((p, i) =>
+            `<div class="bilingual-pair" data-i="${i}">` +
+            `<div class="en">${wrapEnWords(p.en)}</div>` +
+            `<div class="zh">${escapeHtml(p.zh)}</div>` +
+            `</div>`
+          ).join("") || `<p class="hint">尚無對照句</p>`;
+        } else if (studyMode === "full-zh") {
+          meta.textContent = "模式：全文中文譯文";
+          body.innerHTML = `<div class="zh">${escapeHtml(studyFullZh || "")}</div>`;
+        } else if (studyMode === "bilingual") {
+          meta.textContent = "模式：中英文逐句陳列（點英文生字看解釋）｜共 " + studyPairs.length + " 句";
+          body.innerHTML = studyPairs.map((p, i) =>
+            `<div class="bilingual-pair" data-i="${i}">` +
+            `<div class="zh">${escapeHtml(p.zh)}</div>` +
+            `<div class="en">${wrapEnWords(p.en)}</div>` +
+            `</div>`
+          ).join("") || `<p class="hint">尚無對照句</p>`;
+        } else {
+          meta.textContent = "模式：全文英文陳列（點生字看中文解釋）";
+          body.innerHTML = `<div class="en">${wrapEnWords(studyFullEn)}</div>`;
+        }
+        updateStudySwitchButtons();
+      }
+
+      function openStudy(mode) {
+        studyMode = mode || studyMode || "bilingual";
+        document.getElementById("studyOverlay").hidden = false;
+        renderStudy();
+      }
+
+      function closeStudy() {
+        document.getElementById("studyOverlay").hidden = true;
+      }
+
+      async function prepareAndOpenStudy(mode, opts) {
+        opts = opts || {};
+        closeEnChoice();
+        closeEnToZh();
+        const full = getStudySourceText();
+        if (!full) {
+          alert("尚無文件內容");
+          return;
+        }
+        const token = beginJob("準備翻譯");
+        setStatus("準備學習內容…（可取消）", "warn");
+        try {
+          if (mode === "en-zh") {
+            studyPairs = await buildEnZhBilingualPairs(full, token);
+            throwIfCancelled(token);
+            studyMode = "en-zh";
+            openStudy("en-zh");
+            setStatus("已開啟英中逐句對照", "");
+            endJob(token);
+            if (opts.speak !== false) {
+              speakEnZhPairs(studyPairs, () => setStatus("英中逐句朗讀完成", ""));
+            }
+          } else if (mode === "full-zh") {
+            setStatus("全文翻譯成中文中…（可取消）", "warn");
+            studyFullZh = await translateChunk(full.slice(0, 9000), "zh-TW");
+            throwIfCancelled(token);
+            studyMode = "full-zh";
+            openStudy("full-zh");
+            setStatus("已開啟全文中文譯文", "");
+            endJob(token);
+            if (opts.speak !== false) {
+              speakText(studyFullZh, () => setStatus("全文中文朗讀完成", "ok"), { lang: "zh-TW" });
+            }
+          } else if (mode === "bilingual") {
+            studyPairs = await buildBilingualPairs(full, token);
+            throwIfCancelled(token);
+            studyMode = "bilingual";
+            openStudy("bilingual");
+            setStatus("已開啟中英逐句", "");
+            endJob(token);
+            if (opts.speak !== false) speakStudy();
+          } else {
+            setStatus("全文翻譯成英文中…（可取消）", "warn");
+            studyFullEn = await translateChunk(full.slice(0, 8000), "en");
+            throwIfCancelled(token);
+            studyMode = "full-en";
+            openStudy("full-en");
+            setStatus("已開啟全文英譯", "");
+            endJob(token);
+            if (opts.speak !== false) speakStudy();
+          }
+        } catch (e) {
+          endJob(token, { force: true });
+          if (e && (e.cancelled || e.name === "AbortError" || /已取消/.test(e.message || ""))) {
+            setStatus("已取消翻譯", "warn");
+            return;
+          }
+          console.warn(e);
+          setStatus("準備失敗：" + (e.message || e), "err");
+          alert("準備學習內容失敗：" + (e.message || e) + "\n可填 Gemini 金鑰以提升翻譯品質。");
+        }
+      }
+
+      function studySpeakText() {
+        if (studyMode === "en-zh") {
+          return studyPairs.map((p, i) => `第 ${i + 1} 句。英文：${p.en}。中文：${p.zh}。`).join(" ");
+        }
+        if (studyMode === "full-zh") return studyFullZh || "";
+        if (studyMode === "bilingual") {
+          return studyPairs.map((p, i) => {
+            return `Sentence ${i + 1}. Chinese: ${p.zh}. English: ${p.en}.`;
+          }).join(" ");
+        }
+        return studyFullEn || "";
+      }
+
+      function speakEnZhPairs(pairs, onDone) {
+        const list = Array.isArray(pairs) ? pairs : [];
+        if (!list.length) {
+          onDone && onDone();
+          return;
+        }
+        let i = 0;
+        function next() {
+          if (i >= list.length) {
+            onDone && onDone();
+            return;
+          }
+          const p = list[i++];
+          speakText(p.en, () => {
+            speakText(p.zh, next, { lang: "zh-TW", maxLen: 160 });
+          }, { lang: "en-US", maxLen: 180, rate: 0.92, pitch: 1 });
+        }
+        next();
+      }
+
+      function speakStudy() {
+        const text = studySpeakText();
+        if (!text.trim()) {
+          alert("尚無內容可讀誦");
+          return;
+        }
+        if (studyMode === "en-zh" || studyMode === "full-zh") {
+          if (studyMode === "en-zh") speakEnZhPairs(studyPairs);
+          else speakText(studyFullZh, null, { lang: "zh-TW" });
+          return;
+        }
+        // 中英混合：英文段用 en，整段用 en-US 較穩；中文夾雜時瀏覽器會嘗試
+        speakText(text, null, { lang: "en-US", maxLen: 140, rate: 0.92, pitch: 1 });
+      }
+
+      function saveWordCache() {
+        try { localStorage.setItem("doc-reader-word-cache-v1", JSON.stringify(wordCache)); } catch (e) {}
+      }
+
+      async function lookupWord(word) {
+        const w = String(word || "").toLowerCase().replace(/[^a-z'-]/gi, "");
+        if (!w) return null;
+        if (wordCache[w]) return wordCache[w];
+        let phon = "";
+        let enDef = "";
+        try {
+          const res = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(w));
+          if (res.ok) {
+            const data = await res.json();
+            const entry = Array.isArray(data) ? data[0] : null;
+            if (entry) {
+              const ph = (entry.phonetics || []).map((x) => x.text).filter(Boolean)[0] || entry.phonetic || "";
+              phon = ph;
+              const meanings = entry.meanings || [];
+              const defs = [];
+              meanings.slice(0, 2).forEach((m) => {
+                (m.definitions || []).slice(0, 1).forEach((d) => {
+                  defs.push((m.partOfSpeech ? m.partOfSpeech + ": " : "") + (d.definition || ""));
+                });
+              });
+              enDef = defs.join("；");
+            }
+          }
+        } catch (e) {}
+        let zh = "";
+        try {
+          const src = enDef ? (w + ". " + enDef) : w;
+          zh = await translateChunk(src.slice(0, 280), "zh-TW");
+        } catch (e) {
+          zh = "（暫無中文解釋，請稍後再試或填 Gemini 金鑰）";
+        }
+        const item = { word: w, phon, enDef, zh };
+        wordCache[w] = item;
+        saveWordCache();
+        return item;
+      }
+
+      function showWordPopup(item) {
+        // 統一改走跳出視窗
+        openDefWindow(item);
+      }
+
+      function hideWordPopup() {
+        const el = document.getElementById("wordPopup");
+        if (el) el.hidden = true;
+      }
+
+      function closeSpeakPopups() {
+        // 已不再於讀誦結束自動關閉；保留函式供必要時手動呼叫
+      }
+
+      function closeTransientPopups() {
+        // 暫停／取消：所有跳出視窗都消失
+        ["defOverlay", "enChoiceOverlay", "studyOverlay", "wordPopup", "imgSearchOverlay", "enToZhOverlay", "pasteOverlay"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.hidden = true;
+        });
+        hideSelBars();
+      }
+
+      function openDefWindow(item, opts) {
+        opts = opts || {};
+        lastWord = item;
+        const overlay = document.getElementById("defOverlay");
+        document.getElementById("defTerm").textContent = "詞句：" + (item.word || item.term || "");
+        document.getElementById("defPhon").textContent = item.phon || item.pinyin || "";
+        document.getElementById("defBody").textContent = item.zh || item.enDef || item.text || "（無解釋）";
+        document.getElementById("defSource").textContent = item.source ? ("來源：" + item.source) : "";
+        overlay.hidden = false;
+        try { overlay.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) {}
+        // 同步舊 popup 欄位（備用）
+        try {
+          document.getElementById("wordHead").textContent = item.word || "";
+          document.getElementById("wordPhon").textContent = item.phon || "";
+          document.getElementById("wordZh").textContent = item.zh || "";
+        } catch (e) {}
+        if (opts.autoSpeak !== false) {
+          speakDefinition(item, { closeAfter: false });
+        }
+      }
+
+      function closeDefWindow() {
+        const el = document.getElementById("defOverlay");
+        if (el) el.hidden = true;
+      }
+
+      function speakDefinition(item, opts) {
+        opts = opts || {};
+        const term = item.word || item.term || "";
+        const body = item.zh || item.text || item.enDef || "";
+        const isEn = /^[A-Za-z]/.test(term) && !/[\u4e00-\u9fff]/.test(term);
+        const say = (term ? term + "。" : "") + body;
+        speakText(say, () => {
+          if (opts.closeAfter) closeTransientPopups();
+          else setReaderStatus("讀誦完成，解釋視窗保留中", "ok");
+        }, isEn ? { lang: "en-US", maxLen: 180, rate: 0.92 } : { lang: "zh-TW", maxLen: 120 });
+      }
+
+      async function fetchJsonViaProxy(url) {
+        const tries = [
+          url,
+          "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+          "https://r.jina.ai/" + url
+        ];
+        let lastErr = null;
+        for (const u of tries) {
+          try {
+            const res = await fetch(u);
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const text = await res.text();
+            // jina may wrap
+            const trimmed = text.trim();
+            const jsonStart = trimmed.indexOf("{");
+            const jsonArr = trimmed.indexOf("[");
+            let payload = trimmed;
+            if (jsonStart >= 0 && (jsonArr < 0 || jsonStart < jsonArr)) payload = trimmed.slice(jsonStart);
+            else if (jsonArr >= 0) payload = trimmed.slice(jsonArr);
+            return JSON.parse(payload);
+          } catch (e) {
+            lastErr = e;
+          }
+        }
+        throw lastErr || new Error("網路查詢失敗");
+      }
+
+      function formatMoedict(data, term) {
+        // moedict shapes vary: { h:[{p,d:[{f}]}], t } or uni
+        try {
+          if (!data) return null;
+          if (typeof data === "string") return { word: term, zh: data, source: "萌典" };
+          const bits = [];
+          let phon = "";
+          const heteronyms = data.h || data.heteronyms || [];
+          if (Array.isArray(heteronyms) && heteronyms.length) {
+            heteronyms.slice(0, 2).forEach((h, hi) => {
+              if (h.p && !phon) phon = h.p;
+              const defs = h.d || h.definitions || [];
+              defs.slice(0, 4).forEach((d) => {
+                const f = d.f || d.def || d.description || "";
+                const type = d.type || "";
+                if (f) bits.push((type ? "【" + type + "】" : "") + String(f).replace(/`/g, "").replace(/~/g, term));
+              });
+              if (hi === 0 && h.b) phon = phon || h.b;
+            });
+          }
+          if (data.translation && data.translation.English) {
+            bits.push("英譯：" + [].concat(data.translation.English).slice(0, 3).join("；"));
+          }
+          if (!bits.length && data.n) bits.push(String(data.n));
+          if (!bits.length) return null;
+          return { word: term, phon: phon, zh: bits.join("\n"), source: "萌典／教育部國語辭典" };
+        } catch (e) {
+          return null;
+        }
+      }
+
+      async function lookupZhTerm(term) {
+        const t = String(term || "").replace(/\s+/g, "").trim();
+        if (!t) return null;
+        const cacheKey = "zh:" + t;
+        if (wordCache[cacheKey]) return wordCache[cacheKey];
+
+        // 1) 萌典
+        try {
+          const data = await fetchJsonViaProxy("https://www.moedict.tw/a/" + encodeURIComponent(t) + ".json");
+          const formatted = formatMoedict(data, t);
+          if (formatted && formatted.zh) {
+            wordCache[cacheKey] = formatted;
+            saveWordCache();
+            return formatted;
+          }
+        } catch (e) {}
+
+        // 2) 維基百科摘要
+        try {
+          const wiki = await fetchJsonViaProxy(
+            "https://zh.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(t)
+          );
+          if (wiki && (wiki.extract || wiki.description)) {
+            const item = {
+              word: t,
+              phon: "",
+              zh: (wiki.description ? wiki.description + "\n" : "") + (wiki.extract || ""),
+              source: "維基百科",
+              webUrl: wiki.content_urls && wiki.content_urls.desktop && wiki.content_urls.desktop.page
+            };
+            wordCache[cacheKey] = item;
+            saveWordCache();
+            return item;
+          }
+        } catch (e) {}
+
+        // 3) Gemini
+        const key = getGeminiKey();
+        if (key) {
+          try {
+            const prompt =
+              "請用繁體中文解釋下列生字或詞句，給正確、精簡的字義／詞義（含注音或拼音若方便），不要廢話：\n" + t;
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
+              encodeURIComponent("gemini-2.5-flash-lite") +
+              ":generateContent?key=" + encodeURIComponent(key);
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+            });
+            const data = await res.json();
+            const text = (((data.candidates || [])[0] || {}).content || {}).parts
+              ? data.candidates[0].content.parts.map((p) => p.text || "").join("")
+              : "";
+            if (text.trim()) {
+              const item = { word: t, zh: text.trim(), source: "Gemini", webUrl: "https://www.moedict.tw/" + encodeURIComponent(t) };
+              wordCache[cacheKey] = item;
+              saveWordCache();
+              return item;
+            }
+          } catch (e) {}
+        }
+
+        return {
+          word: t,
+          zh: "暫時查不到完整解釋。可按「開網路辭典」至萌典／教育部辭典查看。",
+          source: "提示",
+          webUrl: "https://www.moedict.tw/" + encodeURIComponent(t)
+        };
+      }
+
+      async function onWordClick(word) {
+        setStatus("查字：" + word + "…", "warn");
+        try {
+          let item;
+          if (/[\u4e00-\u9fff]/.test(word)) item = await lookupZhTerm(word);
+          else item = await lookupWord(word);
+          if (!item) return;
+          // 英文單字也轉成跳出視窗
+          if (!item.zh && item.enDef) item.zh = item.enDef;
+          openDefWindow(item, { autoSpeak: true });
+          setStatus("已跳出「" + (item.word || word) + "」解釋視窗", "");
+        } catch (e) {
+          setStatus("查字失敗：" + (e.message || e), "err");
+        }
+      }
+
+      function nodeInContainer(node, el) {
+        if (!node || !el) return false;
+        let n = node.nodeType === 3 ? node.parentNode : node;
+        while (n) {
+          if (n === el) return true;
+          n = n.parentNode;
+        }
+        return false;
+      }
+
+      function captureSelection(container, cacheKey) {
+        if (!cacheKey) return;
+        const sel = window.getSelection && window.getSelection();
+        if (!sel || sel.rangeCount < 1) return;
+        const text = String(sel.toString() || "").replace(/\s+/g, " ").trim();
+        if (!text) return;
+
+        let ok = false;
+        if (container) {
+          ok = nodeInContainer(sel.anchorNode, container) || nodeInContainer(sel.focusNode, container);
+        }
+        // iPhone：圈選節點有時掛在 overlay 上，放寬到整個閱讀視窗
+        if (!ok && cacheKey === "page") {
+          const sheet = document.querySelector("#readerOverlay .sheet");
+          if (sheet) {
+            ok = nodeInContainer(sel.anchorNode, sheet) || nodeInContainer(sel.focusNode, sheet);
+          }
+        }
+        if (!ok && cacheKey === "study") {
+          const sheet = document.querySelector("#studyOverlay .sheet");
+          if (sheet) {
+            ok = nodeInContainer(sel.anchorNode, sheet) || nodeInContainer(sel.focusNode, sheet);
+          }
+        }
+        if (!ok) return;
+
+        selectionCache[cacheKey] = text.slice(0, 80);
+        selectionCache.ts = Date.now();
+        refreshSelPreview(cacheKey);
+        updateSelBarOnly(cacheKey);
+      }
+
+      function scheduleCapture(container, cacheKey) {
+        captureSelection(container, cacheKey);
+        [80, 200, 450].forEach((ms) => {
+          setTimeout(() => captureSelection(container, cacheKey), ms);
+        });
+      }
+
+      function updateSelBarOnly(cacheKey) {
+        const barId = cacheKey === "page" ? "selBar" : "studySelBar";
+        const bar = document.getElementById(barId);
+        if (!bar) return;
+        if (selectionCache[cacheKey]) bar.classList.add("show");
+      }
+
+      function getSelectedTextIn(el, cacheKey) {
+        const sel = window.getSelection && window.getSelection();
+        let text = "";
+        if (sel && sel.rangeCount > 0) {
+          text = String(sel.toString() || "").replace(/\s+/g, " ").trim();
+          if (text && el) {
+            const inEl = nodeInContainer(sel.anchorNode, el) || nodeInContainer(sel.focusNode, el);
+            const sheet = el.closest && el.closest(".sheet");
+            const inSheet = sheet && (nodeInContainer(sel.anchorNode, sheet) || nodeInContainer(sel.focusNode, sheet));
+            if (!inEl && !inSheet) text = "";
+          }
+        }
+        if (!text && cacheKey && selectionCache[cacheKey] && (Date.now() - selectionCache.ts) < 300000) {
+          text = selectionCache[cacheKey];
+        }
+        return text.slice(0, 80);
+      }
+
+      function hideSelBars() {
+        ["selBar", "studySelBar"].forEach((id) => {
+          const b = document.getElementById(id);
+          if (b) b.classList.remove("show");
+        });
+      }
+
+      function updateSelBar(barId, container, cacheKey) {
+        captureSelection(container, cacheKey);
+        const bar = document.getElementById(barId);
+        if (!bar) return;
+        const t = getSelectedTextIn(container, cacheKey);
+        if (t) bar.classList.add("show");
+        else bar.classList.remove("show");
+      }
+
+      /** iPhone：用 touchend 觸發，避免圈選被清掉；防連按 */
+      function bindSelectionAction(btn, container, cacheKey, onText) {
+        if (!btn) return;
+        let lastFire = 0;
+        const run = (e) => {
+          if (e && e.preventDefault) e.preventDefault();
+          const now = Date.now();
+          if (now - lastFire < 800) {
+            setReaderStatus("請稍候再按（避免連按太快）", "warn");
+            return;
+          }
+          lastFire = now;
+          captureSelection(container, cacheKey);
+          const t = getSelectedTextIn(container, cacheKey);
+          onText(t);
+        };
+        btn.addEventListener("mousedown", run);
+        btn.addEventListener("touchend", run, { passive: false });
+        btn.addEventListener("click", run);
+      }
+
+      async function lookupSelectionFrom(container, cacheKey) {
+        captureSelection(container, cacheKey);
+        const t = getSelectedTextIn(container, cacheKey);
+        if (!t) {
+          setReaderStatus("請先長按圈選文字，看到綠色「已記住圈選」後再按查解釋", "warn");
+          return;
+        }
+        selectionCache[cacheKey] = t;
+        selectionCache.ts = Date.now();
+        refreshSelPreview(cacheKey);
+        setReaderStatus("查詢：「" + t + "」…", "warn");
+        document.getElementById("defOverlay").hidden = false;
+        document.getElementById("defTerm").textContent = "詞句：" + t;
+        document.getElementById("defPhon").textContent = "";
+        document.getElementById("defBody").textContent = "正在搜尋網路正確解釋…";
+        document.getElementById("defSource").textContent = "";
+        try {
+          let item;
+          if (/[\u4e00-\u9fff]/.test(t)) item = await lookupZhTerm(t);
+          else item = await lookupWord(t.replace(/[^A-Za-z'-]/g, ""));
+          if (!item) throw new Error("查無資料");
+          if (!item.zh && item.enDef) item.zh = item.enDef;
+          openDefWindow(item, { autoSpeak: true });
+          setReaderStatus("已跳出解釋視窗", "ok");
+        } catch (e) {
+          document.getElementById("defBody").textContent = "查詢失敗：" + (e.message || e);
+          setReaderStatus("查詢失敗", "err");
+        }
+      }
+
+      async function ensureOcrWorker(onProgress) {
+        if (ocrWorker) return ocrWorker;
+        if (typeof Tesseract === "undefined") throw new Error("OCR 套件尚未載入");
+        setStatus("準備中文辨識引擎（首次較久）…", "warn");
+        ocrWorker = await Tesseract.createWorker("chi_tra+eng", 1, {
+          logger: (m) => {
+            if (!onProgress) return;
+            if (m.status === "recognizing text" && m.progress != null) {
+              onProgress(Math.round(m.progress * 100));
+            } else if (m.status) {
+              setStatus("辨識中：" + m.status, "warn");
+            }
+          }
+        });
+        return ocrWorker;
+      }
+
+      async function ocrImageFile(file, token) {
+        const url = URL.createObjectURL(file);
+        lastImageBlobUrl = url;
+        lastImageFile = file;
+        throwIfCancelled(token);
+        try {
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = file.name;
+          thumbRow.appendChild(img);
+          const worker = await ensureOcrWorker((p) => {
+            if (!isJobActive(token)) return;
+            setStatus(`辨識圖片 ${file.name}… ${p}%（可取消）`, "warn");
+          });
+          throwIfCancelled(token);
+          const { data } = await worker.recognize(file);
+          throwIfCancelled(token);
+          const text = (data && data.text) || "";
+          lastOcrText = text;
+          return text;
+        } catch (e) {
+          throw e;
+        }
+      }
+
+      function analyzeOcrText(text) {
+        const raw = String(text || "").replace(/\s+/g, " ").trim();
+        const chars = raw.replace(/\s/g, "");
+        const latin = (chars.match(/[A-Za-z]/g) || []).length;
+        const cjk = (chars.match(/[\u4e00-\u9fff]/g) || []).length;
+        const digits = (chars.match(/[0-9]/g) || []).length;
+        const meaningful = latin + cjk;
+        // 幾乎沒文字 → 當純圖
+        const isPicture = meaningful < 12 && chars.length < 28;
+        // 英文為主
+        const isMostlyEnglish = !isPicture && latin >= 18 && latin > cjk * 1.4;
+        return {
+          raw,
+          chars: chars.length,
+          latin,
+          cjk,
+          digits,
+          isPicture,
+          isMostlyEnglish
+        };
+      }
+
+      function openImgSearchWindow(info) {
+        const overlay = document.getElementById("imgSearchOverlay");
+        const preview = document.getElementById("imgSearchPreview");
+        const body = document.getElementById("imgSearchBody");
+        const meta = document.getElementById("imgSearchMeta");
+        const source = document.getElementById("imgSearchSource");
+        meta.textContent = info.title || "此圖文字很少，改以圖搜辨識";
+        preview.innerHTML = "";
+        if (lastImageBlobUrl) {
+          const img = document.createElement("img");
+          img.src = lastImageBlobUrl;
+          img.alt = "拍照預覽";
+          img.style.maxWidth = "100%";
+          img.style.maxHeight = "28vh";
+          img.style.border = "1px solid rgba(27,107,90,.22)";
+          preview.appendChild(img);
+        }
+        body.textContent = info.body || "可開啟下方圖搜引擎。瀏覽器無法直接上傳私密照片到第三方時，會改開圖搜頁面，請再選同一張圖上傳。";
+        source.textContent = info.source || "";
+        lastImgSearchText = body.textContent;
+        overlay.hidden = false;
+      }
+
+      function closeImgSearch() {
+        const el = document.getElementById("imgSearchOverlay");
+        if (el) el.hidden = true;
+      }
+
+      async function describeImageWithGemini(file, token) {
+        const key = getGeminiKey();
+        if (!key || !file) return null;
+        throwIfCancelled(token);
+        const buf = await file.arrayBuffer();
+        throwIfCancelled(token);
+        const bytes = new Uint8Array(buf);
+        let binary = "";
+        const chunk = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunk) {
+          binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+        }
+        const b64 = btoa(binary);
+        const mime = file.type || "image/jpeg";
+        const prompt =
+          "這是一張照片。請用繁體中文：1) 簡述圖中內容 2) 若有文字請完整抄出 3) 若像招牌／植物／物品請猜測可能是什麼。條列、精簡。";
+        const models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
+        for (const model of models) {
+          throwIfCancelled(token);
+          try {
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
+              encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(key);
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              signal: jobAbort ? jobAbort.signal : undefined,
+              body: JSON.stringify({
+                contents: [{
+                  role: "user",
+                  parts: [
+                    { text: prompt },
+                    { inline_data: { mime_type: mime, data: b64 } }
+                  ]
+                }]
+              })
+            });
+            throwIfCancelled(token);
+            const data = await res.json();
+            if (!res.ok) continue;
+            const text = (((data.candidates || [])[0] || {}).content || {}).parts
+              ? data.candidates[0].content.parts.map((p) => p.text || "").join("")
+              : "";
+            if (text.trim()) return { text: text.trim(), model };
+          } catch (e) {
+            if (e && (e.cancelled || e.name === "AbortError")) throw e;
+          }
+        }
+        return null;
+      }
+
+      async function runImageSearchFlow(file, ocrHint, token) {
+        throwIfCancelled(token);
+        setStatus("偵測為圖片，準備圖搜…（可取消）", "warn");
+        openImgSearchWindow({
+          title: "圖搜中…",
+          body: "正在分析影像…" + (ocrHint ? ("\n（OCR 僅見：" + ocrHint.slice(0, 80) + "）") : ""),
+          source: ""
+        });
+        let aiText = "";
+        try {
+          const ai = await describeImageWithGemini(file, token);
+          throwIfCancelled(token);
+          if (ai && ai.text) {
+            aiText = ai.text;
+            lastImgSearchText = aiText;
+            document.getElementById("imgSearchBody").textContent = aiText;
+            document.getElementById("imgSearchSource").textContent = "來源：Gemini 影像描述（" + ai.model + "）＋可再開圖搜引擎";
+            document.getElementById("imgSearchMeta").textContent = "已產生影像說明，可讀誦或開圖搜";
+            setStatus("已完成影像說明（可圖搜）", "");
+            speakText("圖搜結果。" + aiText, null, { lang: "zh-TW" });
+            return;
+          }
+        } catch (e) {
+          if (e && (e.cancelled || e.name === "AbortError")) throw e;
+          console.warn(e);
+        }
+        throwIfCancelled(token);
+        const fallback =
+          "此圖幾乎沒有可辨識文字，已改走圖搜。\n" +
+          "請按下方「開 Google／Bing／Yandex 圖搜」，在新分頁上傳同一張照片以搜尋相似圖片與說明。\n" +
+          "（若已填 Gemini 金鑰，下次可直接在本視窗產生中文影像說明。）";
+        lastImgSearchText = fallback;
+        document.getElementById("imgSearchBody").textContent = fallback;
+        document.getElementById("imgSearchSource").textContent = "來源：圖搜引導";
+        document.getElementById("imgSearchMeta").textContent = "請開啟圖搜引擎上傳同一張圖";
+        setStatus("請用圖搜引擎繼續", "warn");
+      }
+
+      function openExternalImageSearch(engine) {
+        // 瀏覽器無法直接 POST 本地檔到 Google；開圖搜首頁並提示使用者上傳
+        const map = {
+          google: "https://lens.google.com/upload",
+          bing: "https://www.bing.com/visualsearch",
+          yandex: "https://yandex.com/images/search?rpt=imageview"
+        };
+        const url = map[engine] || map.google;
+        window.open(url, "_blank", "noopener");
+        // 若有文字線索，另開文字搜尋輔助
+        const clue = (lastOcrText || "").replace(/\s+/g, " ").trim().slice(0, 80);
+        if (clue && clue.length >= 4) {
+          const q = encodeURIComponent(clue);
+          const textUrl = engine === "bing"
+            ? "https://www.bing.com/images/search?q=" + q
+            : engine === "yandex"
+              ? "https://yandex.com/images/search?text=" + q
+              : "https://www.google.com/search?tbm=isch&q=" + q;
+          setTimeout(() => window.open(textUrl, "_blank", "noopener"), 400);
+        }
+      }
+
+      function openEnToZhChoice(enText) {
+        pendingEnSource = enText || "";
+        document.getElementById("enToZhOverlay").hidden = false;
+      }
+
+      function closeEnToZh() {
+        document.getElementById("enToZhOverlay").hidden = true;
+      }
+
+      async function translateEnglishDocument(mode) {
+        // mode: replace | both
+        const source = pendingEnSource || pages.join("\n") || lastOcrText || "";
+        if (!source.trim()) {
+          alert("尚無英文內容可翻譯");
+          return;
+        }
+        closeEnToZh();
+        const token = beginJob("英文翻譯");
+        setStatus("英文→中文翻譯中…（可取消）", "warn");
+        try {
+          const zh = await translateChunk(source.slice(0, 9000), "zh-TW");
+          throwIfCancelled(token);
+          if (mode === "both") {
+            const paired = "【英文原文】\n" + source.trim() + "\n\n【中文翻譯】\n" + zh;
+            setPages(paired, (sourceName || "英文文件") + "｜中英對照");
+          } else {
+            setPages(zh, (sourceName || "英文文件") + "｜中文譯文");
+          }
+          openReader();
+          setStatus("已完成英文→中文翻譯", "");
+          endJob(token);
+          speakText(mode === "both" ? ("中文翻譯如下。" + zh) : zh, null, { lang: "zh-TW" });
+        } catch (e) {
+          endJob(token, { force: true });
+          if (e && (e.cancelled || e.name === "AbortError" || /已取消/.test(e.message || ""))) {
+            setStatus("已取消翻譯", "warn");
+            return;
+          }
+          setStatus("翻譯失敗：" + (e.message || e), "err");
+          alert("翻譯失敗：" + (e.message || e) + "\n可填 Gemini 金鑰提升品質。");
+        }
+      }
+
+      async function readTextFile(file) {
+        return await file.text();
+      }
+
+      async function readPdfFile(file, token) {
+        if (typeof pdfjsLib === "undefined") throw new Error("PDF 套件尚未載入");
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+        throwIfCancelled(token);
+        const buf = await file.arrayBuffer();
+        throwIfCancelled(token);
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        let all = "";
+        let needOcr = false;
+        for (let i = 1; i <= pdf.numPages; i++) {
+          throwIfCancelled(token);
+          setStatus(`讀取 PDF 第 ${i}/${pdf.numPages} 頁…（可取消）`, "warn");
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const line = (content.items || []).map((it) => it.str).join(" ").trim();
+          if (line) {
+            all += (all ? "\n\n" : "") + `【第 ${i} 頁】\n` + line;
+          } else {
+            needOcr = true;
+            const viewport = page.getViewport({ scale: 1.6 });
+            const canvas = document.createElement("canvas");
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext("2d");
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            throwIfCancelled(token);
+            const worker = await ensureOcrWorker((p) => {
+              if (!isJobActive(token)) return;
+              setStatus(`OCR PDF 第 ${i} 頁… ${p}%（可取消）`, "warn");
+            });
+            const { data } = await worker.recognize(canvas);
+            throwIfCancelled(token);
+            const t = (data && data.text) || "";
+            if (t.trim()) all += (all ? "\n\n" : "") + `【第 ${i} 頁】\n` + t;
+            try {
+              const img = document.createElement("img");
+              img.src = canvas.toDataURL("image/jpeg", 0.6);
+              thumbRow.appendChild(img);
+            } catch (e) {}
+          }
+        }
+        if (!all.trim() && needOcr) throw new Error("PDF 未能辨識出文字");
+        return all;
+      }
+
+      async function handleFiles(fileList, opts) {
+        opts = opts || {};
+        const files = Array.from(fileList || []);
+        if (!files.length) return;
+        // 重新輸入：預設取代舊內容，不疊加
+        const replace = opts.replace !== false;
+        if (replace) {
+          // 中止舊工作但不跳「已取消」提示太久
+          jobToken += 1;
+          if (jobAbort) { try { jobAbort.abort(); } catch (e) {} }
+          resetImportedContent();
+          thumbRow.innerHTML = "";
+        }
+        const token = beginJob("匯入檔案");
+        let combined = replace ? "" : (pages.length ? pages.join("\n\n") : "");
+        let sawPicture = false;
+        let sawEnglish = false;
+        let englishBlob = "";
+        try {
+          for (const file of files) {
+            throwIfCancelled(token);
+            setStatus(`處理：${file.name}（可取消／可改選其他檔）`, "warn");
+            const type = (file.type || "").toLowerCase();
+            const name = (file.name || "").toLowerCase();
+            let text = "";
+            if (type.startsWith("image/") || /\.(png|jpe?g|gif|webp|heic|bmp)$/i.test(name)) {
+              text = await ocrImageFile(file, token);
+              throwIfCancelled(token);
+              const info = analyzeOcrText(text);
+              if (info.isPicture) {
+                sawPicture = true;
+                await runImageSearchFlow(file, info.raw, token);
+                continue;
+              }
+              if (info.isMostlyEnglish) {
+                sawEnglish = true;
+                englishBlob += (englishBlob ? "\n\n" : "") + info.raw;
+              }
+            } else if (type === "application/pdf" || name.endsWith(".pdf")) {
+              text = await readPdfFile(file, token);
+              throwIfCancelled(token);
+              const info = analyzeOcrText(text);
+              if (info.isMostlyEnglish) {
+                sawEnglish = true;
+                englishBlob += (englishBlob ? "\n\n" : "") + text.trim();
+              }
+            } else {
+              text = await readTextFile(file);
+              throwIfCancelled(token);
+              const info = analyzeOcrText(text);
+              if (info.isMostlyEnglish) {
+                sawEnglish = true;
+                englishBlob += (englishBlob ? "\n\n" : "") + text.trim();
+              }
+            }
+            if (text && text.trim()) {
+              combined += (combined ? "\n\n" : "") + normalizeImportedText(text.trim(), file.name);
+            }
+          }
+          throwIfCancelled(token);
+          if (combined.trim()) {
+            setPages(combined, files.map((f) => f.name).join("、"));
+            openReader();
+            if (sawEnglish) {
+              pendingEnSource = englishBlob || combined;
+              openEnToZhChoice(pendingEnSource);
+              setStatus("已辨識英文，請選逐句或全文中文翻譯", "");
+            } else {
+              setStatus("已就緒（可再按「重新輸入其他檔案」換檔）", "");
+            }
+          } else if (sawPicture) {
+            setStatus("已改走圖搜（幾乎無文字）", "warn");
+          } else {
+            setStatus("沒有讀到文字", "err");
+          }
+          endJob(token);
+        } catch (err) {
+          endJob(token, { force: true });
+          if (err && (err.cancelled || err.name === "AbortError" || /已取消/.test(err.message || ""))) {
+            setStatus("已取消匯入，可重新輸入其他檔案", "warn");
+            clearFileInputs();
+            return;
+          }
+          console.error(err);
+          setStatus((err && err.message) || "讀取失敗", "err");
+          alert("讀取失敗：" + ((err && err.message) || err));
+        } finally {
+          clearFileInputs();
+        }
+      }
+
+      // —— Insight / 節錄重點 ——
+      const SPIRIT_WORDS = ["靈命", "身心靈", "感恩", "轉念", "去我", "懺悔", "祈禱", "靜心", "慈悲", "愛", "平安", "信心", "修行", "弟子規", "富有", "太陽心法", "參悟", "渡人", "共修", "祝福", "寬恕", "謙卑"];
+      const MATH_WORDS = ["數學", "方程式", "分數", "整數", "坐標", "幾何", "統計", "康軒", "習作", "段考", "解題", "證明", "函數", "比例", "因式", "代數", "圖形", "面積", "體積"];
+      const HYGIENE_WORDS = ["衛生", "掃具", "整潔", "清潔", "消毒", "防疫", "班級", "環境", "垃圾桶", "洗手", "保健", "巡查", "垃圾", "廁所", "安全"];
+
+      function pickSentences(text) {
+        return String(text || "")
+          .split(/(?<=[。！？；\n])/)
+          .map((s) => s.replace(/\s+/g, " ").trim())
+          .filter((s) => s.length >= 8 && s.length <= 80);
+      }
+
+      function scoreSentence(s, words) {
+        let n = 0;
+        words.forEach((w) => { if (s.includes(w)) n += 1; });
+        return n;
+      }
+
+      function topFor(words, sentences, n) {
+        return sentences
+          .map((s) => ({ s, score: scoreSentence(s, words) }))
+          .filter((x) => x.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, n)
+          .map((x) => x.s);
+      }
+
+      function localInsight(fullText) {
+        const sentences = pickSentences(fullText);
+        const spiritHits = topFor(SPIRIT_WORDS, sentences, 4);
+        const mathHits = topFor(MATH_WORDS, sentences, 4);
+        const hygieneHits = topFor(HYGIENE_WORDS, sentences, 4);
+        const overview = sentences.slice(0, 3);
+
+        const advice = {
+          spirit: [],
+          math: [],
+          hygiene: [],
+          other: []
+        };
+
+        advice.spirit.push("【貢獻】把吸收轉成「身心靈提升｜靈命持續成長」：選 1 句最觸動的話，寫入今日心得或秒秒轉念。");
+        if (spiritHits.length) {
+          advice.spirit.push("【建議】把文中靈命相關句，排入今日14樣（寫心得／轉念／去我）其中一項，當天落實。");
+          advice.spirit.push("【建議】睡前用 1 分鐘複誦那句話，讓靈命更新 overnight。");
+        } else {
+          advice.spirit.push("【建議】本文靈命關鍵較少：仍做 3 分鐘靜心或聽「富有／注入彩虹」，把吸收轉成更新。");
+        }
+
+        if (mathHits.length) {
+          advice.math.push("【貢獻】文中數學概念可對應明天課堂：用「以終為始」先定學習目標，再設計 1 個學生能說清楚的例子。");
+          advice.math.push("【建議】小任務：找出易錯點 → 出 2 題精準練習 → 課末代回檢查（要事第一）。");
+        } else {
+          advice.math.push("【建議】若此文非數學：仍可練「知彼解己」——問學生哪裡卡住，再決定明天例題或分組互助。");
+          advice.math.push("【建議】把「讀完→摘要→行動」流程示範給學生，當後設認知（學習如何學習）。");
+        }
+
+        if (hygieneHits.length) {
+          advice.hygiene.push("【貢獻】文中整潔／衛生要點可轉成巡查清單：人（誰負責）、時（何時）、地（何處）、物（掃具）。");
+          advice.hygiene.push("【建議】今天做一項 Q1：確認一處掃具櫃或班級整潔死角，並拍照／備忘存證。");
+        } else {
+          advice.hygiene.push("【建議】雖非衛生專文，可用「營造」：讀後整理桌面／教室一角 5 分鐘，讓環境服務身心。");
+          advice.hygiene.push("【建議】檢查本週衛生組待辦是否有「重要但不緊急」可提前做（預防勝於救火）。");
+        }
+
+        advice.other.push("【建議】收工一句話：「我學到什麼、我明天要做什麼」，並可疊加到七習慣今日紀錄。");
+        if (overview.length) {
+          advice.other.push("【可分享】給同仁或學生的一句話：" + overview[0].slice(0, 48));
+        }
+
+        return {
+          source: "local",
+          overview: overview,
+          quotes: { spirit: spiritHits, math: mathHits, hygiene: hygieneHits },
+          advice
+        };
+      }
+
+      async function geminiInsight(fullText, apiKey) {
+        const prompt =
+          "你是一位同時關注身心靈成長、國中數學教學、校園衛生組工作的顧問。\n" +
+          "使用者剛看完或聽完一段文字，請「節錄重點」，用繁體中文條列，結構必須包含：\n" +
+          "1) 文意摘要（3點）\n" +
+          "2) 對身心靈／靈命成長的貢獻與建議（3點；標【貢獻】或【建議】）\n" +
+          "3) 對數學課程教學的貢獻與建議（2-3點；若無關請給可遷移的教學建議）\n" +
+          "4) 對衛生組工作的貢獻與建議（2-3點；若無關請給環境／服務面建議）\n" +
+          "5) 其他可立即行動的一小步（2點）\n" +
+          "語氣務實、可執行，首要宗旨是身心靈提升與靈命持續成長。\n\n【原文】\n" +
+          fullText.slice(0, 12000);
+
+        const models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
+        let lastErr = null;
+        for (const model of models) {
+          try {
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
+              encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(apiKey);
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ role: "user", parts: [{ text: prompt }] }]
+              })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error((data.error && data.error.message) || ("HTTP " + res.status));
+            const text = (((data.candidates || [])[0] || {}).content || {}).parts
+              ? data.candidates[0].content.parts.map((p) => p.text || "").join("")
+              : "";
+            if (!text.trim()) throw new Error("空回覆");
+            return { source: "gemini", model, text: text.trim() };
+          } catch (e) {
+            lastErr = e;
+          }
+        }
+        throw lastErr || new Error("Gemini 失敗");
+      }
+
+      function renderInsight(insight) {
+        const box = document.getElementById("insightBox");
+        const el = document.getElementById("insightContent");
+        lastInsight = insight;
+        box.hidden = false;
+        const speakBtn = document.getElementById("btnSpeakInsight");
+        if (speakBtn) speakBtn.disabled = false;
+        if (insight.source === "gemini") {
+          el.innerHTML = `<p class="hint">來源：Gemini（${insight.model || ""}）</p><pre style="white-space:pre-wrap;font:inherit;">${escapeHtml(insight.text)}</pre>`;
+        } else {
+          const a = insight.advice;
+          el.innerHTML =
+            `<p class="hint">來源：本機節錄（可再搭配 Gemini 加強）</p>` +
+            sectionHtml("文意摘要", insight.overview) +
+            sectionHtml("文中與身心靈相關（節錄句）", insight.quotes.spirit) +
+            sectionHtml("文中與數學相關（節錄句）", insight.quotes.math) +
+            sectionHtml("文中與衛生相關（節錄句）", insight.quotes.hygiene) +
+            sectionHtml("① 身心靈／靈命｜貢獻與建議", a.spirit) +
+            sectionHtml("② 數學課程｜貢獻與建議", a.math) +
+            sectionHtml("③ 衛生組工作｜貢獻與建議", a.hygiene) +
+            sectionHtml("④ 其他方面｜可立即行動", a.other);
+        }
+        try { box.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) {}
+      }
+
+      function sectionHtml(title, lines) {
+        if (!lines || !lines.length) return `<h4>${title}</h4><p class="hint">（暫無直接對應句，已給通則建議）</p>`;
+        return `<h4>${title}</h4><ul>${lines.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function insightToSpeakText(insight) {
+        if (!insight) return "";
+        if (insight.source === "gemini") {
+          return "節錄重點與建議。" + String(insight.text || "").replace(/\s+/g, " ").slice(0, 1800);
+        }
+        const a = insight.advice || {};
+        const parts = ["節錄重點與建議。"];
+        if (insight.overview && insight.overview.length) {
+          parts.push("文意摘要：" + insight.overview.join("；"));
+        }
+        parts.push("身心靈與靈命：" + (a.spirit || []).join("；"));
+        parts.push("數學課程：" + (a.math || []).join("；"));
+        parts.push("衛生組工作：" + (a.hygiene || []).join("；"));
+        parts.push("其他：" + (a.other || []).join("；"));
+        return parts.filter(Boolean).join("。");
+      }
+
+      function speakInsight() {
+        if (!lastInsight) {
+          alert("請先按「節錄重點與建議」");
+          return;
+        }
+        continuous = false;
+        speakText(insightToSpeakText(lastInsight));
+      }
+
+      async function buildInsight(opts) {
+        opts = opts || {};
+        if (!pages.length) {
+          alert("尚無文件內容");
+          return;
+        }
+        const full = pages.join("\n");
+        setStatus(opts.fromListen ? "聽完了，正在節錄重點…" : "正在節錄重點…", "warn");
+        const local = localInsight(full);
+        const key = (document.getElementById("geminiKey").value || "").trim() || localStorage.getItem(DOC_KEY) || localStorage.getItem(GEMINI_KEY) || "";
+        if (key) {
+          try {
+            const g = await geminiInsight(full, key);
+            renderInsight(g);
+            setStatus(opts.fromListen ? "已聽完並用 Gemini 節錄重點" : "已用 Gemini 節錄重點", "");
+            if (opts.autoSpeak) speakInsight();
+            return;
+          } catch (e) {
+            console.warn(e);
+            renderInsight(local);
+            setStatus("Gemini 失敗，已改用本機節錄：" + (e.message || e), "warn");
+            if (opts.autoSpeak) speakInsight();
+            return;
+          }
+        }
+        renderInsight(local);
+        setStatus(opts.fromListen ? "已聽完並完成本機節錄重點" : "已完成本機節錄重點", "");
+        if (opts.autoSpeak) speakInsight();
+      }
+
+      function addInsightToHabits() {
+        if (!lastInsight) {
+          alert("請先按「節錄重點與建議」");
+          return;
+        }
+        let text = "";
+        if (lastInsight.source === "gemini") {
+          text = "【看書文件節錄】" + String(lastInsight.text || "").replace(/\s+/g, " ").slice(0, 280);
+        } else {
+          const a = lastInsight.advice || {};
+          const bits = [].concat(a.spirit || [], a.math || [], a.hygiene || [], a.other || []).slice(0, 4);
+          text = "【看書文件節錄｜靈命為首】" + bits.join("／");
+        }
+        try {
+          const raw = localStorage.getItem(HABITS_KEY);
+          const today = todayKey();
+          let state = raw ? JSON.parse(raw) : { date: today, items: [], archive: {} };
+          if (!state || state.date !== today) {
+            if (state && state.date && Array.isArray(state.items) && state.items.length) {
+              state.archive = state.archive || {};
+              state.archive[state.date] = state.items;
+            }
+            state = { date: today, items: [], lastCourse: state.lastCourse || null, archive: state.archive || {} };
+          }
+          state.items = Array.isArray(state.items) ? state.items : [];
+          state.items.push({
+            id: Date.now() + "-doc",
+            habitId: 7,
+            quadId: 2,
+            text: text,
+            minutes: 15,
+            at: new Date().toISOString(),
+            source: "doc-reader"
+          });
+          localStorage.setItem(HABITS_KEY, JSON.stringify(state));
+          try {
+            localStorage.setItem("habits7-refresh-ping", String(Date.now()));
+            window.dispatchEvent(new CustomEvent("habits7-updated", { detail: { source: "doc-reader" } }));
+          } catch (e) {}
+          alert("已疊加到七習慣「今日紀錄」（習慣7不斷更新／Ⅱ象限）。可回七習慣 App 查看／再編輯。");
+        } catch (e) {
+          alert("寫入失敗：" + e.message);
+        }
+      }
+
+      // events
+      document.getElementById("fileImage").addEventListener("change", (e) => {
+        handleFiles(e.target.files, { replace: true });
+        e.target.value = "";
+      });
+      document.getElementById("fileDoc").addEventListener("change", (e) => {
+        handleFiles(e.target.files, { replace: true });
+        e.target.value = "";
+      });
+      document.getElementById("btnPaste").addEventListener("click", () => {
+        if (!guardAction()) return;
+        const ta = document.getElementById("pasteTextArea");
+        if (ta) ta.value = "";
+        document.getElementById("pasteOverlay").hidden = false;
+        setTimeout(() => { if (ta) ta.focus(); }, 200);
+      });
+      document.getElementById("btnPasteCancel").addEventListener("click", () => {
+        document.getElementById("pasteOverlay").hidden = true;
+      });
+      document.getElementById("btnPasteConfirm").addEventListener("click", () => {
+        if (!guardAction()) return;
+        const t = (document.getElementById("pasteTextArea").value || "").trim();
+        if (!t) {
+          setStatus("請先貼上文字", "warn");
+          return;
+        }
+        document.getElementById("pasteOverlay").hidden = true;
+        cancelCurrentJob("改為貼上文字");
+        resetImportedContent();
+        setPages(t, "貼上文字");
+        openReader();
+        if (!offerEnglishInputChoice(t)) setStatus("已貼上文字", "");
+      });
+      document.getElementById("btnCancelInput").addEventListener("click", () => {
+        cancelCurrentJob("已取消輸入／處理");
+        clearFileInputs();
+        setStatus("已取消。可按「重新輸入其他檔案」再選。", "warn");
+      });
+      document.getElementById("btnReinput").addEventListener("click", () => {
+        const kind = confirm("要選「照片／圖片」嗎？\n\n按「確定」＝拍照／選圖\n按「取消」＝選 PDF／文字檔")
+          ? "image"
+          : "doc";
+        reinputOtherFiles(kind);
+      });
+      document.getElementById("btnCancelUrl").addEventListener("click", () => {
+        cancelCurrentJob("已取消網頁讀取");
+      });
+      document.getElementById("btnCancelAll").addEventListener("click", () => {
+        cancelCurrentJob("已取消目前工作");
+      });
+      document.getElementById("btnFetchUrl").addEventListener("click", handleFetchUrl);
+      document.getElementById("articleUrl").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleFetchUrl();
+        }
+      });
+
+      document.getElementById("btnOpenReader").addEventListener("click", openReader);
+      document.getElementById("btnClear").addEventListener("click", () => {
+        cancelCurrentJob("已清除");
+        resetImportedContent();
+        clearFileInputs();
+        const urlEl = document.getElementById("articleUrl");
+        if (urlEl) urlEl.value = "";
+        setStatus("已清除，可重新輸入其他檔案", "warn");
+      });
+      document.getElementById("btnCloseReader").addEventListener("click", closeReader);
+      document.getElementById("btnPrev").addEventListener("click", () => {
+        if (pageIndex > 0) { pageIndex -= 1; renderPage(); }
+      });
+      document.getElementById("btnNext").addEventListener("click", () => {
+        if (pageIndex < pages.length - 1) { pageIndex += 1; renderPage(); }
+      });
+      document.getElementById("btnSpeakPage").addEventListener("click", () => {
+        continuous = false;
+        speakLang = "zh";
+        speakCurrentPage(false);
+      });
+      document.getElementById("btnSpeakAll").addEventListener("click", () => {
+        continuous = true;
+        speakLang = "zh";
+        speakCurrentPage(true);
+      });
+      document.getElementById("btnSpeakPageEn").addEventListener("click", () => {
+        continuous = false;
+        speakLang = "en";
+        speakCurrentPage(false);
+      });
+      document.getElementById("btnSpeakAllEn").addEventListener("click", () => {
+        continuous = true;
+        speakLang = "en";
+        speakCurrentPage(true);
+      });
+
+      // 所有 data-tts-pause：暫停後跳出視窗消失（pauseSpeak 內已處理）
+      document.querySelectorAll("[data-tts-pause]").forEach((btn) => {
+        btn.addEventListener("click", pauseSpeak);
+      });
+      document.querySelectorAll("[data-tts-stop]").forEach((btn) => {
+        btn.addEventListener("click", stopSpeak);
+      });
+
+      document.getElementById("btnInsight").addEventListener("click", () => {
+        if (!guardAction()) return;
+        buildInsight();
+      });
+      document.getElementById("btnSpeakInsight").addEventListener("click", speakInsight);
+      document.getElementById("btnAddHabits").addEventListener("click", addInsightToHabits);
+
+      document.getElementById("btnOpenStudy").addEventListener("click", () => {
+        closeEnChoice();
+        openEnChoice();
+      });
+      document.getElementById("btnTranslateToZh").addEventListener("click", () => {
+        pendingEnSource = getStudySourceText();
+        if (!pendingEnSource.trim()) {
+          alert("尚無英文內容可翻譯");
+          return;
+        }
+        openEnToZhChoice(pendingEnSource);
+      });
+      document.getElementById("btnEnZhSentence").addEventListener("click", () => {
+        if (!guardAction()) return;
+        prepareAndOpenStudy("en-zh");
+      });
+      document.getElementById("btnDoEnToZh").addEventListener("click", () => {
+        if (!guardAction()) return;
+        translateEnglishDocument("replace");
+      });
+      document.getElementById("btnShowBothEnZh").addEventListener("click", () => {
+        if (!guardAction()) return;
+        translateEnglishDocument("both");
+      });
+      document.getElementById("btnKeepEnOnly").addEventListener("click", closeEnToZh);
+      document.getElementById("btnCloseEnToZh").addEventListener("click", closeEnToZh);
+
+      document.getElementById("btnImgSearchSpeak").addEventListener("click", () => {
+        if (!guardAction()) return;
+        const t = lastImgSearchText || document.getElementById("imgSearchBody").textContent || "";
+        if (!t.trim()) return;
+        speakText(t, null, { lang: "zh-TW" });
+      });
+      document.getElementById("btnImgSearchGoogle").addEventListener("click", () => openExternalImageSearch("google"));
+      document.getElementById("btnImgSearchBing").addEventListener("click", () => openExternalImageSearch("bing"));
+      document.getElementById("btnImgSearchYandex").addEventListener("click", () => openExternalImageSearch("yandex"));
+      document.getElementById("btnCloseImgSearch").addEventListener("click", closeImgSearch);
+
+      document.getElementById("btnModeBilingual").addEventListener("click", () => {
+        if (!guardAction()) return;
+        const mode = document.getElementById("btnModeBilingual").dataset.mode || "bilingual";
+        prepareAndOpenStudy(mode);
+      });
+      document.getElementById("btnModeFullEn").addEventListener("click", () => {
+        if (!guardAction()) return;
+        const mode = document.getElementById("btnModeFullEn").dataset.mode || "full-en";
+        if (mode === "full-zh") translateEnglishDocument("replace");
+        else prepareAndOpenStudy(mode);
+      });
+      document.getElementById("btnModeSkip").addEventListener("click", closeEnChoice);
+      document.getElementById("btnCloseEnChoice").addEventListener("click", closeEnChoice);
+      document.getElementById("btnCloseStudy").addEventListener("click", closeStudy);
+      document.getElementById("btnStudySpeak").addEventListener("click", () => {
+        if (!guardAction()) return;
+        speakStudy();
+      });
+      document.getElementById("btnStudySwitchBi").addEventListener("click", () => {
+        if (!guardAction()) return;
+        const lang = detectContentLang(getStudySourceText());
+        prepareAndOpenStudy(lang === "en" ? "en-zh" : "bilingual", { speak: false });
+      });
+      document.getElementById("btnStudySwitchEn").addEventListener("click", () => {
+        if (!guardAction()) return;
+        const lang = detectContentLang(getStudySourceText());
+        if (lang === "en") translateEnglishDocument("replace");
+        else prepareAndOpenStudy("full-en", { speak: false });
+      });
+
+      const pageTextEl = document.getElementById("pageText");
+      const studyBodyEl = document.getElementById("studyBody");
+
+      bindSelectionAction(document.getElementById("btnLookupSel"), pageTextEl, "page", (t) => {
+        if (!t) { setReaderStatus("請先圈選，等綠色「已記住圈選」出現", "warn"); return; }
+        lookupSelectionFrom(pageTextEl, "page");
+      });
+      bindSelectionAction(document.getElementById("btnSpeakSel"), pageTextEl, "page", (t) => {
+        if (!t) { setReaderStatus("請先圈選文字", "warn"); return; }
+        const isEn = /^[A-Za-z]/.test(t) && !/[\u4e00-\u9fff]/.test(t);
+        speakText(t, () => setReaderStatus("圈選文字讀誦完成", "ok"), isEn ? { lang: "en-US" } : { lang: "zh-TW" });
+      });
+      document.getElementById("btnClearSel").addEventListener("click", () => {
+        try { window.getSelection().removeAllRanges(); } catch (e) {}
+        selectionCache.page = "";
+        selectionCache.ts = 0;
+        refreshSelPreview("page");
+        hideSelBars();
+        setReaderStatus("已取消圈選", "");
+      });
+      bindSelectionAction(document.getElementById("btnStudyLookupSel"), studyBodyEl, "study", (t) => {
+        if (!t) { setStatus("請先圈選生字或詞句", "warn"); return; }
+        lookupSelectionFrom(studyBodyEl, "study");
+      });
+      bindSelectionAction(document.getElementById("btnStudySpeakSel"), studyBodyEl, "study", (t) => {
+        if (!t) { setStatus("請先圈選文字", "warn"); return; }
+        speakText(t, null, { lang: "en-US" });
+      });
+
+      document.addEventListener("selectionchange", () => {
+        if (pageTextEl && !document.getElementById("readerOverlay").hidden) {
+          scheduleCapture(pageTextEl, "page");
+        }
+        if (studyBodyEl && !document.getElementById("studyOverlay").hidden) {
+          scheduleCapture(studyBodyEl, "study");
+        }
+      });
+
+      pageTextEl.addEventListener("mouseup", () => scheduleCapture(pageTextEl, "page"));
+      pageTextEl.addEventListener("touchend", () => scheduleCapture(pageTextEl, "page"));
+      pageTextEl.addEventListener("click", (e) => {
+        const w = e.target && e.target.closest && e.target.closest("[data-word]");
+        if (w && w.getAttribute("data-word")) onWordClick(w.getAttribute("data-word"));
+      });
+      studyBodyEl.addEventListener("mouseup", () => scheduleCapture(studyBodyEl, "study"));
+      studyBodyEl.addEventListener("touchend", () => scheduleCapture(studyBodyEl, "study"));
+      studyBodyEl.addEventListener("click", (e) => {
+        const w = e.target && e.target.closest && e.target.closest("[data-word]");
+        if (w && w.getAttribute("data-word")) onWordClick(w.getAttribute("data-word"));
+      });
+
+      document.getElementById("btnDefSpeak").addEventListener("click", () => {
+        if (!guardAction()) return;
+        if (!lastWord) return;
+        speakDefinition(lastWord, { closeAfter: false });
+      });
+      document.getElementById("btnCloseDef").addEventListener("click", closeDefWindow);
+      document.getElementById("btnDefOpenWeb").addEventListener("click", () => {
+        const term = (lastWord && (lastWord.word || lastWord.term)) || "";
+        const url = (lastWord && lastWord.webUrl) ||
+          (term
+            ? (/[\u4e00-\u9fff]/.test(term)
+              ? "https://www.moedict.tw/" + encodeURIComponent(term)
+              : "https://www.google.com/search?q=" + encodeURIComponent(term + " definition"))
+            : "https://www.moedict.tw/");
+        window.open(url, "_blank", "noopener");
+      });
+      document.getElementById("btnWordSpeak").addEventListener("click", () => {
+        if (!guardAction()) return;
+        if (lastWord) speakDefinition(lastWord, { closeAfter: false });
+      });
+      document.getElementById("btnWordClose").addEventListener("click", hideWordPopup);
+
+      document.getElementById("btnSaveKey").addEventListener("click", () => {
+        const k = document.getElementById("geminiKey").value.trim();
+        if (k) localStorage.setItem(DOC_KEY, k);
+        else localStorage.removeItem(DOC_KEY);
+        alert(k ? "已記住金鑰（僅此裝置）" : "已清除本頁金鑰");
+      });
+
+      // 讀誦結束不再自動關閉視窗；僅按「暫停／取消讀誦」或「關閉視窗」才關
+
+      // preload key
+      try {
+        const k = localStorage.getItem(DOC_KEY) || localStorage.getItem(GEMINI_KEY) || "";
+        if (k) document.getElementById("geminiKey").value = k;
+      } catch (e) {}
+
+      syncCancelButtons();
+
+      // 電腦版 life-desk 可遠端暫停／取消讀誦
+      window.addEventListener("message", (ev) => {
+        const t = ev && ev.data && ev.data.type;
+        if (t === "life-desk-stop-speak") stopSpeak();
+        if (t === "life-desk-pause-speak") pauseSpeak();
+      });
+
+      if (window.TtsVoices) {
+        window.TtsVoices.bindVoicePicker({
+          speak: (t) => speakText(t)
+        });
+      }
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js?v=9").then((reg) => {
+          reg.update().catch(() => {});
+        }).catch(() => {});
+      }
+    })();
+  </script>
+</body>
+</html>

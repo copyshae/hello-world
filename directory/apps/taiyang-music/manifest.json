@@ -1,0 +1,35 @@
+{
+  "id": "/-/taiyang-music/",
+  "name": "太陽盛德導師｜歌曲連播",
+  "short_name": "盛德歌曲",
+  "description": "太陽盛德導師歌曲連播與 KTV：大字幕、伴唱、唱完評分與練唱建議。可加入主畫面。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fff8e8",
+  "theme_color": "#c45a10",
+  "lang": "zh-Hant",
+  "categories": ["music", "education"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "taiyang-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "taiyang-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "taiyang-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

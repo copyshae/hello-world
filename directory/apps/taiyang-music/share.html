@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45a10" />
+  <meta name="apple-mobile-web-app-title" content="盛德歌曲" />
+  <link rel="apple-touch-icon" href="taiyang-icon-180.png?v=20260829" sizes="180x180" />
+  <link rel="manifest" href="manifest.json?v=20260829" />
+  <title>加入主畫面｜盛德歌曲</title>
+  <style>
+    :root { --accent: #c45a10; --muted: #7a5c3a; }
+    body { font-family: "PingFang TC", "Noto Sans TC", sans-serif; margin: 0; padding: 2rem 1.2rem; background: #fff8e8; color: #3a2208; line-height: 1.6; }
+    .wrap { max-width: 22rem; margin: 0 auto; text-align: center; }
+    h1 { color: var(--accent); font-size: 1.45rem; }
+    p, ol { text-align: left; color: var(--muted); font-size: 0.92rem; }
+    .icon { width: 5.5rem; height: 5.5rem; border-radius: 1.1rem; margin: 1rem auto 0; }
+    a.btn { display: block; margin-top: 1rem; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 1rem; border-radius: 0.35rem; }
+    .url { margin-top: 0.75rem; padding: 0.75rem; background: #fff; font-size: 0.8rem; word-break: break-all; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>盛德歌曲 KTV<br />加入主畫面</h1>
+    <img class="icon" src="taiyang-icon-192.png?v=20260829" alt="盛德歌曲圖示" />
+    <p>太陽盛德導師歌曲連播：注入彩虹、富有各 3 次；KTV 大字幕、伴唱、唱完評分與練唱建議。</p>
+    <div class="url" id="url">https://copyshae.github.io/-/taiyang-music/</div>
+    <a class="btn" id="open" href="./index.html">打開盛德歌曲 KTV</a>
+    <ol>
+      <li>iPhone：Safari 開啟上方網址 → 分享 → 加入主畫面（圖示名稱：盛德歌曲）</li>
+      <li>Android：Chrome 開啟 → ⋮ → 加入主畫面或安裝應用程式</li>
+    </ol>
+  </div>
+  <script>
+    var u = location.href.replace(/share\.html.*$/, "");
+    if (u.indexOf("http") !== 0) u = "https://copyshae.github.io/-/taiyang-music/";
+    document.getElementById("url").textContent = u;
+    document.getElementById("open").href = u;
+  </script>
+</body>
+</html>

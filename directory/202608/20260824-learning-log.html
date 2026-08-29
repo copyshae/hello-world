@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>20260824 學習日誌・弟子規 41 集 PWA（蔡禮旭老師 · 1.75／2 倍速）</title>
+  <title>20260824 學習日誌・太陽盛德導師歌曲連播 PWA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
@@ -72,11 +72,11 @@
       <a href="../../index.html">← 首頁</a>
       <a href="../index.html">← 學習日誌</a>
       <a href="./index.html">← 日誌列表</a>
-      <a href="../apps/dizigui-41/">開啟弟子規 41 集</a>
+      <a href="../apps/taiyang-music/">開啟盛德歌曲連播</a>
     </nav>
     <article>
-      <h1>20260824 弟子規 41 集 PWA（蔡禮旭老師 · 1.75／2 倍速）</h1>
-      <p class="lead">接日誌 <a class="inline" href="./20260823-learning-log.html">0823 看書／看文件</a>。本日新增蔡禮旭老師《細講弟子規》第 1～41 集手機 PWA：可選 1.75 倍或 2 倍速連播，加入主畫面後像獨立 App 使用。</p>
+      <h1>20260824 太陽盛德導師歌曲連播 PWA</h1>
+      <p class="lead">接日誌 <a class="inline" href="./20260823-learning-log.html">0823 弟子規 41 集</a>。本日新增太陽盛德導師歌曲連播手機 PWA：依天圓文化曲庫自動排播放順序，可加入主畫面離線快取。</p>
 
       <div class="callout"><strong>手機立刻可開（免開電腦）：</strong><br />
         <a class="inline" href="https://copyshae.github.io/-/directory/202608/20260824-learning-log.html">https://copyshae.github.io/-/directory/202608/20260824-learning-log.html</a><br />
@@ -86,31 +86,29 @@
 
       <h2>一｜入口</h2>
       <ul>
-        <li>主版（dash Pages）：<a class="inline" href="https://copyshae.github.io/-/dizigui-41/">https://copyshae.github.io/-/dizigui-41/</a></li>
-        <li>加入主畫面說明：<a class="inline" href="https://copyshae.github.io/-/dizigui-41/share.html">https://copyshae.github.io/-/dizigui-41/share.html</a></li>
-        <li>hello-world 鏡像：<a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/dizigui-41/">https://copyshae.github.io/hello-world/directory/apps/dizigui-41/</a></li>
-        <li>習作工具主頁：<a class="inline" href="https://copyshae.github.io/-/">https://copyshae.github.io/-/</a> →「打開弟子規41集」</li>
-        <li>來源：<code>docs/dizigui-41/</code>（集數清單 <code>episodes.js</code>）</li>
+        <li>主版：<a class="inline" href="https://copyshae.github.io/-/taiyang-music/">https://copyshae.github.io/-/taiyang-music/</a></li>
+        <li>分享／加入主畫面：<a class="inline" href="https://copyshae.github.io/-/taiyang-music/share.html">https://copyshae.github.io/-/taiyang-music/share.html</a></li>
+        <li>hello-world 鏡像：<a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/taiyang-music/">https://copyshae.github.io/hello-world/directory/apps/taiyang-music/</a></li>
+        <li>來源：<code>docs/taiyang-music/</code>（曲庫 <code>catalog.json</code>）</li>
       </ul>
-      <h2>二｜播放與倍速</h2>
+      <h2>二｜播放順序</h2>
       <ul>
-        <li>第 1～41 集清單；點選單集或「從第 1 集開始連播」。</li>
-        <li>倍速：原速、1.75×、2×；偏好存本機。</li>
-        <li>YouTube 嵌入播放；可暫停、上一集／下一集。</li>
+        <li>① 〈注入彩虹〉×3 → ② 〈富有〉×3 → ③ 導師親唱各×1 → ④ 其他演唱者各×1。</li>
+        <li>分類欄位 <code>performer</code>：<code>master</code>（導師親唱）或 <code>other</code>（其他演唱者）；App 可篩選。</li>
       </ul>
-      <h2>三｜加入主畫面</h2>
+      <h2>三｜曲庫更新</h2>
       <ul>
-        <li>Safari／Chrome →「加入主畫面」；圖示為弟子規卷軸（<code>dizigui-icon-*.png</code>）。</li>
-        <li>修正 iPhone 仍顯示七習慣「7」圖示的快取：圖示檔名獨立、SW 網路優先、版本參數強制更新。</li>
+        <li><code>scripts/build-taiyang-catalog.py</code> 以 yt-dlp 搜尋 YouTube 更新曲庫。</li>
+        <li>App 內「更新曲庫」；每週一 GitHub Actions（<code>update-taiyang-catalog.yml</code>）自動更新。</li>
       </ul>
 
       <p class="note">
         hello-world：
         <a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260824-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260824-learning-log.html</a>
         ｜App：
-        <a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/dizigui-41/">https://copyshae.github.io/hello-world/directory/apps/dizigui-41/</a>
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/taiyang-music/">https://copyshae.github.io/hello-world/directory/apps/taiyang-music/</a>
         ｜上一則：
-        <a class="inline" href="./20260823-learning-log.html">0823 看書／看文件（doc-reader）</a>
+        <a class="inline" href="./20260823-learning-log.html">0823 弟子規 41 集 PWA</a>
       </p>
     </article>
   </div>

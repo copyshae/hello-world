@@ -1,0 +1,2475 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1b6b5a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="七習慣" />
+  <meta name="description" content="口說或打字輸入人事時地物，歸類到七個好習慣與時間象限；康軒國一數學上課給每日建議。" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>七個好習慣分類</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #14352e;
+      --muted: #4a6b62;
+      --paper: #e8f4ef;
+      --accent: #1b6b5a;
+      --line: rgba(27, 107, 90, 0.22);
+      --q1: #b42318;
+      --q2: #1b6b5a;
+      --q3: #b54708;
+      --q4: #667085;
+      --ok: #0e7a4c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: "Noto Sans TC", "PingFang TC", sans-serif;
+      color: var(--ink);
+      line-height: 1.55;
+      background:
+        radial-gradient(ellipse 90% 55% at 50% -10%, rgba(180, 230, 210, 0.9), transparent 60%),
+        linear-gradient(180deg, #f3faf7 0%, #dceee6 55%, #c9e2d7 100%);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1.1rem 1rem 2.6rem; }
+    header { text-align: center; animation: rise 0.5s ease-out both; }
+    .brand {
+      font-family: "Noto Serif TC", "Songti TC", serif;
+      font-size: clamp(1.55rem, 7vw, 2rem);
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+    .sub { margin-top: 0.35rem; color: var(--muted); font-size: 0.9rem; }
+    .pill-row {
+      margin-top: 0.75rem;
+      display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;
+    }
+    .pill {
+      font-size: 0.78rem; color: var(--accent);
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 0.25rem 0.6rem;
+    }
+    .tabs {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 0.35rem;
+    }
+    .tabs button {
+      font: inherit; cursor: pointer;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.55);
+      color: var(--muted);
+      padding: 0.55rem 0.25rem;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+    .tabs button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .panel { display: none; margin-top: 1rem; animation: rise 0.4s ease-out both; }
+    .panel.show { display: block; }
+    .card {
+      background: rgba(255,252,248,0.82);
+      border: 1px solid var(--line);
+      padding: 0.95rem 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+    .card h2 {
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.05rem;
+      color: var(--accent);
+      margin-bottom: 0.55rem;
+    }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin: 0.55rem 0 0.25rem;
+      font-weight: 600;
+    }
+    input, textarea, select {
+      width: 100%;
+      font: inherit;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      padding: 0.55rem 0.65rem;
+      border-radius: 0;
+    }
+    textarea { min-height: 4.2rem; resize: vertical; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .actions {
+      margin-top: 0.85rem;
+      display: flex; flex-wrap: wrap; gap: 0.45rem;
+    }
+    button.btn {
+      font: inherit; cursor: pointer;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.75);
+      color: var(--accent);
+      padding: 0.55rem 0.85rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    button.btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    button.btn.danger { color: var(--q1); }
+    button.btn.recording {
+      background: var(--q1);
+      color: #fff;
+      border-color: var(--q1);
+    }
+    .hint { margin-top: 0.45rem; font-size: 0.78rem; color: var(--muted); }
+    .voice-card h2 { font-size: 1rem; }
+    .voice-picker label {
+      display: block; font-size: 0.8rem; font-weight: 700; margin: 0.4rem 0 0.2rem; color: var(--muted);
+    }
+    .voice-picker select {
+      width: 100%;
+    }
+    .voice-picker .actions { margin-top: 0.55rem; }
+    .result {
+      display: none;
+      margin-top: 0.85rem;
+      padding: 0.85rem;
+      border-left: 4px solid var(--accent);
+      background: rgba(27,107,90,0.08);
+    }
+    .result.show { display: block; }
+    .result .tag, .d14-list .tag {
+      display: inline-block;
+      margin: 0.2rem 0.3rem 0.2rem 0;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .result .tag.q1, .d14-list .tag.q1 { border-color: var(--q1); color: var(--q1); }
+    .result .tag.q2, .d14-list .tag.q2 { border-color: var(--q2); color: var(--q2); }
+    .result .tag.q3, .d14-list .tag.q3 { border-color: var(--q3); color: var(--q3); }
+    .result .tag.q4, .d14-list .tag.q4 { border-color: var(--q4); color: var(--q4); }
+    .result strong { color: var(--accent); }
+    .matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      margin-top: 0.65rem;
+      font-size: 0.75rem;
+    }
+    .matrix div {
+      padding: 0.45rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.65);
+      min-height: 2.6rem;
+    }
+    .matrix .on { outline: 2px solid var(--accent); background: rgba(27,107,90,0.12); font-weight: 700; }
+    .history { list-style: none; margin-top: 0.5rem; }
+    .history li {
+      padding: 0.7rem 0.65rem 0.55rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.65);
+      margin-bottom: 0.5rem;
+      font-size: 0.88rem;
+    }
+    .history .meta { color: var(--muted); font-size: 0.75rem; margin-top: 0.25rem; }
+    .history .row-main { min-width: 0; cursor: pointer; }
+    .history .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.55rem;
+      padding-top: 0.45rem;
+      border-top: 1px dashed var(--line);
+    }
+    .history .item-actions button {
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--accent);
+      padding: 0.42rem 0.7rem;
+      min-height: 2.15rem;
+    }
+    .history .item-actions button.edit {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      flex: 1 1 5rem;
+    }
+    .history .item-actions button.del {
+      background: var(--q1);
+      color: #fff;
+      border-color: var(--q1);
+      flex: 1 1 5rem;
+    }
+    .history .item-actions button.speak-one,
+    .history .item-actions button.speak-from {
+      background: #0b5cab;
+      color: #fff;
+      border-color: #0b5cab;
+      flex: 1 1 5rem;
+    }
+    .history .item-actions button.voice-edit {
+      flex: 1 1 5rem;
+    }
+    .history .item-actions button:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .chart-card .chart-wrap {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 0.55rem;
+    }
+    @media (min-width: 360px) {
+      .chart-card .chart-wrap {
+        grid-template-columns: 9.5rem 1fr;
+      }
+    }
+    .chart-card svg { width: 9.5rem; height: 9.5rem; margin: 0 auto; display: block; }
+    .chart-legend { list-style: none; font-size: 0.82rem; }
+    .chart-legend li {
+      display: flex; align-items: center; gap: 0.4rem;
+      margin: 0.35rem 0; flex-wrap: wrap;
+    }
+    .chart-legend .swatch {
+      width: 0.75rem; height: 0.75rem; border-radius: 2px; flex-shrink: 0;
+    }
+    .chart-legend .swatch.q1 { background: var(--q1); }
+    .chart-legend .swatch.q2 { background: var(--q2); }
+    .chart-legend .swatch.q3 { background: var(--q3); }
+    .chart-legend .swatch.q4 { background: var(--q4); }
+    .chart-empty { color: var(--muted); font-size: 0.82rem; }
+    .mins-input {
+      width: 3.2rem; font: inherit; font-size: 0.78rem;
+      border: 1px solid var(--line); padding: 0.15rem 0.25rem; margin-left: 0.25rem;
+    }
+    .edit-overlay {
+      position: fixed; inset: 0; z-index: 80;
+      background: rgba(20, 40, 35, 0.45);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 1rem;
+    }
+    .edit-overlay[hidden] { display: none !important; }
+    .edit-sheet {
+      width: min(28rem, 100%);
+      max-height: min(90vh, 40rem);
+      overflow: auto;
+      background: #f7fcf9;
+      border: 1px solid var(--line);
+      padding: 1rem 0.95rem 1.1rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    }
+    .edit-sheet h3 {
+      font-size: 1.05rem; color: var(--accent); margin-bottom: 0.55rem;
+    }
+    .edit-sheet label {
+      display: block; font-size: 0.8rem; font-weight: 700;
+      color: var(--muted); margin: 0.45rem 0 0.2rem;
+    }
+    .edit-sheet textarea, .edit-sheet select, .edit-sheet input[type="number"] {
+      width: 100%; font: inherit; padding: 0.5rem 0.55rem;
+      border: 1px solid var(--line); background: #fff;
+    }
+    .edit-sheet textarea { min-height: 5.5rem; resize: vertical; }
+    .edit-sheet .actions { margin-top: 0.85rem; justify-content: flex-end; }
+    @media (min-width: 520px) {
+      .edit-overlay { align-items: center; }
+    }
+    .d14-list { list-style: none; margin-top: 0.55rem; }
+    .d14-list li {
+      padding: 0.75rem 0.7rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+      margin-bottom: 0.45rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .d14-list li:active { transform: scale(0.99); }
+    .d14-list .num {
+      display: inline-grid; place-items: center;
+      width: 1.55rem; height: 1.55rem; border-radius: 50%;
+      background: var(--accent); color: #fff; font-size: 0.78rem; font-weight: 700;
+      margin-right: 0.35rem;
+    }
+    .d14-list .title { font-weight: 700; font-size: 0.92rem; }
+    .d14-list .map {
+      margin-top: 0.35rem; font-size: 0.78rem; color: var(--muted);
+      display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center;
+    }
+    .filters {
+      display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem;
+    }
+    .filters button {
+      font: inherit; font-size: 0.75rem; cursor: pointer;
+      border: 1px solid var(--line); background: #fff; color: var(--muted);
+      padding: 0.28rem 0.5rem;
+    }
+    .filters button.on {
+      background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700;
+    }
+    .suggest-box {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.7rem;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--line);
+    }
+    .suggest-box h3 {
+      font-size: 0.92rem;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+    .suggest-box ol {
+      margin: 0.25rem 0 0.55rem 1.15rem;
+      font-size: 0.88rem;
+    }
+    .suggest-box li { margin: 0.28rem 0; }
+    .suggest-chips {
+      display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem;
+    }
+    .suggest-chips button {
+      font: inherit; font-size: 0.78rem; cursor: pointer;
+      border: 1px solid var(--accent); background: #fff; color: var(--accent);
+      padding: 0.35rem 0.55rem; font-weight: 600;
+    }
+    .course-tip {
+      margin-top: 0.75rem;
+      padding: 0.85rem;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--line);
+    }
+    .course-tip h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 0.35rem; }
+    .install {
+      margin-top: 0.85rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-left: 3px solid var(--accent);
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.4);
+      text-align: left;
+    }
+    footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--accent); }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">七個好習慣分類</h1>
+      <p class="sub"><strong>首要：身心靈提升｜靈命持續成長</strong><br />數學教師／衛生組長｜人事時地物 → 習慣＋象限（為靈命服務）</p>
+      <div class="pill-row">
+        <span class="pill" id="todayLabel">—</span>
+        <span class="pill" id="countPill">今日 0 筆</span>
+        <span class="pill">14樣＝習慣＋Ⅰ重要且緊急</span>
+      </div>
+    </header>
+
+    <div class="install" id="installTip">
+      <strong>手機主畫面直接開：</strong>
+      <div class="actions" style="margin-top:0.55rem;">
+        <button type="button" class="btn primary" id="installBtn">加入主畫面</button>
+      </div>
+      <p class="hint" id="installHow" style="margin-top:0.45rem;">
+        iPhone：Safari 開本頁 → 下方「分享」→「加入主畫面」。<br />
+        Android：Chrome 開本頁 → 右上選單 →「安裝應用程式」或「加入主畫面」。<br />
+        捷徑名稱「七習慣」，與「每日14樣功課」分開兩顆圖示。
+      </p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" id="tabClassify" data-tab="classify">做事歸類</button>
+      <button type="button" class="active" id="tabDaily14" data-tab="daily14">14樣對照</button>
+      <button type="button" id="tabCourse" data-tab="course">今天上課</button>
+      <a class="tab-link" id="tabDocReader" href="../doc-reader/" style="display:grid;place-items:center;text-decoration:none;border:1px solid var(--accent);background:rgba(27,107,90,0.12);color:var(--accent);padding:0.55rem 0.2rem;font-weight:800;font-size:0.78rem;">看書文件</a>
+    </div>
+
+    <div class="card voice-card" id="voicePickerCard" style="margin-top:0.75rem;">
+      <h2>讀誦聲音（男聲／女聲）</h2>
+      <div class="voice-picker">
+        <label for="ttsGender">性別偏好</label>
+        <select id="ttsGender">
+          <option value="F">女聲（好聽優先）</option>
+          <option value="M">男聲模式（明顯低沉）</option>
+          <option value="all">全部中文語音</option>
+        </select>
+        <label for="ttsVoice">選擇聲音</label>
+        <select id="ttsVoice"></select>
+        <div class="actions">
+          <button type="button" class="btn" id="ttsPreview">試聽此聲音</button>
+        </div>
+        <p class="hint" id="ttsVoiceHint">iPhone 若仍見「男聲效果｜美佳」代表舊快取：請選「男聲模式・超低沉（建議）」並強制重新整理。</p>
+      </div>
+    </div>
+
+    <!-- 做事歸類 -->
+    <section class="panel" id="panelClassify">
+      <div class="card">
+        <h2>輸入一件事（可口說）</h2>
+        <label for="who">人（誰）</label>
+        <input id="who" placeholder="例：一年甲班、衛生股長、家長" autocomplete="off" />
+        <div class="row2">
+          <div>
+            <label for="when">時</label>
+            <input id="when" placeholder="例：午休、第三節" autocomplete="off" />
+          </div>
+          <div>
+            <label for="where">地</label>
+            <input id="where" placeholder="例：教室、保健室" autocomplete="off" />
+          </div>
+        </div>
+        <label for="what">事／物（做什麼）</label>
+        <textarea id="what" placeholder="例：批改康軒七上 1-2 習作；巡視掃具櫃；與導師協調班級整潔競賽"></textarea>
+        <label for="freeText">或整段口述／打字</label>
+        <textarea id="freeText" placeholder="例：第三節要上康軒七上整數加減，學生常弄反符號；午休要巡掃具櫃"></textarea>
+        <div class="actions">
+          <button type="button" class="btn" id="voiceBtn">🎤 口說輸入</button>
+          <button type="button" class="btn primary" id="classifyBtn">歸類＋給建議</button>
+          <button type="button" class="btn" id="clearBtn">清空</button>
+        </div>
+        <p class="hint" id="voiceHint">輸入後按「歸類＋給建議」：會顯示習慣、象限，以及可執行的建議項目（可一鍵疊加）。</p>
+      </div>
+
+      <div class="result" id="resultBox" aria-live="polite">
+        <div><strong>習慣：</strong><span id="habitOut">—</span></div>
+        <div style="margin-top:0.35rem;"><strong>象限：</strong><span id="quadOut">—</span></div>
+        <div class="matrix" id="matrix" aria-hidden="true">
+          <div data-q="1">Ⅰ 重要且緊急</div>
+          <div data-q="2">Ⅱ 重要不緊急</div>
+          <div data-q="3">Ⅲ 不重要但緊急</div>
+          <div data-q="4">Ⅳ 不重要不緊急</div>
+        </div>
+        <p class="hint" id="reasonOut" style="margin-top:0.55rem;"></p>
+        <div class="suggest-box" id="suggestBox" hidden>
+          <h3>給你的建議（依這件事）</h3>
+          <ol id="suggestList"></ol>
+          <p class="hint" id="suggestWhy"></p>
+          <p class="hint" style="margin-top:0.45rem;"><strong>可一鍵加入相關行動：</strong></p>
+          <div class="suggest-chips" id="suggestChips"></div>
+        </div>
+        <p class="hint" id="saveFlash" style="margin-top:0.35rem;color:var(--ok);font-weight:700;display:none;"></p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="saveBtn">歸類並疊加到今日紀錄</button>
+          <button type="button" class="btn" id="suggestOnlyBtn">只看建議不存檔</button>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <h2>四象限時間比例</h2>
+        <p class="hint">依今日各筆「分鐘」加總畫圓餅圖（預設每筆 15 分鐘，可在紀錄列修改）。</p>
+        <div class="chart-wrap">
+          <div id="quadChartA" aria-label="四象限圓餅圖"></div>
+          <ul class="chart-legend" id="quadLegendA"></ul>
+        </div>
+        <p class="hint" id="quadSummaryA"></p>
+      </div>
+
+      <div class="card" id="finalAdviceCardA">
+        <h2>今日最後建議</h2>
+        <p class="hint">以<strong>身心靈提升、靈命持續成長</strong>為首要。依你重整後的今日紀錄（順序／象限／習慣）自動產生收工建議。</p>
+        <ol id="finalAdviceListA" style="margin:0.5rem 0 0.5rem 1.2rem;font-size:0.9rem;"></ol>
+        <p class="hint" id="finalAdviceEmptyA">尚無紀錄時無法產生最後建議。</p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="refreshAdviceBtnA">依目前紀錄重整建議</button>
+          <button type="button" class="btn" id="speakAdviceBtnA">🔊 讀誦全部建議</button>
+          <button type="button" class="btn" id="saveAdviceBtnA">把最後建議疊加進今日紀錄</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>今日紀錄 <span id="historyCountA" style="font-size:0.85rem;color:var(--muted);font-weight:500;"></span></h2>
+        <ul class="history" id="historyList"></ul>
+        <p class="hint" id="historyEmpty">尚無紀錄。可連續輸入下一件事再按「歸類並疊加」。每筆皆可<strong>編輯／刪除／念這筆／語音改</strong>，也可<strong>一起念</strong>。</p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="speakTodayBtn">🔊 一起念全部</button>
+          <button type="button" class="btn" id="pauseSpeakBtn" data-tts-pause>⏸ 暫停</button>
+          <button type="button" class="btn" id="stopSpeakBtn" data-tts-stop>取消讀誦</button>
+        </div>
+        <p class="hint" data-tts-status hidden style="margin-top:0.35rem;color:var(--ok);font-weight:700;"></p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="exportJsonBtn">匯出 JSON</button>
+          <button type="button" class="btn primary" id="importJsonBtn">匯入 JSON</button>
+          <button type="button" class="btn" id="exportCsvBtn">匯出 CSV</button>
+          <button type="button" class="btn" id="importCsvBtn">匯入 CSV</button>
+          <button type="button" class="btn" id="exportTxtBtn">匯出 TXT</button>
+          <button type="button" class="btn" id="importTxtBtn">匯入 TXT</button>
+          <button type="button" class="btn" id="exportMdBtn">匯出 MD</button>
+          <button type="button" class="btn" id="importMdBtn">匯入 MD</button>
+          <button type="button" class="btn" id="copyJsonBtn">複製當日 JSON</button>
+          <button type="button" class="btn danger" id="clearHistoryBtn">清空今日紀錄</button>
+        </div>
+        <input type="file" id="importFile" accept="application/json,.json,text/csv,.csv,text/plain,.txt,.md,text/markdown" hidden />
+        <p class="hint" style="margin-top:0.45rem;">匯出／匯入格式對應：<strong>JSON、CSV、TXT、MD</strong>（檔名含日期如 habits7-20260826.json）。可 LINE／AirDrop／雲端互傳；匯入可選<strong>合併</strong>或<strong>覆蓋</strong>今日紀錄。</p>
+      </div>
+    </section>
+
+    <!-- 14樣功課 → 七習慣＋象限對照（勾選仍在 daily-14 App） -->
+    <section class="panel show" id="panelDaily14">
+      <div class="card">
+        <h2>14樣功課 × 習慣 × 象限</h2>
+        <p class="hint">點一項＝對照習慣／象限，並<strong>自動疊加</strong>到今日紀錄（可連續點多項）。14 項一律Ⅰ重要且緊急。勾選完成仍用「每日14樣功課」App。</p>
+        <div class="filters" id="d14Filters" aria-label="篩選">
+          <button type="button" class="on" data-filter="all">全部</button>
+          <button type="button" data-filter="h1">習1</button>
+          <button type="button" data-filter="h2">習2</button>
+          <button type="button" data-filter="h3">習3</button>
+          <button type="button" data-filter="h4">習4</button>
+          <button type="button" data-filter="h5">習5</button>
+          <button type="button" data-filter="h6">習6</button>
+          <button type="button" data-filter="h7">習7</button>
+          <button type="button" data-filter="q1">Ⅰ 重要且緊急</button>
+        </div>
+        <ul class="d14-list" id="d14List"></ul>
+        <p class="hint" style="margin-top:0.55rem;">
+          開啟勾選 App：
+          <a href="../daily-14/" id="daily14Link">每日14樣功課</a>
+        </p>
+      </div>
+      <div class="result" id="d14Result" aria-live="polite">
+        <div><strong>選中：</strong><span id="d14PickTitle">—</span></div>
+        <div style="margin-top:0.35rem;"><strong>習慣：</strong><span id="d14HabitOut">—</span></div>
+        <div style="margin-top:0.35rem;"><strong>象限：</strong><span id="d14QuadOut">—</span></div>
+        <div class="matrix" id="d14Matrix" aria-hidden="true">
+          <div data-q="1">Ⅰ 重要且緊急</div>
+          <div data-q="2">Ⅱ 重要不緊急</div>
+          <div data-q="3">Ⅲ 不重要但緊急</div>
+          <div data-q="4">Ⅳ 不重要不緊急</div>
+        </div>
+        <p class="hint" id="d14Why" style="margin-top:0.55rem;"></p>
+        <p class="hint" id="d14SaveFlash" style="margin-top:0.35rem;color:var(--ok);font-weight:700;display:none;"></p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="d14SaveBtn">再疊加一次同一項</button>
+        </div>
+      </div>
+      <div class="card chart-card">
+        <h2>四象限時間比例</h2>
+        <p class="hint">依今日各筆「分鐘」加總畫圓餅圖（預設每筆 15 分鐘，可在紀錄列修改）。</p>
+        <div class="chart-wrap">
+          <div id="quadChartB" aria-label="四象限圓餅圖"></div>
+          <ul class="chart-legend" id="quadLegendB"></ul>
+        </div>
+        <p class="hint" id="quadSummaryB"></p>
+      </div>
+
+      <div class="card" id="finalAdviceCardB">
+        <h2>今日最後建議</h2>
+        <p class="hint">以<strong>身心靈提升、靈命持續成長</strong>為首要，依重整後的今日紀錄產生。</p>
+        <ol id="finalAdviceListB" style="margin:0.5rem 0 0.5rem 1.2rem;font-size:0.9rem;"></ol>
+        <p class="hint" id="finalAdviceEmptyB">尚無紀錄時無法產生最後建議。</p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="refreshAdviceBtnB">依目前紀錄重整建議</button>
+          <button type="button" class="btn" id="speakAdviceBtnB">🔊 讀誦全部建議</button>
+          <button type="button" class="btn" id="saveAdviceBtnB">把最後建議疊加進今日紀錄</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>今日紀錄 <span id="historyCountB" style="font-size:0.85rem;color:var(--muted);font-weight:500;"></span></h2>
+        <ul class="history" id="historyListB"></ul>
+        <p class="hint" id="historyEmptyB">尚無紀錄。點上方任一項即可疊加。每筆皆可<strong>編輯／刪除／念這筆／語音改</strong>，也可<strong>一起念</strong>。</p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="speakTodayBtnB">🔊 一起念全部</button>
+          <button type="button" class="btn" id="pauseSpeakBtnB" data-tts-pause>⏸ 暫停</button>
+          <button type="button" class="btn" id="stopSpeakBtnB" data-tts-stop>取消讀誦</button>
+        </div>
+        <p class="hint" data-tts-status hidden style="margin-top:0.35rem;color:var(--ok);font-weight:700;"></p>
+        <div class="actions">
+          <button type="button" class="btn primary" id="exportJsonBtnB">匯出 JSON</button>
+          <button type="button" class="btn primary" id="importJsonBtnB">匯入 JSON</button>
+          <button type="button" class="btn" id="exportCsvBtnB">匯出 CSV</button>
+          <button type="button" class="btn" id="importCsvBtnB">匯入 CSV</button>
+          <button type="button" class="btn" id="exportTxtBtnB">匯出 TXT</button>
+          <button type="button" class="btn" id="importTxtBtnB">匯入 TXT</button>
+          <button type="button" class="btn" id="exportMdBtnB">匯出 MD</button>
+          <button type="button" class="btn" id="importMdBtnB">匯入 MD</button>
+          <button type="button" class="btn danger" id="clearHistoryBtnB">清空今日紀錄</button>
+        </div>
+        <p class="hint" style="margin-top:0.45rem;">匯出幾種格式，匯入也支援對應格式（JSON／CSV／TXT／MD）。</p>
+      </div>
+    </section>
+
+    <!-- 上課建議 -->
+    <section class="panel" id="panelCourse">
+      <div class="card">
+        <h2>今天要上什麼（康軒國一數學）</h2>
+        <label for="semester">學期</label>
+        <select id="semester">
+          <option value="7a">七上</option>
+          <option value="7b">七下</option>
+        </select>
+        <label for="unit">單元</label>
+        <select id="unit"></select>
+        <label for="courseNote">補充（可口說後貼上）</label>
+        <textarea id="courseNote" placeholder="例：今晚段考複習；學生對負數加減易混"></textarea>
+        <div class="actions">
+          <button type="button" class="btn" id="courseVoiceBtn">🎤 口說補充</button>
+          <button type="button" class="btn primary" id="suggestBtn">產生每日建議</button>
+        </div>
+      </div>
+      <div class="course-tip" id="courseTip" hidden>
+        <h3 id="courseTitle">—</h3>
+        <p id="courseHabit"></p>
+        <p id="courseQuad" style="margin-top:0.35rem;"></p>
+        <p id="courseBody" style="margin-top:0.55rem;"></p>
+        <p class="hint" id="courseExtra" style="margin-top:0.45rem;"></p>
+      </div>
+      <div class="card" style="margin-top:0.75rem;">
+        <h2>七個好習慣速查</h2>
+        <ol id="habitLegend" style="margin-left:1.2rem;font-size:0.88rem;"></ol>
+      </div>
+    </section>
+
+    <footer>
+      <p>資料只存在這支手機瀏覽器。14樣功課的「勾選」與「習慣／象限對照」分開。</p>
+      <p style="margin-top:0.35rem;">
+        <a id="homeLink" href="../">回上一層</a>
+        ｜
+        <a href="../doc-reader/">看書／看文件</a>
+        ｜
+        <a id="logLink" href="https://copyshae.github.io/-/directory/202608/20260823-learning-log.html">學習日誌 0823</a>
+      </p>
+    </footer>
+  </div>
+
+  <div id="editOverlay" class="edit-overlay" hidden>
+    <div class="edit-sheet" role="dialog" aria-modal="true" aria-labelledby="editDialogTitle">
+      <h3 id="editDialogTitle">再次修改這筆紀錄</h3>
+      <input type="hidden" id="editItemId" />
+      <label for="editText">內容（可打字或語音）</label>
+      <textarea id="editText" placeholder="直接打字修改，或按下方麥克風口說"></textarea>
+      <div class="actions" style="margin-top:0.45rem;">
+        <button type="button" class="btn" id="editVoiceBtn">🎤 語音修改</button>
+        <button type="button" class="btn" id="editClearTextBtn">清空內容</button>
+        <button type="button" class="btn" id="editReclassifyBtn">依內容重判習慣／象限</button>
+      </div>
+      <p class="hint" id="editVoiceHint">打字：點內容框直接改。語音：按「語音修改」後說話，辨識結果會加到內容後方。</p>
+      <label for="editHabit">七習慣</label>
+      <select id="editHabit"></select>
+      <label for="editQuad">時間象限</label>
+      <select id="editQuad">
+        <option value="1">Ⅰ 重要且緊急</option>
+        <option value="2">Ⅱ 重要不緊急</option>
+        <option value="3">Ⅲ 不重要但緊急</option>
+        <option value="4">Ⅳ 不重要不緊急</option>
+      </select>
+      <label for="editMinutes">分鐘</label>
+      <input id="editMinutes" type="number" min="1" max="480" step="1" />
+      <p class="hint">儲存後會立刻更新今日紀錄、圓餅圖與最後建議。每筆都可反覆修改。</p>
+      <div class="actions">
+        <button type="button" class="btn" id="editCancelBtn">取消</button>
+        <button type="button" class="btn primary" id="editSaveBtn">儲存修改</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./tts-voices.js?v=21"></script>
+  <script>
+    const TZ = "Asia/Taipei";
+    const STORAGE_KEY = "habits7-v1";
+
+    const HABITS = [
+      { id: 1, name: "主動積極", en: "Be Proactive", tip: "擴大影響圈，先做自己能決定的事" },
+      { id: 2, name: "以終為始", en: "Begin with the End in Mind", tip: "先想學習目標與成果再設計活動" },
+      { id: 3, name: "要事第一", en: "Put First Things First", tip: "把重要不緊急的備課與預防放前面" },
+      { id: 4, name: "雙贏思維", en: "Think Win-Win", tip: "學生、導師、處室都能接受的解法" },
+      { id: 5, name: "知彼解己", en: "Seek First to Understand", tip: "先聽學生／同仁再說自己的要求" },
+      { id: 6, name: "統合綜效", en: "Synergize", tip: "跨班、跨處室合作創造更好方案" },
+      { id: 7, name: "不斷更新", en: "Sharpen the Saw", tip: "身心靈更新為首——身體、心智、人際、心靈，服務靈命成長" }
+    ];
+
+    const QUADS = {
+      1: { name: "第一象限｜重要且緊急", short: "Ⅰ 重要且緊急", cls: "q1", advise: "立刻處理，但事後要檢討如何減少緊急。" },
+      2: { name: "第二象限｜重要不緊急", short: "Ⅱ 重要不緊急", cls: "q2", advise: "高效能核心：備課、預防、關係、健康。" },
+      3: { name: "第三象限｜不重要但緊急", short: "Ⅲ 不重要但緊急", cls: "q3", advise: "能委派就委派，或縮短處理時間。" },
+      4: { name: "第四象限｜不重要不緊急", short: "Ⅳ 不重要不緊急", cls: "q4", advise: "能刪就刪，保護第二象限時間。" }
+    };
+
+    const UNITS = {
+      "7a": [
+        { id: "7a-1-1", label: "1-1 負數與數線" },
+        { id: "7a-1-2", label: "1-2 整數的加減" },
+        { id: "7a-1-3", label: "1-3 整數的乘除與四則運算" },
+        { id: "7a-1-4", label: "1-4 指數記法與科學記號" },
+        { id: "7a-2-1", label: "2-1 因數與倍數" },
+        { id: "7a-2-2", label: "2-2 最大公因數與最小公倍數" },
+        { id: "7a-2-3", label: "2-3 分數的四則運算" },
+        { id: "7a-2-4", label: "2-4 指數律" },
+        { id: "7a-3-1", label: "3-1 以符號列式與運算" },
+        { id: "7a-3-2", label: "3-2 一元一次方程式的列式與求解" },
+        { id: "7a-3-3", label: "3-3 一元一次方程式應用問題" }
+      ],
+      "7b": [
+        { id: "7b-1-1", label: "1-1 二元一次聯立方程式" },
+        { id: "7b-1-2", label: "1-2 解二元一次聯立方程式" },
+        { id: "7b-1-3", label: "1-3 應用問題" },
+        { id: "7b-2-1", label: "2-1 直角坐標平面" },
+        { id: "7b-2-2", label: "2-2 二元一次方程式的圖形" },
+        { id: "7b-3-1", label: "3-1 比例式" },
+        { id: "7b-3-2", label: "3-2 正比與反比" },
+        { id: "7b-4-1", label: "4-1 認識一元一次不等式" },
+        { id: "7b-4-2", label: "4-2 解一元一次不等式" },
+        { id: "7b-5-1", label: "5-1 統計圖表與資料分析" },
+        { id: "7b-6-1", label: "6-1 垂直、線對稱與三視圖" }
+      ]
+    };
+
+    /* 康軒單元 → 每日一則建議（連結七習慣＋象限） */
+    const COURSE_TIPS = {
+      "7a-1-1": { h: 2, q: 2, focus: "先畫清「數線終點」：正負方向與原點意義", do: "開場用溫度／電梯故事，讓學生說出「方向」再寫數字。" },
+      "7a-1-2": { h: 5, q: 2, focus: "先聽學生錯誤類型（符號搞反）再示範", do: "蒐集三個典型錯題，請學生互講「我哪裡弄反了」。" },
+      "7a-1-3": { h: 3, q: 2, focus: "要事：先穩四則順序，再加速計算", do: "課堂前 8 分鐘只練「先乘除後加減＋括號」。" },
+      "7a-1-4": { h: 1, q: 2, focus: "主動用科學記號連結真實數據", do: "請學生找一則新聞大數字，改寫成科學記號。" },
+      "7a-2-1": { h: 6, q: 2, focus: "分組找因數，統合不同拆法", do: "兩組用不同方法拆同一數，比對結果是否一致。" },
+      "7a-2-2": { h: 4, q: 2, focus: "雙贏：公約數／公倍數都「剛好夠用」", do: "用「排隊間隔／切蛋糕」故事對照 GCD／LCM。" },
+      "7a-2-3": { h: 3, q: 1, focus: "易錯又常考：先穩通分再比快", do: "今日只攻「異分母加減」三題精準，不趕進度。" },
+      "7a-2-4": { h: 7, q: 2, focus: "用指數律整理舊知，更新記憶", do: "請學生用自己的話寫「三條指數律口訣」。" },
+      "7a-3-1": { h: 2, q: 2, focus: "以終為始：先想「式子要表達什麼」", do: "每題先說人話，再翻成代數式。" },
+      "7a-3-2": { h: 3, q: 2, focus: "要事：等號兩邊平衡的檢查習慣", do: "解完必代回驗證，當成課堂儀式。" },
+      "7a-3-3": { h: 5, q: 2, focus: "應用題先理解情境再列式", do: "禁止立刻寫 x；先圈關鍵句 30 秒。" },
+      "7b-1-1": { h: 2, q: 2, focus: "先定義「兩個未知數要同時滿足」", do: "用價錢／數量雙條件，對照一條不夠。" },
+      "7b-1-2": { h: 6, q: 2, focus: "消元／代入兩法並陳，統合優點", do: "同題兩組各用一法，互相檢查答案。" },
+      "7b-1-3": { h: 4, q: 2, focus: "應用雙贏：題意與答案都要合理", do: "解完問「答案有沒有違反題目條件」。" },
+      "7b-2-1": { h: 1, q: 2, focus: "主動在校園找坐標（座位圖）", do: "用班級座位當第一象限練習。" },
+      "7b-2-2": { h: 2, q: 2, focus: "圖形終點：斜率與截距意義先講", do: "先畫再算，避免只背公式。" },
+      "7b-3-1": { h: 3, q: 2, focus: "比例式：先對應關係再交叉相乘", do: "每題先畫對應箭頭。" },
+      "7b-3-2": { h: 5, q: 2, focus: "正比反比先聽生活例子再符號化", do: "請學生各舉一個「變大／變小」例子。" },
+      "7b-4-1": { h: 2, q: 2, focus: "不等式「解的集合」終點要清楚", do: "數線塗色當每題必做步驟。" },
+      "7b-4-2": { h: 3, q: 2, focus: "要事：移項變號規則練熟", do: "今日錯題只收「變號忘了」類型。" },
+      "7b-5-1": { h: 6, q: 2, focus: "統計：班級數據合作產出圖表", do: "分組整理真實小調查，再選最適圖。" },
+      "7b-6-1": { h: 7, q: 2, focus: "幾何觀察力更新：動手摺／畫三視圖", do: "用紙盒實物對照三視圖，拍一張存檔。" }
+    };
+
+    const HABIT_RULES = [
+      { h: 7, words: ["運動", "休息", "進修", "讀書會", "研習", "充電", "睡眠", "健康", "冥想", "反思", "寫心得", "學習日誌", "更新", "富有", "注入彩虹", "太陽心法", "照鏡子", "弟子規"] },
+      { h: 5, words: ["傾聽", "晤談", "輔導", "了解", "訪談", "家長溝通", "同理", "學生說", "先聽", "情緒", "抱怨", "去我"] },
+      { h: 4, words: ["協調", "協商", "雙贏", "共識", "妥協", "合約", "分工", "獎勵", "競賽規則", "渡人", "結緣", "分享"] },
+      { h: 6, words: ["合作", "共備", "跨班", "跨處", "團隊", "統合", "一起", "協同", "夥伴", "共修", "網絡共修"] },
+      { h: 2, words: ["目標", "願景", "期末", "段考規劃", "教案設計", "課程地圖", "以終", "規劃", "計劃", "計畫", "懺悔發願", "參悟空", "營造"] },
+      { h: 3, words: ["備課", "命題", "閱卷", "批改", "預防", "演練", "巡查", "掃具", "整潔", "衛生", "防疫", "健檢", "優先", "要事", "營造生活"] },
+      { h: 1, words: ["主動", "提案", "改善", "先做", "啟動", "發起", "立刻處理", "應變", "轉念", "感恩", "照鏡子", "懺悔"] }
+    ];
+
+    /* 14樣功課 → 習慣＋象限（視為重要且緊急＝第一象限） */
+    const DAILY14_MAP = [
+      { id: 1, title: "每天聆聽「富有」歌曲 3 次", h: 7, q: 1, why: "今日必做的心靈更新：重要且緊急，當天完成。" },
+      { id: 2, title: "每天聆聽「注入彩虹」3 次", h: 7, q: 1, why: "今日必做的情緒充電：重要且緊急，當天完成。" },
+      { id: 3, title: "每天看蔡禮旭老師講解的弟子規", h: 2, q: 1, why: "以終為始的日課：重要且緊急，不可拖到明天。" },
+      { id: 4, title: "懺悔發願（心法步驟一二三）", h: 1, q: 1, why: "主動積極的日課：重要且緊急，當下轉念負責。" },
+      { id: 5, title: "每天寫心得", h: 7, q: 1, why: "心智更新日課：重要且緊急，今日必寫。" },
+      { id: 6, title: "練習秒秒感恩", h: 1, q: 1, why: "主動積極日課：重要且緊急，秒秒練習。" },
+      { id: 7, title: "做到去我", h: 5, q: 1, why: "知彼解己前置日課：重要且緊急，今日落實。" },
+      { id: 8, title: "做太陽心法，每天做 15 分鐘以上", h: 7, q: 1, why: "身體／心靈更新日課：重要且緊急，今日練足。" },
+      { id: 9, title: "每天照鏡子", h: 1, q: 1, why: "自我覺察日課：重要且緊急，今日必做。" },
+      { id: 10, title: "秒秒轉念", h: 1, q: 1, why: "主動積極核心日課：重要且緊急，不可延宕。" },
+      { id: 11, title: "秒秒參悟空", h: 2, q: 1, why: "以終為始日課：重要且緊急，今日參究。" },
+      { id: 12, title: "每天「營造」生活", h: 3, q: 1, why: "要事第一日課：重要且緊急，今日營造。" },
+      { id: 13, title: "參加網絡共修課程", h: 6, q: 1, why: "統合綜效（本週項）：排入今日則視為重要且緊急。", note: "每週一項；今日若已參加可對照" },
+      { id: 14, title: "渡人", h: 4, q: 1, why: "雙贏分享日課：重要且緊急，今日結緣／接引。", note: "增添德資糧，與人分享《超級生命密碼》" }
+    ];
+
+    const Q1_WORDS = ["立刻", "馬上", "緊急", "今天一定", "家長來電", "受傷", "發燒", "缺考補考", "繳交截止", "申報截止", "督學", "檢查今天", "暴衝", "衝突現場", "止血", "富有", "注入彩虹", "弟子規", "懺悔", "寫心得", "感恩", "去我", "太陽心法", "照鏡子", "轉念", "參悟空", "營造", "共修", "渡人", "14樣", "每日14"];
+    const Q2_WORDS = ["備課", "複習計畫", "預防", "關係", "演練", "建檔", "整理掃具", "盤點", "課程設計", "長期", "習慣養成", "健康", "進修", "共備"];
+    const Q3_WORDS = ["臨時會議", "群組訊息", "轉傳", "蓋章", "催繳", "插播", "電話問", "代班臨時", "突然叫去"];
+    const Q4_WORDS = ["滑手機", "閒聊很久", "重覆整理桌面", "無目的瀏覽", "拖延"];
+
+    let lastResult = null;
+    let lastDaily14 = null;
+    let recognition = null;
+    let d14Filter = "all";
+
+    function todayKey() {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit"
+      }).format(new Date());
+    }
+
+    function todayStamp() {
+      return todayKey().replace(/-/g, "");
+    }
+
+    function formatToday() {
+      const parts = new Intl.DateTimeFormat("zh-Hant-TW", {
+        timeZone: TZ, year: "numeric", month: "long", day: "numeric", weekday: "short"
+      }).formatToParts(new Date());
+      const get = (t) => (parts.find((p) => p.type === t) || {}).value || "";
+      return `${get("year")}年${get("month")}${get("day")}日（${get("weekday")}）`;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const today = todayKey();
+        if (!raw) return { date: today, items: [], lastCourse: null, archive: {} };
+        const data = JSON.parse(raw);
+        const archive = (data && data.archive && typeof data.archive === "object") ? data.archive : {};
+        if (!data || data.date !== today) {
+          // 換日：把昨日 items 存進 archive，今日從空開始
+          if (data && data.date && Array.isArray(data.items) && data.items.length) {
+            archive[data.date] = data.items;
+          }
+          return {
+            date: today,
+            items: [],
+            lastCourse: data && data.lastCourse ? data.lastCourse : null,
+            archive
+          };
+        }
+        return {
+          date: data.date,
+          items: Array.isArray(data.items) ? data.items : [],
+          lastCourse: data.lastCourse || null,
+          archive
+        };
+      } catch {
+        return { date: todayKey(), items: [], lastCourse: null, archive: {} };
+      }
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    function stopSpeaking() {
+      if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) {
+        window.TtsVoices.stopSpeakQueue();
+        return;
+      }
+      try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+    }
+
+    function pauseSpeaking() {
+      if (window.TtsVoices && window.TtsVoices.togglePauseSpeakQueue) {
+        window.TtsVoices.togglePauseSpeakQueue();
+        return;
+      }
+      try {
+        if (!window.speechSynthesis) return;
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+        else window.speechSynthesis.pause();
+      } catch (e) {}
+    }
+
+    function pickZhVoice() {
+      if (window.TtsVoices && typeof window.TtsVoices.pickZhVoice === "function") {
+        return window.TtsVoices.pickZhVoice();
+      }
+      try {
+        const voices = window.speechSynthesis.getVoices() || [];
+        return voices.find((v) => /zh-TW|zh_TW|Taiwan/i.test(v.lang + v.name))
+          || voices.find((v) => /zh-CN|zh-HK|zh/i.test(v.lang))
+          || null;
+      } catch (e) { return null; }
+    }
+
+    function speakText(text, opts) {
+      if (!window.speechSynthesis) {
+        alert("此瀏覽器不支援語音讀誦，請用 Chrome／Edge／Safari。");
+        return;
+      }
+      if (window.TtsVoices && window.TtsVoices.speakQueued) {
+        window.TtsVoices.speakQueued(text, opts);
+        return;
+      }
+      stopSpeaking();
+      const settings = (window.TtsVoices && window.TtsVoices.getSpeakSettings)
+        ? window.TtsVoices.getSpeakSettings()
+        : { voice: pickZhVoice(), pitch: 1, rate: 0.95, lang: "zh-TW" };
+      const u = new SpeechSynthesisUtterance(String(text || ""));
+      u.rate = (opts && opts.rate) || settings.rate || 0.95;
+      u.pitch = (opts && opts.pitch) || settings.pitch || 1;
+      if (settings.voice) {
+        u.voice = settings.voice;
+        u.lang = settings.voice.lang || settings.lang || "zh-TW";
+      } else {
+        u.lang = settings.lang || "zh-TW";
+      }
+      window.speechSynthesis.speak(u);
+    }
+
+    function buildItemSpeechLine(item, seq) {
+      const habit = HABITS.find((h) => h.id === item.habitId) || { id: "?", name: "未知" };
+      const quad = QUADS[item.quadId] || { short: "" };
+      const mins = itemMinutes(item);
+      return `第 ${seq} 項。${item.text || "無內容"}。習慣 ${habit.id} ${habit.name}。時間象限：${quad.short || ""}。約 ${mins} 分鐘。`;
+    }
+
+    function speakOneHistoryItem(id) {
+      state = loadState();
+      const items = Array.isArray(state.items) ? state.items : [];
+      const idx = items.findIndex((it) => String(it.id) === String(id));
+      if (idx < 0) return;
+      const seq = idx + 1;
+      speakText(buildItemSpeechLine(items[idx], seq));
+      flashSave("saveFlash", `正在念第 ${seq} 項（可暫停／取消）`);
+      flashSave("d14SaveFlash", `正在念第 ${seq} 項（可暫停／取消）`);
+    }
+
+    function speakFromHistoryItem(id) {
+      state = loadState();
+      const items = Array.isArray(state.items) ? state.items : [];
+      const idx = items.findIndex((it) => String(it.id) === String(id));
+      if (idx < 0) return;
+      const slice = items.slice(idx);
+      const lines = [];
+      lines.push(`從第 ${idx + 1} 項一起念到最後，共 ${slice.length} 筆。`);
+      slice.forEach((it, i) => {
+        lines.push(buildItemSpeechLine(it, idx + 1 + i));
+      });
+      try {
+        const advice = buildFinalAdvice(items);
+        if (advice && advice.length) {
+          lines.push(`以下是今日最後建議，共 ${advice.length} 條。`);
+          advice.forEach((a, i) => lines.push(`建議 ${i + 1}。${a}`));
+        }
+      } catch (e) {}
+      lines.push("一起念結束。");
+      speakText(lines.join(" "));
+      flashSave("saveFlash", `從第 ${idx + 1} 項一起念（可暫停／取消）`);
+      flashSave("d14SaveFlash", `從第 ${idx + 1} 項一起念（可暫停／取消）`);
+    }
+
+    function voiceEditHistoryItem(id) {
+      openEditHistoryItem(id);
+      setTimeout(() => {
+        const btn = document.getElementById("editVoiceBtn");
+        if (btn) startVoice("editText", btn);
+      }, 120);
+    }
+
+    function buildTodaySpeechScript(items) {
+      const list = Array.isArray(items) ? items : [];
+      if (!list.length) return "今日尚無紀錄。";
+      const lines = [];
+      lines.push("以身心靈提升、靈命持續成長為首要。");
+      lines.push(`今天共有 ${list.length} 筆紀錄，現在一起念完全部。`);
+      list.forEach((it, i) => {
+        lines.push(buildItemSpeechLine(it, i + 1));
+      });
+      try {
+        const advice = buildFinalAdvice(list);
+        if (advice && advice.length) {
+          lines.push(`以下是今日最後建議，共 ${advice.length} 條，全部讀完。`);
+          advice.forEach((a, i) => lines.push(`建議 ${i + 1}。${a}`));
+        }
+      } catch (e) {}
+      lines.push("一起念結束。願靈命日日增長，身心平安。");
+      return lines.join(" ");
+    }
+
+    function buildAllAdviceSpeechScript() {
+      state = loadState();
+      const items = Array.isArray(state.items) ? state.items : [];
+      const advice = buildFinalAdvice(items);
+      const lines = [];
+      lines.push("今日全部建議讀誦。以身心靈提升、靈命持續成長為首要。");
+      if (!advice.length) {
+        lines.push("目前尚無建議。請先有今日紀錄後再重整建議。");
+      } else {
+        lines.push(`共 ${advice.length} 條建議，將完整讀完。`);
+        advice.forEach((a, i) => lines.push(`建議 ${i + 1}。${a}`));
+      }
+      lines.push("建議讀誦結束。");
+      return lines.join(" ");
+    }
+
+    function speakAllAdvice() {
+      const script = buildAllAdviceSpeechScript();
+      speakText(script);
+      flashSave("saveFlash", "開始讀誦全部建議（可暫停／取消）");
+      flashSave("d14SaveFlash", "開始讀誦全部建議（可暫停／取消）");
+    }
+
+    function speakTodayRecords() {
+      state = loadState();
+      const items = Array.isArray(state.items) ? state.items : [];
+      if (!items.length) {
+        flashSave("saveFlash", "今日尚無紀錄可讀誦");
+        flashSave("d14SaveFlash", "今日尚無紀錄可讀誦");
+        speakText("今日尚無紀錄。");
+        return;
+      }
+      const script = buildTodaySpeechScript(items);
+      speakText(script);
+      flashSave("saveFlash", `一起念全部 ${items.length} 筆（含建議；可暫停／取消）`);
+      flashSave("d14SaveFlash", `一起念全部 ${items.length} 筆（含建議；可暫停／取消）`);
+    }
+
+    function exportTodayPayload() {
+      state = loadState();
+      return {
+        app: "habits-7",
+        type: "habits7-day",
+        version: 1,
+        date: state.date || todayKey(),
+        dateStamp: todayStamp(),
+        purpose: "身心靈提升｜靈命持續成長",
+        exportedAt: new Date().toISOString(),
+        items: Array.isArray(state.items) ? state.items : [],
+        lastCourse: state.lastCourse || null
+      };
+    }
+
+    function exportTodayJson() {
+      const payload = exportTodayPayload();
+      const name = `habits7-${todayStamp()}.json`;
+      downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), name);
+      flashSave("saveFlash", `已匯出 ${payload.items.length} 筆（${name}）`);
+      flashSave("d14SaveFlash", `已匯出 ${payload.items.length} 筆（${name}）`);
+    }
+
+    function exportTodayCsv() {
+      const payload = exportTodayPayload();
+      const header = ["日期", "序", "內容", "習慣編號", "習慣", "象限", "來源", "時間"];
+      const lines = [header.join(",")];
+      payload.items.forEach((item, i) => {
+        const habit = HABITS.find((h) => h.id === item.habitId) || { id: "", name: "" };
+        const quad = QUADS[item.quadId] || { short: "" };
+        const cells = [
+          payload.date,
+          String(i + 1),
+          `"${String(item.text || "").replace(/"/g, '""')}"`,
+          String(habit.id || item.habitId || ""),
+          `"${String(habit.name || "").replace(/"/g, '""')}"`,
+          `"${String(quad.short || item.quadId || "").replace(/"/g, '""')}"`,
+          item.source || "",
+          item.at || ""
+        ];
+        lines.push(cells.join(","));
+      });
+      const name = `habits7-${todayStamp()}.csv`;
+      // BOM for Excel
+      downloadBlob(new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" }), name);
+      flashSave("saveFlash", `已匯出 CSV ${payload.items.length} 筆`);
+      flashSave("d14SaveFlash", `已匯出 CSV ${payload.items.length} 筆`);
+    }
+
+    function exportTodayTxt() {
+      const payload = exportTodayPayload();
+      const lines = [
+        `七習慣今日紀錄｜${payload.date}`,
+        `宗旨：身心靈提升、靈命持續成長`,
+        `匯出：${payload.exportedAt}`,
+        `筆數：${payload.items.length}`,
+        ""
+      ];
+      payload.items.forEach((it, i) => {
+        const habit = HABITS.find((h) => h.id === it.habitId) || { id: "?", name: "?" };
+        const quad = QUADS[it.quadId] || { short: "?" };
+        lines.push(`#${i + 1} ${it.text || ""}`);
+        lines.push(`  習慣${habit.id} ${habit.name}｜${quad.short}｜${it.minutes || 15}分｜${it.source || ""}`);
+      });
+      const name = `habits7-${todayStamp()}.txt`;
+      downloadBlob(new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" }), name);
+      flashSave("saveFlash", `已匯出 TXT ${payload.items.length} 筆`);
+      flashSave("d14SaveFlash", `已匯出 TXT ${payload.items.length} 筆`);
+    }
+
+    function exportTodayMd() {
+      const payload = exportTodayPayload();
+      const lines = [
+        `# 七習慣今日紀錄`,
+        ``,
+        `- 日期：\`${payload.date}\`（\`${todayStamp()}\`）`,
+        `- 宗旨（首要）：身心靈提升、靈命持續成長`,
+        `- 匯出：${payload.exportedAt}`,
+        `- 筆數：${payload.items.length}`,
+        ``,
+        `| 序 | 內容 | 習慣 | 象限 | 分鐘 | 來源 |`,
+        `| --- | --- | --- | --- | --- | --- |`
+      ];
+      payload.items.forEach((it, i) => {
+        const habit = HABITS.find((h) => h.id === it.habitId) || { id: "?", name: "?" };
+        const quad = QUADS[it.quadId] || { short: "?" };
+        const text = String(it.text || "").replace(/\|/g, "\\|");
+        lines.push(`| ${i + 1} | ${text} | ${habit.id} ${habit.name} | ${quad.short} | ${it.minutes || 15} | ${it.source || ""} |`);
+      });
+      const name = `habits7-${todayStamp()}.md`;
+      downloadBlob(new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" }), name);
+      flashSave("saveFlash", `已匯出 MD ${payload.items.length} 筆`);
+      flashSave("d14SaveFlash", `已匯出 MD ${payload.items.length} 筆`);
+    }
+
+    async function copyTodayJson() {
+      const payload = exportTodayPayload();
+      const text = JSON.stringify(payload, null, 2);
+      try {
+        await navigator.clipboard.writeText(text);
+        flashSave("saveFlash", `已複製當日 JSON（${payload.items.length} 筆）`);
+      } catch {
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        flashSave("saveFlash", `已複製當日 JSON（${payload.items.length} 筆）`);
+      }
+    }
+
+    function normalizeImportItems(rawItems) {
+      if (!Array.isArray(rawItems)) return [];
+      return rawItems.map((it, i) => ({
+        id: it.id || `imp-${Date.now()}-${i}`,
+        habitId: Number(it.habitId) || 3,
+        quadId: Number(it.quadId) || 1,
+        text: String(it.text || it.title || "").trim() || `（無標題第${i + 1}筆）`,
+        minutes: Number(it.minutes) > 0 ? Number(it.minutes) : DEFAULT_MINUTES,
+        at: it.at || new Date().toISOString(),
+        source: it.source || "import"
+      })).filter((it) => it.text);
+    }
+
+    function quadIdFromImportText(s) {
+      const t = String(s || "");
+      if (/Ⅰ|重要且緊急|^1$/.test(t)) return 1;
+      if (/Ⅱ|重要不緊急|^2$/.test(t)) return 2;
+      if (/Ⅲ|不重要但緊急|^3$/.test(t)) return 3;
+      if (/Ⅳ|不重要不緊急|^4$/.test(t)) return 4;
+      return 2;
+    }
+
+    function parseCsvRow(line) {
+      const cols = [];
+      let cur = "";
+      let q = false;
+      for (const ch of line) {
+        if (ch === '"') { q = !q; continue; }
+        if (ch === "," && !q) { cols.push(cur); cur = ""; continue; }
+        cur += ch;
+      }
+      cols.push(cur);
+      return cols;
+    }
+
+    function parseImportCsv(text) {
+      const rows = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/).filter(Boolean);
+      if (rows.length < 2) throw new Error("CSV 沒有資料列");
+      const items = [];
+      for (let i = 1; i < rows.length; i++) {
+        const cols = parseCsvRow(rows[i]);
+        if (cols.length < 4) continue;
+        items.push({
+          text: cols[2],
+          habitId: Number(cols[3]) || 3,
+          quadId: quadIdFromImportText(cols[5] || ""),
+          source: cols[6] || "import",
+          at: cols[7] || new Date().toISOString()
+        });
+      }
+      const dateCol = parseCsvRow(rows[1])[0] || todayKey();
+      return { items, date: /^\d{4}-\d{2}-\d{2}$/.test(dateCol) ? dateCol : todayKey() };
+    }
+
+    function parseImportTxt(text) {
+      const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/);
+      const items = [];
+      let date = todayKey();
+      lines.forEach((line) => {
+        const head = line.match(/七習慣今日紀錄｜(\d{4}-\d{2}-\d{2})/);
+        if (head) date = head[1];
+      });
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        const m = line.match(/^#(\d+)\s+(.+)$/);
+        if (!m) continue;
+        const meta = (lines[i + 1] || "").trim();
+        const habitM = meta.match(/習慣(\d+)/);
+        const minM = meta.match(/(\d+)分/);
+        const parts = meta.split("｜");
+        items.push({
+          text: m[2],
+          habitId: habitM ? Number(habitM[1]) : 3,
+          quadId: quadIdFromImportText(meta),
+          minutes: minM ? Number(minM[1]) : DEFAULT_MINUTES,
+          source: (parts[parts.length - 1] || "import").trim(),
+          at: new Date().toISOString()
+        });
+      }
+      return { items, date };
+    }
+
+    function parseImportMd(text) {
+      const raw = String(text || "").replace(/^\uFEFF/, "");
+      const items = [];
+      let date = todayKey();
+      const dateM = raw.match(/日期[：:]\s*[`']?(\d{4}-\d{2}-\d{2})/);
+      if (dateM) date = dateM[1];
+      raw.split(/\r?\n/).forEach((line) => {
+        if (!/^\|\s*\d+\s*\|/.test(line.trim())) return;
+        const cols = line.split("|").map((c) => c.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
+        if (cols.length < 4) return;
+        const habitM = cols[2].match(/^(\d+)/);
+        items.push({
+          text: cols[1].replace(/\\\|/g, "|"),
+          habitId: habitM ? Number(habitM[1]) : 3,
+          quadId: quadIdFromImportText(cols[3]),
+          minutes: Number(cols[4]) > 0 ? Number(cols[4]) : DEFAULT_MINUTES,
+          source: cols[5] || "import",
+          at: new Date().toISOString()
+        });
+      });
+      return { items, date };
+    }
+
+    function parseImportPayload(text, fileName, formatHint) {
+      const name = String(fileName || "").toLowerCase();
+      const trimmed = String(text || "").trim();
+      let fmt = formatHint || "auto";
+      if (fmt === "auto") {
+        if (name.endsWith(".csv") || trimmed.startsWith("日期,")) fmt = "csv";
+        else if (name.endsWith(".md") || /^#\s*七習慣今日紀錄/m.test(trimmed)) fmt = "md";
+        else if (name.endsWith(".txt") || /^#\d+\s/m.test(trimmed)) fmt = "txt";
+        else fmt = "json";
+      }
+      if (fmt === "csv") return parseImportCsv(text);
+      if (fmt === "txt") return parseImportTxt(text);
+      if (fmt === "md") return parseImportMd(text);
+      return JSON.parse(text);
+    }
+
+    function askImportMode() {
+      if (confirm("匯入到「今日紀錄」\n\n按「確定」＝合併（保留原有＋加入匯入）\n按「取消」＝下一步")) {
+        return "merge";
+      }
+      if (confirm("改為「覆蓋」今日全部紀錄？\n\n確定＝覆蓋\n取消＝中止匯入")) {
+        return "replace";
+      }
+      return null;
+    }
+
+    let pendingImportFormat = "auto";
+
+    function startImport(format) {
+      pendingImportFormat = format || "auto";
+      const input = document.getElementById("importFile");
+      const acceptMap = {
+        json: "application/json,.json",
+        csv: "text/csv,.csv",
+        txt: "text/plain,.txt",
+        md: "text/markdown,.md,text/plain,.txt"
+      };
+      input.accept = acceptMap[pendingImportFormat] || "application/json,.json,text/csv,.csv,text/plain,.txt,.md,text/markdown";
+      input.value = "";
+      input.click();
+    }
+
+    function importTodayData(payload, mode) {
+      state = loadState();
+      let items = [];
+      if (payload && Array.isArray(payload.items)) {
+        items = normalizeImportItems(payload.items);
+      } else if (Array.isArray(payload)) {
+        items = normalizeImportItems(payload);
+      } else if (payload && Array.isArray(payload.days) && payload.days[0]) {
+        items = normalizeImportItems(payload.days[0].items || []);
+      } else {
+        throw new Error("格式不符：需要 { items: [...] } 的 JSON");
+      }
+      if (!items.length) throw new Error("匯入檔沒有任何紀錄");
+
+      if (mode === "replace") {
+        state.items = items;
+      } else {
+        // merge：依 text+habitId+quadId 去重後追加
+        const key = (x) => `${x.text}||${x.habitId}||${x.quadId}`;
+        const have = new Set(state.items.map(key));
+        items.forEach((it) => {
+          if (!have.has(key(it))) {
+            state.items.push(it);
+            have.add(key(it));
+          }
+        });
+      }
+      // 若匯入檔有日期且不是今天，仍合併進「今日」使用，並備份原日到 archive
+      if (payload && payload.date && payload.date !== state.date) {
+        state.archive = state.archive || {};
+        state.archive[payload.date] = items;
+      }
+      if (payload && payload.lastCourse) state.lastCourse = payload.lastCourse;
+      saveState(state);
+      renderHistory();
+      return state.items.length;
+    }
+
+    function onImportFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const text = String(reader.result || "");
+          const payload = parseImportPayload(text, file.name, pendingImportFormat);
+          const mode = askImportMode();
+          if (!mode) {
+            flashSave("saveFlash", "已取消匯入");
+            flashSave("d14SaveFlash", "已取消匯入");
+            return;
+          }
+          const n = importTodayData(payload, mode);
+          flashSave("saveFlash", `匯入完成（${mode === "merge" ? "合併" : "覆蓋"}），今日共 ${n} 筆`);
+          flashSave("d14SaveFlash", `匯入完成，今日共 ${n} 筆`);
+        } catch (err) {
+          alert("匯入失敗：" + (err && err.message ? err.message : String(err)));
+        } finally {
+          pendingImportFormat = "auto";
+        }
+      };
+      reader.readAsText(file, "UTF-8");
+    }
+
+    let state = loadState();
+
+    function combinedText() {
+      const parts = [
+        document.getElementById("who").value,
+        document.getElementById("when").value,
+        document.getElementById("where").value,
+        document.getElementById("what").value,
+        document.getElementById("freeText").value
+      ].map((s) => (s || "").trim()).filter(Boolean);
+      return parts.join(" ");
+    }
+
+    function scoreWords(text, words) {
+      let n = 0;
+      for (const w of words) {
+        if (text.includes(w)) n += 1;
+      }
+      return n;
+    }
+
+    function classifyHabit(text) {
+      let best = { h: 3, score: 0 };
+      for (const rule of HABIT_RULES) {
+        const s = scoreWords(text, rule.words);
+        if (s > best.score) best = { h: rule.h, score: s };
+      }
+      // 教師／衛生背景預設偏要事第一
+      if (best.score === 0) {
+        if (/數學|康軒|習作|上課|教案|批改/.test(text)) return 3;
+        if (/掃具|衛生|整潔|保健|健康/.test(text)) return 3;
+        return 1;
+      }
+      return best.h;
+    }
+
+    function classifyQuad(text) {
+      const s1 = scoreWords(text, Q1_WORDS);
+      const s2 = scoreWords(text, Q2_WORDS);
+      const s3 = scoreWords(text, Q3_WORDS);
+      const s4 = scoreWords(text, Q4_WORDS);
+      const arr = [
+        { q: 1, s: s1 },
+        { q: 2, s: s2 + (s1 === 0 && s3 === 0 && s4 === 0 ? 0.2 : 0) },
+        { q: 3, s: s3 },
+        { q: 4, s: s4 }
+      ].sort((a, b) => b.s - a.s);
+      if (arr[0].s === 0) {
+        // 教學備課、衛生預防偏 Q2；明確「今天截止」偏 Q1
+        if (/今天|立刻|馬上|截止|緊急/.test(text)) return 1;
+        if (/備課|上課|複習|盤點|巡|預防|計劃|計畫/.test(text)) return 2;
+        return 2;
+      }
+      return arr[0].q;
+    }
+
+    function flashSave(elId, msg) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.style.display = "block";
+      el.textContent = msg;
+      clearTimeout(flashSave._t);
+      flashSave._t = setTimeout(() => { el.style.display = "none"; }, 2200);
+    }
+
+    const DEFAULT_MINUTES = 15;
+    let lastFinalAdvice = [];
+
+    function itemMinutes(it) {
+      const m = Number(it && it.minutes);
+      if (Number.isFinite(m) && m > 0) return m;
+      return DEFAULT_MINUTES;
+    }
+
+    function quadStats(items) {
+      const mins = { 1: 0, 2: 0, 3: 0, 4: 0 };
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0 };
+      items.forEach((it) => {
+        const q = Number(it.quadId) || 1;
+        const qq = (q >= 1 && q <= 4) ? q : 1;
+        mins[qq] += itemMinutes(it);
+        counts[qq] += 1;
+      });
+      const total = mins[1] + mins[2] + mins[3] + mins[4];
+      return { mins, counts, total };
+    }
+
+    function pieSlice(cx, cy, r, startAngle, endAngle) {
+      // angles in degrees, 0 at top, clockwise
+      const toXY = (ang) => {
+        const rad = ((ang - 90) * Math.PI) / 180;
+        return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+      };
+      const [x1, y1] = toXY(startAngle);
+      const [x2, y2] = toXY(endAngle);
+      const large = endAngle - startAngle > 180 ? 1 : 0;
+      return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
+    }
+
+    function renderQuadCharts(items) {
+      const stats = quadStats(items);
+      const colors = { 1: "#b42318", 2: "#1b6b5a", 3: "#b54708", 4: "#667085" };
+      const labels = {
+        1: "Ⅰ 重要且緊急",
+        2: "Ⅱ 重要不緊急",
+        3: "Ⅲ 不重要但緊急",
+        4: "Ⅳ 不重要不緊急"
+      };
+
+      function draw(chartId, legendId, summaryId) {
+        const chart = document.getElementById(chartId);
+        const legend = document.getElementById(legendId);
+        const summary = document.getElementById(summaryId);
+        if (!chart || !legend) return;
+
+        if (!items.length || stats.total <= 0) {
+          chart.innerHTML = `<p class="chart-empty">尚無資料可畫圖</p>`;
+          legend.innerHTML = "";
+          if (summary) summary.textContent = "";
+          return;
+        }
+
+        let angle = 0;
+        const paths = [];
+        const nonZero = [1, 2, 3, 4].filter((q) => stats.mins[q] > 0);
+        if (nonZero.length === 1) {
+          const q = nonZero[0];
+          paths.push(`<circle cx="80" cy="80" r="70" fill="${colors[q]}"></circle>`);
+        } else {
+          for (const q of [1, 2, 3, 4]) {
+            const share = stats.mins[q] / stats.total;
+            if (share <= 0) continue;
+            const sweep = share * 360;
+            const end = angle + sweep;
+            paths.push(
+              `<path d="${pieSlice(80, 80, 70, angle, end - 0.001)}" fill="${colors[q]}" stroke="#fff" stroke-width="1"></path>`
+            );
+            angle = end;
+          }
+        }
+        chart.innerHTML =
+          `<svg viewBox="0 0 160 160" role="img" aria-label="四象限時間圓餅圖">` +
+          paths.join("") +
+          `</svg>`;
+
+        legend.innerHTML = [1, 2, 3, 4].map((q) => {
+          const pct = stats.total ? Math.round((stats.mins[q] / stats.total) * 1000) / 10 : 0;
+          return `<li><span class="swatch q${q}"></span><strong>${labels[q]}</strong>：${stats.mins[q]} 分（${pct}%）／${stats.counts[q]} 筆</li>`;
+        }).join("");
+
+        if (summary) {
+          const top = [1, 2, 3, 4].sort((a, b) => stats.mins[b] - stats.mins[a])[0];
+          summary.textContent =
+            `今日合計約 ${stats.total} 分鐘；最多在「${labels[top]}」。高效能目標通常提高Ⅱ、降低ⅢⅣ。`;
+        }
+      }
+
+      draw("quadChartA", "quadLegendA", "quadSummaryA");
+      draw("quadChartB", "quadLegendB", "quadSummaryB");
+      return stats;
+    }
+
+    function buildFinalAdvice(items) {
+      if (!items.length) return [];
+      const stats = quadStats(items);
+      const advice = [];
+      const pct = (q) => (stats.total ? Math.round((stats.mins[q] / stats.total) * 100) : 0);
+      const blob = items.map((it) => it.text || "").join(" ");
+      const isSpirit = (it) =>
+        it.source === "daily14" ||
+        /富有|注入彩虹|弟子規|懺悔|心得|感恩|去我|太陽心法|照鏡子|轉念|參悟空|營造|共修|渡人|靈命|身心靈|祈禱|讀經|靜心/.test(it.text || "");
+
+      advice.push("首要宗旨：一切安排服務於「身心靈提升、靈命持續成長」——事務再忙，靈命日課不可被擠掉。");
+
+      const spiritIdx = items.map((it, i) => (isSpirit(it) ? i : -1)).filter((i) => i >= 0);
+      if (!spiritIdx.length) {
+        advice.push("今日紀錄尚無明顯靈命日課：請立刻把「14樣功課」至少一項移到最上方（Ⅰ重要且緊急），作為封關首要。");
+        advice.push("建議優先：秒秒轉念／寫心得／太陽心法／懺悔發願——選一項 15 分鐘完成。");
+      } else if (spiritIdx[0] > 2) {
+        advice.push(`靈命相關項目前在 #${spiritIdx[0] + 1}：偏後。請↑上移到前三，宣告「靈命為先、事務隨後」。`);
+      } else {
+        advice.push(`靈命日課已在前段（#${spiritIdx.map((i) => i + 1).join("、")}）：保持這個先後，先完成靈命再處理剩餘事務。`);
+      }
+
+      const top3 = items.slice(0, 3).map((it, i) => `#${i + 1} ${String(it.text || "").slice(0, 22)}`);
+      advice.push(`依你重整後的先後執行：${top3.join(" → ")}。問自己：這順序是否讓靈命更穩、身心更安？`);
+
+      if (pct(1) >= 50) {
+        advice.push(`第Ⅰ象限約 ${pct(1)}%：外務偏趕。救火同時守住「最短靈命節奏」（轉念／感恩 3 分鐘），勿整日無更新。`);
+      }
+      if (pct(2) < 15) {
+        advice.push(`第Ⅱ象限約 ${pct(2)}%：偏少。靈命成長多在Ⅱ（穩定日課）。明天一早先排身心靈更新，再上班務。`);
+      } else {
+        advice.push(`第Ⅱ象限約 ${pct(2)}%：有空間滋養。把Ⅱ留給備課預防與「不斷更新」，不要拿去滑ⅢⅣ。`);
+      }
+      if (pct(3) + pct(4) >= 30) {
+        advice.push(`第Ⅲ＋Ⅳ約 ${pct(3) + pct(4)}%：佔用靈命時間。能委派／刪減就執行，把時間贖回給身心靈。`);
+      }
+
+      const habitCount = {};
+      items.forEach((it) => {
+        const h = Number(it.habitId) || 0;
+        habitCount[h] = (habitCount[h] || 0) + 1;
+      });
+      if (!habitCount[7]) {
+        advice.push("今日少觸及「不斷更新」：收工前身體休息、心智寫一句心得、心靈靜心或聽「富有／注入彩虹」。");
+      } else {
+        advice.push("已有「不斷更新」足跡：再加深一層——感恩、去我、參悟空，讓靈命不只打卡、而是真實轉念。");
+      }
+
+      if (/數學|康軒|習作|批改|上課/.test(blob)) {
+        advice.push("教學亦是修行場：明日課堂以「耐心、去我、雙贏」帶學生；課前 1 分鐘轉念再進教室。");
+      }
+      if (/掃具|衛生|整潔|保健/.test(blob)) {
+        advice.push("衛生服務即渡人起點：整理環境時保持感恩與營造心，把勞作當成靈命操練。");
+      }
+
+      advice.push("收工封關：最上靈命項是否完成？→ 寫一句今日靈命心得 → 匯出當日備份 → 帶著平安休息。");
+      return advice;
+    }
+
+    function renderFinalAdvice(items) {
+      lastFinalAdvice = buildFinalAdvice(items);
+      ["A", "B"].forEach((suf) => {
+        const list = document.getElementById("finalAdviceList" + suf);
+        const empty = document.getElementById("finalAdviceEmpty" + suf);
+        if (!list) return;
+        list.innerHTML = "";
+        if (!lastFinalAdvice.length) {
+          if (empty) empty.style.display = "block";
+          return;
+        }
+        if (empty) empty.style.display = "none";
+        lastFinalAdvice.forEach((t) => {
+          const li = document.createElement("li");
+          li.textContent = t;
+          list.appendChild(li);
+        });
+      });
+    }
+
+    function addToHistory(entry) {
+      state = loadState();
+      const row = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        habitId: entry.habitId,
+        quadId: entry.quadId,
+        text: entry.text,
+        minutes: Number(entry.minutes) > 0 ? Number(entry.minutes) : DEFAULT_MINUTES,
+        at: new Date().toISOString(),
+        source: entry.source || "manual"
+      };
+      state.items.push(row);
+      saveState(state);
+      renderHistory();
+      return state.items.length;
+    }
+
+    function ensureItemIds(items) {
+      let changed = false;
+      items.forEach((it, i) => {
+        if (!it.id) {
+          it.id = `fix-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 5)}`;
+          changed = true;
+        }
+      });
+      return changed;
+    }
+
+    function deleteHistoryItem(id) {
+      state = loadState();
+      const before = state.items.length;
+      state.items = state.items.filter((it) => String(it.id) !== String(id));
+      if (state.items.length === before) return;
+      saveState(state);
+      renderHistory();
+      flashSave("saveFlash", `已刪除，今日剩 ${state.items.length} 筆`);
+      flashSave("d14SaveFlash", `已刪除，今日剩 ${state.items.length} 筆`);
+    }
+
+    function updateHistoryItem(id, patch) {
+      state = loadState();
+      ensureItemIds(state.items);
+      const it = state.items.find((x) => String(x.id) === String(id));
+      if (!it) return false;
+      if (patch.text != null) it.text = String(patch.text).trim();
+      if (patch.habitId != null) {
+        const hid = Number(patch.habitId);
+        if (hid >= 1 && hid <= 7) it.habitId = hid;
+      }
+      if (patch.quadId != null) {
+        const qid = Number(patch.quadId);
+        if (qid >= 1 && qid <= 4) it.quadId = qid;
+      }
+      if (patch.minutes != null) {
+        const m = Number(patch.minutes);
+        it.minutes = Number.isFinite(m) && m > 0 ? Math.min(480, Math.round(m)) : DEFAULT_MINUTES;
+      }
+      it.updatedAt = new Date().toISOString();
+      saveState(state);
+      renderHistory();
+      flashSave("saveFlash", "已儲存修正");
+      flashSave("d14SaveFlash", "已儲存修正");
+      return true;
+    }
+
+    function ensureEditHabitOptions() {
+      const sel = document.getElementById("editHabit");
+      if (!sel || sel.options.length) return;
+      HABITS.forEach((h) => {
+        const opt = document.createElement("option");
+        opt.value = String(h.id);
+        opt.textContent = `習慣${h.id} ${h.name}`;
+        sel.appendChild(opt);
+      });
+    }
+
+    function voiceIdleLabel(btn) {
+      if (!btn) return "🎤 口說輸入";
+      if (btn.id === "courseVoiceBtn") return "🎤 口說補充";
+      if (btn.id === "editVoiceBtn") return "🎤 語音修改";
+      return "🎤 口說輸入";
+    }
+
+    function stopVoiceIfAny() {
+      if (!recognition) return;
+      try { recognition.stop(); } catch (_) {}
+      recognition = null;
+      document.querySelectorAll("button.recording").forEach((btn) => {
+        btn.classList.remove("recording");
+        btn.textContent = voiceIdleLabel(btn);
+      });
+    }
+
+    function startVoice(targetId, btn) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        alert("此瀏覽器不支援語音辨識，請改用打字，或用 Chrome／Edge。");
+        return;
+      }
+      if (recognition) {
+        stopVoiceIfAny();
+        return;
+      }
+      recognition = new SR();
+      recognition.lang = "zh-TW";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      btn.classList.add("recording");
+      btn.textContent = "■ 停止";
+      recognition.onresult = (ev) => {
+        const text = ev.results[0][0].transcript || "";
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        el.value = (el.value ? el.value.replace(/\s+$/, "") + " " : "") + text;
+        try { el.focus(); } catch (e) {}
+        const hint = document.getElementById("editVoiceHint");
+        if (hint && targetId === "editText") {
+          hint.textContent = "已加入語音內容，可再打字微調，或再按語音繼續補充。";
+        }
+      };
+      recognition.onerror = () => {
+        btn.classList.remove("recording");
+        btn.textContent = voiceIdleLabel(btn);
+        recognition = null;
+      };
+      recognition.onend = () => {
+        btn.classList.remove("recording");
+        btn.textContent = voiceIdleLabel(btn);
+        recognition = null;
+      };
+      recognition.start();
+    }
+
+    function reclassifyEditFromText() {
+      const text = document.getElementById("editText").value || "";
+      if (!String(text).trim()) {
+        alert("請先輸入或語音填寫內容");
+        return;
+      }
+      const got = classifyCurrentText(text);
+      document.getElementById("editHabit").value = String(got.h || 1);
+      document.getElementById("editQuad").value = String(got.q || 1);
+      const hint = document.getElementById("editVoiceHint");
+      if (hint) {
+        const habit = HABITS.find((h) => h.id === got.h) || { id: "?", name: "" };
+        const quad = QUADS[got.q] || { short: "" };
+        hint.textContent = `已依內容重判：習慣${habit.id} ${habit.name}｜${quad.short}。仍可手動改下拉選單。`;
+      }
+    }
+
+    function openEditHistoryItem(id) {
+      state = loadState();
+      const it = (state.items || []).find((x) => String(x.id) === String(id));
+      if (!it) return;
+      stopVoiceIfAny();
+      ensureEditHabitOptions();
+      document.getElementById("editItemId").value = String(it.id);
+      document.getElementById("editText").value = it.text || "";
+      document.getElementById("editHabit").value = String(it.habitId || 1);
+      document.getElementById("editQuad").value = String(it.quadId || 1);
+      document.getElementById("editMinutes").value = String(itemMinutes(it));
+      const hint = document.getElementById("editVoiceHint");
+      if (hint) {
+        hint.textContent = "打字：點內容框直接改。語音：按「語音修改」後說話，辨識結果會加到內容後方。";
+      }
+      const overlay = document.getElementById("editOverlay");
+      overlay.hidden = false;
+      setTimeout(() => {
+        const ta = document.getElementById("editText");
+        ta.focus();
+        try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) {}
+      }, 50);
+    }
+
+    function closeEditHistoryItem() {
+      stopVoiceIfAny();
+      document.getElementById("editOverlay").hidden = true;
+    }
+
+    function saveEditHistoryItem() {
+      const id = document.getElementById("editItemId").value;
+      const text = document.getElementById("editText").value;
+      if (!String(text || "").trim()) {
+        alert("內容不可空白");
+        document.getElementById("editText").focus();
+        return;
+      }
+      stopVoiceIfAny();
+      const ok = updateHistoryItem(id, {
+        text: text,
+        habitId: document.getElementById("editHabit").value,
+        quadId: document.getElementById("editQuad").value,
+        minutes: document.getElementById("editMinutes").value
+      });
+      if (ok) {
+        closeEditHistoryItem();
+        flashSave("saveFlash", "已儲存修改，可再點「編輯」繼續改");
+        flashSave("d14SaveFlash", "已儲存修改，可再點「編輯」繼續改");
+      }
+    }
+
+    function moveHistoryItem(id, dir) {
+      // dir: -1 = 往更早（列表視覺往下，因為顯示是新到舊 reverse）
+      // 使用者說「上下移動排先後」：上 = 更優先／更前面
+      // 我們以「陣列順序＝先後順序（越前越先）」；畫面用 reverse 顯示新到舊時會反直覺
+      // 改為：畫面由上到下 = 先後順序（items[0] 在最上）
+      state = loadState();
+      ensureItemIds(state.items);
+      const idx = state.items.findIndex((it) => String(it.id) === String(id));
+      if (idx < 0) return;
+      const j = idx + dir;
+      if (j < 0 || j >= state.items.length) return;
+      const tmp = state.items[idx];
+      state.items[idx] = state.items[j];
+      state.items[j] = tmp;
+      saveState(state);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      state = loadState();
+      const items = Array.isArray(state.items) ? state.items : [];
+      if (ensureItemIds(items)) {
+        state.items = items;
+        saveState(state);
+      }
+      const n = items.length;
+      const countPill = document.getElementById("countPill");
+      if (countPill) countPill.textContent = `今日 ${n} 筆`;
+      ["historyCountA", "historyCountB"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = n ? `（${n} 筆，逐項可編輯／刪除／念）` : "";
+      });
+
+      function fill(listId, emptyId) {
+        const list = document.getElementById(listId);
+        const empty = document.getElementById(emptyId);
+        if (!list) return;
+        list.innerHTML = "";
+        if (!items.length) {
+          if (empty) empty.style.display = "block";
+          return;
+        }
+        if (empty) empty.style.display = "none";
+        // 由上到下 = 先後順序（items[0] 最先）
+        items.forEach((item, idx) => {
+          const habit = HABITS.find((h) => h.id === item.habitId) || { id: "?", name: "未知" };
+          const quad = QUADS[item.quadId] || QUADS[1];
+          const li = document.createElement("li");
+          li.dataset.id = String(item.id);
+          const seq = idx + 1;
+          li.innerHTML =
+            `<div class="row-main">` +
+            `<div><strong>#${seq}</strong> ${escapeHtml(item.text || "")}</div>` +
+            `<div class="meta">習慣${habit.id} ${habit.name}｜${quad.short}` +
+            (item.source === "daily14" ? "｜來自14樣" : "") +
+            (item.source === "suggest" ? "｜來自建議" : "") +
+            (item.source === "import" ? "｜匯入" : "") +
+            (item.updatedAt ? "｜已修正" : "") +
+            `｜<label>分鐘<input class="mins-input" type="number" min="1" max="480" value="${itemMinutes(item)}"></label>` +
+            `</div></div>` +
+            `<div class="item-actions">` +
+            `<button type="button" class="edit" title="編輯這筆（打字／語音）">編輯</button>` +
+            `<button type="button" class="del" title="刪除這筆">刪除</button>` +
+            `<button type="button" class="speak-one" title="只念這一筆">🔊 念這筆</button>` +
+            `<button type="button" class="speak-from" title="從這筆念到最後">一起念↓</button>` +
+            `<button type="button" class="voice-edit" title="用語音修改這筆">🎤 語音改</button>` +
+            `<button type="button" class="up" title="上移" ${idx === 0 ? "disabled" : ""}>↑</button>` +
+            `<button type="button" class="down" title="下移" ${idx === items.length - 1 ? "disabled" : ""}>↓</button>` +
+            `</div>`;
+          li.querySelector(".edit").addEventListener("click", (e) => {
+            e.stopPropagation();
+            openEditHistoryItem(item.id);
+          });
+          li.querySelector(".del").addEventListener("click", (e) => {
+            e.stopPropagation();
+            const preview = String(item.text || "").slice(0, 24);
+            if (!confirm(`刪除這筆紀錄？\n#${seq} ${preview}`)) return;
+            deleteHistoryItem(item.id);
+          });
+          li.querySelector(".speak-one").addEventListener("click", (e) => {
+            e.stopPropagation();
+            speakOneHistoryItem(item.id);
+          });
+          li.querySelector(".speak-from").addEventListener("click", (e) => {
+            e.stopPropagation();
+            speakFromHistoryItem(item.id);
+          });
+          li.querySelector(".voice-edit").addEventListener("click", (e) => {
+            e.stopPropagation();
+            voiceEditHistoryItem(item.id);
+          });
+          li.querySelector(".up").addEventListener("click", (e) => {
+            e.stopPropagation();
+            moveHistoryItem(item.id, -1);
+          });
+          li.querySelector(".down").addEventListener("click", (e) => {
+            e.stopPropagation();
+            moveHistoryItem(item.id, 1);
+          });
+          const minsEl = li.querySelector(".mins-input");
+          if (minsEl) {
+            minsEl.addEventListener("click", (e) => e.stopPropagation());
+            minsEl.addEventListener("change", () => updateItemMinutes(item.id, minsEl.value));
+          }
+          li.querySelector(".row-main").addEventListener("click", () => openEditHistoryItem(item.id));
+          list.appendChild(li);
+        });
+      }
+      fill("historyList", "historyEmpty");
+      fill("historyListB", "historyEmptyB");
+      renderQuadCharts(items);
+      renderFinalAdvice(items);
+    }
+
+    function updateItemMinutes(id, minutes) {
+      state = loadState();
+      const it = state.items.find((x) => String(x.id) === String(id));
+      if (!it) return;
+      const m = Number(minutes);
+      it.minutes = Number.isFinite(m) && m > 0 ? m : DEFAULT_MINUTES;
+      saveState(state);
+      renderQuadCharts(state.items);
+      renderFinalAdvice(state.items);
+    }
+
+    function classifyCurrentText(text) {
+      const keyMap = [
+        ["注入彩虹", 2], ["富有", 1], ["弟子規", 3], ["懺悔", 4], ["寫心得", 5], ["心得", 5],
+        ["感恩", 6], ["去我", 7], ["太陽心法", 8], ["照鏡子", 9], ["轉念", 10],
+        ["參悟空", 11], ["營造", 12], ["共修", 13], ["渡人", 14]
+      ];
+      for (const [k, id] of keyMap) {
+        if (text.includes(k)) {
+          const d = DAILY14_MAP.find((x) => x.id === id);
+          return { h: d.h, q: d.q, text: `【14樣第${d.id}項】${text}` };
+        }
+      }
+      return { h: classifyHabit(text), q: classifyQuad(text), text };
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function buildSuggestions(habitId, quadId, text) {
+      const t = text || "";
+      const tips = [];
+      const chips = [];
+
+      tips.push("首要檢核：這件事如何服務「身心靈提升、靈命持續成長」？若會擠掉靈命日課，先縮時或改期。");
+
+      if (quadId === 1) {
+        tips.push("Ⅰ重要且緊急：用最短步驟完成，並在過程保持轉念／感恩，勿讓緊急吞掉靈性覺察。");
+      } else if (quadId === 2) {
+        tips.push("Ⅱ重要不緊急：最利靈命成長。固定時段做，守護身心靈更新。");
+      } else if (quadId === 3) {
+        tips.push("Ⅲ偏緊急不重要：委派或限時，避免佔用靈命與要事時間。");
+      } else {
+        tips.push("Ⅳ不重要不緊急：刪或延後，把時間留給靈命日課與真正要事。");
+      }
+
+      const byHabit = {
+        1: "主動積極（靈命）：選擇回應而非抱怨——先轉念，再行動。",
+        2: "以終為始（靈命）：終點是身心靈提升與靈命成長；事務目標要對齊這終點。",
+        3: "要事第一（靈命）：14樣功課與身心靈更新排在事務之前或之中的固定位置。",
+        4: "雙贏（靈命）：待人接物不損德，成就自己也成就別人。",
+        5: "知彼解己（靈命）：先去我、先傾聽，溝通即修行。",
+        6: "統合綜效（靈命）：共修／合作中彼此提升，1+1>2。",
+        7: "不斷更新（靈命）：身體、心智、人際、心靈四面向今日各留一點空間。"
+      };
+      tips.push(byHabit[habitId] || byHabit[7]);
+
+      if (/數學|康軒|習作|上課|教案|批改|段考|負數|方程式|分數/.test(t)) {
+        tips.push("教學建議：課前 1 分鐘轉念；本節一目標＋三題精準；帶著耐心與去我進教室。");
+        chips.push({ label: "課前轉念 1 分鐘", habitId: 1, quadId: 1, text: "【靈命】課前秒秒轉念 1 分鐘", source: "suggest" });
+        chips.push({ label: "備課：唯一目標", habitId: 2, quadId: 2, text: "備課：寫清本節唯一學習目標" });
+      }
+      if (/掃具|衛生|整潔|保健|健康|班級清潔|拖把|掃把/.test(t)) {
+        tips.push("衛生建議：勞作中練習感恩與營造；巡視後回到靈命日課，不讓雜務斷了更新。");
+        chips.push({ label: "巡視後感恩 1 句", habitId: 1, quadId: 1, text: "【靈命】巡視後練習秒秒感恩", source: "suggest" });
+        chips.push({ label: "巡視掃具並記錄", habitId: 3, quadId: 1, text: "衛生：巡視掃具櫃並記錄缺項" });
+      }
+      if (/家長|溝通|情緒|衝突|輔導|晤談/.test(t)) {
+        tips.push("溝通即修行：先去我、先聽懂，再表達；守護雙方情緒與品德。");
+        chips.push({ label: "先去我再回應", habitId: 5, quadId: 1, text: "【靈命】溝通前做到去我、先聽", source: "suggest" });
+      }
+      if (/會議|群組|訊息|轉傳|蓋章/.test(t)) {
+        tips.push("行政雜務限時處理，保護靈命時段不被訊息碎片化。");
+      }
+      if (/靈命|身心靈|靜心|祈禱|讀經|共修/.test(t)) {
+        tips.push("這正是首要項：今日務必完成，並可寫一句心得鞏固靈命足跡。");
+      }
+
+      const spiritFirst = [
+        DAILY14_MAP.find((d) => d.id === 10),
+        DAILY14_MAP.find((d) => d.id === 5),
+        DAILY14_MAP.find((d) => d.id === 8),
+        ...DAILY14_MAP.filter((d) => d.h === habitId)
+      ].filter(Boolean);
+      const seen14 = new Set();
+      spiritFirst.forEach((d) => {
+        if (seen14.has(d.id)) return;
+        seen14.add(d.id);
+        chips.push({
+          label: `靈命｜14樣${d.id}`,
+          habitId: d.h,
+          quadId: 1,
+          text: `【靈命首要→14樣第${d.id}項】${d.title}`,
+          source: "daily14"
+        });
+      });
+
+      const uniqTips = [...new Set(tips)].slice(0, 6);
+      const chipSeen = new Set();
+      const uniqChips = [];
+      for (const c of chips) {
+        if (chipSeen.has(c.text)) continue;
+        chipSeen.add(c.text);
+        uniqChips.push(c);
+        if (uniqChips.length >= 6) break;
+      }
+
+      return {
+        tips: uniqTips,
+        chips: uniqChips,
+        why: "所有建議以「身心靈提升、靈命持續成長」為首要；事務建議皆需對齊此終點。"
+      };
+    }
+
+    function renderSuggestions(habitId, quadId, text) {
+      const box = document.getElementById("suggestBox");
+      const list = document.getElementById("suggestList");
+      const chips = document.getElementById("suggestChips");
+      const why = document.getElementById("suggestWhy");
+      const s = buildSuggestions(habitId, quadId, text);
+      list.innerHTML = s.tips.map((x) => `<li>${escapeHtml(x)}</li>`).join("");
+      why.textContent = s.why;
+      chips.innerHTML = "";
+      s.chips.forEach((c) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = c.label;
+        btn.addEventListener("click", () => {
+          const n = addToHistory({
+            habitId: c.habitId,
+            quadId: c.quadId,
+            text: c.text,
+            source: c.source || "suggest"
+          });
+          flashSave("saveFlash", `已把建議「${c.label}」疊加！今日共 ${n} 筆`);
+        });
+        chips.appendChild(btn);
+      });
+      box.hidden = false;
+    }
+
+    function showResult(habitId, quadId, text) {
+      const habit = HABITS.find((h) => h.id === habitId) || HABITS[0];
+      const quad = QUADS[quadId] || QUADS[1];
+      lastResult = { habitId: habit.id, quadId: Number(quadId) || 1, text, at: new Date().toISOString() };
+      document.getElementById("habitOut").textContent =
+        `習慣${habit.id}「${habit.name}」｜${habit.en} — ${habit.tip}`;
+      document.getElementById("quadOut").innerHTML =
+        `<span class="tag ${quad.cls}">${quad.name}</span> ${quad.advise}`;
+      document.getElementById("reasonOut").textContent =
+        `依據內容：「${text.slice(0, 80)}${text.length > 80 ? "…" : ""}」`;
+      document.querySelectorAll("#matrix div").forEach((el) => {
+        el.classList.toggle("on", Number(el.dataset.q) === lastResult.quadId);
+      });
+      renderSuggestions(habit.id, lastResult.quadId, text);
+      document.getElementById("resultBox").classList.add("show");
+    }
+
+    function fillUnits() {
+      const sem = document.getElementById("semester").value;
+      const sel = document.getElementById("unit");
+      sel.innerHTML = "";
+      UNITS[sem].forEach((u) => {
+        const opt = document.createElement("option");
+        opt.value = u.id;
+        opt.textContent = u.label;
+        sel.appendChild(opt);
+      });
+    }
+
+    function suggestCourse() {
+      const unitId = document.getElementById("unit").value;
+      const note = (document.getElementById("courseNote").value || "").trim();
+      const unitLabel = document.getElementById("unit").selectedOptions[0].textContent;
+      const tip = COURSE_TIPS[unitId] || { h: 3, q: 2, focus: "要事第一備課", do: "先釐清本節唯一目標，再設計活動。" };
+      let h = tip.h;
+      let q = tip.q;
+      if (note) {
+        const nh = classifyHabit(note);
+        const nq = classifyQuad(note);
+        if (scoreWords(note, HABIT_RULES.flatMap((r) => r.words)) > 0) h = nh;
+        if (/緊急|今天|段考|截止/.test(note)) q = nq;
+      }
+      const habit = HABITS.find((x) => x.id === h);
+      const quad = QUADS[q];
+      const dayHint = HABITS[(new Date().getDay() + h) % 7];
+      document.getElementById("courseTip").hidden = false;
+      document.getElementById("courseTitle").textContent = `今日課程：康軒 ${unitLabel}`;
+      document.getElementById("courseHabit").textContent =
+        `建議對應習慣${habit.id}「${habit.name}」：${tip.focus}`;
+      document.getElementById("courseQuad").innerHTML =
+        `時間象限：<span class="tag ${quad.cls}">${quad.short}</span> — 把本節放在「重要」而非只趕進度。`;
+      document.getElementById("courseBody").textContent = `課堂可做：${tip.do}`;
+      document.getElementById("courseExtra").textContent =
+        note
+          ? `依你的補充調整：${note}｜另可搭配習慣${dayHint.id}「${dayHint.name}」做收斂。`
+          : `衛生組長提醒（可選）：若今日有整潔／掃具事項，另開「做事歸類」記錄，不要和本課建議混成一件。`;
+      state.lastCourse = { unitId, unitLabel, habitId: h, quadId: q, note, at: new Date().toISOString() };
+      saveState(state);
+    }
+
+    // tabs
+    function showTab(tab) {
+      document.querySelectorAll(".tabs button").forEach((b) => {
+        b.classList.toggle("active", b.dataset.tab === tab);
+      });
+      document.getElementById("panelClassify").classList.toggle("show", tab === "classify");
+      document.getElementById("panelDaily14").classList.toggle("show", tab === "daily14");
+      document.getElementById("panelCourse").classList.toggle("show", tab === "course");
+      try { history.replaceState(null, "", "#" + tab); } catch (_) {}
+    }
+    document.querySelectorAll(".tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => showTab(btn.dataset.tab));
+    });
+    // 預設打開「14樣對照」，讓14項功課直接落在習慣＋象限
+    const startTab = (location.hash || "").replace("#", "");
+    showTab(["classify", "daily14", "course"].includes(startTab) ? startTab : "daily14");
+
+    function renderDaily14List() {
+      const list = document.getElementById("d14List");
+      list.innerHTML = "";
+      DAILY14_MAP.filter((item) => {
+        if (d14Filter === "all") return true;
+        if (d14Filter === "q2") return item.q === 2;
+        if (d14Filter === "q1") return item.q === 1;
+        if (d14Filter.startsWith("h")) return item.h === Number(d14Filter.slice(1));
+        return true;
+      }).forEach((item) => {
+        const habit = HABITS.find((h) => h.id === item.h);
+        const quad = QUADS[item.q];
+        const li = document.createElement("li");
+        li.innerHTML =
+          `<span class="num">${item.id}</span>` +
+          `<span class="title">${escapeHtml(item.title)}</span>` +
+          (item.note ? `<div class="hint">${escapeHtml(item.note)}</div>` : "") +
+          `<div class="map">` +
+          `<span class="tag">習慣${habit.id} ${habit.name}</span>` +
+          `<span class="tag ${quad.cls}">${quad.short}</span>` +
+          `</div>`;
+        li.addEventListener("click", () => pickDaily14(item));
+        list.appendChild(li);
+      });
+    }
+
+    function pickDaily14(item) {
+      const habit = HABITS.find((h) => h.id === item.h) || HABITS[0];
+      const quad = QUADS[item.q] || QUADS[1];
+      lastDaily14 = {
+        habitId: item.h,
+        quadId: item.q,
+        text: `【14樣第${item.id}項】${item.title}`,
+        source: "daily14"
+      };
+      document.getElementById("d14PickTitle").textContent = `${item.id}. ${item.title}`;
+      document.getElementById("d14HabitOut").textContent =
+        `習慣${habit.id}「${habit.name}」｜${habit.en} — ${habit.tip}`;
+      document.getElementById("d14QuadOut").innerHTML =
+        `<span class="tag ${quad.cls}">${quad.name}</span> ${quad.advise}`;
+      document.getElementById("d14Why").textContent = item.why;
+      document.querySelectorAll("#d14Matrix div").forEach((el) => {
+        el.classList.toggle("on", Number(el.dataset.q) === item.q);
+      });
+      document.getElementById("d14Result").classList.add("show");
+      // 點一項就自動疊加，可連續點下一项
+      const n = addToHistory(lastDaily14);
+      flashSave("d14SaveFlash", `已疊加！今日共 ${n} 筆（可繼續點下一項）`);
+    }
+
+    document.getElementById("d14Filters").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-filter]");
+      if (!btn) return;
+      d14Filter = btn.dataset.filter;
+      document.querySelectorAll("#d14Filters button").forEach((b) => {
+        b.classList.toggle("on", b === btn);
+      });
+      renderDaily14List();
+    });
+
+    document.getElementById("d14SaveBtn").addEventListener("click", () => {
+      if (!lastDaily14) {
+        flashSave("d14SaveFlash", "請先點選一項14樣功課");
+        return;
+      }
+      // 每次按都再疊加一筆（同一項也可重複）
+      const n = addToHistory({ ...lastDaily14 });
+      flashSave("d14SaveFlash", `再疊加一筆！今日共 ${n} 筆`);
+    });
+
+    (function setDaily14Link() {
+      const a = document.getElementById("daily14Link");
+      a.href = "../daily-14/";
+    })();
+
+    document.getElementById("classifyBtn").addEventListener("click", () => {
+      const text = combinedText();
+      if (!text) {
+        alert("請先口說或打字輸入內容。");
+        return;
+      }
+      const got = classifyCurrentText(text);
+      showResult(got.h, got.q, got.text);
+      // 自動捲到建議區
+      document.getElementById("suggestBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    document.getElementById("suggestOnlyBtn").addEventListener("click", () => {
+      const text = combinedText();
+      if (!text) {
+        flashSave("saveFlash", "請先輸入事情，再看建議");
+        return;
+      }
+      const got = classifyCurrentText(text);
+      showResult(got.h, got.q, got.text);
+      flashSave("saveFlash", "已產生建議（尚未存檔；可點建議按鈕疊加）");
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      // 每次都依「目前輸入」重新歸類再疊加，才能持續加入下一件事
+      const text = combinedText();
+      if (!text) {
+        flashSave("saveFlash", "請先輸入下一件事，再按疊加");
+        return;
+      }
+      const got = classifyCurrentText(text);
+      showResult(got.h, got.q, got.text);
+      const n = addToHistory({
+        habitId: got.h,
+        quadId: got.q,
+        text: got.text,
+        source: "manual"
+      });
+      flashSave("saveFlash", `已疊加！今日共 ${n} 筆（可改內容再按，持續加入）`);
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      ["who", "when", "where", "what", "freeText"].forEach((id) => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("resultBox").classList.remove("show");
+      document.getElementById("suggestBox").hidden = true;
+      lastResult = null;
+    });
+
+    function clearTodayHistory() {
+      if (!confirm("確定清空今日歸類紀錄？")) return;
+      state = loadState();
+      state.items = [];
+      saveState(state);
+      renderHistory();
+    }
+    document.getElementById("clearHistoryBtn").addEventListener("click", clearTodayHistory);
+    
+    document.getElementById("clearHistoryBtnB").addEventListener("click", clearTodayHistory);
+
+    function refreshAdviceNow() {
+      state = loadState();
+      renderQuadCharts(state.items || []);
+      renderFinalAdvice(state.items || []);
+      flashSave("saveFlash", "已依目前紀錄重整「今日最後建議」");
+      flashSave("d14SaveFlash", "已依目前紀錄重整「今日最後建議」");
+    }
+    function saveFinalAdviceToHistory() {
+      state = loadState();
+      const lines = buildFinalAdvice(state.items || []);
+      if (!lines.length) {
+        flashSave("saveFlash", "尚無紀錄，無法存最後建議");
+        return;
+      }
+      const n = addToHistory({
+        habitId: 7,
+        quadId: 1,
+        text: "【今日最後建議｜靈命為首】" + lines.join("／"),
+        minutes: 10,
+        source: "suggest"
+      });
+      flashSave("saveFlash", `已把最後建議疊加！今日共 ${n} 筆`);
+    }
+    document.getElementById("refreshAdviceBtnA").addEventListener("click", refreshAdviceNow);
+    document.getElementById("refreshAdviceBtnB").addEventListener("click", refreshAdviceNow);
+    document.getElementById("saveAdviceBtnA").addEventListener("click", saveFinalAdviceToHistory);
+    document.getElementById("saveAdviceBtnB").addEventListener("click", saveFinalAdviceToHistory);
+
+
+    document.getElementById("speakTodayBtn").addEventListener("click", speakTodayRecords);
+    document.getElementById("speakTodayBtnB").addEventListener("click", speakTodayRecords);
+    document.getElementById("speakAdviceBtnA").addEventListener("click", speakAllAdvice);
+    document.getElementById("speakAdviceBtnB").addEventListener("click", speakAllAdvice);
+    // 供電腦版 life-desk 以 postMessage 觸發讀誦
+    window.addEventListener("message", (ev) => {
+      const data = ev && ev.data;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "life-desk-speak-today") speakTodayRecords();
+      if (data.type === "life-desk-stop-speak") stopSpeaking();
+      if (data.type === "life-desk-pause-speak") pauseSpeaking();
+    });
+    document.getElementById("stopSpeakBtn").addEventListener("click", stopSpeaking);
+    document.getElementById("stopSpeakBtnB").addEventListener("click", stopSpeaking);
+    document.getElementById("pauseSpeakBtn").addEventListener("click", pauseSpeaking);
+    document.getElementById("pauseSpeakBtnB").addEventListener("click", pauseSpeaking);
+    document.getElementById("editCancelBtn").addEventListener("click", closeEditHistoryItem);
+    document.getElementById("editSaveBtn").addEventListener("click", saveEditHistoryItem);
+    document.getElementById("editVoiceBtn").addEventListener("click", (e) => {
+      startVoice("editText", e.currentTarget);
+    });
+    document.getElementById("editClearTextBtn").addEventListener("click", () => {
+      if (!confirm("清空這筆內容？")) return;
+      document.getElementById("editText").value = "";
+      document.getElementById("editText").focus();
+    });
+    document.getElementById("editReclassifyBtn").addEventListener("click", reclassifyEditFromText);
+    document.getElementById("editOverlay").addEventListener("click", (e) => {
+      if (e.target && e.target.id === "editOverlay") closeEditHistoryItem();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !document.getElementById("editOverlay").hidden) {
+        closeEditHistoryItem();
+      }
+    });
+    if (window.TtsVoices) {
+      window.TtsVoices.bindVoicePicker({ speak: speakText });
+    } else if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = function () { pickZhVoice(); };
+    }
+    document.getElementById("exportJsonBtn").addEventListener("click", exportTodayJson);
+    document.getElementById("exportJsonBtnB").addEventListener("click", exportTodayJson);
+    document.getElementById("exportCsvBtn").addEventListener("click", exportTodayCsv);
+    document.getElementById("exportCsvBtnB").addEventListener("click", exportTodayCsv);
+    document.getElementById("exportTxtBtn").addEventListener("click", exportTodayTxt);
+    document.getElementById("exportTxtBtnB").addEventListener("click", exportTodayTxt);
+    document.getElementById("exportMdBtn").addEventListener("click", exportTodayMd);
+    document.getElementById("exportMdBtnB").addEventListener("click", exportTodayMd);
+    document.getElementById("copyJsonBtn").addEventListener("click", copyTodayJson);
+    document.getElementById("importJsonBtn").addEventListener("click", () => startImport("json"));
+    document.getElementById("importJsonBtnB").addEventListener("click", () => startImport("json"));
+    document.getElementById("importCsvBtn").addEventListener("click", () => startImport("csv"));
+    document.getElementById("importCsvBtnB").addEventListener("click", () => startImport("csv"));
+    document.getElementById("importTxtBtn").addEventListener("click", () => startImport("txt"));
+    document.getElementById("importTxtBtnB").addEventListener("click", () => startImport("txt"));
+    document.getElementById("importMdBtn").addEventListener("click", () => startImport("md"));
+    document.getElementById("importMdBtnB").addEventListener("click", () => startImport("md"));
+    document.getElementById("importFile").addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      onImportFile(file);
+      e.target.value = "";
+    });
+
+    document.getElementById("voiceBtn").addEventListener("click", (e) => {
+      startVoice("freeText", e.currentTarget);
+    });
+    document.getElementById("courseVoiceBtn").addEventListener("click", (e) => {
+      startVoice("courseNote", e.currentTarget);
+    });
+
+    document.getElementById("semester").addEventListener("change", fillUnits);
+    document.getElementById("suggestBtn").addEventListener("click", suggestCourse);
+
+    document.getElementById("habitLegend").innerHTML = HABITS.map(
+      (h) => `<li><strong>${h.id}. ${h.name}</strong> — ${h.tip}</li>`
+    ).join("");
+
+    document.getElementById("todayLabel").textContent = formatToday();
+    fillUnits();
+    renderHistory();
+    renderDaily14List();
+
+    // 從看書／看文件疊加後，回到本頁或同裝置其他分頁時刷新今日紀錄
+    function refreshFromExternal() {
+      try {
+        state = loadState();
+        renderHistory();
+        renderQuadCharts(state.items || []);
+      } catch (e) {}
+    }
+    window.addEventListener("storage", (e) => {
+      if (!e) return;
+      if (e.key === "habits7-v1" || e.key === "habits7-refresh-ping") refreshFromExternal();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") refreshFromExternal();
+    });
+    window.addEventListener("focus", refreshFromExternal);
+
+    (function setHomeLink() {
+      const path = location.pathname || "";
+      const homeLink = document.getElementById("homeLink");
+      const logLink = document.getElementById("logLink");
+      if (path.includes("/directory/apps/")) {
+        homeLink.href = "../../";
+        homeLink.textContent = "回學習日誌";
+        if (logLink) {
+          logLink.href = "../../202608/20260823-learning-log.html";
+          logLink.textContent = "本篇日誌 0823";
+        }
+      } else {
+        homeLink.href = "../";
+        homeLink.textContent = "回習作工具主頁";
+        if (logLink) {
+          logLink.href = "https://copyshae.github.io/-/directory/202608/20260823-learning-log.html";
+          logLink.textContent = "學習日誌 0823";
+        }
+      }
+    })();
+
+    let deferredInstall = null;
+    const installBtn = document.getElementById("installBtn");
+    const installHow = document.getElementById("installHow");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredInstall = e;
+      installBtn.textContent = "加入主畫面";
+      installHow.textContent = "按上方按鈕即可安裝到主畫面（可離線開啟）。";
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstall = null;
+      document.getElementById("installTip").style.display = "none";
+      try { localStorage.setItem("habits7-hide-install", "1"); } catch (_) {}
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if (deferredInstall) {
+        deferredInstall.prompt();
+        try { await deferredInstall.userChoice; } catch (_) {}
+        deferredInstall = null;
+        return;
+      }
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (isIOS) {
+        alert("iPhone：用 Safari 打開本頁 → 點下方「分享」→ 選「加入主畫面」。之後主畫面會有「七習慣」圖示可直接開。");
+      } else {
+        alert("請用手機 Chrome 開啟本頁，再從右上選單選「安裝應用程式」或「加入主畫面」。若已加入，可直接從主畫面圖示開啟。");
+      }
+    });
+
+    try {
+      if (localStorage.getItem("habits7-hide-install") === "1") {
+        document.getElementById("installTip").style.display = "none";
+      }
+      if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone) {
+        document.getElementById("installTip").style.display = "none";
+      }
+    } catch (_) {}
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+  </script>
+</body>
+</html>

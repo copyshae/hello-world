@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45c26" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="每日14樣功課" />
+  <meta name="description" content="超級生命密碼｜每日14樣功課勾選備忘錄。做完一項消失一項，隔日自動重新開始。" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>每日14樣功課</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #3a2214;
+      --muted: #7a5640;
+      --paper: #fff6e6;
+      --accent: #c45c26;
+      --heart: #d62828;
+      --line: rgba(196, 92, 38, 0.22);
+      --ok: #2f6b3a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: "Noto Sans TC", "PingFang TC", sans-serif;
+      color: var(--ink);
+      line-height: 1.55;
+      background:
+        radial-gradient(ellipse 90% 55% at 50% -10%, rgba(255, 232, 163, 0.95), transparent 60%),
+        radial-gradient(circle at 85% 20%, rgba(255, 200, 120, 0.35), transparent 40%),
+        radial-gradient(circle at 15% 70%, rgba(255, 180, 90, 0.25), transparent 45%),
+        linear-gradient(180deg, #fff9eb 0%, #f7e4c0 48%, #efd2a0 100%);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap {
+      max-width: 26rem;
+      margin: 0 auto;
+      padding: 1.15rem 1rem 2.5rem;
+    }
+    header {
+      text-align: center;
+      animation: rise 0.55s ease-out both;
+    }
+    .brand {
+      font-family: "Noto Serif TC", "Songti TC", serif;
+      font-size: clamp(1.85rem, 8vw, 2.35rem);
+      font-weight: 700;
+      color: var(--heart);
+      letter-spacing: 0.06em;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    }
+    .sub {
+      margin-top: 0.35rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .date-row {
+      margin-top: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      justify-content: center;
+      align-items: center;
+    }
+    .pill {
+      font-size: 0.82rem;
+      color: var(--accent);
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 0.28rem 0.65rem;
+    }
+    .progress {
+      margin-top: 0.9rem;
+      height: 0.45rem;
+      background: rgba(255,255,255,0.45);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #e07a3a, #c45c26);
+      transition: width 0.35s ease;
+    }
+    .hint {
+      margin-top: 0.55rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .install {
+      margin-top: 0.85rem;
+      font-size: 0.84rem;
+      color: var(--muted);
+      border-left: 3px solid var(--accent);
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.4);
+      text-align: left;
+      animation: rise 0.6s 0.05s ease-out both;
+    }
+    .install strong { color: var(--accent); font-weight: 700; }
+    ul#list {
+      list-style: none;
+      margin-top: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    li.task {
+      display: grid;
+      grid-template-columns: 2.4rem 1fr;
+      gap: 0.55rem;
+      align-items: start;
+      padding: 0.85rem 0.75rem;
+      background: rgba(255, 252, 245, 0.78);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      animation: rise 0.5s ease-out both;
+      transition: transform 0.2s ease, opacity 0.35s ease, max-height 0.4s ease, margin 0.35s ease, padding 0.35s ease, border 0.35s ease;
+      max-height: 12rem;
+      overflow: hidden;
+    }
+    li.task:active { transform: scale(0.985); }
+    li.task.done {
+      opacity: 0;
+      max-height: 0;
+      margin: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-width: 0;
+      pointer-events: none;
+    }
+    .num {
+      width: 2.15rem;
+      height: 2.15rem;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f06a6a, var(--heart) 55%, #9e1515);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 2px 6px rgba(180, 30, 30, 0.35);
+      flex-shrink: 0;
+    }
+    .body { min-width: 0; }
+    .title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .note {
+      margin-top: 0.2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .check-hint {
+      margin-top: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .map-row {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+    }
+    .map-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.75);
+      color: var(--accent);
+    }
+    .map-tag.q1 {
+      border-color: #b42318;
+      color: #b42318;
+    }
+    .done-panel {
+      display: none;
+      margin-top: 1.4rem;
+      text-align: center;
+      padding: 1.4rem 1rem;
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      animation: rise 0.55s ease-out both;
+    }
+    .done-panel.show { display: block; }
+    .done-panel h2 {
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.45rem;
+      color: var(--ok);
+      font-weight: 700;
+    }
+    .done-panel p { margin-top: 0.45rem; color: var(--muted); font-size: 0.92rem; }
+    .actions {
+      margin-top: 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.7);
+      color: var(--accent);
+      padding: 0.55rem 0.9rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .voice-box {
+      margin-top: 1rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+      padding: 0.75rem 0.85rem;
+      text-align: left;
+    }
+    .voice-box h2 {
+      font-size: 1rem;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+      text-align: center;
+    }
+    .voice-box label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin: 0.35rem 0 0.2rem;
+      color: var(--muted);
+    }
+    .voice-box select {
+      width: 100%;
+      font: inherit;
+      padding: 0.45rem;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    .voice-box .hint {
+      margin-top: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .done-list-box {
+      margin-top: 1rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.65);
+      padding: 0.75rem 0.85rem;
+      text-align: left;
+    }
+    .done-list-box h2 {
+      font-size: 1rem;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 0.35rem;
+    }
+    .done-list-box .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 0.45rem;
+    }
+    .done-list { list-style: none; }
+    .done-list li {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      padding: 0.55rem 0.45rem;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.9rem;
+    }
+    .done-list li:last-child { border-bottom: 0; }
+    .done-list .body { flex: 1; min-width: 0; }
+    .done-list .title { font-weight: 700; }
+    .done-list .meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
+    .done-list button {
+      flex-shrink: 0;
+      font-size: 0.78rem;
+      padding: 0.35rem 0.55rem;
+    }
+    footer {
+      margin-top: 1.8rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      animation: rise 0.7s 0.15s ease-out both;
+    }
+    footer a { color: var(--accent); }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">每日14樣功課</h1>
+      <p class="sub">超級生命密碼｜天圓文化</p>
+      <div class="date-row">
+        <span class="pill" id="todayLabel">—</span>
+        <span class="pill" id="countLabel">完成 0／14</span>
+      </div>
+      <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+      <p class="hint">點一下＝完成並消失；明天自動全部回來<br />每項已標：七習慣＋Ⅰ重要且緊急</p>
+    </header>
+
+    <p class="install" id="installTip">
+      <strong>加到手機主畫面：</strong>用 Safari／Chrome 開啟本頁 →「分享」或選單 →「加入主畫面」。之後像 App 一樣每天打開勾選。
+    </p>
+
+    <ul id="list" aria-label="今日功課清單"></ul>
+
+    <div class="done-list-box" id="doneListBox" hidden>
+      <h2>今日已完成（可修正）</h2>
+      <p class="hint">點「恢復」可把誤勾項目改回未完成。</p>
+      <ul class="done-list" id="doneList"></ul>
+    </div>
+
+    <div class="done-panel" id="donePanel">
+      <h2>今日功課全部完成</h2>
+      <p>明天會自動重新出現 14 項，日復一日。</p>
+      <div class="actions">
+        <button type="button" id="undoLast" class="primary">撤銷上一項</button>
+        <button type="button" id="resetToday">重設今日</button>
+      </div>
+    </div>
+
+    <div class="actions" id="bottomActions" style="margin-top:1.2rem;">
+      <button type="button" id="undoBtn">撤銷上一項</button>
+      <button type="button" id="resetBtn">重設今日</button>
+    </div>
+    <div class="voice-box" id="voicePickerCard">
+      <h2>讀誦聲音（男聲／女聲）</h2>
+      <label for="ttsGender">性別偏好</label>
+      <select id="ttsGender">
+        <option value="F">女聲（好聽優先）</option>
+        <option value="M">男聲模式（明顯低沉）</option>
+        <option value="all">全部中文語音</option>
+      </select>
+      <label for="ttsVoice">選擇聲音</label>
+      <select id="ttsVoice"></select>
+      <div class="actions" style="margin-top:0.55rem;">
+        <button type="button" id="ttsPreview">試聽此聲音</button>
+      </div>
+      <p class="hint" id="ttsVoiceHint">iPhone 若仍見「男聲效果｜美佳」是舊快取：請選「男聲模式・超低沉（建議）」並強制重新整理。</p>
+    </div>
+
+    <div class="actions" id="speakSyncActions" style="margin-top:0.65rem;">
+      <button type="button" id="speakBtn" class="primary">🔊 讀誦今日紀錄</button>
+      <button type="button" id="pauseSpeakBtn" data-tts-pause>⏸ 暫停</button>
+      <button type="button" id="stopSpeakBtn" data-tts-stop>取消讀誦</button>
+      <button type="button" id="exportBtn">匯出同步</button>
+      <button type="button" id="importBtn">匯入同步</button>
+      <button type="button" id="copyBtn">複製同步 JSON</button>
+    </div>
+    <p class="hint" data-tts-status hidden style="margin-top:0.35rem;text-align:center;color:var(--ok);font-weight:700;"></p>
+    <input type="file" id="importFile" accept="application/json,.json" hidden />
+    <p class="hint" style="margin-top:0.55rem;text-align:center;">
+      與電腦版同步：匯出 JSON → 傳到電腦「靈命七習慣資料」夾 → 另一端匯入。<br />
+      電腦版入口：<a href="../life-desk/">靈命七習慣電腦版</a>
+    </p>
+
+    <footer>
+      <p>資料只存在這支手機瀏覽器（不上傳）。</p>
+      <p style="margin-top:0.35rem;">
+        <a id="homeLink" href="../">回上一層</a>
+        ｜
+        <a id="habitsLink" href="../habits-7/">七習慣／象限對照</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="./tts-voices.js?v=21"></script>
+  <script>
+    const TASKS = [
+      { id: 1, title: "每天聆聽「富有」歌曲 3 次", habit: 7, habitName: "不斷更新", quad: 1 },
+      { id: 2, title: "每天聆聽「注入彩虹」3 次", habit: 7, habitName: "不斷更新", quad: 1 },
+      { id: 3, title: "每天看蔡禮旭老師講解的弟子規", habit: 2, habitName: "以終為始", quad: 1 },
+      { id: 4, title: "懺悔發願（心法步驟一二三）", habit: 1, habitName: "主動積極", quad: 1 },
+      { id: 5, title: "每天寫心得", habit: 7, habitName: "不斷更新", quad: 1 },
+      { id: 6, title: "練習秒秒感恩", habit: 1, habitName: "主動積極", quad: 1 },
+      { id: 7, title: "做到去我", habit: 5, habitName: "知彼解己", quad: 1 },
+      { id: 8, title: "做太陽心法，每天做 15 分鐘以上", habit: 7, habitName: "不斷更新", quad: 1 },
+      { id: 9, title: "每天照鏡子", habit: 1, habitName: "主動積極", quad: 1 },
+      { id: 10, title: "秒秒轉念", habit: 1, habitName: "主動積極", quad: 1 },
+      { id: 11, title: "秒秒參悟空", habit: 2, habitName: "以終為始", quad: 1 },
+      { id: 12, title: "每天「營造」生活", habit: 3, habitName: "要事第一", quad: 1 },
+      { id: 13, title: "參加網絡共修課程", note: "每週一項；今日若已參加可勾選", habit: 6, habitName: "統合綜效", quad: 1 },
+      {
+        id: 14,
+        title: "渡人",
+        note: "增添德資糧，與人分享，分發結緣書，接引他人一起來學習《超級生命密碼》",
+        habit: 4,
+        habitName: "雙贏思維",
+        quad: 1
+      }
+    ];
+
+    const STORAGE_KEY = "daily14-v1";
+    const TZ = "Asia/Taipei";
+
+    function todayKey() {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: TZ,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(new Date());
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { date: todayKey(), done: [], order: [] };
+        const data = JSON.parse(raw);
+        if (!data || data.date !== todayKey()) {
+          return { date: todayKey(), done: [], order: [] };
+        }
+        return {
+          date: data.date,
+          done: Array.isArray(data.done) ? data.done.map(Number) : [],
+          order: Array.isArray(data.order) ? data.order.map(Number) : []
+        };
+      } catch {
+        return { date: todayKey(), done: [], order: [] };
+      }
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let state = loadState();
+    const listEl = document.getElementById("list");
+    const barEl = document.getElementById("bar");
+    const countLabel = document.getElementById("countLabel");
+    const todayLabel = document.getElementById("todayLabel");
+    const donePanel = document.getElementById("donePanel");
+    const bottomActions = document.getElementById("bottomActions");
+    const homeLink = document.getElementById("homeLink");
+
+    (function setHomeLink() {
+      const path = location.pathname || "";
+      const homeLink = document.getElementById("homeLink");
+      const habitsLink = document.getElementById("habitsLink");
+      if (path.includes("/directory/apps/")) {
+        homeLink.href = "../../";
+        homeLink.textContent = "回學習日誌";
+        if (habitsLink) habitsLink.href = "../habits-7/";
+      } else {
+        homeLink.href = "../";
+        homeLink.textContent = "回習作工具主頁";
+        if (habitsLink) habitsLink.href = "../habits-7/";
+      }
+    })();
+
+    function formatToday() {
+      const parts = new Intl.DateTimeFormat("zh-Hant-TW", {
+        timeZone: TZ,
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short"
+      }).formatToParts(new Date());
+      const get = (t) => (parts.find((p) => p.type === t) || {}).value || "";
+      return `${get("year")}年${get("month")}${get("day")}日（${get("weekday")}）`;
+    }
+
+    function remaining() {
+      return TASKS.filter((t) => !state.done.includes(t.id));
+    }
+
+    function updateMeta() {
+      const n = state.done.length;
+      const pct = Math.round((n / TASKS.length) * 100);
+      barEl.style.width = pct + "%";
+      countLabel.textContent = `完成 ${n}／${TASKS.length}`;
+      todayLabel.textContent = formatToday();
+      const allDone = n >= TASKS.length;
+      donePanel.classList.toggle("show", allDone);
+      bottomActions.style.display = allDone ? "none" : "flex";
+    }
+
+    function render() {
+      if (state.date !== todayKey()) {
+        state = { date: todayKey(), done: [], order: [] };
+        saveState(state);
+      }
+      listEl.innerHTML = "";
+      remaining().forEach((task, i) => {
+        const li = document.createElement("li");
+        li.className = "task";
+        li.dataset.id = String(task.id);
+        li.style.animationDelay = `${Math.min(i, 8) * 0.04}s`;
+        li.setAttribute("role", "button");
+        li.tabIndex = 0;
+        li.setAttribute("aria-label", `完成第 ${task.id} 項：${task.title}`);
+        li.innerHTML =
+          `<span class="num" aria-hidden="true">${task.id}</span>` +
+          `<span class="body">` +
+          `<div class="title">${task.title}</div>` +
+          (task.note ? `<div class="note">${task.note}</div>` : "") +
+          `<div class="map-row">` +
+          `<span class="map-tag">習慣${task.habit} ${task.habitName}</span>` +
+          `<span class="map-tag q1">Ⅰ 重要且緊急</span>` +
+          `</div>` +
+          `<div class="check-hint">點一下完成</div>` +
+          `</span>`;
+        const finish = () => completeTask(task.id, li);
+        li.addEventListener("click", finish);
+        li.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            finish();
+          }
+        });
+        listEl.appendChild(li);
+      });
+      updateMeta();
+      renderDoneList();
+    }
+
+    function completeTask(id, li) {
+      if (state.done.includes(id)) return;
+      state.done.push(id);
+      state.order.push(id);
+      saveState(state);
+      if (li) {
+        li.classList.add("done");
+        setTimeout(() => {
+          render();
+        }, 320);
+      } else {
+        render();
+      }
+    }
+
+    function undoLast() {
+      if (!state.order.length) return;
+      const id = state.order.pop();
+      state.done = state.done.filter((x) => x !== id);
+      saveState(state);
+      render();
+    }
+
+    function undoOne(id) {
+      const nid = Number(id);
+      if (!state.done.includes(nid)) return;
+      state.done = state.done.filter((x) => x !== nid);
+      state.order = state.order.filter((x) => x !== nid);
+      saveState(state);
+      render();
+    }
+
+    function renderDoneList() {
+      const box = document.getElementById("doneListBox");
+      const list = document.getElementById("doneList");
+      if (!box || !list) return;
+      const doneTasks = TASKS.filter((t) => state.done.includes(t.id));
+      list.innerHTML = "";
+      if (!doneTasks.length) {
+        box.hidden = true;
+        return;
+      }
+      box.hidden = false;
+      // 依完成順序（order）顯示；沒在 order 的放後面
+      const ordered = [];
+      state.order.forEach((id) => {
+        const t = TASKS.find((x) => x.id === id);
+        if (t && state.done.includes(t.id)) ordered.push(t);
+      });
+      doneTasks.forEach((t) => {
+        if (!ordered.find((x) => x.id === t.id)) ordered.push(t);
+      });
+      ordered.forEach((task) => {
+        const li = document.createElement("li");
+        li.innerHTML =
+          `<span class="body">` +
+          `<div class="title">第 ${task.id} 項｜${task.title}</div>` +
+          `<div class="meta">習慣${task.habit} ${task.habitName}｜Ⅰ 重要且緊急</div>` +
+          `</span>` +
+          `<button type="button" data-id="${task.id}">恢復</button>`;
+        li.querySelector("button").addEventListener("click", () => {
+          if (!confirm(`把「第 ${task.id} 項」改回未完成？`)) return;
+          undoOne(task.id);
+        });
+        list.appendChild(li);
+      });
+    }
+
+    function resetToday() {
+      if (!confirm("確定要重設今日全部勾選嗎？")) return;
+      state = { date: todayKey(), done: [], order: [] };
+      saveState(state);
+      render();
+    }
+
+    document.getElementById("undoBtn").addEventListener("click", undoLast);
+    document.getElementById("undoLast").addEventListener("click", undoLast);
+    document.getElementById("resetBtn").addEventListener("click", resetToday);
+    document.getElementById("resetToday").addEventListener("click", resetToday);
+
+    function exportPayload() {
+      state = loadState();
+      return {
+        app: "daily-14",
+        type: "daily14-day",
+        version: 1,
+        date: state.date || todayKey(),
+        exportedAt: new Date().toISOString(),
+        done: Array.isArray(state.done) ? state.done : [],
+        order: Array.isArray(state.order) ? state.order : []
+      };
+    }
+
+    function downloadJson(obj, name) {
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+    }
+
+    function stopSpeaking() {
+      if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) {
+        window.TtsVoices.stopSpeakQueue();
+        return;
+      }
+      try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+    }
+    function pauseSpeaking() {
+      if (window.TtsVoices && window.TtsVoices.togglePauseSpeakQueue) {
+        window.TtsVoices.togglePauseSpeakQueue();
+        return;
+      }
+      try {
+        if (!window.speechSynthesis) return;
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+        else window.speechSynthesis.pause();
+      } catch (e) {}
+    }
+    function pickZhVoice() {
+      if (window.TtsVoices && typeof window.TtsVoices.pickZhVoice === "function") {
+        return window.TtsVoices.pickZhVoice();
+      }
+      try {
+        const voices = window.speechSynthesis.getVoices() || [];
+        return voices.find((v) => /zh-TW|zh_TW|Taiwan/i.test(v.lang + v.name))
+          || voices.find((v) => /zh-CN|zh-HK|zh/i.test(v.lang))
+          || null;
+      } catch (e) { return null; }
+    }
+    function speakText(text) {
+      if (!window.speechSynthesis) {
+        alert("此瀏覽器不支援語音讀誦，請用 Chrome／Edge／Safari。");
+        return;
+      }
+      if (window.TtsVoices && window.TtsVoices.speakQueued) {
+        window.TtsVoices.speakQueued(text);
+        return;
+      }
+      stopSpeaking();
+      const settings = (window.TtsVoices && window.TtsVoices.getSpeakSettings)
+        ? window.TtsVoices.getSpeakSettings()
+        : { voice: pickZhVoice(), pitch: 1, rate: 0.95, lang: "zh-TW" };
+      const u = new SpeechSynthesisUtterance(String(text || ""));
+      u.rate = settings.rate || 0.95;
+      u.pitch = settings.pitch || 1;
+      if (settings.voice) {
+        u.voice = settings.voice;
+        u.lang = settings.voice.lang || settings.lang || "zh-TW";
+      } else {
+        u.lang = settings.lang || "zh-TW";
+      }
+      window.speechSynthesis.speak(u);
+    }
+    function buildDaily14SpeechScript() {
+      state = loadState();
+      const remain = TASKS.filter((t) => !state.done.includes(t.id));
+      const done = TASKS.filter((t) => state.done.includes(t.id));
+      const lines = [];
+      lines.push("每日十四樣功課今日紀錄。以身心靈提升、靈命持續成長為首要。");
+      lines.push(`今日已完成 ${done.length} 項，尚餘 ${remain.length} 項。`);
+      if (done.length) {
+        lines.push("已完成的項目如下。");
+        done.forEach((t) => {
+          lines.push(`第 ${t.id} 項。${t.title}。習慣 ${t.habit} ${t.habitName}。`);
+        });
+      }
+      if (remain.length) {
+        lines.push("尚未完成、請優先完成的項目如下。");
+        remain.forEach((t) => {
+          lines.push(`第 ${t.id} 項。${t.title}。習慣 ${t.habit} ${t.habitName}。重要且緊急。`);
+        });
+      } else {
+        lines.push("今日十四樣功課全部完成，隨喜讚歎。");
+      }
+      lines.push("讀誦結束。願靈命日日增長，身心平安。");
+      return lines.join(" ");
+    }
+    function speakDaily14() {
+      speakText(buildDaily14SpeechScript());
+    }
+    document.getElementById("speakBtn").addEventListener("click", speakDaily14);
+    document.getElementById("stopSpeakBtn").addEventListener("click", stopSpeaking);
+    document.getElementById("pauseSpeakBtn").addEventListener("click", pauseSpeaking);
+    if (window.TtsVoices) {
+      window.TtsVoices.bindVoicePicker({ speak: speakText });
+    } else if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = function () { pickZhVoice(); };
+    }
+    // 供電腦版 life-desk 以 postMessage 觸發讀誦
+    window.addEventListener("message", (ev) => {
+      const data = ev && ev.data;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "life-desk-speak-today") speakDaily14();
+      if (data.type === "life-desk-stop-speak") stopSpeaking();
+      if (data.type === "life-desk-pause-speak") pauseSpeaking();
+    });
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const p = exportPayload();
+      downloadJson(p, `daily14-${p.date}.json`);
+      alert(`已匯出 ${p.done.length} 項完成紀錄（${p.date}）。可傳到電腦同步夾匯入。`);
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const text = JSON.stringify(exportPayload(), null, 2);
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("已複製同步 JSON，可貼到電腦版匯入。");
+      } catch {
+        prompt("請手動複製：", text);
+      }
+    });
+
+    document.getElementById("importBtn").addEventListener("click", () => {
+      document.getElementById("importFile").click();
+    });
+
+    document.getElementById("importFile").addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(String(reader.result || ""));
+          const done = Array.isArray(data.done) ? data.done.map(Number) : [];
+          const order = Array.isArray(data.order) ? data.order.map(Number) : done.slice();
+          if (!done.length && !confirm("匯入檔沒有已完成項目，仍要覆蓋今日嗎？")) return;
+          const modeMerge = confirm("匯入方式：\n確定＝合併完成項\n取消＝再選是否覆蓋");
+          let nextDone, nextOrder;
+          if (modeMerge) {
+            state = loadState();
+            nextDone = Array.from(new Set([...(state.done || []), ...done]));
+            nextOrder = Array.from(new Set([...(state.order || []), ...order]));
+          } else if (confirm("確定用匯入檔「覆蓋」今日勾選？")) {
+            nextDone = done;
+            nextOrder = order;
+          } else {
+            return;
+          }
+          state = { date: todayKey(), done: nextDone, order: nextOrder };
+          saveState(state);
+          render();
+          alert(`匯入完成：今日已完成 ${state.done.length}／${TASKS.length}`);
+        } catch (err) {
+          alert("匯入失敗：" + (err && err.message ? err.message : String(err)));
+        }
+      };
+      reader.readAsText(file, "UTF-8");
+    });
+
+    try {
+      if (localStorage.getItem("daily14-hide-install") === "1") {
+        document.getElementById("installTip").style.display = "none";
+      }
+    } catch (_) {}
+
+    document.getElementById("installTip").addEventListener("click", () => {
+      try { localStorage.setItem("daily14-hide-install", "1"); } catch (_) {}
+    });
+
+    function watchDayRollover() {
+      let key = todayKey();
+      setInterval(() => {
+        if (todayKey() !== key) {
+          key = todayKey();
+          render();
+        }
+      }, 30 * 1000);
+    }
+
+    render();
+    watchDayRollover();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+  </script>
+</body>
+</html>

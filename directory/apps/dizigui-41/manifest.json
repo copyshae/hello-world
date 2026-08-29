@@ -1,0 +1,35 @@
+{
+  "id": "/-/dizigui-41/",
+  "name": "蔡禮旭老師｜細講弟子規",
+  "short_name": "弟子規41集",
+  "description": "蔡禮旭老師細講《弟子規》第1～41集，可選1.75倍或2倍速播放，可加入手機主畫面。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5efe3",
+  "theme_color": "#8b1a1a",
+  "lang": "zh-Hant",
+  "categories": ["education"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "dizigui-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "dizigui-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "dizigui-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
