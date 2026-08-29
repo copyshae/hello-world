@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260825 學習日誌・太陽盛德導師歌曲連播 PWA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+      <a href="../apps/taiyang-music/">開啟盛德歌曲連播</a>
+    </nav>
+    <article>
+      <h1>20260825 太陽盛德導師歌曲連播 PWA</h1>
+      <p class="lead">接日誌 <a class="inline" href="./20260824-learning-log.html">0824 弟子規 41 集</a>。本日新增太陽盛德導師歌曲連播手機 PWA：依天圓文化曲庫自動排播放順序，可加入主畫面離線快取。</p>
+
+      <div class="callout"><strong>手機立刻可開（免開電腦）：</strong><br />
+        <a class="inline" href="https://copyshae.github.io/-/directory/202608/20260825-learning-log.html">https://copyshae.github.io/-/directory/202608/20260825-learning-log.html</a><br />
+        正式 hello-world：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260825-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260825-learning-log.html</a>
+      </div>
+
+      <h2>一｜入口</h2>
+      <ul>
+        <li>主版：<a class="inline" href="https://copyshae.github.io/-/taiyang-music/">https://copyshae.github.io/-/taiyang-music/</a></li>
+        <li>分享／加入主畫面：<a class="inline" href="https://copyshae.github.io/-/taiyang-music/share.html">https://copyshae.github.io/-/taiyang-music/share.html</a></li>
+        <li>hello-world 鏡像：<a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/taiyang-music/">https://copyshae.github.io/hello-world/directory/apps/taiyang-music/</a></li>
+        <li>來源：<code>docs/taiyang-music/</code>（曲庫 <code>catalog.json</code>）</li>
+      </ul>
+      <h2>二｜播放順序</h2>
+      <ul>
+        <li>① 〈注入彩虹〉×3 → ② 〈富有〉×3 → ③ 導師親唱各×1 → ④ 其他演唱者各×1。</li>
+        <li>分類欄位 <code>performer</code>：<code>master</code>（導師親唱）或 <code>other</code>（其他演唱者）；App 可篩選。</li>
+      </ul>
+      <h2>三｜曲庫更新</h2>
+      <ul>
+        <li><code>scripts/build-taiyang-catalog.py</code> 以 yt-dlp 搜尋 YouTube 更新曲庫。</li>
+        <li>App 內「更新曲庫」；每週一 GitHub Actions（<code>update-taiyang-catalog.yml</code>）自動更新。</li>
+      </ul>
+
+      <p class="note">
+        hello-world：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202608/20260825-learning-log.html">https://copyshae.github.io/hello-world/directory/202608/20260825-learning-log.html</a>
+        ｜App：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/apps/taiyang-music/">https://copyshae.github.io/hello-world/directory/apps/taiyang-music/</a>
+        ｜上一則：
+        <a class="inline" href="./20260824-learning-log.html">0824 弟子規 41 集 PWA</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>

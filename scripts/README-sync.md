@@ -45,4 +45,13 @@ cd $env:USERPROFILE\Desktop\hello-world
 powershell -ExecutionPolicy Bypass -File .\scripts\install-desktop-apps.ps1
 ```
 
+只同步學習日誌（略過桌面捷徑）：
+
+```powershell
+cd $env:USERPROFILE\Desktop\hello-world
+powershell -ExecutionPolicy Bypass -File .\scripts\push-learning-logs-only.ps1
+```
+
+Windows PowerShell 5.1 會把「無 BOM 的 UTF-8」當 Big5 解析，中文 `.ps1` 會出現「字串缺少結束引號」。此腳本維持 ASCII，並以 UTF-8 BOM 存檔。不要把指令列輸出再貼成 `-File` 後面的參數。
+
 手機請強制重新整理或清掉該站快取後再開（SW：math-grader-v15、teacher-desk-v6）。
