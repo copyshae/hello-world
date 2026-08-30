@@ -231,10 +231,10 @@
   </div>
 
   <script src="ocr-read.js?v=1"></script>
-  <script src="read-text.js?v=4"></script>
-  <script src="../shared/tts-voices.js?v=2"></script>
+  <script src="read-text.js?v=6"></script>
+  <script src="../shared/tts-voices.js?v=3"></script>
   <script>
-    const CATALOG_URL = "./catalog.json?v=20260830d";
+    const CATALOG_URL = "./catalog.json?v=20260830e";
     const STORAGE_KEY = "taiyang-xinyu-v1";
     const CATALOG_CACHE_KEY = "taiyang-xinyu-catalog";
     let catalog = { items: [], categories: [] };
@@ -335,7 +335,10 @@
 
     function displayQuote(it) {
       if (!it) return { title: "太陽心語", text: "", plain: "" };
-      if (it.readText && (it.readTextSource === "manual" || it.readTextSource === "seed" || it.source === "種子語錄")) {
+      if (it.readTextSource === "seed" || it.source === "種子語錄") {
+        return { title: it.title || "太陽心語", text: it.text || it.readText || "", plain: it.plain || "" };
+      }
+      if (it.readText && it.readTextSource === "manual") {
         return { title: it.title || "太陽心語", text: it.readText, plain: "" };
       }
       if (it.readTextSource === "filename" && it.imageUrl) {
@@ -359,20 +362,37 @@
       setReadingUi(false);
     }
 
+    function speakQuote(text) {
+      if (!text) {
+        setStatus("沒有可朗讀的文字");
+        return false;
+      }
+      if (!window.speechSynthesis) {
+        alert("此瀏覽器不支援語音朗讀，請用 Chrome、Edge 或 Safari。");
+        return false;
+      }
+      window.speechSynthesis.getVoices();
+      if (window.TtsVoices && window.TtsVoices.unlockSpeech) window.TtsVoices.unlockSpeech();
+      const speak = (window.TtsVoices && window.TtsVoices.speakFromUserGesture)
+        ? window.TtsVoices.speakFromUserGesture.bind(window.TtsVoices)
+        : (window.TtsVoices && window.TtsVoices.speakQueued)
+          ? window.TtsVoices.speakQueued.bind(window.TtsVoices)
+          : null;
+      if (speak && speak(text)) {
+        setReadingUi(true);
+        return true;
+      }
+      setStatus("朗讀啟動失敗，請再按一次或試聽語音設定");
+      return false;
+    }
+
     function readCurrent(force) {
       const it = filtered[idx];
       if (!it) return;
       if (!force && $("silentMode").checked) return;
       const useDirect = it.readTextSource === "manual" || it.readTextSource === "seed";
       if (useDirect) {
-        const text = speechText(it);
-        if (!text) return;
-        if (window.speechSynthesis) window.speechSynthesis.getVoices();
-        if (window.TtsVoices && window.TtsVoices.speakQueued) {
-          if (window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
-          window.TtsVoices.speakQueued(text);
-          setReadingUi(true);
-        }
+        speakQuote(speechText(it));
         return;
       }
       const imgEl = isLightboxOpen() ? $("lbImg") : $("mainImg");
@@ -382,13 +402,7 @@
         : Promise.resolve(speechText(it));
       resolve.then(function (text) {
         setStatus("");
-        if (!text) return;
-        if (window.speechSynthesis) window.speechSynthesis.getVoices();
-        if (window.TtsVoices && window.TtsVoices.speakQueued) {
-          if (window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
-          window.TtsVoices.speakQueued(text);
-          setReadingUi(true);
-        }
+        speakQuote(text);
       }).catch(function () { setStatus(""); });
     }
 
@@ -574,7 +588,12 @@
 
     if (window.speechSynthesis) {
       window.speechSynthesis.getVoices();
-      document.addEventListener("touchstart", function () { window.speechSynthesis.getVoices(); }, { once: true });
+      function primeTts() {
+        window.speechSynthesis.getVoices();
+        if (window.TtsVoices && window.TtsVoices.unlockSpeech) window.TtsVoices.unlockSpeech();
+      }
+      document.addEventListener("touchstart", primeTts, { once: true, passive: true });
+      document.addEventListener("click", primeTts, { once: true });
     }
 
     $("searchBox").addEventListener("input", () => {
@@ -602,7 +621,7 @@
     });
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=14").catch(() => {});
     }
 
     loadCatalog(false);
