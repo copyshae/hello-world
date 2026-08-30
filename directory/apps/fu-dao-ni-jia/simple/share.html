@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#b42318" />
+  <meta name="apple-mobile-web-app-title" content="福到你家" />
+  <link rel="apple-touch-icon" href="../icon-180.png" />
+  <title>加入主畫面｜福到你家·簡易版</title>
+  <style>
+    :root { --accent: #b42318; --muted: #7a5048; }
+    body { font-family: "PingFang TC", "Noto Sans TC", sans-serif; margin: 0; padding: 2rem 1.2rem; background: #fff5f0; color: #3a1810; line-height: 1.6; }
+    .wrap { max-width: 22rem; margin: 0 auto; text-align: center; }
+    h1 { color: var(--accent); font-size: clamp(1rem, 4.5vw, 1.35rem); line-height: 1.35; }
+    p, ol { text-align: left; color: var(--muted); font-size: 0.92rem; }
+    .icon { width: 5rem; height: 5rem; border-radius: 1rem; margin: 1rem auto 0; object-fit: cover; }
+    a.btn { display: block; margin-top: 0.75rem; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 0.95rem; border-radius: 0.35rem; }
+    .url { margin-top: 0.75rem; padding: 0.75rem; background: #fff; font-size: 0.8rem; word-break: break-all; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>福到你家<br />簡易版·加入主畫面</h1>
+    <img class="icon" src="../icon-192.png" alt="福到你家" />
+    <p>選集即播、可分享 <code>?ep=</code> 單集連結。完整版有搜尋與連播。</p>
+    <div class="url" id="url">https://copyshae.github.io/-/fu-dao-ni-jia/simple/</div>
+    <a class="btn" id="open" href="./index.html">打開簡易版</a>
+    <ol>
+      <li>iPhone：Safari → 分享 → <strong>加入主畫面</strong></li>
+      <li>Android：Chrome → ⋮ → <strong>加入主畫面</strong></li>
+    </ol>
+    <p style="text-align:center;margin-top:1rem;"><a href="../index.html" style="color:var(--accent);">完整版</a></p>
+  </div>
+  <script>
+    var u = location.href.replace(/share\.html.*$/, "");
+    if (u.indexOf("http") !== 0) u = "https://copyshae.github.io/-/fu-dao-ni-jia/simple/";
+    document.getElementById("url").textContent = u;
+    document.getElementById("open").href = u;
+  </script>
+</body>
+</html>

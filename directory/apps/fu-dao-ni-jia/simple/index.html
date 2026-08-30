@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#b42318" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="福到你家" />
+  <meta name="description" content="福到你家簡易收聽：選集即播，可分享單集網址。" />
+  <link rel="icon" href="../icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="../icon-180.png" />
+  <title>福到你家｜簡易版</title>
+  <style>
+    :root { --accent: #b42318; --muted: #7a5048; --line: rgba(180,35,24,0.2); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      color: #3a1810; line-height: 1.55;
+      background: linear-gradient(180deg, #fffaf8, #ffe8e0);
+      padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+    }
+    .wrap { max-width: 24rem; margin: 0 auto; padding-bottom: 2rem; }
+    h1 { text-align: center; font-size: clamp(1rem, 4.5vw, 1.35rem); color: var(--accent); margin-top: 0.5rem; line-height: 1.35; }
+    .sub { text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.25rem 0 0.85rem; }
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; }
+    select, button {
+      width: 100%; font: inherit; font-size: 16px;
+      padding: 0.65rem; border: 1px solid var(--line); border-radius: 0.35rem;
+    }
+    select { background: #fff; margin-bottom: 0.45rem; }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; cursor: pointer; }
+    button.share { margin-top: 0.45rem; background: #fff; color: var(--accent); font-weight: 600; cursor: pointer; }
+    audio { width: 100%; margin-top: 0.85rem; }
+    .now {
+      margin-top: 0.65rem; padding: 0.65rem 0.75rem;
+      background: rgba(255,255,255,0.8); border: 1px solid var(--line); border-radius: 0.35rem;
+      font-size: 0.88rem;
+    }
+    .now strong { color: var(--accent); display: block; line-height: 1.4; }
+    .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); text-align: center; min-height: 1rem; }
+    .share-url {
+      margin-top: 0.35rem; padding: 0.55rem 0.65rem;
+      background: rgba(255,255,255,0.85); border: 1px dashed var(--line); border-radius: 0.35rem;
+      font-size: 0.72rem; color: var(--muted); word-break: break-all; text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>福到你家<br /><span style="font-size:0.85em;font-weight:600">簡易版</span></h1>
+    <p class="sub">正聲廣播 · 選集即播 · 可分享單集網址</p>
+
+    <label for="epSelect">選擇集數</label>
+    <select id="epSelect" aria-label="集數選單"><option value="">— 載入中 —</option></select>
+    <button type="button" id="btnPlay" class="primary">▶ 播放</button>
+    <button type="button" id="btnShare" class="share">🔗 分享此集網址</button>
+
+    <audio id="audio" controls playsinline preload="metadata"></audio>
+    <p class="now" id="nowLine">尚未播放</p>
+    <p class="status" id="statusLine"></p>
+    <p class="share-url" id="shareUrlLine" hidden></p>
+
+    <p class="foot">
+      需要搜尋、連播、倍速？→ <a href="../index.html">開啟完整版</a>
+      · <a href="./share.html">加入主畫面</a>
+    </p>
+  </div>
+
+  <script>
+    const CATALOG_URL = "../catalog.json";
+    const SHARE_BASE = "https://copyshae.github.io/-/fu-dao-ni-jia/simple/";
+    const STORAGE_PERSONAL = "fu-dao-simple-v1";
+    let catalog = { episodes: [] };
+    let currentId = null;
+    let userPicked = false;
+    let persistPreference = true;
+    let guestMode = false;
+
+    const $ = (id) => document.getElementById(id);
+    const audio = $("audio");
+
+    function getShareBase() {
+      if (location.origin && location.origin.indexOf("http") === 0) {
+        return location.origin + location.pathname.replace(/\/index\.html$/, "").replace(/\/$/, "") + "/";
+      }
+      return SHARE_BASE;
+    }
+
+    function getShareUrl(epId) {
+      return getShareBase() + "?ep=" + encodeURIComponent(epId);
+    }
+
+    function readShareParam() {
+      return (new URLSearchParams(location.search).get("ep") || "").trim();
+    }
+
+    function readGuestParam() {
+      const p = new URLSearchParams(location.search);
+      return p.get("guest") === "1";
+    }
+
+    function seasonOf(title) {
+      const m = (title || "").match(/^(S\d+)/i);
+      return m ? m[1].toUpperCase() : "其他";
+    }
+
+    function renderMenu() {
+      const eps = catalog.episodes || [];
+      const groups = {};
+      eps.forEach((e) => {
+        const g = seasonOf(e.title);
+        if (!groups[g]) groups[g] = [];
+        groups[g].push(e);
+      });
+      const order = Object.keys(groups).sort().reverse();
+      let html = '<option value="">— 請選擇 —</option>';
+      order.forEach((g) => {
+        html += '<optgroup label="' + g + '">';
+        groups[g].forEach((e) => {
+          html += '<option value="' + e.id + '">' + e.title + "</option>";
+        });
+        html += "</optgroup>";
+      });
+      $("epSelect").innerHTML = html;
+      const sharedId = readShareParam();
+      if (sharedId && eps.some((e) => e.id === sharedId)) {
+        $("epSelect").value = sharedId;
+        return;
+      }
+      if (persistPreference) {
+        try {
+          const last = localStorage.getItem(STORAGE_PERSONAL);
+          if (last && eps.some((e) => e.id === last)) $("epSelect").value = last;
+        } catch (_) {}
+      }
+    }
+
+    async function loadCatalog() {
+      $("statusLine").textContent = "載入節目…";
+      try {
+        const res = await fetch(CATALOG_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (res.ok) catalog = await res.json();
+      } catch (_) {
+        try {
+          const res = await fetch(CATALOG_URL);
+          if (res.ok) catalog = await res.json();
+        } catch (__) {}
+      }
+      renderMenu();
+      const n = (catalog.episodes || []).length;
+      $("statusLine").textContent = n ? "共 " + n + " 集" : "無法載入節目表";
+      const sharedId = readShareParam();
+      const ep = sharedId && (catalog.episodes || []).find((e) => e.id === sharedId);
+      if (ep) {
+        persistPreference = false;
+        userPicked = true;
+        playEp(ep);
+        updateStatus("已從分享連結開啟（不寫入個人記錄）");
+      }
+    }
+
+    function updateSharePreview(id) {
+      const line = $("shareUrlLine");
+      if (!id) { line.hidden = true; return; }
+      line.hidden = false;
+      line.textContent = "分享網址：" + getShareUrl(id);
+    }
+
+    function playEp(ep) {
+      if (!ep || !ep.audioUrl) return;
+      currentId = ep.id;
+      if (persistPreference) {
+        try { localStorage.setItem(STORAGE_PERSONAL, ep.id); } catch (_) {}
+      }
+      $("nowLine").innerHTML = "<strong>" + ep.title + "</strong>" + (ep.date ? " · " + ep.date : "");
+      updateSharePreview(ep.id);
+      audio.src = ep.audioUrl;
+      audio.play().catch(() => {});
+    }
+
+    function playSelected(fromUser) {
+      const id = $("epSelect").value;
+      if (!id) {
+        if (fromUser) $("statusLine").textContent = "請先選擇集數";
+        return;
+      }
+      if (fromUser) {
+        userPicked = true;
+        persistPreference = true;
+      }
+      const ep = (catalog.episodes || []).find((e) => e.id === id);
+      playEp(ep);
+    }
+
+    function updateStatus(msg) {
+      if (msg) $("statusLine").textContent = msg;
+    }
+
+    async function shareCurrent() {
+      const id = currentId || $("epSelect").value;
+      if (!id) { $("statusLine").textContent = "請先選擇集數"; return; }
+      const ep = (catalog.episodes || []).find((e) => e.id === id);
+      const url = getShareUrl(id);
+      const title = (ep && ep.title) || "福到你家";
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: title, text: title + "｜福到你家", url: url });
+          updateStatus("已開啟分享");
+          return;
+        } catch (err) { if (err && err.name === "AbortError") return; }
+      }
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url);
+          updateStatus("已複製分享網址");
+          return;
+        }
+      } catch (_) {}
+      window.prompt("複製此網址分享：", url);
+    }
+
+    $("btnPlay").addEventListener("click", () => {
+      if (audio.paused) {
+        if (audio.src) audio.play();
+        else playSelected(true);
+      } else audio.pause();
+    });
+    $("epSelect").addEventListener("change", () => playSelected(true));
+    $("btnShare").addEventListener("click", shareCurrent);
+    audio.addEventListener("play", () => { $("btnPlay").textContent = "⏸ 暫停"; });
+    audio.addEventListener("pause", () => { $("btnPlay").textContent = "▶ 播放"; });
+
+    guestMode = readGuestParam();
+    if (guestMode) persistPreference = false;
+    loadCatalog();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js?v=1").catch(() => {});
+    }
+  </script>
+</body>
+</html>

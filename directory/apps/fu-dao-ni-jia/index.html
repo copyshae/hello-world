@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#b42318" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="福到你家" />
+  <meta name="description" content="正聲廣播電台「福到你家」：太陽盛德導師專訪，選集即播、連續播放。可加入主畫面。" />
+  <link rel="manifest" href="manifest.json?v=20260830" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>福到你家｜正聲廣播</title>
+  <style>
+    :root {
+      --ink: #3a1810; --muted: #7a5048; --paper: #fff5f0;
+      --accent: #b42318; --accent2: #e07a5a; --line: rgba(180, 35, 24, 0.2);
+      --card: rgba(255, 255, 255, 0.82); --ok: #2d6a4f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      color: var(--ink); line-height: 1.55;
+      background: linear-gradient(180deg, #fffaf8 0%, var(--paper) 45%, #ffe8e0 100%);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; }
+    header { text-align: center; }
+    .brand { font-size: clamp(1.15rem, 5vw, 1.5rem); font-weight: 700; color: var(--accent); line-height: 1.35; }
+    .sub { margin-top: 0.3rem; font-size: 0.84rem; color: var(--muted); }
+    .pill-row { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+    .pill { font-size: 0.72rem; color: var(--accent); background: var(--card); border: 1px solid var(--line); padding: 0.2rem 0.5rem; border-radius: 999px; }
+    .home-card {
+      margin-top: 0.85rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line);
+      border-radius: 0.5rem; display: flex; gap: 0.75rem; align-items: center;
+    }
+    .home-icon { width: 3.6rem; height: 3.6rem; border-radius: 0.85rem; flex-shrink: 0; object-fit: cover; }
+    .home-card p { font-size: 0.78rem; color: var(--muted); }
+    .panel { margin-top: 0.85rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; }
+    .section { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 0.45rem; }
+    input[type="search"], select {
+      width: 100%; font: inherit; font-size: 16px; padding: 0.6rem 0.65rem;
+      border: 1px solid var(--line); border-radius: 0.35rem; background: #fff;
+    }
+    input[type="search"] { margin-bottom: 0.45rem; }
+    .ep-list {
+      max-height: 14rem; overflow-y: auto; margin-top: 0.45rem;
+      border: 1px solid var(--line); border-radius: 0.35rem; background: #fff;
+    }
+    .ep-item {
+      display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line);
+      background: transparent; padding: 0.65rem 0.7rem; cursor: pointer; font: inherit; color: var(--ink);
+    }
+    .ep-item:last-child { border-bottom: 0; }
+    .ep-item.active { background: rgba(180, 35, 24, 0.08); }
+    .ep-item .t { font-size: 0.88rem; font-weight: 600; line-height: 1.35; }
+    .ep-item .m { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+    .player-box {
+      margin-top: 0.85rem; padding: 0.85rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem;
+    }
+    .now-title { font-size: 0.95rem; font-weight: 700; color: var(--accent); line-height: 1.4; }
+    .now-meta { margin-top: 0.25rem; font-size: 0.78rem; color: var(--muted); }
+    audio { width: 100%; margin-top: 0.65rem; }
+    .progress-bar { margin-top: 0.5rem; height: 0.35rem; background: rgba(180,35,24,0.12); border-radius: 999px; overflow: hidden; }
+    .progress-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.2s; }
+    .controls { margin-top: 0.6rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; }
+    button {
+      font: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--card);
+      color: var(--ink); padding: 0.55rem 0.3rem; border-radius: 0.35rem; font-weight: 600; font-size: 0.82rem;
+    }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .toolbar { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+    .toolbar label { font-size: 0.78rem; color: var(--muted); }
+    .toolbar select { width: auto; font-size: 0.85rem; padding: 0.35rem 0.5rem; }
+    .toolbar .meta { margin-left: auto; font-size: 0.75rem; color: var(--muted); }
+    .hint { margin-top: 0.75rem; font-size: 0.76rem; color: var(--muted); padding: 0.65rem; background: rgba(255,255,255,0.5); border: 1px dashed var(--line); border-radius: 0.35rem; }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); }
+    .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">福到你家</h1>
+      <p class="sub">正聲廣播 FM104.1 · 子榕 × 太陽盛德導師</p>
+      <div class="pill-row">
+        <span class="pill">選集即播</span>
+        <span class="pill">連續播放</span>
+        <span class="pill">加入主畫面</span>
+      </div>
+    </header>
+
+    <section class="home-card">
+      <img class="home-icon" src="icon-192.png" width="192" height="192" alt="福到你家" />
+      <div>
+        <p><strong>主畫面圖示：福到你家</strong></p>
+        <p>Safari／Chrome → <a href="./share.html" style="color:var(--accent);">加入主畫面說明</a></p>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="節目選單">
+      <h2 class="section">節目選單 <span id="listCount" style="font-weight:400;font-size:0.78rem;color:var(--muted)"></span></h2>
+      <input type="search" id="searchBox" placeholder="搜尋標題或集數…" enterkeyhint="search" />
+      <div class="ep-list" id="epList" role="listbox" aria-label="集數列表"></div>
+    </section>
+
+    <section class="player-box">
+      <p class="now-title" id="nowTitle">尚未播放</p>
+      <p class="now-meta" id="nowMeta">請選擇一集</p>
+      <div class="progress-bar" aria-hidden="true"><i id="queueBar"></i></div>
+      <audio id="audio" controls playsinline preload="metadata"></audio>
+      <div class="controls">
+        <button type="button" id="btnPrev">⏮ 上一集</button>
+        <button type="button" id="btnPlay" class="primary">▶ 播放</button>
+        <button type="button" id="btnNext">下一集 ⏭</button>
+      </div>
+      <div class="toolbar">
+        <label><input type="checkbox" id="autoNext" checked /> 連播</label>
+        <label>倍速
+          <select id="speed">
+            <option value="1">1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="1.75">1.75×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+        <span class="meta" id="catalogMeta"></span>
+      </div>
+    </section>
+
+    <div class="toolbar" style="margin-top:0.65rem;">
+      <button type="button" id="btnRefresh">🔄 更新節目表</button>
+    </div>
+    <p class="status" id="statusLine"></p>
+
+    <p class="hint">
+      節目來源：Firstory RSS（天圓文化「福到你家」）。每週六 11:00 正聲廣播 FM104.1 同步播出。<br />
+      音訊由 CDN 串流，需網路連線。
+    </p>
+    <p class="foot">
+      <a href="./simple/">分享給朋友？試試簡易版</a>
+      · <a href="../">回主選單</a>
+    </p>
+  </div>
+
+  <script>
+    const CATALOG_URL = "./catalog.json";
+    const STORAGE_KEY = "fu-dao-v1";
+    let catalog = { episodes: [] };
+    let filtered = [];
+    let qIndex = 0;
+    let autoPlay = true;
+
+    const $ = (id) => document.getElementById(id);
+    const audio = $("audio");
+
+    function fmtDur(sec) {
+      const s = Number(sec);
+      if (!s || s < 1) return "";
+      const m = Math.floor(s / 60);
+      const r = Math.floor(s % 60);
+      return m + " 分" + (r ? " " + r + " 秒" : "");
+    }
+
+    function loadPrefs() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {};
+        return JSON.parse(raw) || {};
+      } catch (_) { return {}; }
+    }
+
+    function savePrefs(extra) {
+      try {
+        const p = Object.assign(loadPrefs(), extra);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+      } catch (_) {}
+    }
+
+    async function loadCatalog(force) {
+      $("statusLine").textContent = force ? "正在更新節目表…" : "載入節目…";
+      let remote = null;
+      try {
+        const res = await fetch(CATALOG_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (res.ok) remote = await res.json();
+      } catch (_) {}
+      if (!remote) {
+        try {
+          const res = await fetch(CATALOG_URL);
+          if (res.ok) remote = await res.json();
+        } catch (_) {}
+      }
+      if (remote && remote.episodes) {
+        catalog = remote;
+        try { localStorage.setItem("fu-dao-catalog", JSON.stringify(catalog)); } catch (_) {}
+      } else {
+        try {
+          const saved = localStorage.getItem("fu-dao-catalog");
+          if (saved) catalog = JSON.parse(saved);
+        } catch (_) {}
+      }
+      filtered = catalog.episodes || [];
+      $("catalogMeta").textContent = (catalog.count || filtered.length) + " 集 · " + (catalog.updatedAt || "");
+      renderList();
+      const prefs = loadPrefs();
+      if (prefs.lastId) {
+        const i = filtered.findIndex((e) => e.id === prefs.lastId);
+        if (i >= 0) jumpTo(i, false);
+      }
+      $("statusLine").textContent = remote
+        ? "已載入 " + filtered.length + " 集"
+        : "使用快取節目表（" + filtered.length + " 集）";
+    }
+
+    function renderList() {
+      const q = ($("searchBox").value || "").trim().toLowerCase();
+      const eps = (catalog.episodes || []).filter((e) => {
+        if (!q) return true;
+        return (e.title || "").toLowerCase().includes(q) || (e.date || "").includes(q);
+      });
+      filtered = eps;
+      const list = $("epList");
+      list.innerHTML = "";
+      if (!eps.length) {
+        list.innerHTML = '<p style="padding:0.75rem;font-size:0.85rem;color:var(--muted)">找不到符合的集數</p>';
+        $("listCount").textContent = "（0 集）";
+        return;
+      }
+      eps.forEach((ep, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "ep-item" + (i === qIndex ? " active" : "");
+        btn.setAttribute("role", "option");
+        btn.innerHTML = '<div class="t">' + ep.title + '</div><div class="m">' + (ep.date || "") + (ep.duration ? " · " + fmtDur(ep.duration) : "") + "</div>";
+        btn.addEventListener("click", () => jumpTo(i, true));
+        list.appendChild(btn);
+      });
+      $("listCount").textContent = "（" + eps.length + " 集）";
+      updateQueueBar();
+    }
+
+    function updateNow() {
+      const ep = filtered[qIndex];
+      if (!ep) {
+        $("nowTitle").textContent = "尚無集數";
+        $("nowMeta").textContent = "";
+        return;
+      }
+      $("nowTitle").textContent = ep.title;
+      $("nowMeta").textContent = "第 " + (qIndex + 1) + "／" + filtered.length + " · " + (ep.date || "") + " · " + (catalog.station || "");
+      $("btnPrev").disabled = qIndex <= 0;
+      $("btnNext").disabled = qIndex >= filtered.length - 1;
+      updateQueueBar();
+      document.querySelectorAll(".ep-item").forEach((el, i) => el.classList.toggle("active", i === qIndex));
+    }
+
+    function updateQueueBar() {
+      const total = filtered.length;
+      $("queueBar").style.width = total ? ((qIndex + 1) / total * 100) + "%" : "0%";
+    }
+
+    function playEpisode(ep, play) {
+      if (!ep || !ep.audioUrl) return;
+      audio.src = ep.audioUrl;
+      audio.playbackRate = Number($("speed").value) || 1;
+      if (play) audio.play().catch(() => {});
+      savePrefs({ lastId: ep.id });
+      updateNow();
+    }
+
+    function jumpTo(i, play) {
+      if (i < 0 || i >= filtered.length) return;
+      qIndex = i;
+      autoPlay = !!play;
+      playEpisode(filtered[qIndex], play);
+    }
+
+    $("searchBox").addEventListener("input", () => { qIndex = 0; renderList(); updateNow(); });
+    $("btnPlay").addEventListener("click", () => {
+      if (!filtered.length) return;
+      if (!audio.src) jumpTo(qIndex, true);
+      else if (audio.paused) audio.play();
+      else audio.pause();
+    });
+    $("btnPrev").addEventListener("click", () => jumpTo(qIndex - 1, true));
+    $("btnNext").addEventListener("click", () => jumpTo(qIndex + 1, true));
+    $("btnRefresh").addEventListener("click", () => loadCatalog(true));
+    $("autoNext").addEventListener("change", (e) => { autoPlay = e.target.checked; });
+    $("speed").addEventListener("change", () => {
+      audio.playbackRate = Number($("speed").value) || 1;
+      savePrefs({ speed: $("speed").value });
+    });
+
+    audio.addEventListener("play", () => { $("btnPlay").textContent = "⏸ 暫停"; });
+    audio.addEventListener("pause", () => { $("btnPlay").textContent = "▶ 播放"; });
+    audio.addEventListener("ended", () => {
+      if (autoPlay && qIndex < filtered.length - 1) jumpTo(qIndex + 1, true);
+      else $("statusLine").textContent = "本集播放完畢";
+    });
+
+    const prefs = loadPrefs();
+    if (prefs.speed) $("speed").value = prefs.speed;
+
+    loadCatalog(false);
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js?v=1").catch(() => {});
+    }
+  </script>
+</body>
+</html>

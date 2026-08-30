@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#b42318" />
+  <meta name="apple-mobile-web-app-title" content="福到你家" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="manifest" href="manifest.json?v=20260830" />
+  <title>加入主畫面｜福到你家</title>
+  <style>
+    :root { --accent: #b42318; --muted: #7a5048; }
+    body { font-family: "PingFang TC", "Noto Sans TC", sans-serif; margin: 0; padding: 2rem 1.2rem; background: #fff5f0; color: #3a1810; line-height: 1.6; }
+    .wrap { max-width: 22rem; margin: 0 auto; text-align: center; }
+    h1 { color: var(--accent); font-size: clamp(1.1rem, 5vw, 1.4rem); line-height: 1.35; }
+    p, ol { text-align: left; color: var(--muted); font-size: 0.92rem; }
+    .icon { width: 5.5rem; height: 5.5rem; border-radius: 1.1rem; margin: 1rem auto 0; object-fit: cover; }
+    a.btn { display: block; margin-top: 1rem; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 1rem; border-radius: 0.35rem; }
+    .url { margin-top: 0.75rem; padding: 0.75rem; background: #fff; font-size: 0.8rem; word-break: break-all; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>福到你家<br />加入主畫面</h1>
+    <img class="icon" src="icon-192.png" alt="福到你家" />
+    <p>正聲廣播電台節目收錄（Firstory RSS）。完整版：搜尋、連播、倍速；簡易版適合分享單集。</p>
+    <div class="url" id="url">https://copyshae.github.io/-/fu-dao-ni-jia/</div>
+    <a class="btn" id="open" href="./index.html">打開福到你家</a>
+    <ol>
+      <li>iPhone：Safari 開啟上方網址 → 分享 → 加入主畫面（圖示名稱：福到你家）</li>
+      <li>Android：Chrome → ⋮ → 加入主畫面</li>
+      <li>簡易版：<a id="simpleLink" href="./simple/">fu-dao-ni-jia/simple/</a></li>
+    </ol>
+  </div>
+  <script>
+    var u = location.href.replace(/share\.html.*$/, "");
+    if (u.indexOf("http") !== 0) u = "https://copyshae.github.io/-/fu-dao-ni-jia/";
+    document.getElementById("url").textContent = u;
+    document.getElementById("open").href = u;
+    document.getElementById("simpleLink").href = u.replace(/\/?$/, "/") + "simple/";
+  </script>
+</body>
+</html>
