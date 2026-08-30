@@ -165,19 +165,20 @@
     .ktv-offset-bar button:active { background: rgba(45,106,79,0.45); }
     body.ktv-mode .normal-only { display: none !important; }
     body.ktv-mode .player-shell { margin-top: 0.5rem; }
+    /* KTV 原字幕模式：維持與一般播放相同 16:9 尺寸，避免按 KTV 後視窗突然放大 */
     body.ktv-mode.native-captions .player-shell {
       aspect-ratio: 16/9;
-      min-height: min(52vh, 28rem);
-      margin-top: 0.35rem;
-      margin-bottom: 0.35rem;
-      box-shadow: 0 6px 28px rgba(0,0,0,0.45);
-      border: 2px solid rgba(149,213,178,0.45);
+      min-height: 0;
+      margin-top: 0.5rem;
+      margin-bottom: 0;
+      box-shadow: none;
+      border: 1px solid rgba(149,213,178,0.35);
     }
     body.ktv-mode.native-captions .ktv-panel { min-height: auto; padding-top: 0.55rem; }
     body.ktv-mode.native-captions .ktv-line,
     body.ktv-mode.native-captions .ktv-next,
     body.ktv-mode.native-captions .ktv-offset-bar { display: none !important; }
-    body.ktv-mode.sync-youtube .player-shell { outline: 2px solid rgba(149,213,178,0.35); }
+    body.ktv-mode.sync-youtube .player-shell { outline: 1px solid rgba(149,213,178,0.3); }
     body.ktv-mode.overlay-estimated .ktv-line::before {
       content: "（估算，僅供參考）";
       display: block;
@@ -187,7 +188,7 @@
       margin-bottom: 0.25em;
       letter-spacing: 0.05em;
     }
-    body.ktv-mode .wrap { max-width: 32rem; }
+    /* KTV 模式不再加寬整頁，避免播放器視覺上突然變大 */
     .ktv-score {
       margin-top: 0.75rem;
       padding: 1rem 0.85rem;
@@ -2191,7 +2192,7 @@
     });
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=20260829").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=20260830b").catch(() => {});
     }
   </script>
   <script src="https://www.youtube.com/iframe_api" async></script>
