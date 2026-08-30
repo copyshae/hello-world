@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="弟子規41集" />
-  <meta name="description" content="蔡禮旭老師細講《弟子規》第1～41集，可選1.75倍或2倍速播放。" />
+  <meta name="description" content="蔡禮旭老師細講《弟子規》第1～41集，可選1／1.5／1.75／2倍速播放。" />
   <link rel="manifest" href="manifest.json?v=20260829" />
   <link rel="icon" href="dizigui-icon-192.png?v=20260829" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="dizigui-icon-180.png?v=20260829" sizes="180x180" />
@@ -148,12 +148,13 @@
       font-weight: 600;
     }
     .speed-pick {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 0.35rem;
       flex: 1;
+      min-width: 0;
     }
     .speed-pick button {
-      flex: 1;
       font: inherit;
       cursor: pointer;
       border: 1px solid var(--line);
@@ -272,7 +273,7 @@
       <h1 class="brand">細講《弟子規》</h1>
       <p class="sub">蔡禮旭老師主講 · 2005 幸福人生講座 · 共 41 集</p>
       <div class="pill-row">
-        <span class="pill">可選 1.75／2 倍速</span>
+        <span class="pill">可選 1～2 倍速</span>
         <span class="pill">可連續播放</span>
         <span class="pill">可加入主畫面</span>
       </div>
@@ -313,6 +314,8 @@
     <div class="speed-row" role="group" aria-label="播放倍速">
       <span class="label">倍速</span>
       <div class="speed-pick">
+        <button type="button" class="speed-btn" data-rate="1">1×</button>
+        <button type="button" class="speed-btn" data-rate="1.5">1.5×</button>
         <button type="button" class="speed-btn" data-rate="1.75">1.75×</button>
         <button type="button" class="speed-btn active" data-rate="2">2×</button>
       </div>
@@ -333,8 +336,13 @@
 
   <script src="episodes.js"></script>
   <script>
-    const SPEED_OPTIONS = [1.75, 2];
+    const SPEED_OPTIONS = [1, 1.5, 1.75, 2];
     const DEFAULT_SPEED = 2;
+
+    function formatSpeedLabel(rate, withSuffix) {
+      var label = rate === 1 ? "1×" : rate + "×";
+      return withSuffix ? label + " 倍速" : label;
+    }
     const STORAGE_KEY = "dizigui41-last";
     const SPEED_KEY = "dizigui41-speed";
     const DONE_KEY = "dizigui41-done";
@@ -418,12 +426,11 @@
       try {
         player.setPlaybackRate(playbackRate);
         const rates = player.getAvailablePlaybackRates ? player.getAvailablePlaybackRates() : [];
-        const label = playbackRate === 1.75 ? "1.75×" : playbackRate + "×";
         if (rates.length && !rates.includes(playbackRate)) {
           speedBadge.textContent = "倍速受限";
           speedBadge.style.background = "#6b5344";
         } else {
-          speedBadge.textContent = label + " 倍速";
+          speedBadge.textContent = formatSpeedLabel(playbackRate, true);
           speedBadge.style.background = "";
         }
       } catch (_) { /* 部分環境不支援 */ }
@@ -495,8 +502,7 @@
 
     function onPlayerReady() {
       applySpeed();
-      const label = playbackRate === 1.75 ? "1.75" : String(playbackRate);
-      epMeta.textContent = "已就緒 · " + label + " 倍速";
+      epMeta.textContent = "已就緒 · " + formatSpeedLabel(playbackRate, true);
       updatePlayBtn(false);
     }
 
@@ -572,7 +578,7 @@
     updateUI();
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=20260829").then(function (reg) {
+      navigator.serviceWorker.register("./sw.js?v=20260830").then(function (reg) {
         reg.addEventListener("updatefound", function () {
           var nw = reg.installing;
           if (!nw) return;
