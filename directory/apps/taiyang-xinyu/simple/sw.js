@@ -1,4 +1,4 @@
-const CACHE = "taiyang-xinyu-simple-v10";
+const CACHE = "taiyang-xinyu-simple-v11";
 const ASSETS = ["./", "./index.html", "../catalog.json", "../icon-192.png"];
 
 self.addEventListener("install", (e) => {

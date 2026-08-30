@@ -1,4 +1,4 @@
-const CACHE = "taiyang-xinyu-v12";
+const CACHE = "taiyang-xinyu-v13";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,6 +9,8 @@ const ASSETS = [
   "./icon-180.png",
   "./icon-192.png",
   "./icon-512.png",
+  "./read-text.js",
+  "./ocr-read.js",
   "../shared/tts-voices.js"
 ];
 

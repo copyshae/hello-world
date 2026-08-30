@@ -231,10 +231,10 @@
   </div>
 
   <script src="ocr-read.js?v=1"></script>
-  <script src="read-text.js?v=3"></script>
+  <script src="read-text.js?v=4"></script>
   <script src="../shared/tts-voices.js?v=2"></script>
   <script>
-    const CATALOG_URL = "./catalog.json";
+    const CATALOG_URL = "./catalog.json?v=20260830d";
     const STORAGE_KEY = "taiyang-xinyu-v1";
     const CATALOG_CACHE_KEY = "taiyang-xinyu-catalog";
     let catalog = { items: [], categories: [] };
@@ -335,8 +335,11 @@
 
     function displayQuote(it) {
       if (!it) return { title: "太陽心語", text: "", plain: "" };
-      if (it.readText && it.source !== "種子語錄") {
+      if (it.readText && (it.readTextSource === "manual" || it.readTextSource === "seed" || it.source === "種子語錄")) {
         return { title: it.title || "太陽心語", text: it.readText, plain: "" };
+      }
+      if (it.readTextSource === "filename" && it.imageUrl) {
+        return { title: it.title || "太陽心語", text: "", plain: "" };
       }
       return { title: it.title || "太陽心語", text: it.text || "", plain: it.plain || "" };
     }
@@ -360,9 +363,20 @@
       const it = filtered[idx];
       if (!it) return;
       if (!force && $("silentMode").checked) return;
+      const useDirect = it.readTextSource === "manual" || it.readTextSource === "seed";
+      if (useDirect) {
+        const text = speechText(it);
+        if (!text) return;
+        if (window.speechSynthesis) window.speechSynthesis.getVoices();
+        if (window.TtsVoices && window.TtsVoices.speakQueued) {
+          if (window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+          window.TtsVoices.speakQueued(text);
+          setReadingUi(true);
+        }
+        return;
+      }
       const imgEl = isLightboxOpen() ? $("lbImg") : $("mainImg");
-      const needsOcr = window.TaiyangOcrRead && window.TaiyangOcrRead.needsImageOcr(it);
-      if (needsOcr) setStatus("正在辨識圖片文字…");
+      if (window.TaiyangOcrRead && window.TaiyangOcrRead.needsImageOcr(it)) setStatus("正在辨識圖片文字…");
       const resolve = window.TaiyangReadText && window.TaiyangReadText.resolveSpeechText
         ? window.TaiyangReadText.resolveSpeechText(it, imgEl)
         : Promise.resolve(speechText(it));

@@ -23,6 +23,8 @@
 
   function speechText(it) {
     if (!it) return "";
+    if (it.readText && it.readTextSource === "manual") return it.readText;
+    if (it.readText && (it.readTextSource === "seed" || it.source === "種子語錄")) return it.readText;
     if (it.readText) return it.readText;
     var text = stripShortTitlePrefix(it.title, it.text);
     var plain = cleanRead(it.plain);
@@ -38,7 +40,7 @@
   function resolveSpeechText(it, imgEl) {
     if (!it) return Promise.resolve("");
     if (it.readTextSource === "manual" || it.readTextSource === "seed") {
-      return Promise.resolve(speechText(it));
+      return Promise.resolve(it.readText || speechText(it));
     }
     if (global.TaiyangOcrRead && global.TaiyangOcrRead.needsImageOcr(it) && imgEl) {
       return global.TaiyangOcrRead.getOcrText(it.id, imgEl).then(function (ocr) {
