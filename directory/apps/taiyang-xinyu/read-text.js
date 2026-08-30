@@ -1,4 +1,4 @@
-/** 太陽心語：朗讀文字（標題唸一次；正文保留完整語句，不裁掉與標題相同字） */
+/** 太陽心語：朗讀文字（種子卡片唸標題＋主文；原圖只唸圖上內容） */
 (function (global) {
   function cleanRead(s) {
     return (s || "")
@@ -7,6 +7,12 @@
       .replace(/^太陽心語[：:]\s*/i, "")
       .replace(/\s+/g, " ")
       .trim();
+  }
+
+  function isWebOriginalImage(it) {
+    if (!it) return false;
+    if (it.readTextSource === "manual") return true;
+    return it.source === "網路搜尋" && !!it.imageUrl;
   }
 
   function fullBodyFromItem(it) {
@@ -22,7 +28,6 @@
     return out ? out + "。" : "";
   }
 
-  /** 標題另起一段；若正文開頭已是標題，不再重複加標題 */
   function speechWithTitle(title, body) {
     title = cleanRead(title);
     body = cleanRead(body);
@@ -33,34 +38,58 @@
     return title + "。" + body;
   }
 
+  function imageOnlySpeech(it) {
+    if (it.readText && it.readTextSource === "manual") return cleanRead(it.readText);
+    return "";
+  }
+
   function speechText(it) {
     if (!it) return "";
-    var title = cleanRead(it.title || "");
+    if (isWebOriginalImage(it)) return imageOnlySpeech(it);
     if (it.readTextSource === "seed" || it.source === "種子語錄") {
-      return speechWithTitle(title, fullBodyFromItem(it));
+      return speechWithTitle(cleanRead(it.title || ""), fullBodyFromItem(it));
     }
-    if (it.readText && it.readTextSource === "manual") {
-      return speechWithTitle(title, it.readText);
+    if (it.readTextSource === "filename") return "";
+    if (it.readTextSource === "youtube" && it.readText) return cleanRead(it.readText);
+    if (it.readText) return cleanRead(it.readText);
+    return speechWithTitle(cleanRead(it.title || ""), fullBodyFromItem(it));
+  }
+
+  function displayQuote(it) {
+    if (!it) return { title: "太陽心語", text: "", plain: "" };
+    if (it.readTextSource === "seed" || it.source === "種子語錄") {
+      return { title: it.title || "太陽心語", text: it.text || it.readText || "", plain: it.plain || "" };
     }
-    if (it.readText) {
-      return speechWithTitle(title, it.readText);
+    if (isWebOriginalImage(it)) {
+      return {
+        title: "太陽心語",
+        text: (it.readTextSource === "manual" && it.readText) ? it.readText : "",
+        plain: ""
+      };
     }
-    return speechWithTitle(title, fullBodyFromItem(it));
+    if (it.readTextSource === "youtube" && it.readText) {
+      return { title: it.title || "太陽心語", text: it.readText, plain: "" };
+    }
+    return { title: it.title || "太陽心語", text: it.text || "", plain: it.plain || "" };
   }
 
   function resolveSpeechText(it, imgEl) {
     if (!it) return Promise.resolve("");
-    if (it.readTextSource === "manual" || it.readTextSource === "seed") {
-      return Promise.resolve(speechText(it));
-    }
+    if (it.readTextSource === "manual") return Promise.resolve(imageOnlySpeech(it));
+    if (it.readTextSource === "seed") return Promise.resolve(speechText(it));
     if (global.TaiyangOcrRead && global.TaiyangOcrRead.needsImageOcr(it) && imgEl) {
       return global.TaiyangOcrRead.getOcrText(it.id, imgEl).then(function (ocr) {
-        if (ocr && ocr.length >= 8) return speechWithTitle(cleanRead(it.title || ""), ocr);
+        if (ocr && ocr.length >= 8) return cleanRead(ocr);
         return speechText(it);
       });
     }
     return Promise.resolve(speechText(it));
   }
 
-  global.TaiyangReadText = { speechText: speechText, resolveSpeechText: resolveSpeechText };
+  global.TaiyangReadText = {
+    speechText: speechText,
+    resolveSpeechText: resolveSpeechText,
+    displayQuote: displayQuote,
+    isWebOriginalImage: isWebOriginalImage
+  };
 })(typeof window !== "undefined" ? window : globalThis);
