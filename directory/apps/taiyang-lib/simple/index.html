@@ -95,6 +95,7 @@
       <div class="video-shell" id="videoWrap" hidden><iframe id="ytFrame" title="播放" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       <div class="actions">
         <button type="button" id="btnPlay" class="primary">▶ 播放</button>
+        <button type="button" id="btnOpenApp" hidden>📻 改在福到你家播</button>
         <button type="button" id="btnShare">🔗 分享此則</button>
         <button type="button" id="btnShareSearch">🔗 分享搜尋</button>
       </div>
@@ -134,7 +135,17 @@
     }
 
     function showPlayError() {
-      setStatus("播放失敗：請再按「播放」，或直接點上方播放器");
+      setStatus("播放失敗：請再按「播放」、點上方播放器，或改開福到你家");
+    }
+
+    function updateOpenAppBtn() {
+      const btn = $("btnOpenApp");
+      if (!btn) return;
+      if (current && current.openUrl && current.localApp === "fu-dao-ni-jia") {
+        btn.hidden = false;
+      } else {
+        btn.hidden = true;
+      }
     }
 
     function startAudio(url, autoplay) {
@@ -316,6 +327,7 @@
         $("ytFrame").src = ytEmbed(it.playUrl, autoplay);
       }
       updatePlayBtn();
+      updateOpenAppBtn();
       renderList();
     }
 
@@ -489,13 +501,19 @@
     });
     audio.addEventListener("play", updatePlayBtn);
     audio.addEventListener("pause", updatePlayBtn);
-    audio.addEventListener("error", () => setStatus("音檔載入失敗，請按「更新目錄」或換一則"));
+    audio.addEventListener("error", () => {
+      setStatus("音檔載入失敗：請按「播放」重試，或「改在福到你家播」");
+      updateOpenAppBtn();
+    });
+    $("btnOpenApp").addEventListener("click", () => {
+      if (current && current.openUrl) location.href = current.openUrl;
+    });
     $("btnShare").addEventListener("click", shareCurrent);
     $("btnShareSearch").addEventListener("click", shareSearch);
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
 
     loadCatalog(false);
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=5").catch(() => {});
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=6").catch(() => {});
   </script>
 </body>
 </html>
