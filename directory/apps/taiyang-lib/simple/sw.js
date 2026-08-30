@@ -1,5 +1,5 @@
-const CACHE = "taiyang-lib-simple-v8";
-const ASSETS = ["./", "./index.html", "./share.html", "../catalog.json", "../icon-192.png"];
+const CACHE = "taiyang-lib-simple-v9";
+const ASSETS = ["./", "./index.html", "./share.html", "../catalog.json", "../apple-touch-icon.png", "../icon-192.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));

@@ -7,8 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="導師影音庫" />
   <meta name="description" content="太陽盛德導師影音簡易版：快速搜尋、即播、可分享。" />
-  <link rel="icon" href="../icon-192.png" />
-  <link rel="apple-touch-icon" href="../icon-180.png" />
+  <link rel="icon" href="../icon-192.png?v=20260830c" />
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png?v=20260830c" sizes="180x180" />
+  <link rel="apple-touch-icon" href="../icon-192.png?v=20260830c" sizes="192x192" />
   <title>太陽盛德導師影音｜簡易版</title>
   <style>
     :root { --accent: #8b5a14; --accent2: #c4922a; --muted: #7a6040; --line: rgba(139,90,20,0.22); }
@@ -489,7 +490,7 @@
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
 
     loadCatalog(false);
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=8").catch(() => {});
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=9").catch(() => {});
   </script>
 </body>
 </html>
