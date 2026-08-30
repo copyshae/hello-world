@@ -197,7 +197,7 @@
     </section>
 
     <p class="status" id="statusLine"></p>
-    <p class="hint">下方<strong>上一則／下一則</strong>可直接切換圖片；點目錄項目會<strong>彈出大圖</strong>，視窗內再選是否朗讀或關閉。可左右滑動切換。</p>
+    <p class="hint">有<strong>網路連結</strong>的項目優先顯示原圖；載入失敗才用本站備份。下方<strong>上一則／下一則</strong>可直接切換圖片；點目錄項目會<strong>彈出大圖</strong>，視窗內再選是否朗讀或關閉。可左右滑動切換。</p>
     <p class="foot">
       <a href="./share.html">加入主畫面</a>
       · <a href="./simple/">簡易版</a>
@@ -298,28 +298,31 @@
       }
     }
 
+    function imageChain(it, base) {
+      const chain = [];
+      if (it.imageUrl) chain.push(encodeImageUrl(it.imageUrl));
+      if (it.imageLocal) chain.push(base + it.imageLocal);
+      const card = base + "cards/" + it.id + ".png";
+      if (chain.indexOf(card) < 0) chain.push(card);
+      return chain;
+    }
+
     function imgSrc(it) {
-      if (!it) return "";
-      if (it.imageLocal) return "./" + it.imageLocal;
-      if (it.imageUrl) return encodeImageUrl(it.imageUrl);
-      return "";
+      const chain = imageChain(it, "./");
+      return chain[0] || "";
     }
 
     function bindImageFallback(imgEl, it) {
       if (!imgEl || !it) return;
+      const chain = imageChain(it, "./");
+      let step = 0;
       imgEl.onerror = function () {
-        const local = it.imageLocal ? "./" + it.imageLocal : "";
-        const remote = it.imageUrl ? encodeImageUrl(it.imageUrl) : "";
-        const card = "./cards/" + it.id + ".png";
-        const cur = imgEl.src.split("?")[0];
-        if (remote && cur.indexOf(encodeImageUrl(it.imageUrl).split("?")[0]) < 0 && cur.indexOf(it.imageUrl.split("?")[0]) < 0) {
-          imgEl.src = remote;
-        } else if (local && cur.indexOf(local) < 0) {
-          imgEl.src = local;
-        } else if (cur.indexOf(card) < 0) {
-          imgEl.src = card;
+        step += 1;
+        if (step < chain.length) {
+          imgEl.src = chain[step];
         } else {
           imgEl.alt = "圖片無法載入";
+          imgEl.onerror = null;
         }
       };
     }
