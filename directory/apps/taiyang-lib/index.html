@@ -124,7 +124,7 @@
     <section class="player-box" id="playerBox">
       <p class="now-title" id="nowTitle">尚未選取</p>
       <p class="now-meta" id="nowMeta"></p>
-      <div id="audioWrap"><audio id="audio" controls playsinline preload="metadata"></audio></div>
+      <div id="audioWrap"><audio id="audio" controls playsinline webkit-playsinline preload="auto"></audio></div>
       <div class="video-shell" id="videoWrap" hidden><iframe id="ytFrame" title="YouTube 播放" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
       <div class="actions">
         <button type="button" class="btn primary" id="btnPlay">▶ 播放</button>
@@ -158,9 +158,55 @@
     let globalSearch = false;
     let searchTimer = null;
     let lastSearchQ = "";
+    let loadedAudioUrl = "";
 
     const $ = (id) => document.getElementById(id);
     const audio = $("audio");
+
+    function setStatus(msg) {
+      if (msg) $("statusLine").textContent = msg;
+    }
+
+    function updatePlayBtn() {
+      const playing = current && current.type === "audio" && !audio.paused;
+      $("btnPlay").textContent = playing ? "⏸ 暫停" : "▶ 播放";
+    }
+
+    function showPlayError() {
+      setStatus("播放失敗：請再按「播放」，或直接點上方播放器");
+    }
+
+    function startAudio(url, autoplay) {
+      if (!url) {
+        setStatus("無音檔網址");
+        return;
+      }
+      $("audioWrap").hidden = false;
+      $("videoWrap").hidden = true;
+      const tryPlay = () => {
+        if (!autoplay) return;
+        const p = audio.play();
+        if (p && p.catch) p.catch(showPlayError);
+      };
+      if (loadedAudioUrl === url && audio.src) {
+        tryPlay();
+        return;
+      }
+      loadedAudioUrl = url;
+      audio.oncanplay = null;
+      audio.src = url;
+      audio.load();
+      if (audio.readyState >= 2) tryPlay();
+      else {
+        audio.oncanplay = () => {
+          audio.oncanplay = null;
+          tryPlay();
+        };
+        setTimeout(() => {
+          if (autoplay && audio.paused) tryPlay();
+        }, 1500);
+      }
+    }
 
     function urlParams() {
       return new URLSearchParams(location.search);
@@ -413,17 +459,20 @@
       $("nowMeta").textContent = (current.type === "audio" ? "音檔" : "YouTube 影音") + (current.date ? " · " + current.date : "");
       $("btnOpenApp").style.display = current.openUrl ? "" : "none";
       if (current.type === "audio") {
-        $("audioWrap").hidden = false;
-        $("videoWrap").hidden = true;
-        audio.src = current.playUrl || "";
-        if (play) audio.play().catch(() => {});
+        startAudio(current.playUrl || "", play);
       } else {
+        loadedAudioUrl = "";
         $("audioWrap").hidden = true;
         $("videoWrap").hidden = false;
         audio.pause();
         audio.removeAttribute("src");
         const emb = ytEmbed(current.playUrl);
         $("ytFrame").src = play && emb ? emb + "&autoplay=1" : emb;
+      }
+      updatePlayBtn();
+      if (play) {
+        const box = document.getElementById("playerBox");
+        if (box) box.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
       renderList();
     }
@@ -479,11 +528,27 @@
       }
     });
     $("btnPlay").addEventListener("click", () => {
-      if (!current) return;
-      if (current.type === "audio") {
-        if (audio.paused) audio.play(); else audio.pause();
-      } else selectItem(qIndex, true);
+      if (!current && filtered.length) {
+        selectItem(0, true);
+        return;
+      }
+      if (!current) {
+        setStatus("請先搜尋或選取");
+        return;
+      }
+      if (current.type === "video") {
+        selectItem(qIndex, true);
+        return;
+      }
+      if (!audio.paused) {
+        audio.pause();
+        return;
+      }
+      startAudio(current.playUrl || "", true);
     });
+    audio.addEventListener("play", updatePlayBtn);
+    audio.addEventListener("pause", updatePlayBtn);
+    audio.addEventListener("error", () => setStatus("音檔載入失敗，請按「更新目錄」或換一則"));
     $("btnOpenApp").addEventListener("click", () => { if (current && current.openUrl) location.href = current.openUrl; });
     $("btnShare").addEventListener("click", shareCurrent);
     $("btnShareSearch").addEventListener("click", shareSearch);
@@ -493,7 +558,7 @@
     if (prefs.catId) catId = prefs.catId;
     loadCatalog(false);
 
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=4").catch(() => {});
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=5").catch(() => {});
   </script>
 </body>
 </html>
