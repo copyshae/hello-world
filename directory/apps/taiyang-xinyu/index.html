@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45c2a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="太陽心語" />
+  <meta name="description" content="太陽心語圖片收錄：網路搜尋連結、點選切換、美聲朗讀或無聲瀏覽。" />
+  <link rel="manifest" href="manifest.json?v=20260830c" />
+  <link rel="icon" href="icon-192.png?v=20260830c" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830c" sizes="180x180" />
+  <link rel="apple-touch-icon" href="icon-192.png?v=20260830c" sizes="192x192" />
+  <title>太陽心語｜圖片收錄</title>
+  <style>
+    :root {
+      --ink: #3a2214; --muted: #7a5640; --paper: #fff8f0;
+      --accent: #c45c2a; --accent2: #e8945a; --line: rgba(196, 92, 42, 0.22);
+      --card: rgba(255, 255, 255, 0.88); --ok: #2f6b3a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      color: var(--ink); line-height: 1.55;
+      background: linear-gradient(180deg, #fffdf8 0%, var(--paper) 55%, #f5dcc0 100%);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; }
+    header { text-align: center; }
+    .brand { font-size: clamp(1.1rem, 5vw, 1.45rem); font-weight: 800; color: var(--accent); line-height: 1.35; }
+    .sub { margin-top: 0.25rem; font-size: 0.82rem; color: var(--muted); }
+    .panel { margin-top: 0.75rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; }
+    .section { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 0.35rem; }
+    input[type="search"] {
+      width: 100%; font: inherit; font-size: 16px; padding: 0.65rem 0.75rem;
+      border: 2px solid var(--accent2); border-radius: 0.45rem; background: #fff;
+    }
+    input[type="search"]:focus { outline: none; border-color: var(--accent); }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin-top: 0.45rem; }
+    .toolbar .meta { margin-left: auto; font-size: 0.72rem; color: var(--muted); }
+    button.btn {
+      font: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--card);
+      color: var(--accent); padding: 0.5rem 0.75rem; border-radius: 0.35rem; font-weight: 600; font-size: 0.82rem;
+    }
+    button.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.btn.speaking { background: var(--ok); color: #fff; border-color: var(--ok); }
+    .cat-row { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.45rem; }
+    .cat-row button { font-size: 0.74rem; padding: 0.3rem 0.55rem; border-radius: 999px; }
+    .list { max-height: 11rem; overflow-y: auto; border: 1px solid var(--line); border-radius: 0.35rem; background: #fff; margin-top: 0.45rem; }
+    .item {
+      display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line);
+      background: transparent; padding: 0.6rem 0.65rem; cursor: pointer; font: inherit;
+    }
+    .item:last-child { border-bottom: 0; }
+    .item.active { background: rgba(196, 92, 42, 0.08); }
+    .item .t { font-size: 0.84rem; font-weight: 600; line-height: 1.35; }
+    .item .m { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
+    .viewer { margin-top: 0.75rem; }
+    .img-shell {
+      background: #fff; border: 1px solid var(--line); border-radius: 0.5rem; overflow: hidden;
+      min-height: 14rem; display: flex; align-items: center; justify-content: center;
+    }
+    .img-shell img { width: 100%; height: auto; display: block; max-height: 28rem; object-fit: contain; background: #faf6f0; }
+    .now-title { margin-top: 0.55rem; font-size: 0.95rem; font-weight: 700; color: var(--accent); line-height: 1.4; }
+    .now-text { margin-top: 0.25rem; font-size: 0.88rem; line-height: 1.6; }
+    .now-plain { margin-top: 0.35rem; font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+    .now-meta { margin-top: 0.25rem; font-size: 0.72rem; color: var(--muted); }
+    .nav-row { margin-top: 0.55rem; display: flex; gap: 0.35rem; }
+    .nav-row button { flex: 1; }
+    .voice-box { margin-top: 0.75rem; }
+    .voice-box label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted); margin: 0.35rem 0 0.15rem; }
+    .voice-box select { width: 100%; font: inherit; font-size: 16px; padding: 0.5rem; border: 1px solid var(--line); background: #fff; }
+    .mode-row { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+    .mode-row label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; font-weight: 700; color: var(--muted); cursor: pointer; }
+    .mode-row input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); min-height: 1rem; }
+    .hint { margin-top: 0.75rem; font-size: 0.76rem; color: var(--muted); padding: 0.65rem; background: rgba(255,255,255,0.55); border: 1px dashed var(--line); border-radius: 0.35rem; line-height: 1.55; }
+    .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">太陽心語<br />圖片收錄</h1>
+      <p class="sub">網路搜尋連結 · 點選切換 · 美聲朗讀或無聲瀏覽</p>
+    </header>
+
+    <section class="panel" style="display:flex;gap:0.75rem;align-items:center;margin-top:0.75rem;">
+      <img src="icon-192.png?v=20260830c" alt="太陽心語" width="56" height="56" style="border-radius:0.85rem;object-fit:cover;" />
+      <p style="font-size:0.78rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--accent);">主畫面圖示：太陽心語</strong><br /><a href="./share.html" style="color:var(--accent);">加入主畫面說明</a></p>
+    </section>
+
+    <section class="panel">
+      <h2 class="section">🔍 搜尋與目錄</h2>
+      <input type="search" id="searchBox" placeholder="搜尋標題、語錄、分類…" enterkeyhint="search" autocomplete="off" />
+      <div class="toolbar">
+        <button type="button" class="btn" id="btnRefresh">🔄 更新目錄</button>
+        <span class="meta" id="catalogMeta">載入中…</span>
+      </div>
+      <div class="cat-row" id="catTabs"></div>
+      <div class="list" id="itemList" role="listbox"></div>
+    </section>
+
+    <section class="panel viewer" id="viewerBox">
+      <h2 class="section">☀️ 目前心語</h2>
+      <div class="img-shell"><img id="mainImg" alt="太陽心語圖片" /></div>
+      <p class="now-title" id="nowTitle">—</p>
+      <p class="now-text" id="nowText"></p>
+      <p class="now-plain" id="nowPlain"></p>
+      <p class="now-meta" id="nowMeta"></p>
+      <div class="nav-row">
+        <button type="button" class="btn" id="btnPrev">◀ 上一則</button>
+        <button type="button" class="btn primary" id="btnRead">🔊 朗讀</button>
+        <button type="button" class="btn" id="btnNext">下一則 ▶</button>
+      </div>
+      <div class="mode-row">
+        <label><input type="checkbox" id="silentMode" /> 無聲模式（切換時不自動朗讀）</label>
+        <button type="button" class="btn" id="btnStop" data-tts-stop hidden>⏹ 停止</button>
+        <button type="button" class="btn" id="btnPause" data-tts-pause hidden>⏸ 暫停</button>
+      </div>
+    </section>
+
+    <section class="panel voice-box" id="voicePickerCard">
+      <h2 class="section">🎙 朗讀聲音（美聲）</h2>
+      <label for="ttsGender">性別偏好</label>
+      <select id="ttsGender">
+        <option value="F">女聲（好聽優先）</option>
+        <option value="M">男聲（低沉朗讀）</option>
+        <option value="all">全部中文語音</option>
+      </select>
+      <label for="ttsVoice">選擇聲音</label>
+      <select id="ttsVoice"></select>
+      <div class="toolbar">
+        <button type="button" class="btn" id="ttsPreview">試聽此聲音</button>
+      </div>
+      <p class="hint" style="margin-top:0.45rem;border:0;padding:0;background:transparent;">與每日14樣功課、修煉心得共用語音偏好。</p>
+    </section>
+
+    <p class="status" id="statusLine"></p>
+    <p class="hint">目錄由腳本從<strong>網路搜尋</strong>（天圓文化、YouTube 等）與種子語錄合併。切換圖片時，若非無聲模式會自動美聲朗讀標題與語錄。</p>
+    <p class="foot">
+      <a href="./share.html">加入主畫面</a>
+      · <a href="./simple/">簡易版</a>
+      · <a href="../">回主選單</a>
+    </p>
+  </div>
+
+  <script src="../shared/tts-voices.js?v=2"></script>
+  <script>
+    const CATALOG_URL = "./catalog.json";
+    const STORAGE_KEY = "taiyang-xinyu-v1";
+    const CATALOG_CACHE_KEY = "taiyang-xinyu-catalog";
+    let catalog = { items: [], categories: [] };
+    let filtered = [];
+    let idx = 0;
+    let catFilter = "all";
+    let searchTimer = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function setStatus(msg) { $("statusLine").textContent = msg || ""; }
+
+    function loadPrefs() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (_) { return {}; }
+    }
+    function savePrefs(extra) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.assign(loadPrefs(), extra))); } catch (_) {}
+    }
+
+    function allItems() { return catalog.items || []; }
+
+    function tokenize(q) {
+      return (q || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+    }
+
+    function matchItem(it, tokens) {
+      if (!tokens.length) return true;
+      const hay = ((it.title || "") + " " + (it.text || "") + " " + (it.plain || "") + " " + (it.category || "") + " " + (it.source || "")).toLowerCase();
+      return tokens.every((t) => hay.includes(t));
+    }
+
+    function applyFilter() {
+      const q = $("searchBox").value;
+      const tokens = tokenize(q);
+      filtered = allItems().filter((it) => {
+        if (catFilter !== "all" && it.category !== catFilter) return false;
+        return matchItem(it, tokens);
+      });
+      if (idx >= filtered.length) idx = Math.max(0, filtered.length - 1);
+      renderList();
+      if (filtered.length) showItem(idx, false);
+      else {
+        $("mainImg").removeAttribute("src");
+        $("nowTitle").textContent = "找不到符合項目";
+        $("nowText").textContent = "";
+        $("nowPlain").textContent = "";
+        $("nowMeta").textContent = "";
+      }
+    }
+
+    function imgSrc(it) {
+      if (!it) return "";
+      if (it.imageUrl) return it.imageUrl;
+      if (it.imageLocal) return "./" + it.imageLocal;
+      return "";
+    }
+
+    function speechText(it) {
+      if (!it) return "";
+      return [it.title, it.text, it.plain].filter(Boolean).join("。");
+    }
+
+    function stopRead() {
+      if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+      $("btnRead").classList.remove("speaking");
+      $("btnRead").textContent = "🔊 朗讀";
+    }
+
+    function readCurrent(auto) {
+      const it = filtered[idx];
+      if (!it) return;
+      if (auto && $("silentMode").checked) return;
+      stopRead();
+      const text = speechText(it);
+      if (!text) return;
+      if (window.TtsVoices && window.TtsVoices.speakQueued) {
+        window.TtsVoices.speakQueued(text);
+        $("btnRead").classList.add("speaking");
+        $("btnRead").textContent = "🔊 朗讀中…";
+      }
+    }
+
+    function showItem(i, autoRead) {
+      if (!filtered.length) return;
+      idx = Math.max(0, Math.min(i, filtered.length - 1));
+      const it = filtered[idx];
+      $("mainImg").src = imgSrc(it);
+      $("mainImg").alt = it.title || "太陽心語";
+      $("nowTitle").textContent = it.title || "太陽心語";
+      $("nowText").textContent = it.text || "";
+      $("nowPlain").textContent = it.plain || "";
+      $("nowMeta").textContent = [it.category, it.source, it.date].filter(Boolean).join(" · ");
+      savePrefs({ lastId: it.id, silent: $("silentMode").checked });
+      renderList();
+      history.replaceState(null, "", "?item=" + encodeURIComponent(it.id));
+      if (autoRead !== false) readCurrent(true);
+    }
+
+    function renderList() {
+      const list = $("itemList");
+      list.innerHTML = "";
+      filtered.forEach((it, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "item" + (i === idx ? " active" : "");
+        btn.innerHTML = "<span class=\"t\">" + escapeHtml(it.title || it.text || "太陽心語") + "</span><span class=\"m\">" + escapeHtml([it.category, it.source].filter(Boolean).join(" · ")) + "</span>";
+        btn.addEventListener("click", () => { stopRead(); showItem(i, true); });
+        list.appendChild(btn);
+      });
+      $("catalogMeta").textContent = filtered.length + " / " + allItems().length + " 則";
+    }
+
+    function escapeHtml(s) {
+      return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function renderCats() {
+      const cats = ["all"].concat((catalog.categories || []).map((c) => c.id));
+      const row = $("catTabs");
+      row.innerHTML = "";
+      const labels = { all: "全部" };
+      (catalog.categories || []).forEach((c) => { labels[c.id] = c.name; });
+      cats.forEach((id) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "btn" + (catFilter === id ? " active" : "");
+        b.textContent = labels[id] || id;
+        b.addEventListener("click", () => { catFilter = id; applyFilter(); });
+        row.appendChild(b);
+      });
+    }
+
+    async function fetchCatalog(force) {
+      const tryFetch = async (url) => {
+        const res = await fetch(url, { cache: force ? "no-store" : "default" });
+        return res.ok ? res.json() : null;
+      };
+      try {
+        const data = await tryFetch(CATALOG_URL + (force ? "?t=" + Date.now() : ""));
+        if (data) return data;
+      } catch (_) {}
+      if (force) {
+        try {
+          const cached = localStorage.getItem(CATALOG_CACHE_KEY);
+          if (cached) return JSON.parse(cached);
+        } catch (_) {}
+      }
+      return null;
+    }
+
+    async function loadCatalog(force) {
+      setStatus(force ? "正在更新目錄…" : "載入目錄…");
+      const data = await fetchCatalog(force);
+      if (!data || !data.items) {
+        setStatus("目錄載入失敗，請稍後再試");
+        return;
+      }
+      catalog = data;
+      try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(data)); } catch (_) {}
+      renderCats();
+      const prefs = loadPrefs();
+      if (typeof prefs.silent === "boolean") $("silentMode").checked = prefs.silent;
+      const params = new URLSearchParams(location.search);
+      const want = params.get("item") || prefs.lastId;
+      applyFilter();
+      if (want) {
+        const fi = filtered.findIndex((x) => x.id === want);
+        if (fi >= 0) { idx = fi; showItem(fi, false); }
+        else {
+          const gi = allItems().findIndex((x) => x.id === want);
+          if (gi >= 0) {
+            catFilter = "all";
+            $("searchBox").value = "";
+            applyFilter();
+            const fi2 = filtered.findIndex((x) => x.id === want);
+            if (fi2 >= 0) showItem(fi2, false);
+          }
+        }
+      }
+      setStatus("目錄已更新（" + (data.updatedAt || "") + "）");
+    }
+
+    function speakPreview() {
+      if (window.TtsVoices && window.TtsVoices.speakQueued) {
+        window.TtsVoices.speakQueued("太陽心語，一念轉，境緣轉；心轉，世界轉。");
+      }
+    }
+
+    if (window.TtsVoices) {
+      window.TtsVoices.bindVoicePicker({ speak: speakPreview });
+      window.TtsVoices.onSpeakStatus(function (st) {
+        if (st && (st.reason === "done" || st.reason === "stop")) {
+          $("btnRead").classList.remove("speaking");
+          $("btnRead").textContent = "🔊 朗讀";
+        }
+      });
+    }
+
+    $("searchBox").addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(applyFilter, 180);
+    });
+    $("btnRefresh").addEventListener("click", () => loadCatalog(true));
+    $("btnPrev").addEventListener("click", () => { stopRead(); showItem(idx - 1, true); });
+    $("btnNext").addEventListener("click", () => { stopRead(); showItem(idx + 1, true); });
+    $("btnRead").addEventListener("click", () => readCurrent(false));
+    $("silentMode").addEventListener("change", () => savePrefs({ silent: $("silentMode").checked }));
+    $("ttsPreview").addEventListener("click", speakPreview);
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    loadCatalog(false);
+  </script>
+</body>
+</html>

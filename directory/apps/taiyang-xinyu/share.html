@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45c2a" />
+  <meta name="apple-mobile-web-app-title" content="太陽心語" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260830c" />
+  <link rel="manifest" href="manifest.json" />
+  <title>加入主畫面｜太陽心語</title>
+  <style>
+    :root { --accent: #c45c2a; --muted: #7a5640; }
+    body { font-family: "PingFang TC", sans-serif; margin: 0; padding: 2rem 1.2rem; background: #fff8f0; color: #3a2214; line-height: 1.6; }
+    .wrap { max-width: 22rem; margin: 0 auto; text-align: center; }
+    h1 { color: var(--accent); font-size: clamp(1rem, 4.5vw, 1.35rem); line-height: 1.35; }
+    p, ol { text-align: left; color: var(--muted); font-size: 0.92rem; }
+    .icon { width: 5.5rem; height: 5.5rem; border-radius: 1rem; margin: 1rem auto 0; object-fit: cover; }
+    a.btn { display: block; margin-top: 1rem; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 1rem; border-radius: 0.35rem; }
+    .url { margin-top: 0.75rem; padding: 0.75rem; background: #fff; font-size: 0.8rem; word-break: break-all; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>太陽心語<br />圖片收錄</h1>
+    <img class="icon" src="icon-192.png?v=20260830c" alt="太陽心語" />
+    <p>收錄太陽心語圖片連結，點選切換瀏覽；可選美聲朗讀或無聲靜看。</p>
+    <div class="url" id="url">https://copyshae.github.io/-/taiyang-xinyu/</div>
+    <a class="btn" id="open" href="./index.html">打開太陽心語</a>
+    <ol>
+      <li>iPhone：Safari → 分享 → <strong>加入主畫面</strong></li>
+      <li>簡易版分享單則：<a id="simple" href="./simple/">simple/?item=…</a></li>
+    </ol>
+  </div>
+  <script>
+    var u = location.href.replace(/share\.html.*$/, "");
+    if (u.indexOf("http") !== 0) u = "https://copyshae.github.io/-/taiyang-xinyu/";
+    document.getElementById("url").textContent = u;
+    document.getElementById("open").href = u;
+    document.getElementById("simple").href = u.replace(/\/?$/, "/") + "simple/";
+  </script>
+</body>
+</html>

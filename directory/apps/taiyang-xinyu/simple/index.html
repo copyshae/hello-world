@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45c2a" />
+  <meta name="apple-mobile-web-app-title" content="太陽心語" />
+  <link rel="icon" href="../icon-192.png?v=20260830c" />
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png?v=20260830c" />
+  <title>太陽心語｜簡易版</title>
+  <style>
+    :root { --accent: #c45c2a; --accent2: #e8945a; --muted: #7a5640; --line: rgba(196,92,42,0.22); --ok: #2f6b3a; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif; color: #3a2214; line-height: 1.55;
+      background: linear-gradient(180deg, #fffdf8, #f5dcc0);
+      padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+    }
+    .wrap { max-width: 24rem; margin: 0 auto; padding-bottom: 2rem; }
+    h1 { text-align: center; font-size: clamp(1rem, 4.5vw, 1.3rem); color: var(--accent); line-height: 1.35; }
+    .sub { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0.75rem; }
+    .panel { padding: 0.75rem; background: rgba(255,255,255,0.88); border: 1px solid var(--line); border-radius: 0.5rem; margin-top: 0.65rem; }
+    input[type="search"] { width: 100%; font: inherit; font-size: 16px; padding: 0.6rem; border: 2px solid var(--accent2); border-radius: 0.4rem; background: #fff; }
+    .list { margin-top: 0.45rem; max-height: 9rem; overflow-y: auto; border: 1px solid var(--line); border-radius: 0.35rem; background: #fff; }
+    .item { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 0.55rem 0.6rem; cursor: pointer; font: inherit; }
+    .item.active { background: rgba(196,92,42,0.08); }
+    .item .t { font-size: 0.82rem; font-weight: 600; }
+    .item .m { font-size: 0.68rem; color: var(--muted); }
+    .img-shell { margin-top: 0.55rem; background: #fff; border: 1px solid var(--line); border-radius: 0.45rem; overflow: hidden; min-height: 12rem; }
+    .img-shell img { width: 100%; display: block; object-fit: contain; max-height: 24rem; background: #faf6f0; }
+    .now strong { display: block; color: var(--accent); margin-top: 0.45rem; line-height: 1.4; }
+    .now p { font-size: 0.84rem; margin-top: 0.2rem; }
+    .now .plain { font-size: 0.78rem; color: var(--muted); }
+    button { font: inherit; border: 1px solid var(--line); border-radius: 0.35rem; padding: 0.55rem; cursor: pointer; background: #fff; color: var(--accent); font-weight: 600; }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.speaking { background: var(--ok); color: #fff; border-color: var(--ok); }
+    .nav { display: flex; gap: 0.35rem; margin-top: 0.55rem; }
+    .nav button { flex: 1; font-size: 0.82rem; }
+    .mode { margin-top: 0.45rem; font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 0.35rem; }
+    .mode input { accent-color: var(--accent); }
+    .foot { margin-top: 1rem; font-size: 0.76rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>太陽心語<br /><span style="font-size:0.85em">簡易版</span></h1>
+    <p class="sub">點選切換 · 美聲朗讀或無聲瀏覽</p>
+
+    <section class="panel">
+      <input type="search" id="searchBox" placeholder="搜尋…" autocomplete="off" />
+      <div class="list" id="itemList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="img-shell"><img id="mainImg" alt="太陽心語" /></div>
+      <div class="now" id="nowBox">
+        <strong id="nowTitle">—</strong>
+        <p id="nowText"></p>
+        <p class="plain" id="nowPlain"></p>
+      </div>
+      <div class="nav">
+        <button type="button" id="btnPrev">◀ 上一則</button>
+        <button type="button" class="primary" id="btnRead">🔊 朗讀</button>
+        <button type="button" id="btnNext">下一則 ▶</button>
+      </div>
+      <label class="mode"><input type="checkbox" id="silentMode" /> 無聲模式</label>
+    </section>
+
+    <p class="foot">
+      <a href="../index.html">完整版</a>
+      · <a href="../share.html">加入主畫面</a>
+    </p>
+  </div>
+
+  <script src="../../shared/tts-voices.js?v=2"></script>
+  <script>
+    const CATALOG_URL = "../catalog.json";
+    let items = [];
+    let filtered = [];
+    let idx = 0;
+    const $ = (id) => document.getElementById(id);
+
+    function imgSrc(it) {
+      if (it.imageUrl) return it.imageUrl;
+      if (it.imageLocal) return "../" + it.imageLocal;
+      return "";
+    }
+
+    function speechText(it) {
+      return [it.title, it.text, it.plain].filter(Boolean).join("。");
+    }
+
+    function stopRead() {
+      if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+      $("btnRead").classList.remove("speaking");
+      $("btnRead").textContent = "🔊 朗讀";
+    }
+
+    function showItem(i, autoRead) {
+      if (!filtered.length) return;
+      idx = Math.max(0, Math.min(i, filtered.length - 1));
+      const it = filtered[idx];
+      $("mainImg").src = imgSrc(it);
+      $("nowTitle").textContent = it.title || "太陽心語";
+      $("nowText").textContent = it.text || "";
+      $("nowPlain").textContent = it.plain || "";
+      renderList();
+      history.replaceState(null, "", "?item=" + encodeURIComponent(it.id));
+      if (autoRead !== false && !$("silentMode").checked) {
+        stopRead();
+        if (window.TtsVoices) window.TtsVoices.speakQueued(speechText(it));
+        $("btnRead").classList.add("speaking");
+        $("btnRead").textContent = "朗讀中…";
+      }
+    }
+
+    function renderList() {
+      $("itemList").innerHTML = "";
+      filtered.forEach((it, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "item" + (i === idx ? " active" : "");
+        b.innerHTML = "<span class=\"t\">" + (it.title || it.text || "太陽心語") + "</span><span class=\"m\">" + (it.category || "") + "</span>";
+        b.onclick = () => { stopRead(); showItem(i, true); };
+        $("itemList").appendChild(b);
+      });
+    }
+
+    function applyFilter() {
+      const q = ($("searchBox").value || "").trim().toLowerCase();
+      filtered = items.filter((it) => {
+        const hay = ((it.title || "") + (it.text || "") + (it.plain || "")).toLowerCase();
+        return !q || hay.includes(q);
+      });
+      showItem(0, false);
+    }
+
+    fetch(CATALOG_URL).then((r) => r.json()).then((data) => {
+      items = data.items || [];
+      const want = new URLSearchParams(location.search).get("item");
+      applyFilter();
+      if (want) {
+        const fi = filtered.findIndex((x) => x.id === want);
+        if (fi >= 0) showItem(fi, false);
+      }
+    });
+
+    $("searchBox").addEventListener("input", applyFilter);
+    $("btnPrev").onclick = () => { stopRead(); showItem(idx - 1, true); };
+    $("btnNext").onclick = () => { stopRead(); showItem(idx + 1, true); };
+    $("btnRead").onclick = () => {
+      stopRead();
+      if (window.TtsVoices) window.TtsVoices.speakQueued(speechText(filtered[idx]));
+      $("btnRead").classList.add("speaking");
+      $("btnRead").textContent = "朗讀中…";
+    };
+    if (window.TtsVoices) {
+      window.TtsVoices.onSpeakStatus(function (st) {
+        if (st && (st.reason === "done" || st.reason === "stop")) {
+          $("btnRead").classList.remove("speaking");
+          $("btnRead").textContent = "🔊 朗讀";
+        }
+      });
+    }
+  </script>
+</body>
+</html>

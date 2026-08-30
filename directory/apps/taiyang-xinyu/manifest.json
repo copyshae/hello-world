@@ -1,0 +1,21 @@
+{
+  "id": "/-/taiyang-xinyu/",
+  "name": "太陽心語圖片收錄",
+  "short_name": "太陽心語",
+  "description": "太陽心語圖片收錄：網路搜尋連結、點選切換、美聲朗讀或無聲瀏覽。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fff8f0",
+  "theme_color": "#c45c2a",
+  "lang": "zh-Hant",
+  "categories": ["education", "lifestyle"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
