@@ -26,7 +26,7 @@
     .item.active { background: rgba(196,92,42,0.08); }
     .item .t { font-size: 0.82rem; font-weight: 600; }
     .item .m { font-size: 0.68rem; color: var(--muted); }
-    .img-shell { margin-top: 0.55rem; background: #fff; border: 1px solid var(--line); border-radius: 0.45rem; overflow: hidden; min-height: 12rem; }
+    .img-shell { margin-top: 0.55rem; background: #fff; border: 1px solid var(--line); border-radius: 0.45rem; overflow: hidden; min-height: 12rem; cursor: zoom-in; }
     .img-shell img { width: 100%; display: block; object-fit: contain; max-height: 24rem; background: #faf6f0; }
     .now strong { display: block; color: var(--accent); margin-top: 0.45rem; line-height: 1.4; }
     .now p { font-size: 0.84rem; margin-top: 0.2rem; }
@@ -40,6 +40,22 @@
     .mode input { accent-color: var(--accent); }
     .foot { margin-top: 1rem; font-size: 0.76rem; color: var(--muted); text-align: center; }
     .foot a { color: var(--accent); }
+    .img-shell { cursor: zoom-in; }
+    .lightbox {
+      position: fixed; inset: 0; z-index: 2000; display: flex; flex-direction: column;
+      background: rgba(20, 12, 8, 0.92);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .lightbox[hidden] { display: none !important; }
+    .lightbox-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.75rem; color: #fff8f0; }
+    .lightbox-head .title { flex: 1; font-size: 0.86rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lightbox-head button { font: inherit; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; border-radius: 0.35rem; padding: 0.45rem 0.6rem; cursor: pointer; font-weight: 700; }
+    .lightbox-body { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; padding: 0.35rem 0.75rem; position: relative; }
+    .lightbox-body img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 0.35rem; background: #fff; }
+    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); font: inherit; border: 0; background: rgba(255,255,255,0.15); color: #fff; width: 2.4rem; height: 2.4rem; border-radius: 999px; cursor: pointer; }
+    .lightbox-nav.prev { left: 0.25rem; }
+    .lightbox-nav.next { right: 0.25rem; }
+    .lightbox-foot { padding: 0 0.75rem 0.65rem; color: rgba(255,248,240,0.92); font-size: 0.8rem; line-height: 1.5; max-height: 24vh; overflow-y: auto; }
   </style>
 </head>
 <body>
@@ -73,6 +89,23 @@
     </p>
   </div>
 
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true">
+    <div class="lightbox-head">
+      <p class="title" id="lbTitle">太陽心語</p>
+      <button type="button" id="lbRead">🔊</button>
+      <button type="button" id="lbClose">✕</button>
+    </div>
+    <div class="lightbox-body">
+      <button type="button" class="lightbox-nav prev" id="lbPrev">◀</button>
+      <img id="lbImg" alt="太陽心語" />
+      <button type="button" class="lightbox-nav next" id="lbNext">▶</button>
+    </div>
+    <div class="lightbox-foot">
+      <p id="lbText"></p>
+      <p id="lbPlain" style="color:rgba(255,248,240,0.72);margin-top:0.2rem;font-size:0.76rem;"></p>
+    </div>
+  </div>
+
   <script src="../../shared/tts-voices.js?v=2"></script>
   <script>
     const CATALOG_URL = "../catalog.json";
@@ -91,13 +124,49 @@
       return [it.title, it.text, it.plain].filter(Boolean).join("。");
     }
 
-    function stopRead() {
-      if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
-      $("btnRead").classList.remove("speaking");
-      $("btnRead").textContent = "🔊 朗讀";
+    function setReadingUi(on) {
+      const label = on ? "朗讀中…" : "🔊 朗讀";
+      $("btnRead").classList.toggle("speaking", on);
+      $("btnRead").textContent = label;
+      if ($("lbRead")) $("lbRead").textContent = on ? "🔊…" : "🔊";
     }
 
-    function showItem(i, autoRead) {
+    function stopRead() {
+      if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+      setReadingUi(false);
+    }
+
+    function readCurrent(force) {
+      const it = filtered[idx];
+      if (!it) return;
+      if (!force && $("silentMode").checked) return;
+      const text = speechText(it);
+      if (!text) return;
+      if (window.speechSynthesis) window.speechSynthesis.getVoices();
+      if (window.TtsVoices && window.TtsVoices.speakQueued) {
+        if (window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+        window.TtsVoices.speakQueued(text);
+        setReadingUi(true);
+      }
+    }
+
+    function openLightbox(it) {
+      if (!it) return;
+      $("lbImg").src = imgSrc(it);
+      $("lbTitle").textContent = it.title || "太陽心語";
+      $("lbText").textContent = it.text || "";
+      $("lbPlain").textContent = it.plain || "";
+      $("lightbox").hidden = false;
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeLightbox() {
+      $("lightbox").hidden = true;
+      document.body.style.overflow = "";
+      stopRead();
+    }
+
+    function showItem(i, autoRead, openPopup) {
       if (!filtered.length) return;
       idx = Math.max(0, Math.min(i, filtered.length - 1));
       const it = filtered[idx];
@@ -107,12 +176,8 @@
       $("nowPlain").textContent = it.plain || "";
       renderList();
       history.replaceState(null, "", "?item=" + encodeURIComponent(it.id));
-      if (autoRead !== false && !$("silentMode").checked) {
-        stopRead();
-        if (window.TtsVoices) window.TtsVoices.speakQueued(speechText(it));
-        $("btnRead").classList.add("speaking");
-        $("btnRead").textContent = "朗讀中…";
-      }
+      if (openPopup) openLightbox(it);
+      if (autoRead) readCurrent(false);
     }
 
     function renderList() {
@@ -122,7 +187,7 @@
         b.type = "button";
         b.className = "item" + (i === idx ? " active" : "");
         b.innerHTML = "<span class=\"t\">" + (it.title || it.text || "太陽心語") + "</span><span class=\"m\">" + (it.category || "") + "</span>";
-        b.onclick = () => { stopRead(); showItem(i, true); };
+        b.onclick = () => showItem(i, true, true);
         $("itemList").appendChild(b);
       });
     }
@@ -133,7 +198,7 @@
         const hay = ((it.title || "") + (it.text || "") + (it.plain || "")).toLowerCase();
         return !q || hay.includes(q);
       });
-      showItem(0, false);
+      showItem(0, false, false);
     }
 
     fetch(CATALOG_URL).then((r) => r.json()).then((data) => {
@@ -142,25 +207,31 @@
       applyFilter();
       if (want) {
         const fi = filtered.findIndex((x) => x.id === want);
-        if (fi >= 0) showItem(fi, false);
+        if (fi >= 0) showItem(fi, false, false);
       }
     });
 
     $("searchBox").addEventListener("input", applyFilter);
-    $("btnPrev").onclick = () => { stopRead(); showItem(idx - 1, true); };
-    $("btnNext").onclick = () => { stopRead(); showItem(idx + 1, true); };
-    $("btnRead").onclick = () => {
-      stopRead();
-      if (window.TtsVoices) window.TtsVoices.speakQueued(speechText(filtered[idx]));
-      $("btnRead").classList.add("speaking");
-      $("btnRead").textContent = "朗讀中…";
+    $("btnPrev").onclick = () => showItem(idx - 1, true, true);
+    $("btnNext").onclick = () => showItem(idx + 1, true, true);
+    $("mainImg").onclick = () => {
+      if (!filtered[idx]) return;
+      openLightbox(filtered[idx]);
+      readCurrent(false);
     };
+    $("lbClose").onclick = closeLightbox;
+    $("lbPrev").onclick = () => showItem(idx - 1, true, true);
+    $("lbNext").onclick = () => showItem(idx + 1, true, true);
+    $("lbRead").onclick = () => readCurrent(true);
+    $("lightbox").onclick = (e) => { if (e.target === $("lightbox")) closeLightbox(); };
+    $("btnRead").onclick = () => readCurrent(true);
+    if (window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      document.addEventListener("touchstart", function () { window.speechSynthesis.getVoices(); }, { once: true });
+    }
     if (window.TtsVoices) {
       window.TtsVoices.onSpeakStatus(function (st) {
-        if (st && (st.reason === "done" || st.reason === "stop")) {
-          $("btnRead").classList.remove("speaking");
-          $("btnRead").textContent = "🔊 朗讀";
-        }
+        if (st && (st.reason === "done" || st.reason === "stop")) setReadingUi(false);
       });
     }
   </script>

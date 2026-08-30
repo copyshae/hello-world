@@ -59,7 +59,7 @@
     .viewer { margin-top: 0.75rem; }
     .img-shell {
       background: #fff; border: 1px solid var(--line); border-radius: 0.5rem; overflow: hidden;
-      min-height: 14rem; display: flex; align-items: center; justify-content: center;
+      min-height: 14rem; display: flex; align-items: center; justify-content: center; cursor: zoom-in;
     }
     .img-shell img { width: 100%; height: auto; display: block; max-height: 28rem; object-fit: contain; background: #faf6f0; }
     .now-title { margin-top: 0.55rem; font-size: 0.95rem; font-weight: 700; color: var(--accent); line-height: 1.4; }
@@ -78,6 +78,47 @@
     .hint { margin-top: 0.75rem; font-size: 0.76rem; color: var(--muted); padding: 0.65rem; background: rgba(255,255,255,0.55); border: 1px dashed var(--line); border-radius: 0.35rem; line-height: 1.55; }
     .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
     .foot a { color: var(--accent); }
+    .img-shell { cursor: zoom-in; }
+    .lightbox {
+      position: fixed; inset: 0; z-index: 2000;
+      display: flex; flex-direction: column;
+      background: rgba(20, 12, 8, 0.92);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .lightbox[hidden] { display: none !important; }
+    .lightbox-head {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 0.75rem; color: #fff8f0; flex-shrink: 0;
+    }
+    .lightbox-head .title {
+      flex: 1; font-size: 0.88rem; font-weight: 700; line-height: 1.35;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .lightbox-head button {
+      font: inherit; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08);
+      color: #fff; border-radius: 0.35rem; padding: 0.45rem 0.65rem; cursor: pointer; font-weight: 700;
+    }
+    .lightbox-body {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      min-height: 0; padding: 0.35rem 0.75rem 0.75rem; position: relative;
+    }
+    .lightbox-body img {
+      max-width: 100%; max-height: 100%; object-fit: contain;
+      border-radius: 0.35rem; background: #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    }
+    .lightbox-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font: inherit; border: 0; background: rgba(255,255,255,0.15); color: #fff;
+      width: 2.5rem; height: 2.5rem; border-radius: 999px; cursor: pointer; font-size: 1.1rem;
+    }
+    .lightbox-nav.prev { left: 0.35rem; }
+    .lightbox-nav.next { right: 0.35rem; }
+    .lightbox-foot {
+      padding: 0 0.75rem 0.65rem; color: rgba(255,248,240,0.92);
+      font-size: 0.82rem; line-height: 1.55; max-height: 28vh; overflow-y: auto;
+    }
+    .lightbox-foot .plain { color: rgba(255,248,240,0.72); margin-top: 0.25rem; font-size: 0.78rem; }
+    .lightbox-foot .meta { margin-top: 0.25rem; font-size: 0.72rem; color: rgba(255,248,240,0.55); }
   </style>
 </head>
 <body>
@@ -139,12 +180,30 @@
     </section>
 
     <p class="status" id="statusLine"></p>
-    <p class="hint">目錄由腳本從<strong>網路搜尋</strong>（天圓文化、YouTube 等）與種子語錄合併。切換圖片時，若非無聲模式會自動美聲朗讀標題與語錄。</p>
+    <p class="hint">點選目錄項目即<strong>彈出大圖</strong>並<strong>美聲朗讀</strong>（無聲模式可關閉）。目錄由網路搜尋與種子語錄合併。</p>
     <p class="foot">
       <a href="./share.html">加入主畫面</a>
       · <a href="./simple/">簡易版</a>
       · <a href="../">回主選單</a>
     </p>
+  </div>
+
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-labelledby="lbTitle">
+    <div class="lightbox-head">
+      <p class="title" id="lbTitle">太陽心語</p>
+      <button type="button" id="lbRead">🔊 朗讀</button>
+      <button type="button" id="lbClose" aria-label="關閉">✕ 關閉</button>
+    </div>
+    <div class="lightbox-body">
+      <button type="button" class="lightbox-nav prev" id="lbPrev" aria-label="上一則">◀</button>
+      <img id="lbImg" alt="太陽心語圖片" />
+      <button type="button" class="lightbox-nav next" id="lbNext" aria-label="下一則">▶</button>
+    </div>
+    <div class="lightbox-foot">
+      <p id="lbText"></p>
+      <p class="plain" id="lbPlain"></p>
+      <p class="meta" id="lbMeta"></p>
+    </div>
   </div>
 
   <script src="../shared/tts-voices.js?v=2"></script>
@@ -190,7 +249,7 @@
       });
       if (idx >= filtered.length) idx = Math.max(0, filtered.length - 1);
       renderList();
-      if (filtered.length) showItem(idx, false);
+      if (filtered.length) showItem(idx, false, false);
       else {
         $("mainImg").removeAttribute("src");
         $("nowTitle").textContent = "找不到符合項目";
@@ -212,27 +271,33 @@
       return [it.title, it.text, it.plain].filter(Boolean).join("。");
     }
 
-    function stopRead() {
-      if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
-      $("btnRead").classList.remove("speaking");
-      $("btnRead").textContent = "🔊 朗讀";
+    function setReadingUi(on) {
+      const label = on ? "🔊 朗讀中…" : "🔊 朗讀";
+      $("btnRead").classList.toggle("speaking", on);
+      $("btnRead").textContent = label;
+      if ($("lbRead")) $("lbRead").textContent = label;
     }
 
-    function readCurrent(auto) {
+    function stopRead() {
+      if (window.TtsVoices && window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+      setReadingUi(false);
+    }
+
+    function readCurrent(force) {
       const it = filtered[idx];
       if (!it) return;
-      if (auto && $("silentMode").checked) return;
-      stopRead();
+      if (!force && $("silentMode").checked) return;
       const text = speechText(it);
       if (!text) return;
+      if (window.speechSynthesis) window.speechSynthesis.getVoices();
       if (window.TtsVoices && window.TtsVoices.speakQueued) {
+        if (window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
         window.TtsVoices.speakQueued(text);
-        $("btnRead").classList.add("speaking");
-        $("btnRead").textContent = "🔊 朗讀中…";
+        setReadingUi(true);
       }
     }
 
-    function showItem(i, autoRead) {
+    function showItem(i, autoRead, openPopup) {
       if (!filtered.length) return;
       idx = Math.max(0, Math.min(i, filtered.length - 1));
       const it = filtered[idx];
@@ -245,7 +310,27 @@
       savePrefs({ lastId: it.id, silent: $("silentMode").checked });
       renderList();
       history.replaceState(null, "", "?item=" + encodeURIComponent(it.id));
-      if (autoRead !== false) readCurrent(true);
+      if (openPopup) openLightbox(it);
+      if (autoRead) readCurrent(false);
+    }
+
+    function openLightbox(it) {
+      if (!it) return;
+      const src = imgSrc(it);
+      $("lbImg").src = src;
+      $("lbImg").alt = it.title || "太陽心語";
+      $("lbTitle").textContent = it.title || "太陽心語";
+      $("lbText").textContent = it.text || "";
+      $("lbPlain").textContent = it.plain || "";
+      $("lbMeta").textContent = [it.category, it.source, it.date].filter(Boolean).join(" · ");
+      $("lightbox").hidden = false;
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeLightbox() {
+      $("lightbox").hidden = true;
+      document.body.style.overflow = "";
+      stopRead();
     }
 
     function renderList() {
@@ -256,7 +341,7 @@
         btn.type = "button";
         btn.className = "item" + (i === idx ? " active" : "");
         btn.innerHTML = "<span class=\"t\">" + escapeHtml(it.title || it.text || "太陽心語") + "</span><span class=\"m\">" + escapeHtml([it.category, it.source].filter(Boolean).join(" · ")) + "</span>";
-        btn.addEventListener("click", () => { stopRead(); showItem(i, true); });
+        btn.addEventListener("click", () => { showItem(i, true, true); });
         list.appendChild(btn);
       });
       $("catalogMeta").textContent = filtered.length + " / " + allItems().length + " 則";
@@ -317,7 +402,7 @@
       applyFilter();
       if (want) {
         const fi = filtered.findIndex((x) => x.id === want);
-        if (fi >= 0) { idx = fi; showItem(fi, false); }
+        if (fi >= 0) { idx = fi; showItem(fi, false, false); }
         else {
           const gi = allItems().findIndex((x) => x.id === want);
           if (gi >= 0) {
@@ -325,7 +410,7 @@
             $("searchBox").value = "";
             applyFilter();
             const fi2 = filtered.findIndex((x) => x.id === want);
-            if (fi2 >= 0) showItem(fi2, false);
+            if (fi2 >= 0) showItem(fi2, false, false);
           }
         }
       }
@@ -341,11 +426,13 @@
     if (window.TtsVoices) {
       window.TtsVoices.bindVoicePicker({ speak: speakPreview });
       window.TtsVoices.onSpeakStatus(function (st) {
-        if (st && (st.reason === "done" || st.reason === "stop")) {
-          $("btnRead").classList.remove("speaking");
-          $("btnRead").textContent = "🔊 朗讀";
-        }
+        if (st && (st.reason === "done" || st.reason === "stop")) setReadingUi(false);
       });
+    }
+
+    if (window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      document.addEventListener("touchstart", function () { window.speechSynthesis.getVoices(); }, { once: true });
     }
 
     $("searchBox").addEventListener("input", () => {
@@ -353,11 +440,23 @@
       searchTimer = setTimeout(applyFilter, 180);
     });
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
-    $("btnPrev").addEventListener("click", () => { stopRead(); showItem(idx - 1, true); });
-    $("btnNext").addEventListener("click", () => { stopRead(); showItem(idx + 1, true); });
-    $("btnRead").addEventListener("click", () => readCurrent(false));
+    $("btnPrev").addEventListener("click", () => showItem(idx - 1, true, true));
+    $("btnNext").addEventListener("click", () => showItem(idx + 1, true, true));
+    $("btnRead").addEventListener("click", () => readCurrent(true));
     $("silentMode").addEventListener("change", () => savePrefs({ silent: $("silentMode").checked }));
     $("ttsPreview").addEventListener("click", speakPreview);
+    $("mainImg").addEventListener("click", () => {
+      if (!filtered[idx]) return;
+      openLightbox(filtered[idx]);
+      readCurrent(false);
+    });
+    $("lbClose").addEventListener("click", closeLightbox);
+    $("lbPrev").addEventListener("click", () => showItem(idx - 1, true, true));
+    $("lbNext").addEventListener("click", () => showItem(idx + 1, true, true));
+    $("lbRead").addEventListener("click", () => readCurrent(true));
+    $("lightbox").addEventListener("click", (e) => {
+      if (e.target === $("lightbox")) closeLightbox();
+    });
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js").catch(() => {});
