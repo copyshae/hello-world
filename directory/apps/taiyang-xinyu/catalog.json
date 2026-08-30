@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-30T20:39:31Z",
+  "updatedAt": "2026-08-30T21:00:33Z",
   "count": 42,
   "categories": [
     {
@@ -227,6 +227,20 @@
           "readTextSource": "seed"
         },
         {
+          "id": "art-7c482a3bd6",
+          "title": "感恩四句偈",
+          "text": "感恩四句偈",
+          "plain": "",
+          "category": "感恩",
+          "date": "",
+          "source": "網路搜尋",
+          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2016/03/1485174608262.jpg",
+          "pageUrl": "https://sg.richestlife.com/download/",
+          "imageLocal": "cards/mirror/art-7c482a3bd6.jpg",
+          "readText": "感恩四句偈。感恩宇宙，感恩未來；感恩宇宙，感恩愛；感恩宇宙，感恩愛；感恩宇宙，感恩一切有了交代！",
+          "readTextSource": "manual"
+        },
+        {
           "id": "web-481de5c22a",
           "title": "行住坐臥間落實愛與感恩 讓心靈受益無窮   天圓文化 Richestlife",
           "text": "行住坐臥間落實愛與感恩 讓心靈受益無窮   天圓文化 Richestlife",
@@ -309,6 +323,34 @@
           "readTextSource": "manual"
         },
         {
+          "id": "web-f45d471bb0",
+          "title": "尋找生命導師 太陽盛德導師   天圓文化 Richestlife",
+          "text": "尋找生命導師 太陽盛德導師   天圓文化 Richestlife",
+          "plain": "",
+          "category": "生活",
+          "date": "",
+          "source": "網路搜尋",
+          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%B0%8B%E6%89%BE%E7%94%9F%E5%91%BD%E5%B0%8E%E5%B8%AB%EF%BC%8D%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB0814-CH41-3P-164.jpg",
+          "pageUrl": "https://www.richestlife.com/尋找生命導師-太陽盛德導師/",
+          "imageLocal": "cards/mirror/web-f45d471bb0.jpg",
+          "readText": "人與人之間，舒適地相處與溝通是智慧的體現。",
+          "readTextSource": "manual"
+        },
+        {
+          "id": "web-49e1f016a8",
+          "title": "超級生命密碼彰化菁英會   在這一刻，能立即找到今生的價值，是每個人的當務之急。  太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
+          "text": "超級生命密碼彰化菁英會   在這一刻，能立即找到今生的價值，是每個人的當務之急。  太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
+          "plain": "",
+          "category": "生活",
+          "date": "",
+          "source": "網路搜尋",
+          "imageUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1300337568562534",
+          "pageUrl": "https://www.facebook.com/superlifecodeChanghua/photos/在這一刻能立即找到今生的價值是每個人的當務之急-太陽盛德導師超級生命密碼太陽心語歡迎廣傳/1300337568562534/",
+          "imageLocal": "cards/web-49e1f016a8.png",
+          "readText": "超級生命密碼彰化菁英會 在這一刻，能立即找到今生的價值，是每個人的當務之急。 太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
+          "readTextSource": "filename"
+        },
+        {
           "id": "web-cf7987641f",
           "title": "珍惜與太陽盛德導師的相處時光   天圓文化 Richestlife",
           "text": "珍惜與太陽盛德導師的相處時光   天圓文化 Richestlife",
@@ -337,20 +379,6 @@
           "readTextSource": "manual"
         },
         {
-          "id": "web-f45d471bb0",
-          "title": "尋找生命導師 太陽盛德導師   天圓文化 Richestlife",
-          "text": "尋找生命導師 太陽盛德導師   天圓文化 Richestlife",
-          "plain": "",
-          "category": "生活",
-          "date": "",
-          "source": "網路搜尋",
-          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%B0%8B%E6%89%BE%E7%94%9F%E5%91%BD%E5%B0%8E%E5%B8%AB%EF%BC%8D%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB0814-CH41-3P-164.jpg",
-          "pageUrl": "https://www.richestlife.com/尋找生命導師-太陽盛德導師/",
-          "imageLocal": "cards/mirror/web-f45d471bb0.jpg",
-          "readText": "人與人之間，舒適地相處與溝通是智慧的體現。",
-          "readTextSource": "manual"
-        },
-        {
           "id": "web-c154400a80",
           "title": "太陽盛德明師法語 通透心靈   天圓文化 Richestlife",
           "text": "太陽盛德明師法語 通透心靈   天圓文化 Richestlife",
@@ -365,20 +393,6 @@
           "readTextSource": "manual"
         },
         {
-          "id": "web-49e1f016a8",
-          "title": "超級生命密碼彰化菁英會   在這一刻，能立即找到今生的價值，是每個人的當務之急。  太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
-          "text": "超級生命密碼彰化菁英會   在這一刻，能立即找到今生的價值，是每個人的當務之急。  太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
-          "plain": "",
-          "category": "生活",
-          "date": "",
-          "source": "網路搜尋",
-          "imageUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1300337568562534",
-          "pageUrl": "https://www.facebook.com/superlifecodeChanghua/photos/在這一刻能立即找到今生的價值是每個人的當務之急-太陽盛德導師超級生命密碼太陽心語歡迎廣傳/1300337568562534/",
-          "imageLocal": "cards/web-49e1f016a8.png",
-          "readText": "超級生命密碼彰化菁英會 在這一刻，能立即找到今生的價值，是每個人的當務之急。 太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
-          "readTextSource": "filename"
-        },
-        {
           "id": "web-f5d63f5a36",
           "title": "落實弟子規 重溫親子之情   天圓文化 Richestlife",
           "text": "落實弟子規 重溫親子之情   天圓文化 Richestlife",
@@ -390,20 +404,6 @@
           "pageUrl": "https://www.richestlife.com/落實弟子規　重溫親子之情/",
           "imageLocal": "cards/mirror/web-f5d63f5a36.jpg",
           "readText": "人世間最難馴服的就是自己的心！天下本無事，庸人自擾之。當瞭解一切都須在「心」上下功夫，就會單純許多。",
-          "readTextSource": "manual"
-        },
-        {
-          "id": "web-9150d2b7be",
-          "title": "在有限的歲月中 看清因果真相   天圓文化 Richestlife",
-          "text": "在有限的歲月中 看清因果真相   天圓文化 Richestlife",
-          "plain": "",
-          "category": "生活",
-          "date": "",
-          "source": "網路搜尋",
-          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%9C%A8%E6%9C%89%E9%99%90%E7%9A%84%E6%AD%B2%E6%9C%88%E4%B8%AD-%E7%9C%8B%E6%B8%85%E5%9B%A0%E6%9E%9C%E7%9C%9F%E7%9B%B8-0525-CH-44-1P-56.jpg",
-          "pageUrl": "https://www.richestlife.com/在有限的歲月中-看清因果真相/",
-          "imageLocal": "cards/mirror/web-9150d2b7be.jpg",
-          "readText": "許多的恩怨導致心中的鬱悶，靈魂感受不到光明，自身儼然成為製造負能量的機器，不斷聚集負能量，則所謂的人間煉獄。",
           "readTextSource": "manual"
         },
         {
@@ -421,17 +421,31 @@
           "readTextSource": "manual"
         },
         {
-          "id": "web-c26ca625c4",
-          "title": "今生的美好 遇見超級生命密碼   天圓文化 Richestlife",
-          "text": "今生的美好 遇見超級生命密碼   天圓文化 Richestlife",
+          "id": "web-d0b0e60420",
+          "title": "深入超級生命密碼 改運改命造命不是夢   天圓文化 Richestlife",
+          "text": "深入超級生命密碼 改運改命造命不是夢   天圓文化 Richestlife",
           "plain": "",
           "category": "生活",
           "date": "",
           "source": "網路搜尋",
-          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BB%8A%E7%94%9F%E7%9A%84%E7%BE%8E%E5%A5%BD-%E9%81%87%E8%A6%8B%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC-0828-CH44-3P-068.jpg",
-          "pageUrl": "https://www.richestlife.com/今生的美好-遇見超級生命密碼/",
-          "imageLocal": "cards/mirror/web-c26ca625c4.jpg",
-          "readText": "生活輕鬆自在，自如過活，進而帶動身、心、靈平順，這才是真正的落實與實修。",
+          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E6%B7%B1%E5%85%A5%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC-%E6%94%B9%E9%81%8B%E6%94%B9%E5%91%BD%E9%80%A0%E5%91%BD%E4%B8%8D%E6%98%AF%E5%A4%A2-0511-CH-33-2P-114.jpg",
+          "pageUrl": "https://www.richestlife.com/深入超級生命密碼　改運改命造命不是夢/",
+          "imageLocal": "cards/mirror/web-d0b0e60420.jpg",
+          "readText": "深入超級生命密碼 改運改命造命不是夢",
+          "readTextSource": "filename"
+        },
+        {
+          "id": "web-8400e2eacd",
+          "title": "生活的豐盛富足 盡在超級生命密碼的世界   天圓文化 Richestlife",
+          "text": "生活的豐盛富足 盡在超級生命密碼的世界   天圓文化 Richestlife",
+          "plain": "",
+          "category": "生活",
+          "date": "",
+          "source": "網路搜尋",
+          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/07/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E7%94%9F%E6%B4%BB%E7%9A%84%E8%B1%90%E7%9B%9B%E5%AF%8C%E8%B6%B3%E3%80%80%E7%9B%A1%E5%9C%A8%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC%E7%9A%84%E4%B8%96%E7%95%8C0721-CH33-3P-109.jpg",
+          "pageUrl": "https://www.richestlife.com/生活的豐盛富足-盡在超級生命密碼的世界/",
+          "imageLocal": "cards/mirror/web-8400e2eacd.jpg",
+          "readText": "遭逢坎坷容易讓人產生抱怨和悔恨，使不同的負能量聚合滋事，並為其付出代價！所以究竟要選擇哪一條路？自己是唯一可以抉擇的人。",
           "readTextSource": "manual"
         },
         {
@@ -477,18 +491,18 @@
           "readTextSource": "manual"
         },
         {
-          "id": "web-d0b0e60420",
-          "title": "深入超級生命密碼 改運改命造命不是夢   天圓文化 Richestlife",
-          "text": "深入超級生命密碼 改運改命造命不是夢   天圓文化 Richestlife",
+          "id": "web-9150d2b7be",
+          "title": "在有限的歲月中 看清因果真相   天圓文化 Richestlife",
+          "text": "在有限的歲月中 看清因果真相   天圓文化 Richestlife",
           "plain": "",
           "category": "生活",
           "date": "",
           "source": "網路搜尋",
-          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E6%B7%B1%E5%85%A5%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC-%E6%94%B9%E9%81%8B%E6%94%B9%E5%91%BD%E9%80%A0%E5%91%BD%E4%B8%8D%E6%98%AF%E5%A4%A2-0511-CH-33-2P-114.jpg",
-          "pageUrl": "https://www.richestlife.com/深入超級生命密碼　改運改命造命不是夢/",
-          "imageLocal": "cards/mirror/web-d0b0e60420.jpg",
-          "readText": "深入超級生命密碼 改運改命造命不是夢",
-          "readTextSource": "filename"
+          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%9C%A8%E6%9C%89%E9%99%90%E7%9A%84%E6%AD%B2%E6%9C%88%E4%B8%AD-%E7%9C%8B%E6%B8%85%E5%9B%A0%E6%9E%9C%E7%9C%9F%E7%9B%B8-0525-CH-44-1P-56.jpg",
+          "pageUrl": "https://www.richestlife.com/在有限的歲月中-看清因果真相/",
+          "imageLocal": "cards/mirror/web-9150d2b7be.jpg",
+          "readText": "許多的恩怨導致心中的鬱悶，靈魂感受不到光明，自身儼然成為製造負能量的機器，不斷聚集負能量，則所謂的人間煉獄。",
+          "readTextSource": "manual"
         },
         {
           "id": "web-a1e0565e52",
@@ -515,8 +529,8 @@
           "imageUrl": "https://i.ytimg.com/vi/Lp33qYYuvpc/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=Lp33qYYuvpc",
           "imageLocal": "cards/mirror/yt-c1ab81ade2.jpg",
-          "readText": "太阳心语 作者: 太阳盛德导师",
-          "readTextSource": "youtube"
+          "readText": "到了該放下的時候，是自然而然地放下，根本不需要壓抑或克制自己。",
+          "readTextSource": "manual"
         },
         {
           "id": "yt-9093c37309",
@@ -529,8 +543,8 @@
           "imageUrl": "https://i.ytimg.com/vi/P0zy9GV8NBg/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=P0zy9GV8NBg",
           "imageLocal": "cards/mirror/yt-9093c37309.jpg",
-          "readText": "太阳心语 作者: 太阳盛德导师",
-          "readTextSource": "youtube"
+          "readText": "到了該放下的時候，是自然而然地放下，根本不需要壓抑或克制自己。",
+          "readTextSource": "manual"
         },
         {
           "id": "yt-7466342fee",
@@ -544,7 +558,7 @@
           "pageUrl": "https://www.youtube.com/watch?v=ZtXwzJTmrMs",
           "imageLocal": "cards/mirror/yt-7466342fee.jpg",
           "readText": "太陽盛德導師專訪",
-          "readTextSource": "youtube"
+          "readTextSource": "manual"
         },
         {
           "id": "yt-a6aa1ca0fb",
@@ -557,22 +571,8 @@
           "imageUrl": "https://i.ytimg.com/vi/1neWqbRfoes/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=1neWqbRfoes",
           "imageLocal": "cards/mirror/yt-a6aa1ca0fb.jpg",
-          "readText": "太陽盛德 著 第一集",
-          "readTextSource": "youtube"
-        },
-        {
-          "id": "yt-0aa5caa5ac",
-          "title": "太陽心語：超級生命密碼系統的絕對性與超然性",
-          "text": "太陽心語：超級生命密碼系統的絕對性與超然性",
-          "plain": "YouTube 太陽心語相關影音縮圖",
-          "category": "生活",
-          "date": "",
-          "source": "YouTube 搜尋",
-          "imageUrl": "https://i.ytimg.com/vi/Bpa5qRIR0KE/hqdefault.jpg",
-          "pageUrl": "https://www.youtube.com/watch?v=Bpa5qRIR0KE",
-          "imageLocal": "cards/mirror/yt-0aa5caa5ac.jpg",
-          "readText": "超級生命密碼系統的絕對性與超然性",
-          "readTextSource": "youtube"
+          "readText": "太陽心語，聽音樂，看風景。第一集，太陽盛德導師著，輯一德行篇，人倫之理（第1-14則）。攝影：张升荣、何桂花。于四川亞丁。",
+          "readTextSource": "manual"
         },
         {
           "id": "yt-8b2a096e8d",
@@ -586,21 +586,35 @@
           "pageUrl": "https://www.youtube.com/watch?v=bO9TkqrUyvo",
           "imageLocal": "cards/mirror/yt-8b2a096e8d.jpg",
           "readText": "學會聽話的藝術—把每次交談都變成成功的養分",
-          "readTextSource": "youtube"
+          "readTextSource": "manual"
         },
         {
-          "id": "art-7c482a3bd6",
-          "title": "結緣品下載   Richestlife   天圓文化",
-          "text": "結緣品下載   Richestlife   天圓文化",
-          "plain": "",
+          "id": "yt-0aa5caa5ac",
+          "title": "太陽心語：超級生命密碼系統的絕對性與超然性",
+          "text": "太陽心語：超級生命密碼系統的絕對性與超然性",
+          "plain": "YouTube 太陽心語相關影音縮圖",
           "category": "生活",
           "date": "",
-          "source": "網路搜尋",
-          "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2016/03/1485174608262.jpg",
-          "pageUrl": "https://sg.richestlife.com/download/",
-          "imageLocal": "cards/mirror/art-7c482a3bd6.jpg",
-          "readText": "1485174608262",
-          "readTextSource": "filename"
+          "source": "YouTube 搜尋",
+          "imageUrl": "https://i.ytimg.com/vi/Bpa5qRIR0KE/hqdefault.jpg",
+          "pageUrl": "https://www.youtube.com/watch?v=Bpa5qRIR0KE",
+          "imageLocal": "cards/mirror/yt-0aa5caa5ac.jpg",
+          "readText": "超級生命密碼系統的絕對性與超然性",
+          "readTextSource": "manual"
+        },
+        {
+          "id": "yt-1945dedf9c",
+          "title": "太陽心語：超級生命密碼系統的核心",
+          "text": "太陽心語：超級生命密碼系統的核心",
+          "plain": "YouTube 太陽心語相關影音縮圖",
+          "category": "生活",
+          "date": "",
+          "source": "YouTube 搜尋",
+          "imageUrl": "https://i.ytimg.com/vi/sIVJ2S8lUao/hqdefault.jpg",
+          "pageUrl": "https://www.youtube.com/watch?v=sIVJ2S8lUao",
+          "imageLocal": "cards/mirror/yt-1945dedf9c.jpg",
+          "readText": "超級生命密碼系統的核心",
+          "readTextSource": "youtube"
         },
         {
           "id": "art-452abcb423",
@@ -613,22 +627,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2016/03/1485174608262-300x194.jpg",
           "pageUrl": "https://sg.richestlife.com/download/",
           "imageLocal": "cards/mirror/art-452abcb423.jpg",
-          "readText": "1485174608262 300x194",
-          "readTextSource": "filename"
-        },
-        {
-          "id": "art-4151ffe942",
-          "title": "Photographer AIKU （舞川あいく） (@photo.aiku)",
-          "text": "Photographer AIKU （舞川あいく） (@photo.aiku)",
-          "plain": "",
-          "category": "生活",
-          "date": "",
-          "source": "網路搜尋",
-          "imageUrl": "https://scontent-ord5-1.xx.fbcdn.net/v/t39.30808-1/451333286_3784349145117189_7396277812000599077_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=106&ccb=1-7&_nc_sid=3ab345&_nc_ohc=3FH2m6CppAsQ7kNvwE02-p7&_nc_oc=AdpPHnVxJ1hlF8VglBZ3LvO1OaymgtQgPPNTtmmiR45PiDZrBdTJpa7_AqIXgOwFEKo&_nc_zt=24&_nc_ht=scontent-ord5-1.xx&_nc_gid=3ooYiNtTQthS94QB7iTGjg&_nc_ss=7e20f&oh=00_AQJC72Nc6_EqDLEEzlnbByZyqIBK577_LDvt8mD_jgGNgA&oe=6A9A577E",
-          "pageUrl": "https://www.facebook.com/photo.aiku/",
-          "imageLocal": "cards/mirror/art-4151ffe942.jpg",
-          "readText": "Photographer AIKU （舞川あいく） (@photo.aiku)",
-          "readTextSource": "filename"
+          "readText": "感恩四句偈。感恩宇宙，感恩未來；感恩宇宙，感恩愛；感恩宇宙，感恩愛；感恩宇宙，感恩一切有了交代！",
+          "readTextSource": "manual"
         }
       ]
     }
@@ -803,6 +803,20 @@
       "readTextSource": "seed"
     },
     {
+      "id": "art-7c482a3bd6",
+      "title": "感恩四句偈",
+      "text": "感恩四句偈",
+      "plain": "",
+      "category": "感恩",
+      "date": "",
+      "source": "網路搜尋",
+      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2016/03/1485174608262.jpg",
+      "pageUrl": "https://sg.richestlife.com/download/",
+      "imageLocal": "cards/mirror/art-7c482a3bd6.jpg",
+      "readText": "感恩四句偈。感恩宇宙，感恩未來；感恩宇宙，感恩愛；感恩宇宙，感恩愛；感恩宇宙，感恩一切有了交代！",
+      "readTextSource": "manual"
+    },
+    {
       "id": "web-13dc472c98",
       "title": "真心跟隨太陽盛德導師 獲得重生的喜悅   天圓文化 Richestlife",
       "text": "真心跟隨太陽盛德導師 獲得重生的喜悅   天圓文化 Richestlife",
@@ -815,6 +829,34 @@
       "imageLocal": "cards/mirror/web-13dc472c98.jpg",
       "readText": "神通法力，對靈命並不會有所增長，要讓靈命真實提升，必須靠自己的修為，將問題一勞永逸徹底解決。",
       "readTextSource": "manual"
+    },
+    {
+      "id": "web-f45d471bb0",
+      "title": "尋找生命導師 太陽盛德導師   天圓文化 Richestlife",
+      "text": "尋找生命導師 太陽盛德導師   天圓文化 Richestlife",
+      "plain": "",
+      "category": "生活",
+      "date": "",
+      "source": "網路搜尋",
+      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%B0%8B%E6%89%BE%E7%94%9F%E5%91%BD%E5%B0%8E%E5%B8%AB%EF%BC%8D%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB0814-CH41-3P-164.jpg",
+      "pageUrl": "https://www.richestlife.com/尋找生命導師-太陽盛德導師/",
+      "imageLocal": "cards/mirror/web-f45d471bb0.jpg",
+      "readText": "人與人之間，舒適地相處與溝通是智慧的體現。",
+      "readTextSource": "manual"
+    },
+    {
+      "id": "web-49e1f016a8",
+      "title": "超級生命密碼彰化菁英會   在這一刻，能立即找到今生的價值，是每個人的當務之急。  太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
+      "text": "超級生命密碼彰化菁英會   在這一刻，能立即找到今生的價值，是每個人的當務之急。  太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
+      "plain": "",
+      "category": "生活",
+      "date": "",
+      "source": "網路搜尋",
+      "imageUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1300337568562534",
+      "pageUrl": "https://www.facebook.com/superlifecodeChanghua/photos/在這一刻能立即找到今生的價值是每個人的當務之急-太陽盛德導師超級生命密碼太陽心語歡迎廣傳/1300337568562534/",
+      "imageLocal": "cards/web-49e1f016a8.png",
+      "readText": "超級生命密碼彰化菁英會 在這一刻，能立即找到今生的價值，是每個人的當務之急。 太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
+      "readTextSource": "filename"
     },
     {
       "id": "web-cf7987641f",
@@ -845,20 +887,6 @@
       "readTextSource": "manual"
     },
     {
-      "id": "web-f45d471bb0",
-      "title": "尋找生命導師 太陽盛德導師   天圓文化 Richestlife",
-      "text": "尋找生命導師 太陽盛德導師   天圓文化 Richestlife",
-      "plain": "",
-      "category": "生活",
-      "date": "",
-      "source": "網路搜尋",
-      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%B0%8B%E6%89%BE%E7%94%9F%E5%91%BD%E5%B0%8E%E5%B8%AB%EF%BC%8D%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB0814-CH41-3P-164.jpg",
-      "pageUrl": "https://www.richestlife.com/尋找生命導師-太陽盛德導師/",
-      "imageLocal": "cards/mirror/web-f45d471bb0.jpg",
-      "readText": "人與人之間，舒適地相處與溝通是智慧的體現。",
-      "readTextSource": "manual"
-    },
-    {
       "id": "web-c154400a80",
       "title": "太陽盛德明師法語 通透心靈   天圓文化 Richestlife",
       "text": "太陽盛德明師法語 通透心靈   天圓文化 Richestlife",
@@ -871,20 +899,6 @@
       "imageLocal": "cards/mirror/web-c154400a80.jpg",
       "readText": "如果沒有『德』資糧做後盾，一切都是空談，縱然在人世間有著無限的成就，最終都是零，甚至是負的。",
       "readTextSource": "manual"
-    },
-    {
-      "id": "web-49e1f016a8",
-      "title": "超級生命密碼彰化菁英會   在這一刻，能立即找到今生的價值，是每個人的當務之急。  太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
-      "text": "超級生命密碼彰化菁英會   在這一刻，能立即找到今生的價值，是每個人的當務之急。  太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
-      "plain": "",
-      "category": "生活",
-      "date": "",
-      "source": "網路搜尋",
-      "imageUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1300337568562534",
-      "pageUrl": "https://www.facebook.com/superlifecodeChanghua/photos/在這一刻能立即找到今生的價值是每個人的當務之急-太陽盛德導師超級生命密碼太陽心語歡迎廣傳/1300337568562534/",
-      "imageLocal": "cards/web-49e1f016a8.png",
-      "readText": "超級生命密碼彰化菁英會 在這一刻，能立即找到今生的價值，是每個人的當務之急。 太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
-      "readTextSource": "filename"
     },
     {
       "id": "web-a972c84f8d",
@@ -915,20 +929,6 @@
       "readTextSource": "manual"
     },
     {
-      "id": "web-9150d2b7be",
-      "title": "在有限的歲月中 看清因果真相   天圓文化 Richestlife",
-      "text": "在有限的歲月中 看清因果真相   天圓文化 Richestlife",
-      "plain": "",
-      "category": "生活",
-      "date": "",
-      "source": "網路搜尋",
-      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%9C%A8%E6%9C%89%E9%99%90%E7%9A%84%E6%AD%B2%E6%9C%88%E4%B8%AD-%E7%9C%8B%E6%B8%85%E5%9B%A0%E6%9E%9C%E7%9C%9F%E7%9B%B8-0525-CH-44-1P-56.jpg",
-      "pageUrl": "https://www.richestlife.com/在有限的歲月中-看清因果真相/",
-      "imageLocal": "cards/mirror/web-9150d2b7be.jpg",
-      "readText": "許多的恩怨導致心中的鬱悶，靈魂感受不到光明，自身儼然成為製造負能量的機器，不斷聚集負能量，則所謂的人間煉獄。",
-      "readTextSource": "manual"
-    },
-    {
       "id": "web-7ad3a544ed",
       "title": "感謝超級生命密碼統的家人相助 一切都是最好的安排   天圓文化 Richestlife",
       "text": "感謝超級生命密碼統的家人相助 一切都是最好的安排   天圓文化 Richestlife",
@@ -943,20 +943,6 @@
       "readTextSource": "manual"
     },
     {
-      "id": "web-c26ca625c4",
-      "title": "今生的美好 遇見超級生命密碼   天圓文化 Richestlife",
-      "text": "今生的美好 遇見超級生命密碼   天圓文化 Richestlife",
-      "plain": "",
-      "category": "生活",
-      "date": "",
-      "source": "網路搜尋",
-      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BB%8A%E7%94%9F%E7%9A%84%E7%BE%8E%E5%A5%BD-%E9%81%87%E8%A6%8B%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC-0828-CH44-3P-068.jpg",
-      "pageUrl": "https://www.richestlife.com/今生的美好-遇見超級生命密碼/",
-      "imageLocal": "cards/mirror/web-c26ca625c4.jpg",
-      "readText": "生活輕鬆自在，自如過活，進而帶動身、心、靈平順，這才是真正的落實與實修。",
-      "readTextSource": "manual"
-    },
-    {
       "id": "web-481de5c22a",
       "title": "行住坐臥間落實愛與感恩 讓心靈受益無窮   天圓文化 Richestlife",
       "text": "行住坐臥間落實愛與感恩 讓心靈受益無窮   天圓文化 Richestlife",
@@ -968,6 +954,34 @@
       "pageUrl": "https://www.richestlife.com/行住坐臥間落實愛與感恩-讓心靈受益無窮/",
       "imageLocal": "cards/mirror/web-481de5c22a.jpg",
       "readText": "順天而行才是解決之道，也才會有所餘地，不要將自己逼到角落裡。",
+      "readTextSource": "manual"
+    },
+    {
+      "id": "web-d0b0e60420",
+      "title": "深入超級生命密碼 改運改命造命不是夢   天圓文化 Richestlife",
+      "text": "深入超級生命密碼 改運改命造命不是夢   天圓文化 Richestlife",
+      "plain": "",
+      "category": "生活",
+      "date": "",
+      "source": "網路搜尋",
+      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E6%B7%B1%E5%85%A5%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC-%E6%94%B9%E9%81%8B%E6%94%B9%E5%91%BD%E9%80%A0%E5%91%BD%E4%B8%8D%E6%98%AF%E5%A4%A2-0511-CH-33-2P-114.jpg",
+      "pageUrl": "https://www.richestlife.com/深入超級生命密碼　改運改命造命不是夢/",
+      "imageLocal": "cards/mirror/web-d0b0e60420.jpg",
+      "readText": "深入超級生命密碼 改運改命造命不是夢",
+      "readTextSource": "filename"
+    },
+    {
+      "id": "web-8400e2eacd",
+      "title": "生活的豐盛富足 盡在超級生命密碼的世界   天圓文化 Richestlife",
+      "text": "生活的豐盛富足 盡在超級生命密碼的世界   天圓文化 Richestlife",
+      "plain": "",
+      "category": "生活",
+      "date": "",
+      "source": "網路搜尋",
+      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/07/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E7%94%9F%E6%B4%BB%E7%9A%84%E8%B1%90%E7%9B%9B%E5%AF%8C%E8%B6%B3%E3%80%80%E7%9B%A1%E5%9C%A8%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC%E7%9A%84%E4%B8%96%E7%95%8C0721-CH33-3P-109.jpg",
+      "pageUrl": "https://www.richestlife.com/生活的豐盛富足-盡在超級生命密碼的世界/",
+      "imageLocal": "cards/mirror/web-8400e2eacd.jpg",
+      "readText": "遭逢坎坷容易讓人產生抱怨和悔恨，使不同的負能量聚合滋事，並為其付出代價！所以究竟要選擇哪一條路？自己是唯一可以抉擇的人。",
       "readTextSource": "manual"
     },
     {
@@ -1013,18 +1027,18 @@
       "readTextSource": "manual"
     },
     {
-      "id": "web-d0b0e60420",
-      "title": "深入超級生命密碼 改運改命造命不是夢   天圓文化 Richestlife",
-      "text": "深入超級生命密碼 改運改命造命不是夢   天圓文化 Richestlife",
+      "id": "web-9150d2b7be",
+      "title": "在有限的歲月中 看清因果真相   天圓文化 Richestlife",
+      "text": "在有限的歲月中 看清因果真相   天圓文化 Richestlife",
       "plain": "",
       "category": "生活",
       "date": "",
       "source": "網路搜尋",
-      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E6%B7%B1%E5%85%A5%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC-%E6%94%B9%E9%81%8B%E6%94%B9%E5%91%BD%E9%80%A0%E5%91%BD%E4%B8%8D%E6%98%AF%E5%A4%A2-0511-CH-33-2P-114.jpg",
-      "pageUrl": "https://www.richestlife.com/深入超級生命密碼　改運改命造命不是夢/",
-      "imageLocal": "cards/mirror/web-d0b0e60420.jpg",
-      "readText": "深入超級生命密碼 改運改命造命不是夢",
-      "readTextSource": "filename"
+      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%9C%A8%E6%9C%89%E9%99%90%E7%9A%84%E6%AD%B2%E6%9C%88%E4%B8%AD-%E7%9C%8B%E6%B8%85%E5%9B%A0%E6%9E%9C%E7%9C%9F%E7%9B%B8-0525-CH-44-1P-56.jpg",
+      "pageUrl": "https://www.richestlife.com/在有限的歲月中-看清因果真相/",
+      "imageLocal": "cards/mirror/web-9150d2b7be.jpg",
+      "readText": "許多的恩怨導致心中的鬱悶，靈魂感受不到光明，自身儼然成為製造負能量的機器，不斷聚集負能量，則所謂的人間煉獄。",
+      "readTextSource": "manual"
     },
     {
       "id": "web-eb636d5010",
@@ -1093,8 +1107,8 @@
       "imageUrl": "https://i.ytimg.com/vi/Lp33qYYuvpc/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=Lp33qYYuvpc",
       "imageLocal": "cards/mirror/yt-c1ab81ade2.jpg",
-      "readText": "太阳心语 作者: 太阳盛德导师",
-      "readTextSource": "youtube"
+      "readText": "到了該放下的時候，是自然而然地放下，根本不需要壓抑或克制自己。",
+      "readTextSource": "manual"
     },
     {
       "id": "yt-9093c37309",
@@ -1107,8 +1121,22 @@
       "imageUrl": "https://i.ytimg.com/vi/P0zy9GV8NBg/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=P0zy9GV8NBg",
       "imageLocal": "cards/mirror/yt-9093c37309.jpg",
-      "readText": "太阳心语 作者: 太阳盛德导师",
-      "readTextSource": "youtube"
+      "readText": "到了該放下的時候，是自然而然地放下，根本不需要壓抑或克制自己。",
+      "readTextSource": "manual"
+    },
+    {
+      "id": "yt-7466342fee",
+      "title": "太陽心語：太陽盛德導師專訪",
+      "text": "太陽心語：太陽盛德導師專訪",
+      "plain": "YouTube 太陽心語相關影音縮圖",
+      "category": "生活",
+      "date": "",
+      "source": "YouTube 搜尋",
+      "imageUrl": "https://i.ytimg.com/vi/ZtXwzJTmrMs/hqdefault.jpg",
+      "pageUrl": "https://www.youtube.com/watch?v=ZtXwzJTmrMs",
+      "imageLocal": "cards/mirror/yt-7466342fee.jpg",
+      "readText": "太陽盛德導師專訪",
+      "readTextSource": "manual"
     },
     {
       "id": "yt-d8f2fac2f3",
@@ -1125,20 +1153,6 @@
       "readTextSource": "youtube"
     },
     {
-      "id": "yt-7466342fee",
-      "title": "太陽心語：太陽盛德導師專訪",
-      "text": "太陽心語：太陽盛德導師專訪",
-      "plain": "YouTube 太陽心語相關影音縮圖",
-      "category": "生活",
-      "date": "",
-      "source": "YouTube 搜尋",
-      "imageUrl": "https://i.ytimg.com/vi/ZtXwzJTmrMs/hqdefault.jpg",
-      "pageUrl": "https://www.youtube.com/watch?v=ZtXwzJTmrMs",
-      "imageLocal": "cards/mirror/yt-7466342fee.jpg",
-      "readText": "太陽盛德導師專訪",
-      "readTextSource": "youtube"
-    },
-    {
       "id": "yt-a6aa1ca0fb",
       "title": "太陽心語 太陽盛德 著 第一集 摄影 张升荣 何桂花",
       "text": "太陽心語   太陽盛德 著   第一集  摄影 张升荣 何桂花",
@@ -1149,22 +1163,8 @@
       "imageUrl": "https://i.ytimg.com/vi/1neWqbRfoes/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=1neWqbRfoes",
       "imageLocal": "cards/mirror/yt-a6aa1ca0fb.jpg",
-      "readText": "太陽盛德 著 第一集",
-      "readTextSource": "youtube"
-    },
-    {
-      "id": "yt-0aa5caa5ac",
-      "title": "太陽心語：超級生命密碼系統的絕對性與超然性",
-      "text": "太陽心語：超級生命密碼系統的絕對性與超然性",
-      "plain": "YouTube 太陽心語相關影音縮圖",
-      "category": "生活",
-      "date": "",
-      "source": "YouTube 搜尋",
-      "imageUrl": "https://i.ytimg.com/vi/Bpa5qRIR0KE/hqdefault.jpg",
-      "pageUrl": "https://www.youtube.com/watch?v=Bpa5qRIR0KE",
-      "imageLocal": "cards/mirror/yt-0aa5caa5ac.jpg",
-      "readText": "超級生命密碼系統的絕對性與超然性",
-      "readTextSource": "youtube"
+      "readText": "太陽心語，聽音樂，看風景。第一集，太陽盛德導師著，輯一德行篇，人倫之理（第1-14則）。攝影：张升荣、何桂花。于四川亞丁。",
+      "readTextSource": "manual"
     },
     {
       "id": "yt-8b2a096e8d",
@@ -1178,21 +1178,35 @@
       "pageUrl": "https://www.youtube.com/watch?v=bO9TkqrUyvo",
       "imageLocal": "cards/mirror/yt-8b2a096e8d.jpg",
       "readText": "學會聽話的藝術—把每次交談都變成成功的養分",
-      "readTextSource": "youtube"
+      "readTextSource": "manual"
     },
     {
-      "id": "art-7c482a3bd6",
-      "title": "結緣品下載   Richestlife   天圓文化",
-      "text": "結緣品下載   Richestlife   天圓文化",
-      "plain": "",
+      "id": "yt-0aa5caa5ac",
+      "title": "太陽心語：超級生命密碼系統的絕對性與超然性",
+      "text": "太陽心語：超級生命密碼系統的絕對性與超然性",
+      "plain": "YouTube 太陽心語相關影音縮圖",
       "category": "生活",
       "date": "",
-      "source": "網路搜尋",
-      "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2016/03/1485174608262.jpg",
-      "pageUrl": "https://sg.richestlife.com/download/",
-      "imageLocal": "cards/mirror/art-7c482a3bd6.jpg",
-      "readText": "1485174608262",
-      "readTextSource": "filename"
+      "source": "YouTube 搜尋",
+      "imageUrl": "https://i.ytimg.com/vi/Bpa5qRIR0KE/hqdefault.jpg",
+      "pageUrl": "https://www.youtube.com/watch?v=Bpa5qRIR0KE",
+      "imageLocal": "cards/mirror/yt-0aa5caa5ac.jpg",
+      "readText": "超級生命密碼系統的絕對性與超然性",
+      "readTextSource": "manual"
+    },
+    {
+      "id": "yt-1945dedf9c",
+      "title": "太陽心語：超級生命密碼系統的核心",
+      "text": "太陽心語：超級生命密碼系統的核心",
+      "plain": "YouTube 太陽心語相關影音縮圖",
+      "category": "生活",
+      "date": "",
+      "source": "YouTube 搜尋",
+      "imageUrl": "https://i.ytimg.com/vi/sIVJ2S8lUao/hqdefault.jpg",
+      "pageUrl": "https://www.youtube.com/watch?v=sIVJ2S8lUao",
+      "imageLocal": "cards/mirror/yt-1945dedf9c.jpg",
+      "readText": "超級生命密碼系統的核心",
+      "readTextSource": "youtube"
     },
     {
       "id": "art-452abcb423",
@@ -1205,22 +1219,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2016/03/1485174608262-300x194.jpg",
       "pageUrl": "https://sg.richestlife.com/download/",
       "imageLocal": "cards/mirror/art-452abcb423.jpg",
-      "readText": "1485174608262 300x194",
-      "readTextSource": "filename"
-    },
-    {
-      "id": "art-4151ffe942",
-      "title": "Photographer AIKU （舞川あいく） (@photo.aiku)",
-      "text": "Photographer AIKU （舞川あいく） (@photo.aiku)",
-      "plain": "",
-      "category": "生活",
-      "date": "",
-      "source": "網路搜尋",
-      "imageUrl": "https://scontent-ord5-1.xx.fbcdn.net/v/t39.30808-1/451333286_3784349145117189_7396277812000599077_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=106&ccb=1-7&_nc_sid=3ab345&_nc_ohc=3FH2m6CppAsQ7kNvwE02-p7&_nc_oc=AdpPHnVxJ1hlF8VglBZ3LvO1OaymgtQgPPNTtmmiR45PiDZrBdTJpa7_AqIXgOwFEKo&_nc_zt=24&_nc_ht=scontent-ord5-1.xx&_nc_gid=3ooYiNtTQthS94QB7iTGjg&_nc_ss=7e20f&oh=00_AQJC72Nc6_EqDLEEzlnbByZyqIBK577_LDvt8mD_jgGNgA&oe=6A9A577E",
-      "pageUrl": "https://www.facebook.com/photo.aiku/",
-      "imageLocal": "cards/mirror/art-4151ffe942.jpg",
-      "readText": "Photographer AIKU （舞川あいく） (@photo.aiku)",
-      "readTextSource": "filename"
+      "readText": "感恩四句偈。感恩宇宙，感恩未來；感恩宇宙，感恩愛；感恩宇宙，感恩愛；感恩宇宙，感恩一切有了交代！",
+      "readTextSource": "manual"
     }
   ]
 }

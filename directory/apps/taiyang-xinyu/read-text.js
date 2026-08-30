@@ -1,4 +1,4 @@
-/** 太陽心語：朗讀文字（種子卡片唸標題＋主文；原圖只唸圖上內容） */
+/** 太陽心語：朗讀文字（種子卡片唸標題＋主文；縮圖／原圖只唸圖上內容） */
 (function (global) {
   function cleanRead(s) {
     return (s || "")
@@ -9,10 +9,14 @@
       .trim();
   }
 
-  function isWebOriginalImage(it) {
-    if (!it) return false;
-    if (it.readTextSource === "manual") return true;
-    return it.source === "網路搜尋" && !!it.imageUrl;
+  function isSeedCard(it) {
+    return it && (it.readTextSource === "seed" || it.source === "種子語錄");
+  }
+
+  /** 有圖的收錄項（非種子卡片）：只顯示／唸手動對照或 OCR，不唸影片標題／檔名 */
+  function isImageOnlyItem(it) {
+    if (!it || !it.imageUrl || isSeedCard(it)) return false;
+    return true;
   }
 
   function fullBodyFromItem(it) {
@@ -45,30 +49,25 @@
 
   function speechText(it) {
     if (!it) return "";
-    if (isWebOriginalImage(it)) return imageOnlySpeech(it);
-    if (it.readTextSource === "seed" || it.source === "種子語錄") {
+    if (isImageOnlyItem(it)) return imageOnlySpeech(it);
+    if (isSeedCard(it)) {
       return speechWithTitle(cleanRead(it.title || ""), fullBodyFromItem(it));
     }
-    if (it.readTextSource === "filename") return "";
-    if (it.readTextSource === "youtube" && it.readText) return cleanRead(it.readText);
     if (it.readText) return cleanRead(it.readText);
     return speechWithTitle(cleanRead(it.title || ""), fullBodyFromItem(it));
   }
 
   function displayQuote(it) {
     if (!it) return { title: "太陽心語", text: "", plain: "" };
-    if (it.readTextSource === "seed" || it.source === "種子語錄") {
+    if (isSeedCard(it)) {
       return { title: it.title || "太陽心語", text: it.text || it.readText || "", plain: it.plain || "" };
     }
-    if (isWebOriginalImage(it)) {
+    if (isImageOnlyItem(it)) {
       return {
         title: "太陽心語",
         text: (it.readTextSource === "manual" && it.readText) ? it.readText : "",
         plain: ""
       };
-    }
-    if (it.readTextSource === "youtube" && it.readText) {
-      return { title: it.title || "太陽心語", text: it.readText, plain: "" };
     }
     return { title: it.title || "太陽心語", text: it.text || "", plain: it.plain || "" };
   }
@@ -77,10 +76,10 @@
     if (!it) return Promise.resolve("");
     if (it.readTextSource === "manual") return Promise.resolve(imageOnlySpeech(it));
     if (it.readTextSource === "seed") return Promise.resolve(speechText(it));
-    if (global.TaiyangOcrRead && global.TaiyangOcrRead.needsImageOcr(it) && imgEl) {
+    if (isImageOnlyItem(it) && global.TaiyangOcrRead && global.TaiyangOcrRead.needsImageOcr(it) && imgEl) {
       return global.TaiyangOcrRead.getOcrText(it.id, imgEl).then(function (ocr) {
         if (ocr && ocr.length >= 8) return cleanRead(ocr);
-        return speechText(it);
+        return "";
       });
     }
     return Promise.resolve(speechText(it));
@@ -90,6 +89,7 @@
     speechText: speechText,
     resolveSpeechText: resolveSpeechText,
     displayQuote: displayQuote,
-    isWebOriginalImage: isWebOriginalImage
+    isImageOnlyItem: isImageOnlyItem,
+    isWebOriginalImage: isImageOnlyItem
   };
 })(typeof window !== "undefined" ? window : globalThis);

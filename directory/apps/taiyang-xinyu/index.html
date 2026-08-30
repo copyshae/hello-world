@@ -230,11 +230,11 @@
     </div>
   </div>
 
-  <script src="ocr-read.js?v=1"></script>
-  <script src="read-text.js?v=7"></script>
+  <script src="ocr-read.js?v=2"></script>
+  <script src="read-text.js?v=8"></script>
   <script src="../shared/tts-voices.js?v=3"></script>
   <script>
-    const CATALOG_URL = "./catalog.json?v=20260830f";
+    const CATALOG_URL = "./catalog.json?v=20260830g";
     const STORAGE_KEY = "taiyang-xinyu-v1";
     const CATALOG_CACHE_KEY = "taiyang-xinyu-catalog";
     let catalog = { items: [], categories: [] };
@@ -615,7 +615,7 @@
     });
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=14").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=17").catch(() => {});
     }
 
     loadCatalog(false);

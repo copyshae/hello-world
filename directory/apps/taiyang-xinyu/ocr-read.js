@@ -79,8 +79,8 @@
   function needsImageOcr(it) {
     if (!it || !it.imageUrl) return false;
     if (it.readTextSource === "manual" || it.readTextSource === "seed") return false;
-    if (it.readTextSource === "ocr") return true;
-    return it.source === "網路搜尋" || (it.imageUrl || "").indexOf("richestlife") >= 0;
+    if (it.source === "種子語錄") return false;
+    return true;
   }
 
   global.TaiyangOcrRead = { getOcrText: getOcrText, needsImageOcr: needsImageOcr };
