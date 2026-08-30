@@ -1,4 +1,4 @@
-const CACHE = "taiyang-lib-v6";
+const CACHE = "taiyang-lib-v7";
 const ASSETS = ["./", "./index.html", "./share.html", "./manifest.json", "./catalog.json", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (e) => {
