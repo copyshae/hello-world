@@ -34,8 +34,11 @@
     button { font: inherit; border: 1px solid var(--line); border-radius: 0.35rem; padding: 0.55rem; cursor: pointer; background: #fff; color: var(--accent); font-weight: 600; }
     button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
     button.speaking { background: var(--ok); color: #fff; border-color: var(--ok); }
-    .nav { display: flex; gap: 0.35rem; margin-top: 0.55rem; }
-    .nav button { flex: 1; font-size: 0.82rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; align-items: center; }
+    .nav button { flex: 1 1 calc(33% - 0.25rem); font-size: 0.82rem; }
+    .nav-pos { flex: 0 0 100%; text-align: center; font-size: 0.72rem; color: var(--muted); }
+    button:disabled { opacity: 0.4; cursor: default; }
+    .lightbox-nav:disabled { opacity: 0.35; cursor: default; }
     .mode { margin-top: 0.45rem; font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 0.35rem; }
     .mode input { accent-color: var(--accent); }
     .foot { margin-top: 1rem; font-size: 0.76rem; color: var(--muted); text-align: center; }
@@ -65,7 +68,7 @@
 <body>
   <div class="wrap">
     <h1>太陽心語<br /><span style="font-size:0.85em">簡易版</span></h1>
-    <p class="sub">點選彈出大圖 · 視窗內再選是否朗讀</p>
+    <p class="sub">直接瀏覽切換 · 點目錄可彈出大圖</p>
 
     <section class="panel">
       <input type="search" id="searchBox" placeholder="搜尋…" autocomplete="off" />
@@ -80,6 +83,7 @@
         <p class="plain" id="nowPlain"></p>
       </div>
       <div class="nav">
+        <span class="nav-pos" id="navPos">—</span>
         <button type="button" id="btnPrev">◀ 上一則</button>
         <button type="button" class="primary" id="btnRead">🔊 朗讀</button>
         <button type="button" id="btnNext">下一則 ▶</button>
@@ -96,6 +100,7 @@
   <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true">
     <div class="lightbox-head">
       <p class="title" id="lbTitle">太陽心語</p>
+      <span id="lbPos" style="font-size:0.68rem;opacity:0.75;white-space:nowrap;"></span>
       <button type="button" id="lbRead">🔊</button>
       <button type="button" id="lbClose">✕</button>
     </div>
@@ -169,6 +174,7 @@
       $("lbTitle").textContent = it.title || "太陽心語";
       $("lbText").textContent = it.text || "";
       $("lbPlain").textContent = it.plain || "";
+      updateNavUi();
       $("lightbox").hidden = false;
       document.body.style.overflow = "hidden";
     }
@@ -177,6 +183,45 @@
       $("lightbox").hidden = true;
       document.body.style.overflow = "";
       stopRead();
+    }
+
+    function updateNavUi() {
+      const n = filtered.length;
+      const pos = n ? "第 " + (idx + 1) + " / " + n + " 則" : "—";
+      if ($("navPos")) $("navPos").textContent = pos;
+      if ($("lbPos")) $("lbPos").textContent = pos;
+      const atStart = idx <= 0;
+      const atEnd = idx >= n - 1;
+      $("btnPrev").disabled = atStart;
+      $("btnNext").disabled = atEnd;
+      if ($("lbPrev")) $("lbPrev").disabled = atStart;
+      if ($("lbNext")) $("lbNext").disabled = atEnd;
+    }
+
+    function isLightboxOpen() {
+      return $("lightbox") && !$("lightbox").hidden;
+    }
+
+    function navigate(delta, preferPopup) {
+      if (!filtered.length) return;
+      const next = idx + delta;
+      if (next < 0 || next >= filtered.length) return;
+      showItem(next, false, preferPopup || isLightboxOpen());
+    }
+
+    function bindSwipe(el, onPrev, onNext) {
+      if (!el) return;
+      let x0 = 0, y0 = 0;
+      el.addEventListener("touchstart", function (e) {
+        x0 = e.changedTouches[0].clientX;
+        y0 = e.changedTouches[0].clientY;
+      }, { passive: true });
+      el.addEventListener("touchend", function (e) {
+        const dx = e.changedTouches[0].clientX - x0;
+        const dy = e.changedTouches[0].clientY - y0;
+        if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+        if (dx < 0) onNext(); else onPrev();
+      }, { passive: true });
     }
 
     function showItem(i, autoRead, openPopup) {
@@ -188,8 +233,10 @@
       $("nowText").textContent = it.text || "";
       $("nowPlain").textContent = it.plain || "";
       renderList();
+      updateNavUi();
       history.replaceState(null, "", "?item=" + encodeURIComponent(it.id));
       if (openPopup) openLightbox(it);
+      else if (isLightboxOpen()) closeLightbox();
       if (autoRead) readCurrent(false);
     }
 
@@ -225,18 +272,20 @@
     });
 
     $("searchBox").addEventListener("input", applyFilter);
-    $("btnPrev").onclick = () => showItem(idx - 1, false, true);
-    $("btnNext").onclick = () => showItem(idx + 1, false, true);
+    $("btnPrev").onclick = () => navigate(-1, false);
+    $("btnNext").onclick = () => navigate(1, false);
     $("mainImg").onclick = () => { if (filtered[idx]) openLightbox(filtered[idx]); };
     $("lbClose").onclick = closeLightbox;
     $("lbCloseFoot").onclick = closeLightbox;
-    $("lbPrev").onclick = () => showItem(idx - 1, false, true);
-    $("lbNext").onclick = () => showItem(idx + 1, false, true);
+    $("lbPrev").onclick = () => navigate(-1, true);
+    $("lbNext").onclick = () => navigate(1, true);
     $("lbRead").onclick = () => readCurrent(true);
     $("lbReadFoot").onclick = () => readCurrent(true);
     $("lbStopFoot").onclick = stopRead;
     $("lightbox").onclick = (e) => { if (e.target === $("lightbox")) closeLightbox(); };
     $("btnRead").onclick = () => readCurrent(true);
+    bindSwipe($("mainImg"), () => navigate(-1, false), () => navigate(1, false));
+    bindSwipe($("lbImg"), () => navigate(-1, true), () => navigate(1, true));
     if (window.speechSynthesis) {
       window.speechSynthesis.getVoices();
       document.addEventListener("touchstart", function () { window.speechSynthesis.getVoices(); }, { once: true });

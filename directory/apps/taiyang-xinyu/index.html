@@ -66,8 +66,10 @@
     .now-text { margin-top: 0.25rem; font-size: 0.88rem; line-height: 1.6; }
     .now-plain { margin-top: 0.35rem; font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
     .now-meta { margin-top: 0.25rem; font-size: 0.72rem; color: var(--muted); }
-    .nav-row { margin-top: 0.55rem; display: flex; gap: 0.35rem; }
+    .nav-row { margin-top: 0.55rem; display: flex; gap: 0.35rem; align-items: center; }
     .nav-row button { flex: 1; }
+    .nav-pos { flex: 0 0 100%; text-align: center; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.15rem; }
+    button.btn:disabled { opacity: 0.4; cursor: default; }
     .voice-box { margin-top: 0.75rem; }
     .voice-box label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted); margin: 0.35rem 0 0.15rem; }
     .voice-box select { width: 100%; font: inherit; font-size: 16px; padding: 0.5rem; border: 1px solid var(--line); background: #fff; }
@@ -113,6 +115,7 @@
     }
     .lightbox-nav.prev { left: 0.35rem; }
     .lightbox-nav.next { right: 0.35rem; }
+    .lightbox-nav:disabled { opacity: 0.35; cursor: default; }
     .lightbox-foot {
       padding: 0 0.75rem 0.65rem; color: rgba(255,248,240,0.92);
       font-size: 0.82rem; line-height: 1.55; max-height: 28vh; overflow-y: auto;
@@ -137,7 +140,7 @@
   <div class="wrap">
     <header>
       <h1 class="brand">太陽心語<br />圖片收錄</h1>
-      <p class="sub">網路搜尋連結 · 點選切換 · 美聲朗讀或無聲瀏覽</p>
+      <p class="sub">直接瀏覽切換 · 點目錄可彈出大圖 · 視窗內可選朗讀</p>
     </header>
 
     <section class="panel" style="display:flex;gap:0.75rem;align-items:center;margin-top:0.75rem;">
@@ -164,6 +167,7 @@
       <p class="now-plain" id="nowPlain"></p>
       <p class="now-meta" id="nowMeta"></p>
       <div class="nav-row">
+        <span class="nav-pos" id="navPos">—</span>
         <button type="button" class="btn" id="btnPrev">◀ 上一則</button>
         <button type="button" class="btn primary" id="btnRead">🔊 朗讀</button>
         <button type="button" class="btn" id="btnNext">下一則 ▶</button>
@@ -192,7 +196,7 @@
     </section>
 
     <p class="status" id="statusLine"></p>
-    <p class="hint">點選目錄即<strong>彈出大圖</strong>；在視窗內再按「朗讀」才出聲，也可直接「關閉」。</p>
+    <p class="hint">下方<strong>上一則／下一則</strong>可直接切換圖片；點目錄項目會<strong>彈出大圖</strong>，視窗內再選是否朗讀或關閉。可左右滑動切換。</p>
     <p class="foot">
       <a href="./share.html">加入主畫面</a>
       · <a href="./simple/">簡易版</a>
@@ -203,6 +207,7 @@
   <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-labelledby="lbTitle">
     <div class="lightbox-head">
       <p class="title" id="lbTitle">太陽心語</p>
+      <span id="lbPos" style="font-size:0.72rem;opacity:0.75;white-space:nowrap;"></span>
       <button type="button" id="lbRead">🔊 朗讀</button>
       <button type="button" id="lbClose" aria-label="關閉">✕ 關閉</button>
     </div>
@@ -318,6 +323,45 @@
       }
     }
 
+    function updateNavUi() {
+      const n = filtered.length;
+      const pos = n ? "第 " + (idx + 1) + " / " + n + " 則" : "—";
+      if ($("navPos")) $("navPos").textContent = pos;
+      if ($("lbPos")) $("lbPos").textContent = pos;
+      const atStart = idx <= 0;
+      const atEnd = idx >= n - 1;
+      $("btnPrev").disabled = atStart;
+      $("btnNext").disabled = atEnd;
+      if ($("lbPrev")) $("lbPrev").disabled = atStart;
+      if ($("lbNext")) $("lbNext").disabled = atEnd;
+    }
+
+    function isLightboxOpen() {
+      return $("lightbox") && !$("lightbox").hidden;
+    }
+
+    function navigate(delta, preferPopup) {
+      if (!filtered.length) return;
+      const next = idx + delta;
+      if (next < 0 || next >= filtered.length) return;
+      const openPopup = preferPopup || isLightboxOpen();
+      showItem(next, false, openPopup);
+    }
+
+    function bindSwipe(el, onPrev, onNext) {
+      if (!el) return;
+      let x0 = 0, y0 = 0;
+      el.addEventListener("touchstart", function (e) {
+        x0 = e.changedTouches[0].clientX;
+        y0 = e.changedTouches[0].clientY;
+      }, { passive: true });
+      el.addEventListener("touchend", function (e) {
+        const dx = e.changedTouches[0].clientX - x0;
+        const dy = e.changedTouches[0].clientY - y0;
+        if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+        if (dx < 0) onNext(); else onPrev();
+      }, { passive: true });
+    }
     function showItem(i, autoRead, openPopup) {
       if (!filtered.length) return;
       idx = Math.max(0, Math.min(i, filtered.length - 1));
@@ -330,8 +374,10 @@
       $("nowMeta").textContent = [it.category, it.source, it.date].filter(Boolean).join(" · ");
       savePrefs({ lastId: it.id, silent: $("silentMode").checked });
       renderList();
+      updateNavUi();
       history.replaceState(null, "", "?item=" + encodeURIComponent(it.id));
       if (openPopup) openLightbox(it);
+      else if (isLightboxOpen()) closeLightbox();
       if (autoRead) readCurrent(false);
     }
 
@@ -345,6 +391,7 @@
       $("lbText").textContent = it.text || "";
       $("lbPlain").textContent = it.plain || "";
       $("lbMeta").textContent = [it.category, it.source, it.date].filter(Boolean).join(" · ");
+      updateNavUi();
       $("lightbox").hidden = false;
       document.body.style.overflow = "hidden";
     }
@@ -462,19 +509,21 @@
       searchTimer = setTimeout(applyFilter, 180);
     });
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
-    $("btnPrev").addEventListener("click", () => showItem(idx - 1, false, true));
-    $("btnNext").addEventListener("click", () => showItem(idx + 1, false, true));
+    $("btnPrev").addEventListener("click", () => navigate(-1, false));
+    $("btnNext").addEventListener("click", () => navigate(1, false));
     $("btnRead").addEventListener("click", () => readCurrent(true));
     $("silentMode").addEventListener("change", () => savePrefs({ silent: $("silentMode").checked }));
     $("ttsPreview").addEventListener("click", speakPreview);
     $("mainImg").addEventListener("click", () => { if (filtered[idx]) openLightbox(filtered[idx]); });
     $("lbClose").addEventListener("click", closeLightbox);
     $("lbCloseFoot").addEventListener("click", closeLightbox);
-    $("lbPrev").addEventListener("click", () => showItem(idx - 1, false, true));
-    $("lbNext").addEventListener("click", () => showItem(idx + 1, false, true));
+    $("lbPrev").addEventListener("click", () => navigate(-1, true));
+    $("lbNext").addEventListener("click", () => navigate(1, true));
     $("lbRead").addEventListener("click", () => readCurrent(true));
     $("lbReadFoot").addEventListener("click", () => readCurrent(true));
     $("lbStopFoot").addEventListener("click", stopRead);
+    bindSwipe($("mainImg"), () => navigate(-1, false), () => navigate(1, false));
+    bindSwipe($("lbImg"), () => navigate(-1, true), () => navigate(1, true));
     $("lightbox").addEventListener("click", (e) => {
       if (e.target === $("lightbox")) closeLightbox();
     });
