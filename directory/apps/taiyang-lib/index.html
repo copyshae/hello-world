@@ -121,7 +121,7 @@
       <p class="cat-desc" id="catDesc"></p>
     </section>
 
-    <section class="player-box">
+    <section class="player-box" id="playerBox">
       <p class="now-title" id="nowTitle">尚未選取</p>
       <p class="now-meta" id="nowMeta"></p>
       <div id="audioWrap"><audio id="audio" controls playsinline preload="metadata"></audio></div>
@@ -156,6 +156,8 @@
     let qIndex = 0;
     let current = null;
     let globalSearch = false;
+    let searchTimer = null;
+    let lastSearchQ = "";
 
     const $ = (id) => document.getElementById(id);
     const audio = $("audio");
@@ -292,6 +294,7 @@
         globalSearch = true;
         renderList();
         $("statusLine").textContent = "已從分享連結載入搜尋";
+        if (filtered.length) setTimeout(() => playFirstSearchResult(), 300);
       }
       if (sharedItem) {
         const items = allItems();
@@ -344,7 +347,7 @@
       if (globalSearch) {
         filtered = allItems().filter((it) => matchItem(it, tokens));
         $("searchMeta").textContent = filtered.length
-          ? "找到 " + filtered.length + " 則（全部分類）· Enter 播放第一筆"
+          ? "找到 " + filtered.length + " 則 · 停止輸入或按 Enter／搜尋 即播第一筆"
           : "找不到符合「" + rawQ + "」的項目";
       } else {
         filtered = itemsForCat(catId);
@@ -373,6 +376,32 @@
         more.textContent = "還有 " + (filtered.length - show.length) + " 則，請縮小關鍵字";
         list.appendChild(more);
       }
+    }
+
+    function playFirstSearchResult() {
+      if (!filtered.length) return;
+      selectItem(0, true);
+      const box = document.getElementById("playerBox");
+      if (box) box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function scheduleSearchAutoplay() {
+      clearTimeout(searchTimer);
+      const q = ($("searchBox").value || "").trim();
+      if (!q || q.length < 2) return;
+      searchTimer = setTimeout(() => {
+        if (($("searchBox").value || "").trim() !== q) return;
+        if (!filtered.length) return;
+        if (current && filtered[0].id === current.id) return;
+        lastSearchQ = q;
+        playFirstSearchResult();
+      }, 600);
+    }
+
+    function onSearchInput() {
+      qIndex = 0;
+      renderList();
+      scheduleSearchAutoplay();
     }
 
     function selectItem(i, play) {
@@ -439,11 +468,14 @@
       } catch (_) { window.prompt("複製搜尋分享：", url); }
     }
 
-    $("searchBox").addEventListener("input", () => { qIndex = 0; renderList(); });
+    $("searchBox").addEventListener("input", onSearchInput);
+    $("searchBox").addEventListener("search", () => {
+      if (($("searchBox").value || "").trim()) playFirstSearchResult();
+    });
     $("searchBox").addEventListener("keydown", (e) => {
       if (e.key === "Enter" && filtered.length) {
         e.preventDefault();
-        selectItem(0, true);
+        playFirstSearchResult();
       }
     });
     $("btnPlay").addEventListener("click", () => {
@@ -461,7 +493,7 @@
     if (prefs.catId) catId = prefs.catId;
     loadCatalog(false);
 
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=3").catch(() => {});
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=4").catch(() => {});
   </script>
 </body>
 </html>

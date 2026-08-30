@@ -89,7 +89,7 @@
       <div class="list" id="itemList"></div>
     </section>
 
-    <section class="player">
+    <section class="player" id="playerBox">
       <p class="now" id="nowLine"><strong>尚未播放</strong><span class="meta" id="nowMeta"></span></p>
       <div id="audioWrap"><audio id="audio" controls playsinline preload="metadata"></audio></div>
       <div class="video-shell" id="videoWrap" hidden><iframe id="ytFrame" title="播放" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
@@ -118,6 +118,7 @@
     let filterCat = "all";
     let current = null;
     let persist = true;
+    let searchTimer = null;
 
     const $ = (id) => document.getElementById(id);
     const audio = $("audio");
@@ -196,7 +197,7 @@
       const meta = $("searchMeta");
       if (tokens.length) {
         meta.textContent = filtered.length
-          ? "找到 " + filtered.length + " 則 · Enter 播放第一筆"
+          ? "找到 " + filtered.length + " 則 · 停止輸入或按 Enter／搜尋 即播第一筆"
           : "找不到「" + rawQ + "」· 換個關鍵字";
       } else if (filterCat !== "all") {
         meta.textContent = "瀏覽此分類前 24 則 · 輸入關鍵字可快速搜尋全部 " + (catalog.count || allFlat.length) + " 則";
@@ -225,6 +226,30 @@
         p.textContent = "還有 " + (filtered.length - show.length) + " 則，請縮小關鍵字";
         list.appendChild(p);
       }
+    }
+
+    function playFirstSearchResult() {
+      if (!filtered.length) return;
+      playItem(filtered[0], true, true);
+      const box = document.getElementById("playerBox");
+      if (box) box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function scheduleSearchAutoplay() {
+      clearTimeout(searchTimer);
+      const q = ($("searchBox").value || "").trim();
+      if (!q || q.length < 2) return;
+      searchTimer = setTimeout(() => {
+        if (($("searchBox").value || "").trim() !== q) return;
+        if (!filtered.length) return;
+        if (current && filtered[0].id === current.id) return;
+        playFirstSearchResult();
+      }, 600);
+    }
+
+    function onSearchInput() {
+      renderList();
+      scheduleSearchAutoplay();
     }
 
     function playItem(it, autoplay, fromUser) {
@@ -322,6 +347,10 @@
       renderList();
       updateCatalogMeta();
       applyUrlParams();
+      const sharedQOnly = (urlParams().get("q") || "").trim();
+      if (sharedQOnly && !urlParams().get("item") && filtered.length) {
+        setTimeout(() => playFirstSearchResult(), 300);
+      }
       if (!current && persist) {
         try {
           const last = localStorage.getItem(STORAGE);
@@ -383,11 +412,14 @@
       } catch (_) { window.prompt("複製搜尋分享：", url); }
     }
 
-    $("searchBox").addEventListener("input", renderList);
+    $("searchBox").addEventListener("input", onSearchInput);
+    $("searchBox").addEventListener("search", () => {
+      if (($("searchBox").value || "").trim()) playFirstSearchResult();
+    });
     $("searchBox").addEventListener("keydown", (e) => {
       if (e.key === "Enter" && filtered.length) {
         e.preventDefault();
-        playItem(filtered[0], true, true);
+        playFirstSearchResult();
       }
     });
     $("btnPlay").addEventListener("click", () => {
@@ -400,7 +432,7 @@
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
 
     loadCatalog(false);
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=3").catch(() => {});
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=4").catch(() => {});
   </script>
 </body>
 </html>
