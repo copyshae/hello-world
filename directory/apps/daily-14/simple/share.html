@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45c26" />
+  <meta name="apple-mobile-web-app-title" content="14樣功課" />
+  <link rel="apple-touch-icon" href="../icon-180.png" />
+  <title>加入主畫面｜每日14樣功課·簡易版</title>
+  <style>
+    :root { --accent: #c45c26; --muted: #7a5640; }
+    body { font-family: "PingFang TC", "Noto Sans TC", sans-serif; margin: 0; padding: 2rem 1.2rem; background: #fff6e6; color: #3a2214; line-height: 1.6; }
+    .wrap { max-width: 22rem; margin: 0 auto; text-align: center; }
+    h1 { color: var(--accent); font-size: clamp(1rem, 4.5vw, 1.35rem); line-height: 1.35; }
+    p, ol { text-align: left; color: var(--muted); font-size: 0.92rem; }
+    .icon { width: 5rem; height: 5rem; border-radius: 1rem; margin: 1rem auto 0; }
+    a.btn { display: block; margin-top: 0.75rem; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 0.95rem; border-radius: 0.35rem; }
+    .url { margin-top: 0.75rem; padding: 0.75rem; background: #fff; font-size: 0.8rem; word-break: break-all; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>每日14樣功課<br />簡易版·加入主畫面</h1>
+    <img class="icon" src="../icon-192.png" alt="14樣功課" />
+    <p>僅 14 項功課勾選，無七習慣、無匯入匯出。適合分享給同修。</p>
+    <div class="url" id="url">https://copyshae.github.io/-/daily-14/simple/</div>
+    <div class="url" id="guest">https://copyshae.github.io/-/daily-14/simple/?guest=1</div>
+    <a class="btn" id="open" href="./index.html">打開簡易版</a>
+    <ol>
+      <li>iPhone：Safari → 分享 → <strong>加入主畫面</strong></li>
+      <li>Android：Chrome → ⋮ → <strong>加入主畫面</strong></li>
+      <li>訪客試用：網址加 <code>?guest=1</code>，僅本次瀏覽有效，不寫入本機個人記錄</li>
+    </ol>
+    <p style="text-align:center;margin-top:1rem;"><a href="../index.html" style="color:var(--accent);">需要完整版功能？</a></p>
+  </div>
+  <script>
+    var base = location.href.replace(/share\.html.*$/, "");
+    if (base.indexOf("http") !== 0) base = "https://copyshae.github.io/-/daily-14/simple/";
+    document.getElementById("url").textContent = base;
+    document.getElementById("guest").textContent = base + (base.indexOf("?") >= 0 ? "&" : "?") + "guest=1";
+    document.getElementById("open").href = base;
+  </script>
+</body>
+</html>

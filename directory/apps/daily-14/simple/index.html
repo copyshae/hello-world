@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45c26" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="14樣功課" />
+  <meta name="description" content="每日14樣功課簡易版：勾選即消失，可分享網址，不影響完整版個人記錄。" />
+  <link rel="icon" href="../icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="../icon-180.png" />
+  <title>每日14樣功課｜簡易版</title>
+  <style>
+    :root { --ink: #3a2214; --muted: #7a5640; --accent: #c45c26; --heart: #d62828; --line: rgba(196,92,38,0.22); --ok: #2f6b3a; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      color: var(--ink); line-height: 1.55;
+      background: linear-gradient(180deg, #fff9eb, #efd2a0);
+      padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+    }
+    .wrap { max-width: 24rem; margin: 0 auto; padding-bottom: 2rem; }
+    h1 { text-align: center; font-size: clamp(1.2rem, 5vw, 1.55rem); color: var(--heart); margin-top: 0.35rem; }
+    .sub { text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.2rem 0 0.75rem; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; margin-bottom: 0.55rem; }
+    .pill { font-size: 0.78rem; color: var(--accent); background: rgba(255,255,255,0.55); border: 1px solid var(--line); padding: 0.22rem 0.55rem; }
+    .progress { height: 0.4rem; background: rgba(255,255,255,0.45); border: 1px solid var(--line); overflow: hidden; margin-bottom: 0.55rem; }
+    .progress > span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #e07a3a, #c45c26); transition: width 0.35s ease; }
+    .hint { font-size: 0.78rem; color: var(--muted); text-align: center; margin-bottom: 0.75rem; }
+    ul#list { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; }
+    li.task {
+      display: grid; grid-template-columns: 2.2rem 1fr; gap: 0.5rem; align-items: start;
+      padding: 0.75rem; background: rgba(255,252,245,0.85); border: 1px solid var(--line); cursor: pointer;
+      transition: opacity 0.35s ease, max-height 0.4s ease, margin 0.35s ease, padding 0.35s ease, border 0.35s ease;
+      max-height: 10rem; overflow: hidden;
+    }
+    li.task.done { opacity: 0; max-height: 0; margin: 0; padding: 0; border-width: 0; pointer-events: none; }
+    .num {
+      width: 2rem; height: 2rem; border-radius: 50%; background: var(--heart); color: #fff;
+      font-weight: 700; font-size: 0.88rem; display: grid; place-items: center;
+    }
+    .title { font-size: 0.95rem; font-weight: 700; }
+    .note { margin-top: 0.15rem; font-size: 0.76rem; color: var(--muted); }
+    .check-hint { margin-top: 0.25rem; font-size: 0.72rem; color: var(--accent); }
+    .done-panel {
+      display: none; margin-top: 1rem; text-align: center; padding: 1rem;
+      background: rgba(255,255,255,0.6); border: 1px solid var(--line);
+    }
+    .done-panel.show { display: block; }
+    .done-panel h2 { font-size: 1.15rem; color: var(--ok); }
+    .done-panel p { margin-top: 0.35rem; font-size: 0.85rem; color: var(--muted); }
+    .actions { margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
+    button {
+      font: inherit; cursor: pointer; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.75); color: var(--accent);
+      padding: 0.55rem 0.85rem; font-weight: 600; font-size: 0.88rem; border-radius: 0.3rem;
+    }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    button.share { width: 100%; margin-top: 0.15rem; }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); text-align: center; min-height: 1rem; }
+    .share-url {
+      margin-top: 0.35rem; padding: 0.55rem 0.65rem;
+      background: rgba(255,255,255,0.85); border: 1px dashed var(--line); border-radius: 0.35rem;
+      font-size: 0.72rem; color: var(--muted); word-break: break-all; text-align: left;
+    }
+    .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>每日14樣功課<br /><span style="font-size:0.82em;font-weight:600">簡易版</span></h1>
+    <p class="sub">14 項功課 · 勾選即消失 · 可分享網址</p>
+
+    <div class="pill-row">
+      <span class="pill" id="todayLabel">—</span>
+      <span class="pill" id="countLabel">完成 0／14</span>
+    </div>
+    <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+    <p class="hint">點一下＝完成；明天自動全部回來</p>
+
+    <ul id="list" aria-label="今日功課清單"></ul>
+
+    <div class="done-panel" id="donePanel">
+      <h2>今日 14 項全部完成</h2>
+      <p>明天會自動重新出現。</p>
+      <div class="actions" style="margin-top:0.65rem;">
+        <button type="button" id="resetBtnDone" class="primary">重設今日</button>
+      </div>
+    </div>
+
+    <div class="actions" id="bottomActions">
+      <button type="button" id="resetBtn" class="primary">重設今日</button>
+      <button type="button" id="btnShare" class="share">🔗 分享簡易版網址</button>
+    </div>
+    <p class="status" id="statusLine"></p>
+    <p class="share-url" id="shareUrlLine">https://copyshae.github.io/-/daily-14/simple/</p>
+
+    <p class="foot">
+      <a href="../index.html">完整版</a>（讀誦、同步等）
+      · <a href="./share.html">加入主畫面</a>
+    </p>
+  </div>
+
+  <script>
+    const TASKS = [
+      { id: 1, title: "每天聆聽「富有」歌曲 3 次" },
+      { id: 2, title: "每天聆聽「注入彩虹」3 次" },
+      { id: 3, title: "每天看蔡禮旭老師講解的弟子規" },
+      { id: 4, title: "懺悔發願（心法步驟一二三）" },
+      { id: 5, title: "每天寫心得" },
+      { id: 6, title: "練習秒秒感恩" },
+      { id: 7, title: "做到去我" },
+      { id: 8, title: "做太陽心法，每天做 15 分鐘以上" },
+      { id: 9, title: "每天照鏡子" },
+      { id: 10, title: "秒秒轉念" },
+      { id: 11, title: "秒秒參悟空" },
+      { id: 12, title: "每天「營造」生活" },
+      { id: 13, title: "參加網絡共修課程", note: "每週一項；今日若已參加可勾選" },
+      { id: 14, title: "渡人", note: "增添德資糧，與人分享，分發結緣書，接引他人一起來學習《超級生命密碼》" }
+    ];
+
+    const SHARE_BASE = "https://copyshae.github.io/-/daily-14/simple/";
+    const STORAGE_PERSONAL = "daily14-simple-v1";
+    const STORAGE_GUEST = "daily14-guest-v1";
+    const TZ = "Asia/Taipei";
+
+    let guestMode = false;
+    let state = { date: "", done: [] };
+
+    const $ = (id) => document.getElementById(id);
+
+    function todayKey() {
+      return new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    }
+
+    function readGuestParam() {
+      const p = new URLSearchParams(location.search);
+      return p.get("guest") === "1" || p.get("mode") === "guest";
+    }
+
+    function getShareBase() {
+      if (location.origin && location.origin.indexOf("http") === 0) {
+        return location.origin + location.pathname.replace(/\/index\.html$/, "").replace(/\/$/, "") + "/";
+      }
+      return SHARE_BASE;
+    }
+
+    function getShareUrl(guest) {
+      const base = getShareBase();
+      return guest ? base + "?guest=1" : base;
+    }
+
+    function loadState() {
+      const key = todayKey();
+      try {
+        if (guestMode) {
+          const raw = sessionStorage.getItem(STORAGE_GUEST);
+          if (!raw) return { date: key, done: [] };
+          const data = JSON.parse(raw);
+          if (!data || data.date !== key) return { date: key, done: [] };
+          return {
+            date: data.date,
+            done: Array.isArray(data.done) ? data.done.map(Number) : []
+          };
+        }
+        const raw = localStorage.getItem(STORAGE_PERSONAL);
+        if (!raw) return { date: key, done: [] };
+        const data = JSON.parse(raw);
+        if (!data || data.date !== key) return { date: key, done: [] };
+        return {
+          date: data.date,
+          done: Array.isArray(data.done) ? data.done.map(Number) : []
+        };
+      } catch (_) {
+        return { date: key, done: [] };
+      }
+    }
+
+    function saveState() {
+      try {
+        const payload = JSON.stringify(state);
+        if (guestMode) sessionStorage.setItem(STORAGE_GUEST, payload);
+        else localStorage.setItem(STORAGE_PERSONAL, payload);
+      } catch (_) {}
+    }
+
+    function formatToday() {
+      const parts = new Intl.DateTimeFormat("zh-Hant-TW", {
+        timeZone: TZ, year: "numeric", month: "long", day: "numeric", weekday: "short"
+      }).formatToParts(new Date());
+      const get = (t) => (parts.find((p) => p.type === t) || {}).value || "";
+      return get("year") + "年" + get("month") + get("day") + "日（" + get("weekday") + "）";
+    }
+
+    function updateMeta() {
+      const n = state.done.length;
+      $("bar").style.width = Math.round((n / TASKS.length) * 100) + "%";
+      $("countLabel").textContent = "完成 " + n + "／" + TASKS.length;
+      $("todayLabel").textContent = formatToday();
+      $("donePanel").classList.toggle("show", n >= TASKS.length);
+      $("bottomActions").style.display = n >= TASKS.length ? "none" : "flex";
+    }
+
+    function render() {
+      if (state.date !== todayKey()) {
+        state = { date: todayKey(), done: [] };
+        saveState();
+      }
+      const listEl = $("list");
+      listEl.innerHTML = "";
+      TASKS.filter((t) => !state.done.includes(t.id)).forEach((task) => {
+        const li = document.createElement("li");
+        li.className = "task";
+        li.setAttribute("role", "button");
+        li.tabIndex = 0;
+        li.innerHTML =
+          '<span class="num" aria-hidden="true">' + task.id + "</span>" +
+          '<span class="body"><div class="title">' + task.title + "</div>" +
+          (task.note ? '<div class="note">' + task.note + "</div>" : "") +
+          '<div class="check-hint">點一下完成</div></span>';
+        const finish = () => completeTask(task.id, li);
+        li.addEventListener("click", finish);
+        li.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); finish(); }
+        });
+        listEl.appendChild(li);
+      });
+      updateMeta();
+    }
+
+    function completeTask(id, li) {
+      if (state.done.includes(id)) return;
+      state.done.push(id);
+      saveState();
+      if (li) {
+        li.classList.add("done");
+        setTimeout(render, 320);
+      } else render();
+    }
+
+    function resetToday() {
+      if (!confirm("確定要重設今日全部勾選嗎？")) return;
+      state = { date: todayKey(), done: [] };
+      saveState();
+      render();
+    }
+
+    function updateStatus(msg) {
+      $("statusLine").textContent = msg || (guestMode ? "訪客模式（不寫入本機記錄）" : "");
+    }
+
+    async function shareApp() {
+      const url = getShareUrl(false);
+      const guestUrl = getShareUrl(true);
+      $("shareUrlLine").textContent = "一般分享：" + url + "\n訪客試用（不存本機）：" + guestUrl;
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "每日14樣功課｜簡易版",
+            text: "超級生命密碼每日14樣功課（簡易勾選版）",
+            url: url
+          });
+          updateStatus("已開啟分享");
+          return;
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+        }
+      }
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url);
+          updateStatus("已複製分享網址");
+          return;
+        }
+      } catch (_) {}
+      window.prompt("複製此網址分享：", url);
+    }
+
+    $("resetBtn").addEventListener("click", resetToday);
+    $("resetBtnDone").addEventListener("click", resetToday);
+    $("btnShare").addEventListener("click", shareApp);
+
+    guestMode = readGuestParam();
+    $("shareUrlLine").textContent = getShareUrl(false);
+    state = loadState();
+    render();
+    updateStatus();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js?v=2").catch(function () {});
+    }
+  </script>
+</body>
+</html>
