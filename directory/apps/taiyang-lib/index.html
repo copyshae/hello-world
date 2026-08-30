@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#8b5a14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="導師影音庫" />
+  <meta name="description" content="太陽盛德導師親身口述影音圖書館：福到你家、演講訪談、導師親唱。" />
+  <link rel="manifest" href="manifest.json?v=20260830" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icon-180.png" />
+  <title>太陽盛德導師｜親身口述影音圖書館</title>
+  <style>
+    :root {
+      --ink: #3a2808; --muted: #7a6040; --paper: #fff8f0;
+      --accent: #8b5a14; --accent2: #c4922a; --line: rgba(139, 90, 20, 0.22);
+      --card: rgba(255, 255, 255, 0.85);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      color: var(--ink); line-height: 1.55;
+      background: linear-gradient(180deg, #fffdf8 0%, var(--paper) 50%, #f5e6c8 100%);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; }
+    header { text-align: center; }
+    .brand { font-size: clamp(1.05rem, 4.8vw, 1.4rem); font-weight: 700; color: var(--accent); line-height: 1.35; }
+    .sub { margin-top: 0.3rem; font-size: 0.84rem; color: var(--muted); }
+    .home-card {
+      margin-top: 0.85rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line);
+      border-radius: 0.5rem; display: flex; gap: 0.75rem; align-items: center;
+    }
+    .home-icon { width: 3.6rem; height: 3.6rem; border-radius: 0.85rem; object-fit: cover; }
+    .home-card p { font-size: 0.78rem; color: var(--muted); }
+    .cat-row { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .cat-row button {
+      font: inherit; font-size: 0.78rem; padding: 0.35rem 0.65rem; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--card); color: var(--accent); cursor: pointer;
+    }
+    .cat-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .panel { margin-top: 0.65rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; }
+    .section { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 0.35rem; }
+    .cat-desc { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.45rem; }
+    .search-panel {
+      margin-top: 0.75rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem;
+    }
+    .search-panel .section { margin-bottom: 0.35rem; }
+    input[type="search"] {
+      width: 100%; font: inherit; font-size: 16px; padding: 0.65rem 0.75rem;
+      border: 2px solid var(--accent2); border-radius: 0.45rem; margin-bottom: 0.35rem;
+      background: #fff;
+    }
+    input[type="search"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139, 90, 20, 0.12); }
+    .search-hint { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .search-meta { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.35rem; min-height: 1rem; }
+    .search-toolbar { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-bottom: 0.45rem; }
+    .search-toolbar .meta { margin-left: auto; font-size: 0.72rem; color: var(--muted); }
+    .search-toolbar .btn { font-size: 0.78rem; padding: 0.4rem 0.65rem; }
+    .list { max-height: 14rem; overflow-y: auto; border: 1px solid var(--line); border-radius: 0.35rem; background: #fff; }
+    .item {
+      display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line);
+      background: transparent; padding: 0.65rem 0.7rem; cursor: pointer; font: inherit;
+    }
+    .item:last-child { border-bottom: 0; }
+    .item.active { background: rgba(139, 90, 20, 0.08); }
+    .item .t { font-size: 0.86rem; font-weight: 600; line-height: 1.35; }
+    .item .m { font-size: 0.72rem; color: var(--muted); margin-top: 0.12rem; }
+    .player-box { margin-top: 0.85rem; padding: 0.85rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; }
+    .now-title { font-size: 0.92rem; font-weight: 700; color: var(--accent); line-height: 1.4; }
+    .now-meta { margin-top: 0.2rem; font-size: 0.76rem; color: var(--muted); }
+    audio { width: 100%; margin-top: 0.6rem; }
+    .video-shell { margin-top: 0.6rem; background: #111; border-radius: 0.45rem; overflow: hidden; aspect-ratio: 16/9; }
+    .video-shell iframe { width: 100%; height: 100%; border: 0; }
+    .actions { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    button.btn {
+      font: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--card);
+      color: var(--accent); padding: 0.5rem 0.75rem; border-radius: 0.35rem; font-weight: 600; font-size: 0.82rem;
+    }
+    button.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .toolbar { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+    .toolbar .meta { margin-left: auto; font-size: 0.74rem; color: var(--muted); }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); }
+    .hint { margin-top: 0.75rem; font-size: 0.76rem; color: var(--muted); padding: 0.65rem; background: rgba(255,255,255,0.55); border: 1px dashed var(--line); border-radius: 0.35rem; }
+    .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">太陽盛德導師<br />親身口述影音圖書館</h1>
+      <p class="sub">廣播訪談 · 演講共修 · 導師親唱 · 圖書館式分類</p>
+    </header>
+
+    <section class="home-card">
+      <img class="home-icon" src="icon-192.png" alt="太陽盛德導師影音圖書館" />
+      <div>
+        <p><strong>主畫面圖示：導師影音庫</strong></p>
+        <p><a href="./share.html" style="color:var(--accent);">加入主畫面說明</a></p>
+      </div>
+    </section>
+
+    <section class="search-panel">
+      <h2 class="section">🔍 快速搜尋（全部分類）</h2>
+      <p class="search-hint" id="searchHint">輸入關鍵字即搜尋全庫；Enter 播放第一筆；完整版、簡易版皆可隨時更新目錄</p>
+      <div class="search-toolbar">
+        <button type="button" class="btn" id="btnRefresh">🔄 更新目錄</button>
+        <span class="meta" id="catalogMeta">載入中…</span>
+      </div>
+      <input type="search" id="searchBox" placeholder="例：富足、霸凌、S3E、開示、親唱…" enterkeyhint="search" autocomplete="off" />
+      <p class="search-meta" id="searchMeta"></p>
+      <div class="list" id="itemList" role="listbox"></div>
+    </section>
+
+    <div class="cat-row" id="catTabs" role="tablist"></div>
+
+    <section class="panel" id="catPanel">
+      <h2 class="section" id="catTitle">—</h2>
+      <p class="cat-desc" id="catDesc"></p>
+    </section>
+
+    <section class="player-box">
+      <p class="now-title" id="nowTitle">尚未選取</p>
+      <p class="now-meta" id="nowMeta"></p>
+      <div id="audioWrap"><audio id="audio" controls playsinline preload="metadata"></audio></div>
+      <div class="video-shell" id="videoWrap" hidden><iframe id="ytFrame" title="YouTube 播放" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="btnPlay">▶ 播放</button>
+        <button type="button" class="btn" id="btnOpenApp">在專用 App 開啟</button>
+        <button type="button" class="btn" id="btnShare">🔗 分享此則</button>
+        <button type="button" class="btn" id="btnShareSearch">🔗 分享搜尋</button>
+      </div>
+    </section>
+
+    <p class="status" id="statusLine"></p>
+
+    <p class="hint">
+      收錄導師<strong>親口</strong>的廣播、演講、訪談與<strong>親唱</strong>歌曲。上方<strong>快速搜尋</strong>可跨分類查找；分享搜尋用 <code>?q=</code>、分享單則用簡易版 <code>?item=</code>。<br />
+      個人收聽紀錄只存本機，分享連結不影響您的紀錄。
+    </p>
+    <p class="foot">
+      <a href="./simple/">分享給朋友？試試簡易版</a>
+      · <a href="../">回主選單</a>
+    </p>
+  </div>
+
+  <script>
+    const CATALOG_URL = "./catalog.json";
+    const STORAGE_KEY = "taiyang-lib-v1";
+    const CATALOG_CACHE_KEY = "taiyang-lib-catalog";
+    let catalog = { categories: [] };
+    let catId = "broadcast";
+    let filtered = [];
+    let qIndex = 0;
+    let current = null;
+    let globalSearch = false;
+
+    const $ = (id) => document.getElementById(id);
+    const audio = $("audio");
+
+    function urlParams() {
+      return new URLSearchParams(location.search);
+    }
+
+    function tokenize(q) {
+      return (q || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+    }
+
+    function matchItem(it, tokens) {
+      if (!tokens.length) return true;
+      const hay = ((it.title || "") + " " + (it._catName || "") + " " + (it.date || "")).toLowerCase();
+      return tokens.every((t) => hay.includes(t));
+    }
+
+    function allItems() {
+      const out = [];
+      (catalog.categories || []).forEach((c) => {
+        (c.items || []).forEach((it) => out.push(Object.assign({ _cat: c.id, _catName: c.name }, it)));
+      });
+      return out;
+    }
+
+    function itemsForCat(id) {
+      const c = (catalog.categories || []).find((x) => x.id === id);
+      return c ? c.items || [] : [];
+    }
+
+    function fmtDur(sec) {
+      const s = Number(sec);
+      if (!s || s < 1) return "";
+      const m = Math.floor(s / 60);
+      return m + " 分";
+    }
+
+    function loadPrefs() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (_) { return {}; }
+    }
+
+    function savePrefs(extra) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.assign(loadPrefs(), extra))); } catch (_) {}
+    }
+
+    function ytEmbed(url) {
+      const m = (url || "").match(/[?&]v=([^&]+)/) || (url || "").match(/youtu\.be\/([^?&]+)/);
+      return m ? "https://www.youtube.com/embed/" + m[1] + "?rel=0&modestbranding=1&playsinline=1" : "";
+    }
+
+    async function fetchCatalog(force) {
+      const tryFetch = async (url) => {
+        const res = await fetch(url, { cache: force ? "no-store" : "default" });
+        return res.ok ? res.json() : null;
+      };
+      try {
+        const data = await tryFetch(CATALOG_URL + (force ? "?t=" + Date.now() : ""));
+        if (data) return data;
+      } catch (_) {}
+      if (force) {
+        try {
+          const data = await tryFetch(CATALOG_URL + "?t=" + Date.now());
+          if (data) return data;
+        } catch (_) {}
+      }
+      try {
+        const data = await tryFetch(CATALOG_URL);
+        if (data) return data;
+      } catch (_) {}
+      try {
+        const s = localStorage.getItem(CATALOG_CACHE_KEY);
+        if (s) return JSON.parse(s);
+      } catch (_) {}
+      return null;
+    }
+
+    function saveCatalogCache(data) {
+      try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(data)); } catch (_) {}
+    }
+
+    function updateCatalogMeta() {
+      const n = catalog.count || allItems().length || 0;
+      const d = catalog.updatedAt || "—";
+      $("catalogMeta").textContent = n + " 則 · 更新日 " + d;
+      $("searchHint").textContent = "輸入關鍵字即搜尋全庫 " + n + " 則；Enter 播放第一筆；隨時按「更新目錄」拉最新";
+    }
+
+    async function loadCatalog(force) {
+      $("statusLine").textContent = force ? "更新目錄…" : "載入中…";
+      if (force) $("btnRefresh").disabled = true;
+      let remote = null;
+      try {
+        remote = await fetchCatalog(force);
+      } catch (_) {}
+      if (remote) {
+        catalog = remote;
+        saveCatalogCache(remote);
+      } else {
+        try {
+          const s = localStorage.getItem(CATALOG_CACHE_KEY);
+          if (s) catalog = JSON.parse(s);
+        } catch (_) {}
+      }
+      renderTabs();
+      renderList();
+      updateCatalogMeta();
+      $("statusLine").textContent = remote
+        ? (force ? "目錄已更新" : "已載入最新目錄")
+        : "無法連線，使用本機快取";
+      if (force) $("btnRefresh").disabled = false;
+      applyUrlParams();
+      if (!current) {
+        const prefs = loadPrefs();
+        if (prefs.lastItemId) {
+          const items = allItems();
+          const i = items.findIndex((x) => x.id === prefs.lastItemId);
+          if (i >= 0) {
+            catId = items[i]._cat;
+            renderTabs();
+            renderList();
+            const fi = filtered.findIndex((x) => x.id === prefs.lastItemId);
+            if (fi >= 0) selectItem(fi, false);
+          }
+        }
+      }
+    }
+
+    function applyUrlParams() {
+      const sharedItem = (urlParams().get("item") || "").trim();
+      const sharedQ = (urlParams().get("q") || "").trim();
+      if (sharedQ) {
+        $("searchBox").value = sharedQ;
+        globalSearch = true;
+        renderList();
+        $("statusLine").textContent = "已從分享連結載入搜尋";
+      }
+      if (sharedItem) {
+        const items = allItems();
+        const i = items.findIndex((x) => x.id === sharedItem);
+        if (i >= 0) {
+          catId = items[i]._cat;
+          $("searchBox").value = "";
+          globalSearch = false;
+          renderTabs();
+          renderList();
+          const fi = filtered.findIndex((x) => x.id === sharedItem);
+          if (fi >= 0) selectItem(fi, true);
+          else {
+            filtered = [items[i]];
+            selectItem(0, true);
+          }
+          $("statusLine").textContent = "已從分享連結開啟";
+        }
+      }
+    }
+
+    function renderTabs() {
+      const el = $("catTabs");
+      el.innerHTML = "";
+      (catalog.categories || []).forEach((c) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = c.name.replace(/｜.*/, "") + " (" + (c.items || []).length + ")";
+        b.className = c.id === catId ? "active" : "";
+        b.addEventListener("click", () => {
+          catId = c.id;
+          qIndex = 0;
+          globalSearch = false;
+          $("searchBox").value = "";
+          renderTabs();
+          renderList();
+        });
+        el.appendChild(b);
+      });
+      const c = (catalog.categories || []).find((x) => x.id === catId);
+      $("catTitle").textContent = c ? c.name : "—";
+      $("catDesc").textContent = c ? c.desc || "" : "";
+    }
+
+    function renderList() {
+      const rawQ = ($("searchBox").value || "").trim();
+      const tokens = tokenize(rawQ);
+      globalSearch = tokens.length > 0;
+      $("catPanel").hidden = globalSearch;
+      if (globalSearch) {
+        filtered = allItems().filter((it) => matchItem(it, tokens));
+        $("searchMeta").textContent = filtered.length
+          ? "找到 " + filtered.length + " 則（全部分類）· Enter 播放第一筆"
+          : "找不到符合「" + rawQ + "」的項目";
+      } else {
+        filtered = itemsForCat(catId);
+        $("searchMeta").textContent = filtered.length ? "瀏覽「" + ($("catTitle").textContent || "") + "」共 " + filtered.length + " 則" : "";
+      }
+      const list = $("itemList");
+      list.innerHTML = "";
+      if (!filtered.length) {
+        list.innerHTML = '<p style="padding:0.75rem;font-size:0.85rem;color:var(--muted)">' + (globalSearch ? "無符合項目，換個關鍵字試試" : "此分類尚無項目") + "</p>";
+        return;
+      }
+      const show = filtered.slice(0, globalSearch ? 40 : filtered.length);
+      show.forEach((it, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "item" + (current && current.id === it.id ? " active" : "");
+        const typ = it.type === "audio" ? "音檔" : "影音";
+        const catLabel = globalSearch && it._catName ? it._catName.replace(/｜.*/, "") + " · " : "";
+        btn.innerHTML = '<div class="t">' + it.title + '</div><div class="m">' + catLabel + typ + (it.date ? " · " + it.date : "") + (it.duration ? " · " + fmtDur(it.duration) : "") + "</div>";
+        btn.addEventListener("click", () => selectItem(i, true));
+        list.appendChild(btn);
+      });
+      if (globalSearch && filtered.length > show.length) {
+        const more = document.createElement("p");
+        more.style.cssText = "padding:0.55rem 0.7rem;font-size:0.75rem;color:var(--muted)";
+        more.textContent = "還有 " + (filtered.length - show.length) + " 則，請縮小關鍵字";
+        list.appendChild(more);
+      }
+    }
+
+    function selectItem(i, play) {
+      if (i < 0 || i >= filtered.length) return;
+      qIndex = i;
+      current = filtered[i];
+      savePrefs({ lastItemId: current.id, catId: catId });
+      $("nowTitle").textContent = current.title;
+      $("nowMeta").textContent = (current.type === "audio" ? "音檔" : "YouTube 影音") + (current.date ? " · " + current.date : "");
+      $("btnOpenApp").style.display = current.openUrl ? "" : "none";
+      if (current.type === "audio") {
+        $("audioWrap").hidden = false;
+        $("videoWrap").hidden = true;
+        audio.src = current.playUrl || "";
+        if (play) audio.play().catch(() => {});
+      } else {
+        $("audioWrap").hidden = true;
+        $("videoWrap").hidden = false;
+        audio.pause();
+        audio.removeAttribute("src");
+        const emb = ytEmbed(current.playUrl);
+        $("ytFrame").src = play && emb ? emb + "&autoplay=1" : emb;
+      }
+      renderList();
+    }
+
+    function shareBaseSimple() {
+      return location.origin && location.origin.indexOf("http") === 0
+        ? location.origin + location.pathname.replace(/\/index\.html$/, "").replace(/\/$/, "") + "/simple/"
+        : "https://copyshae.github.io/-/taiyang-lib/simple/";
+    }
+
+    async function shareCurrent() {
+      if (!current) { $("statusLine").textContent = "請先選取一則"; return; }
+      const url = shareBaseSimple() + "?item=" + encodeURIComponent(current.id);
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: current.title, text: current.title + "｜太陽盛德導師影音", url });
+          $("statusLine").textContent = "已開啟分享";
+          return;
+        } catch (e) { if (e && e.name === "AbortError") return; }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        $("statusLine").textContent = "已複製分享網址";
+      } catch (_) {
+        window.prompt("複製分享：", url);
+      }
+    }
+
+    async function shareSearch() {
+      const q = ($("searchBox").value || "").trim();
+      if (!q) { $("statusLine").textContent = "請先輸入搜尋關鍵字"; return; }
+      const url = shareBaseSimple() + "?q=" + encodeURIComponent(q);
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "搜尋：" + q, text: "太陽盛德導師影音｜" + q, url });
+          return;
+        } catch (e) { if (e && e.name === "AbortError") return; }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        $("statusLine").textContent = "已複製搜尋分享網址";
+      } catch (_) { window.prompt("複製搜尋分享：", url); }
+    }
+
+    $("searchBox").addEventListener("input", () => { qIndex = 0; renderList(); });
+    $("searchBox").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && filtered.length) {
+        e.preventDefault();
+        selectItem(0, true);
+      }
+    });
+    $("btnPlay").addEventListener("click", () => {
+      if (!current) return;
+      if (current.type === "audio") {
+        if (audio.paused) audio.play(); else audio.pause();
+      } else selectItem(qIndex, true);
+    });
+    $("btnOpenApp").addEventListener("click", () => { if (current && current.openUrl) location.href = current.openUrl; });
+    $("btnShare").addEventListener("click", shareCurrent);
+    $("btnShareSearch").addEventListener("click", shareSearch);
+    $("btnRefresh").addEventListener("click", () => loadCatalog(true));
+
+    const prefs = loadPrefs();
+    if (prefs.catId) catId = prefs.catId;
+    loadCatalog(false);
+
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=3").catch(() => {});
+  </script>
+</body>
+</html>

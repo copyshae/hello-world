@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#8b5a14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="導師影音庫" />
+  <meta name="description" content="太陽盛德導師影音簡易版：快速搜尋、即播、可分享。" />
+  <link rel="icon" href="../icon-192.png" />
+  <link rel="apple-touch-icon" href="../icon-180.png" />
+  <title>太陽盛德導師影音｜簡易版</title>
+  <style>
+    :root { --accent: #8b5a14; --accent2: #c4922a; --muted: #7a6040; --line: rgba(139,90,20,0.22); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      color: #3a2808; line-height: 1.55;
+      background: linear-gradient(180deg, #fffdf8, #f5e6c8);
+      padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+    }
+    .wrap { max-width: 24rem; margin: 0 auto; padding-bottom: 2rem; }
+    h1 { text-align: center; font-size: clamp(0.95rem, 4.5vw, 1.25rem); color: var(--accent); line-height: 1.35; }
+    .sub { text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.25rem 0 0.75rem; }
+    .search-box {
+      padding: 0.75rem; background: rgba(255,255,255,0.85); border: 1px solid var(--line); border-radius: 0.5rem;
+    }
+    .search-box label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--accent); margin-bottom: 0.35rem; }
+    input[type="search"] {
+      width: 100%; font: inherit; font-size: 16px; padding: 0.65rem 0.75rem;
+      border: 2px solid var(--accent2); border-radius: 0.45rem; background: #fff;
+    }
+    input[type="search"]:focus { outline: none; border-color: var(--accent); }
+    .search-meta { margin-top: 0.35rem; font-size: 0.72rem; color: var(--muted); min-height: 1rem; }
+    .search-toolbar { margin-top: 0.45rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+    .search-toolbar button { flex: 0 0 auto; width: auto; font-size: 0.76rem; padding: 0.45rem 0.65rem; }
+    .search-toolbar .meta { margin-left: auto; font-size: 0.72rem; color: var(--muted); }
+    .cat-row { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .cat-row button {
+      font: inherit; font-size: 0.72rem; padding: 0.3rem 0.55rem; border-radius: 999px;
+      border: 1px solid var(--line); background: #fff; color: var(--accent); cursor: pointer;
+    }
+    .cat-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .list {
+      margin-top: 0.55rem; max-height: 11rem; overflow-y: auto;
+      border: 1px solid var(--line); border-radius: 0.35rem; background: #fff;
+    }
+    .item {
+      display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line);
+      background: transparent; padding: 0.6rem 0.65rem; cursor: pointer; font: inherit;
+    }
+    .item:last-child { border-bottom: 0; }
+    .item.active { background: rgba(139, 90, 20, 0.08); }
+    .item .t { font-size: 0.84rem; font-weight: 600; line-height: 1.35; }
+    .item .m { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
+    .player { margin-top: 0.65rem; padding: 0.65rem; background: rgba(255,255,255,0.85); border: 1px solid var(--line); border-radius: 0.5rem; }
+    .now strong { color: var(--accent); display: block; line-height: 1.4; font-size: 0.9rem; }
+    .now .meta { margin-top: 0.15rem; font-size: 0.72rem; color: var(--muted); }
+    audio { width: 100%; margin-top: 0.55rem; }
+    .video-shell { margin-top: 0.55rem; background: #111; border-radius: 0.45rem; overflow: hidden; aspect-ratio: 16/9; }
+    .video-shell iframe { width: 100%; height: 100%; border: 0; }
+    .actions { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    button {
+      flex: 1 1 calc(50% - 0.2rem); font: inherit; font-size: 0.82rem; padding: 0.55rem 0.5rem;
+      border: 1px solid var(--line); border-radius: 0.35rem; cursor: pointer; background: #fff; color: var(--accent); font-weight: 600;
+    }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+    .toolbar { margin-top: 0.45rem; display: flex; gap: 0.35rem; }
+    .toolbar button { flex: 1; font-size: 0.76rem; }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); text-align: center; min-height: 1rem; }
+    .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>太陽盛德導師<br />親身口述影音<br /><span style="font-size:0.85em">簡易版</span></h1>
+    <p class="sub">快速搜尋 · 點選即播 · 可分享 · 隨時更新目錄</p>
+
+    <section class="search-box">
+      <label for="searchBox">🔍 快速搜尋</label>
+      <input type="search" id="searchBox" placeholder="輸入關鍵字…（例：富足、S3E、開示）" enterkeyhint="search" autocomplete="off" />
+      <div class="search-toolbar">
+        <button type="button" id="btnRefresh">🔄 更新目錄</button>
+        <span class="meta" id="catalogMeta">載入中…</span>
+      </div>
+      <p class="search-meta" id="searchMeta">載入中…</p>
+      <div class="cat-row" id="catFilter"></div>
+      <div class="list" id="itemList"></div>
+    </section>
+
+    <section class="player">
+      <p class="now" id="nowLine"><strong>尚未播放</strong><span class="meta" id="nowMeta"></span></p>
+      <div id="audioWrap"><audio id="audio" controls playsinline preload="metadata"></audio></div>
+      <div class="video-shell" id="videoWrap" hidden><iframe id="ytFrame" title="播放" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="actions">
+        <button type="button" id="btnPlay" class="primary">▶ 播放</button>
+        <button type="button" id="btnShare">🔗 分享此則</button>
+        <button type="button" id="btnShareSearch">🔗 分享搜尋</button>
+      </div>
+    </section>
+
+    <p class="status" id="statusLine"></p>
+    <p class="foot">
+      <a href="../index.html">完整版</a>（圖書館分類、個人紀錄）
+      · <a href="./share.html">加入主畫面</a>
+    </p>
+  </div>
+
+  <script>
+    const CATALOG_URL = "../catalog.json";
+    const SHARE_BASE = "https://copyshae.github.io/-/taiyang-lib/simple/";
+    const STORAGE = "taiyang-lib-simple-v1";
+    const CATALOG_CACHE_KEY = "taiyang-lib-catalog";
+    let catalog = { categories: [] };
+    let allFlat = [];
+    let filtered = [];
+    let filterCat = "all";
+    let current = null;
+    let persist = true;
+
+    const $ = (id) => document.getElementById(id);
+    const audio = $("audio");
+
+    function getShareBase() {
+      if (location.origin && location.origin.indexOf("http") === 0) {
+        return location.origin + location.pathname.replace(/\/index\.html$/, "").replace(/\/$/, "") + "/";
+      }
+      return SHARE_BASE;
+    }
+
+    function urlParams() {
+      return new URLSearchParams(location.search);
+    }
+
+    function flattenCatalog() {
+      allFlat = [];
+      (catalog.categories || []).forEach((c) => {
+        (c.items || []).forEach((it) => {
+          allFlat.push(Object.assign({ _cat: c.id, _catName: c.name }, it));
+        });
+      });
+    }
+
+    function tokenize(q) {
+      return (q || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+    }
+
+    function matchItem(it, tokens) {
+      if (!tokens.length) return true;
+      const hay = ((it.title || "") + " " + (it._catName || "") + " " + (it.date || "")).toLowerCase();
+      return tokens.every((t) => hay.includes(t));
+    }
+
+    function fmtDur(sec) {
+      const s = Number(sec);
+      if (!s || s < 1) return "";
+      return Math.floor(s / 60) + " 分";
+    }
+
+    function ytEmbed(url, autoplay) {
+      const m = (url || "").match(/[?&]v=([^&]+)/) || (url || "").match(/youtu\.be\/([^?&]+)/);
+      if (!m) return "";
+      return "https://www.youtube.com/embed/" + m[1] + "?rel=0&modestbranding=1&playsinline=1" + (autoplay ? "&autoplay=1" : "");
+    }
+
+    function renderCatFilter() {
+      const el = $("catFilter");
+      el.innerHTML = "";
+      const allBtn = document.createElement("button");
+      allBtn.type = "button";
+      allBtn.textContent = "全部";
+      allBtn.className = filterCat === "all" ? "active" : "";
+      allBtn.addEventListener("click", () => { filterCat = "all"; renderCatFilter(); renderList(); });
+      el.appendChild(allBtn);
+      (catalog.categories || []).forEach((c) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = c.name.replace(/｜.*/, "");
+        b.className = filterCat === c.id ? "active" : "";
+        b.addEventListener("click", () => { filterCat = c.id; renderCatFilter(); renderList(); });
+        el.appendChild(b);
+      });
+    }
+
+    function renderList() {
+      const rawQ = ($("searchBox").value || "").trim();
+      const tokens = tokenize(rawQ);
+      let pool = allFlat;
+      if (filterCat !== "all") pool = pool.filter((it) => it._cat === filterCat);
+      if (tokens.length) {
+        filtered = pool.filter((it) => matchItem(it, tokens));
+      } else {
+        filtered = pool.slice(0, 24);
+      }
+      const meta = $("searchMeta");
+      if (tokens.length) {
+        meta.textContent = filtered.length
+          ? "找到 " + filtered.length + " 則 · Enter 播放第一筆"
+          : "找不到「" + rawQ + "」· 換個關鍵字";
+      } else if (filterCat !== "all") {
+        meta.textContent = "瀏覽此分類前 24 則 · 輸入關鍵字可快速搜尋全部 " + (catalog.count || allFlat.length) + " 則";
+      } else {
+        meta.textContent = "共 " + (catalog.count || allFlat.length) + " 則 · 輸入關鍵字搜尋，或選分類瀏覽";
+      }
+      const list = $("itemList");
+      list.innerHTML = "";
+      if (!filtered.length) {
+        list.innerHTML = '<p style="padding:0.65rem;font-size:0.8rem;color:var(--muted)">無符合項目</p>';
+        return;
+      }
+      const show = filtered.slice(0, 30);
+      show.forEach((it, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "item" + (current && current.id === it.id ? " active" : "");
+        const typ = it.type === "audio" ? "音檔" : "影音";
+        btn.innerHTML = '<div class="t">' + it.title + '</div><div class="m">' + it._catName.replace(/｜.*/, "") + " · " + typ + (it.date ? " · " + it.date : "") + (it.duration ? " · " + fmtDur(it.duration) : "") + "</div>";
+        btn.addEventListener("click", () => playItem(it, true, true));
+        list.appendChild(btn);
+      });
+      if (filtered.length > show.length) {
+        const p = document.createElement("p");
+        p.style.cssText = "padding:0.5rem 0.65rem;font-size:0.72rem;color:var(--muted)";
+        p.textContent = "還有 " + (filtered.length - show.length) + " 則，請縮小關鍵字";
+        list.appendChild(p);
+      }
+    }
+
+    function playItem(it, autoplay, fromUser) {
+      if (!it) return;
+      current = it;
+      if (fromUser) persist = true;
+      if (persist) try { localStorage.setItem(STORAGE, it.id); } catch (_) {}
+      $("nowLine").innerHTML = "<strong>" + it.title + "</strong>";
+      $("nowMeta").textContent = it._catName.replace(/｜.*/, "") + (it.date ? " · " + it.date : "");
+      if (it.type === "audio") {
+        $("audioWrap").hidden = false;
+        $("videoWrap").hidden = true;
+        audio.src = it.playUrl || "";
+        if (autoplay) audio.play().catch(() => {});
+      } else {
+        $("audioWrap").hidden = true;
+        $("videoWrap").hidden = false;
+        audio.pause();
+        $("ytFrame").src = ytEmbed(it.playUrl, autoplay);
+      }
+      renderList();
+    }
+
+    function playById(id, autoplay) {
+      const it = allFlat.find((x) => x.id === id);
+      if (it) {
+        filterCat = it._cat;
+        renderCatFilter();
+        playItem(it, autoplay, false);
+        return true;
+      }
+      return false;
+    }
+
+    async function fetchCatalog(force) {
+      const tryFetch = async (url) => {
+        const res = await fetch(url, { cache: force ? "no-store" : "default" });
+        return res.ok ? res.json() : null;
+      };
+      try {
+        const data = await tryFetch(CATALOG_URL + (force ? "?t=" + Date.now() : ""));
+        if (data) return data;
+      } catch (_) {}
+      if (force) {
+        try {
+          const data = await tryFetch(CATALOG_URL + "?t=" + Date.now());
+          if (data) return data;
+        } catch (_) {}
+      }
+      try {
+        const data = await tryFetch(CATALOG_URL);
+        if (data) return data;
+      } catch (_) {}
+      try {
+        const s = localStorage.getItem(CATALOG_CACHE_KEY);
+        if (s) return JSON.parse(s);
+      } catch (_) {}
+      return null;
+    }
+
+    function saveCatalogCache(data) {
+      try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(data)); } catch (_) {}
+    }
+
+    function updateCatalogMeta() {
+      const n = catalog.count || allFlat.length || 0;
+      const d = catalog.updatedAt || "—";
+      $("catalogMeta").textContent = n + " 則 · 更新日 " + d;
+    }
+
+    async function loadCatalog(force) {
+      $("statusLine").textContent = force ? "更新目錄…" : "載入中…";
+      if (force) $("btnRefresh").disabled = true;
+      let remote = null;
+      try {
+        remote = await fetchCatalog(force);
+      } catch (_) {}
+      if (remote) {
+        catalog = remote;
+        saveCatalogCache(remote);
+      } else {
+        try {
+          const s = localStorage.getItem(CATALOG_CACHE_KEY);
+          if (s) catalog = JSON.parse(s);
+        } catch (_) {}
+      }
+      flattenCatalog();
+      renderCatFilter();
+      const sharedQ = (urlParams().get("q") || "").trim();
+      if (sharedQ) {
+        $("searchBox").value = sharedQ;
+        filterCat = "all";
+        renderCatFilter();
+      }
+      renderList();
+      updateCatalogMeta();
+      applyUrlParams();
+      if (!current && persist) {
+        try {
+          const last = localStorage.getItem(STORAGE);
+          if (last && playById(last, false)) {}
+        } catch (_) {}
+      }
+      if (!current) renderList();
+      $("statusLine").textContent = remote
+        ? (force ? "目錄已更新 · 共 " + (catalog.count || allFlat.length) + " 則" : "已載入最新目錄")
+        : "無法連線，使用本機快取 · 共 " + allFlat.length + " 則";
+      if (force) $("btnRefresh").disabled = false;
+    }
+
+    function applyUrlParams() {
+      const sharedItem = (urlParams().get("item") || "").trim();
+      const sharedQ = (urlParams().get("q") || "").trim();
+      if (sharedQ) {
+        persist = false;
+        $("statusLine").textContent = "已從分享連結載入搜尋（不寫入個人記錄）";
+      }
+      if (sharedItem) {
+        persist = false;
+        if (playById(sharedItem, true)) {
+          $("statusLine").textContent = "已從分享連結開啟（不寫入個人記錄）";
+        }
+      }
+    }
+
+    async function shareCurrent() {
+      const id = current ? current.id : "";
+      if (!id) { $("statusLine").textContent = "請先選取一則"; return; }
+      const url = getShareBase() + "?item=" + encodeURIComponent(id);
+      const title = current ? current.title : "太陽盛德導師影音";
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text: title, url });
+          return;
+        } catch (e) { if (e && e.name === "AbortError") return; }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        $("statusLine").textContent = "已複製分享網址";
+      } catch (_) { window.prompt("複製：", url); }
+    }
+
+    async function shareSearch() {
+      const q = ($("searchBox").value || "").trim();
+      if (!q) { $("statusLine").textContent = "請先輸入搜尋關鍵字"; return; }
+      const url = getShareBase() + "?q=" + encodeURIComponent(q);
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "搜尋：" + q, text: "太陽盛德導師影音｜" + q, url });
+          return;
+        } catch (e) { if (e && e.name === "AbortError") return; }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        $("statusLine").textContent = "已複製搜尋分享網址";
+      } catch (_) { window.prompt("複製搜尋分享：", url); }
+    }
+
+    $("searchBox").addEventListener("input", renderList);
+    $("searchBox").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && filtered.length) {
+        e.preventDefault();
+        playItem(filtered[0], true, true);
+      }
+    });
+    $("btnPlay").addEventListener("click", () => {
+      if (current) playItem(current, true, true);
+      else if (filtered.length) playItem(filtered[0], true, true);
+      else $("statusLine").textContent = "請先搜尋或選取";
+    });
+    $("btnShare").addEventListener("click", shareCurrent);
+    $("btnShareSearch").addEventListener("click", shareSearch);
+    $("btnRefresh").addEventListener("click", () => loadCatalog(true));
+
+    loadCatalog(false);
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=3").catch(() => {});
+  </script>
+</body>
+</html>

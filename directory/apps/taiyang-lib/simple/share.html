@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-title" content="導師影音庫" />
+  <link rel="apple-touch-icon" href="../icon-180.png" />
+  <title>加入主畫面｜影音圖書館·簡易版</title>
+  <style>
+    :root { --accent: #8b5a14; --muted: #7a6040; }
+    body { font-family: "PingFang TC", sans-serif; margin: 0; padding: 2rem 1.2rem; background: #fff8f0; }
+    .wrap { max-width: 22rem; margin: 0 auto; text-align: center; }
+    h1 { color: var(--accent); font-size: clamp(1rem, 4.5vw, 1.3rem); line-height: 1.35; }
+    p { text-align: left; color: var(--muted); font-size: 0.92rem; }
+    .icon { width: 5rem; height: 5rem; border-radius: 1rem; margin: 1rem auto; object-fit: cover; }
+    a.btn { display: block; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 0.95rem; border-radius: 0.35rem; margin-top: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>影音圖書館<br />簡易版</h1>
+    <img class="icon" src="../icon-192.png" alt="" />
+    <p>快速搜尋即播；可分享 <code>?item=</code> 單則或 <code>?q=</code> 搜尋關鍵字。分享連結不寫入個人記錄。</p>
+    <a class="btn" id="open" href="./index.html">打開簡易版</a>
+    <p style="text-align:center;margin-top:1rem;"><a href="../index.html" style="color:var(--accent);">完整版</a></p>
+  </div>
+  <script>
+    var u = location.href.replace(/share\.html.*$/, "");
+    if (u.indexOf("http") !== 0) u = "https://copyshae.github.io/-/taiyang-lib/simple/";
+    document.getElementById("open").href = u;
+  </script>
+</body>
+</html>
