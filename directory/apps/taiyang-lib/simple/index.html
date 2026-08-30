@@ -155,29 +155,9 @@
       }
       $("audioWrap").hidden = false;
       $("videoWrap").hidden = true;
-      const tryPlay = () => {
-        if (!autoplay) return;
-        const p = audio.play();
-        if (p && p.catch) p.catch(showPlayError);
-      };
-      if (loadedAudioUrl === url && audio.src) {
-        tryPlay();
-        return;
-      }
       loadedAudioUrl = url;
-      audio.oncanplay = null;
       audio.src = url;
-      audio.load();
-      if (audio.readyState >= 2) tryPlay();
-      else {
-        audio.oncanplay = () => {
-          audio.oncanplay = null;
-          tryPlay();
-        };
-        setTimeout(() => {
-          if (autoplay && audio.paused) tryPlay();
-        }, 1500);
-      }
+      if (autoplay) audio.play().catch(showPlayError);
     }
 
     function getShareBase() {
@@ -254,7 +234,7 @@
       const meta = $("searchMeta");
       if (tokens.length) {
         meta.textContent = filtered.length
-          ? "找到 " + filtered.length + " 則 · 停止輸入或按 Enter／搜尋 即播第一筆"
+          ? "找到 " + filtered.length + " 則 · 點選即播"
           : "找不到「" + rawQ + "」· 換個關鍵字";
       } else if (filterCat !== "all") {
         meta.textContent = "瀏覽此分類前 24 則 · 輸入關鍵字可快速搜尋全部 " + (catalog.count || allFlat.length) + " 則";
@@ -293,15 +273,7 @@
     }
 
     function scheduleSearchAutoplay() {
-      clearTimeout(searchTimer);
-      const q = ($("searchBox").value || "").trim();
-      if (!q || q.length < 2) return;
-      searchTimer = setTimeout(() => {
-        if (($("searchBox").value || "").trim() !== q) return;
-        if (!filtered.length) return;
-        if (current && filtered[0].id === current.id) return;
-        playFirstSearchResult();
-      }, 600);
+      /* 不在此自動播：iPhone 需使用者點選列表才允許出聲 */
     }
 
     function onSearchInput() {
@@ -328,7 +300,7 @@
       }
       updatePlayBtn();
       updateOpenAppBtn();
-      renderList();
+      setTimeout(() => renderList(), 0);
     }
 
     function playById(id, autoplay) {
@@ -497,7 +469,11 @@
         audio.pause();
         return;
       }
-      startAudio(current.playUrl || "", true);
+      if (audio.src && loadedAudioUrl === (current.playUrl || "")) {
+        audio.play().catch(showPlayError);
+      } else {
+        startAudio(current.playUrl || "", true);
+      }
     });
     audio.addEventListener("play", updatePlayBtn);
     audio.addEventListener("pause", updatePlayBtn);
@@ -513,7 +489,7 @@
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
 
     loadCatalog(false);
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=6").catch(() => {});
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=7").catch(() => {});
   </script>
 </body>
 </html>
