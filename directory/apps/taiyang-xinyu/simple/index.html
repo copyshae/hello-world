@@ -121,7 +121,8 @@
     </div>
   </div>
 
-  <script src="../read-text.js?v=1"></script>
+  <script src="../ocr-read.js?v=1"></script>
+  <script src="../read-text.js?v=3"></script>
   <script src="../../shared/tts-voices.js?v=2"></script>
   <script>
     const CATALOG_URL = "../catalog.json";
@@ -202,14 +203,19 @@
       const it = filtered[idx];
       if (!it) return;
       if (!force && $("silentMode").checked) return;
-      const text = speechText(it);
-      if (!text) return;
-      if (window.speechSynthesis) window.speechSynthesis.getVoices();
-      if (window.TtsVoices && window.TtsVoices.speakQueued) {
-        if (window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
-        window.TtsVoices.speakQueued(text);
-        setReadingUi(true);
-      }
+      const imgEl = isLightboxOpen() ? $("lbImg") : $("mainImg");
+      const resolve = window.TaiyangReadText && window.TaiyangReadText.resolveSpeechText
+        ? window.TaiyangReadText.resolveSpeechText(it, imgEl)
+        : Promise.resolve(speechText(it));
+      resolve.then(function (text) {
+        if (!text) return;
+        if (window.speechSynthesis) window.speechSynthesis.getVoices();
+        if (window.TtsVoices && window.TtsVoices.speakQueued) {
+          if (window.TtsVoices.stopSpeakQueue) window.TtsVoices.stopSpeakQueue();
+          window.TtsVoices.speakQueued(text);
+          setReadingUi(true);
+        }
+      });
     }
 
     function openLightbox(it) {

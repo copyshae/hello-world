@@ -1,4 +1,4 @@
-/** 太陽心語：朗讀文字（不唸標題，只唸主文＋白話） */
+/** 太陽心語：朗讀文字（不唸標題；原圖項目可 OCR） */
 (function (global) {
   function cleanRead(s) {
     return (s || "")
@@ -24,7 +24,6 @@
   function speechText(it) {
     if (!it) return "";
     if (it.readText) return it.readText;
-    var title = cleanRead(it.title);
     var text = stripShortTitlePrefix(it.title, it.text);
     var plain = cleanRead(it.plain);
     var parts = [];
@@ -36,5 +35,19 @@
     return parts.filter(Boolean).join("。");
   }
 
-  global.TaiyangReadText = { speechText: speechText };
+  function resolveSpeechText(it, imgEl) {
+    if (!it) return Promise.resolve("");
+    if (it.readTextSource === "manual" || it.readTextSource === "seed") {
+      return Promise.resolve(speechText(it));
+    }
+    if (global.TaiyangOcrRead && global.TaiyangOcrRead.needsImageOcr(it) && imgEl) {
+      return global.TaiyangOcrRead.getOcrText(it.id, imgEl).then(function (ocr) {
+        if (ocr && ocr.length >= 8) return ocr;
+        return speechText(it);
+      });
+    }
+    return Promise.resolve(speechText(it));
+  }
+
+  global.TaiyangReadText = { speechText: speechText, resolveSpeechText: resolveSpeechText };
 })(typeof window !== "undefined" ? window : globalThis);

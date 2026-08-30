@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-30T20:03:00Z",
+  "updatedAt": "2026-08-30T20:13:07Z",
   "count": 44,
   "categories": [
     {
@@ -17,7 +17,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-002.png",
-          "readText": "就是開始修正。願意誠實照見自己的慣性，比對外指責更有力量"
+          "readText": "就是開始修正。。願意誠實照見自己的慣性，比對外指責更有力量。",
+          "readTextSource": "seed"
         },
         {
           "id": "xy-005",
@@ -30,7 +31,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-005.png",
-          "readText": "去我、去執著，心才鬆綁。少抓「我對他錯」，心就多了空間裝愛"
+          "readText": "去我、去執著，心才鬆綁。。少抓「我對他錯」，心就多了空間裝愛。",
+          "readTextSource": "seed"
         },
         {
           "id": "xy-009",
@@ -43,7 +45,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-009.png",
-          "readText": "秒秒參悟空，不執著境相。明白境緣無常，不讓外相牽著鼻子走"
+          "readText": "秒秒參悟空，不執著境相。。明白境緣無常，不讓外相牽著鼻子走。",
+          "readTextSource": "seed"
         },
         {
           "id": "web-a972c84f8d",
@@ -56,7 +59,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E9%81%B5%E5%BE%AA%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB%E6%95%99%E8%AA%A8%E3%80%80%E7%B2%BE%E9%80%B2%E4%BF%AE%E8%A1%8C%E6%88%90%E5%A4%A7%E5%99%A80816-CH38-4P-120.jpg",
           "pageUrl": "https://www.richestlife.com/遵循太陽盛德導師教誨-精進修行成大器/",
           "imageLocal": "cards/mirror/web-a972c84f8d.jpg",
-          "readText": "遵循太陽盛德導師教誨 精進修行成大器"
+          "readText": "當大家將，並將「愛與感恩」這兩項重要的密碼發揮得淋漓盡致時，世界和平就不再是天方夜譚，而是大家齊心努力的共同結果。",
+          "readTextSource": "manual"
         },
         {
           "id": "web-eb636d5010",
@@ -69,7 +73,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BF%AE%E8%A1%8C%E4%B8%8D%E6%80%95%E8%8B%A6-%E5%8B%87%E6%95%A2%E9%9D%A2%E5%B0%8D%E5%90%84%E7%A8%AE%E9%97%9C%E5%8D%A1-0504-CH-33-2-P184.jpg",
           "pageUrl": "https://www.richestlife.com/修行不怕苦　勇敢面對各種關卡/",
           "imageLocal": "cards/mirror/web-eb636d5010.jpg",
-          "readText": "修行不怕苦 勇敢面對各種關卡"
+          "readText": "在每個當下，將個人可以做到的一一到位，不留下任何遺憾，盡全力給予所有人祝福，這樣才能為自己的生命，累積更多的福德。",
+          "readTextSource": "manual"
         },
         {
           "id": "web-1044932ee9",
@@ -82,7 +87,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%8E%AB%E5%BF%98%E4%BF%AE%E8%A1%8C%E5%88%9D%E5%BF%83%EF%BC%8C%E6%87%82%E5%BE%97%E9%A3%B2%E6%B0%B4%E6%80%9D%E6%BA%900818-CH44-4P-105.jpg",
           "pageUrl": "https://www.richestlife.com/莫忘修行初心，懂得飲水思源/",
           "imageLocal": "cards/mirror/web-1044932ee9.jpg",
-          "readText": "莫忘修行初心，懂得飲水思源"
+          "readText": "莫忘修行初心，懂得飲水思源",
+          "readTextSource": "filename"
         },
         {
           "id": "web-af987b1e77",
@@ -95,7 +101,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BF%AE%E8%A1%8C%E8%B2%B4%E6%96%BC%E8%AA%A0-%E4%B8%8D%E8%AA%A0%E5%89%87%E7%84%A1%E7%89%A9-0506-CH-33-2-P143.jpg",
           "pageUrl": "https://www.richestlife.com/修行貴於誠-不誠則無物/",
           "imageLocal": "cards/mirror/web-af987b1e77.jpg",
-          "readText": "修行貴於誠 不誠則無物"
+          "readText": "修行貴於誠 不誠則無物",
+          "readTextSource": "filename"
         }
       ]
     },
@@ -114,7 +121,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-008.png",
-          "readText": "天地整理，亦是整理我們的心。不在外求理由，先整理自己的念頭與習氣"
+          "readText": "天地整理，亦是整理我們的心。。不在外求理由，先整理自己的念頭與習氣。",
+          "readTextSource": "seed"
         },
         {
           "id": "xy-012",
@@ -127,7 +135,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-012.png",
-          "readText": "愛能遮掩許多的過犯。以愛覆蓋摩擦，不緊抓過錯，關係才有修復空間"
+          "readText": "愛能遮掩許多的過犯。。以愛覆蓋摩擦，不緊抓過錯，關係才有修復空間。",
+          "readTextSource": "seed"
         }
       ]
     },
@@ -146,7 +155,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-006.png",
-          "readText": "誠懇懺悔、發願改過。看見過失不遮掩，願心從今天具體改正"
+          "readText": "誠懇懺悔、發願改過。。看見過失不遮掩，願心從今天具體改正。",
+          "readTextSource": "seed"
         },
         {
           "id": "yt-d8f2fac2f3",
@@ -159,7 +169,8 @@
           "imageUrl": "https://i.ytimg.com/vi/FO9KrHuaZfM/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=FO9KrHuaZfM",
           "imageLocal": "cards/mirror/yt-d8f2fac2f3.jpg",
-          "readText": "太陽盛德導師廣獲好評價的「太陽心法」是什麼？「懺悔心法」真的有用嗎？超級生命密碼系統如何解開人生的真相與由來?"
+          "readText": "太陽盛德導師廣獲好評價的「太陽心法」是什麼？「懺悔心法」真的有用嗎？超級生命密碼系統如何解開人生的真相與由來?",
+          "readTextSource": "youtube"
         }
       ]
     },
@@ -178,7 +189,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-001.png",
-          "readText": "一念轉，境緣轉；心轉，世界轉。修煉不在改變外境，而在當下這一念是否回到愛與感恩"
+          "readText": "一念轉，境緣轉；心轉，世界轉。。修煉不在改變外境，而在當下這一念是否回到愛與感恩。",
+          "readTextSource": "seed"
         },
         {
           "id": "xy-003",
@@ -191,7 +203,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-003.png",
-          "readText": "找盲點、轉念。念頭一起就覺察位置，立刻調回愛與感恩"
+          "readText": "找盲點、轉念。。念頭一起就覺察位置，立刻調回愛與感恩。",
+          "readTextSource": "seed"
         }
       ]
     },
@@ -210,7 +223,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-004.png",
-          "readText": "福氣自來。在順逆境都能看見可感恩之處，心量自然擴大"
+          "readText": "福氣自來。。在順逆境都能看見可感恩之處，心量自然擴大。",
+          "readTextSource": "seed"
         },
         {
           "id": "web-481de5c22a",
@@ -223,7 +237,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E6%84%9B%E8%88%87%E6%84%9F%E6%81%A9%E5%9C%A8%E8%A1%8C%E4%BD%8F%E5%9D%90%E8%87%A5-%E8%AE%93%E5%BF%83%E9%9D%88%E5%8F%97%E7%9B%8A%E7%84%A1%E7%AA%AE-0507-CH-07-1-P082.jpg",
           "pageUrl": "https://www.richestlife.com/行住坐臥間落實愛與感恩-讓心靈受益無窮/",
           "imageLocal": "cards/mirror/web-481de5c22a.jpg",
-          "readText": "愛與感恩在行住坐臥 讓心靈受益無窮"
+          "readText": "愛與感恩在行住坐臥 讓心靈受益無窮",
+          "readTextSource": "filename"
         },
         {
           "id": "yt-87b6efe52d",
@@ -236,7 +251,8 @@
           "imageUrl": "https://i.ytimg.com/vi/6wPW4n3tbbA/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=6wPW4n3tbbA",
           "imageLocal": "cards/mirror/yt-87b6efe52d.jpg",
-          "readText": "愛與感恩是翻轉人生的關鍵"
+          "readText": "愛與感恩是翻轉人生的關鍵",
+          "readTextSource": "youtube"
         }
       ]
     },
@@ -255,7 +271,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-007.png",
-          "readText": "境緣是最好的老師。當下這一念如何轉念、如何愛與感恩，才是真實修煉"
+          "readText": "境緣是最好的老師。。當下這一念如何轉念、如何愛與感恩，才是真實修煉。",
+          "readTextSource": "seed"
         }
       ]
     },
@@ -274,7 +291,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-010.png",
-          "readText": "富有不在外求，心豐盛即富有。真正的豐盛來自心念轉換與感恩當下"
+          "readText": "富有不在外求，心豐盛即富有。。真正的豐盛來自心念轉換與感恩當下。",
+          "readTextSource": "seed"
         },
         {
           "id": "xy-011",
@@ -287,7 +305,8 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-011.png",
-          "readText": "把希望帶進生命。以正向願力為自己與他人注入光與希望"
+          "readText": "把希望帶進生命。。以正向願力為自己與他人注入光與希望。",
+          "readTextSource": "seed"
         },
         {
           "id": "web-13dc472c98",
@@ -300,7 +319,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E7%84%A1%E7%A7%81%E5%A5%89%E7%8D%BB%E7%9A%84%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7-%E7%84%A1%E6%80%A8%E7%9C%9F%E5%BF%83%E7%9A%84%E6%88%91-%E6%B0%B8%E8%B7%9F%E9%9A%A8-0507-CH-25-1-P083.jpg",
           "pageUrl": "https://www.richestlife.com/真心跟隨太陽盛德導師-獲得重生的喜悅/",
           "imageLocal": "cards/mirror/web-13dc472c98.jpg",
-          "readText": "無私奉獻的太陽盛德 無怨真心的我 永跟隨"
+          "readText": "無私奉獻的太陽盛德 無怨真心的我 永跟隨",
+          "readTextSource": "filename"
         },
         {
           "id": "web-cf7987641f",
@@ -313,7 +333,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/10/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E7%8F%8D%E6%83%9C%E8%88%87%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB%E7%9A%84%E7%9B%B8%E8%99%95%E6%99%82%E5%85%89-1016-CH10-3P-096.jpg",
           "pageUrl": "https://www.richestlife.com/珍惜與太陽盛德導師的相處時光/",
           "imageLocal": "cards/mirror/web-cf7987641f.jpg",
-          "readText": "珍惜與太陽盛德導師的相處時光"
+          "readText": "珍惜與太陽盛德導師的相處時光",
+          "readTextSource": "filename"
         },
         {
           "id": "web-575559c018",
@@ -326,7 +347,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB%E4%BC%BC%E9%99%BD%E5%85%89-%E5%B8%B8%E7%85%A7%E6%88%91%E5%BF%83%E8%A7%A3%E8%BF%B7%E8%8C%AB-0531-CH-29-1P-138.jpg",
           "pageUrl": "https://www.richestlife.com/太陽盛德導師似陽光　常照我心解迷茫/",
           "imageLocal": "cards/mirror/web-575559c018.jpg",
-          "readText": "太陽盛德導師似陽光 常照我心解迷茫"
+          "readText": "太陽盛德導師似陽光 常照我心解迷茫",
+          "readTextSource": "filename"
         },
         {
           "id": "web-f45d471bb0",
@@ -339,7 +361,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%B0%8B%E6%89%BE%E7%94%9F%E5%91%BD%E5%B0%8E%E5%B8%AB%EF%BC%8D%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB0814-CH41-3P-164.jpg",
           "pageUrl": "https://www.richestlife.com/尋找生命導師-太陽盛德導師/",
           "imageLocal": "cards/mirror/web-f45d471bb0.jpg",
-          "readText": "尋找生命導師－太陽盛德導師"
+          "readText": "尋找生命導師－太陽盛德導師",
+          "readTextSource": "filename"
         },
         {
           "id": "web-c154400a80",
@@ -352,7 +375,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/04/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%A4%8F%E5%A4%A9%E7%9A%84%E8%97%8D%E5%A4%A9%E5%92%8C%E5%BC%B7%E7%83%88%E7%9A%84%E9%99%BD%E5%85%89220404-1-P01-1.jpg",
           "pageUrl": "https://www.richestlife.com/太陽盛德明師法語　通透心靈/",
           "imageLocal": "cards/mirror/web-c154400a80.jpg",
-          "readText": "夏天的藍天和強烈的陽光220404 1 P01 1"
+          "readText": "夏天的藍天和強烈的陽光220404 1 P01 1",
+          "readTextSource": "filename"
         },
         {
           "id": "web-49e1f016a8",
@@ -365,7 +389,8 @@
           "imageUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1300337568562534",
           "pageUrl": "https://www.facebook.com/superlifecodeChanghua/photos/在這一刻能立即找到今生的價值是每個人的當務之急-太陽盛德導師超級生命密碼太陽心語歡迎廣傳/1300337568562534/",
           "imageLocal": "cards/web-49e1f016a8.png",
-          "readText": "超級生命密碼彰化菁英會 在這一刻，能立即找到今生的價值，是每個人的當務之急。 太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ..."
+          "readText": "超級生命密碼彰化菁英會 在這一刻，能立即找到今生的價值，是每個人的當務之急。 太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
+          "readTextSource": "filename"
         },
         {
           "id": "web-f5d63f5a36",
@@ -378,7 +403,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%90%BD%E5%AF%A6%E5%BC%9F%E5%AD%90%E8%A6%8F-%E9%87%8D%E6%BA%AB%E8%A6%AA%E5%AD%90%E4%B9%8B%E6%83%85-0505-CH-14-2-P148.jpg",
           "pageUrl": "https://www.richestlife.com/落實弟子規　重溫親子之情/",
           "imageLocal": "cards/mirror/web-f5d63f5a36.jpg",
-          "readText": "落實弟子規 重溫親子之情"
+          "readText": "落實弟子規 重溫親子之情",
+          "readTextSource": "filename"
         },
         {
           "id": "web-9150d2b7be",
@@ -391,7 +417,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%9C%A8%E6%9C%89%E9%99%90%E7%9A%84%E6%AD%B2%E6%9C%88%E4%B8%AD-%E7%9C%8B%E6%B8%85%E5%9B%A0%E6%9E%9C%E7%9C%9F%E7%9B%B8-0525-CH-44-1P-56.jpg",
           "pageUrl": "https://www.richestlife.com/在有限的歲月中-看清因果真相/",
           "imageLocal": "cards/mirror/web-9150d2b7be.jpg",
-          "readText": "在有限的歲月中 看清因果真相"
+          "readText": "在有限的歲月中 看清因果真相",
+          "readTextSource": "filename"
         },
         {
           "id": "web-7ad3a544ed",
@@ -404,7 +431,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/07/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BA%BA%E6%9C%89%E5%96%84%E9%A1%98-%E5%A4%A9%E5%BF%85%E5%BE%9E%E4%B9%8B-0720-CH163P-104.jpg",
           "pageUrl": "https://www.richestlife.com/感謝超級生命密碼統的家人相助-一切都是最好的安/",
           "imageLocal": "cards/mirror/web-7ad3a544ed.jpg",
-          "readText": "人有善願 天必從之"
+          "readText": "人有善願 天必從之",
+          "readTextSource": "filename"
         },
         {
           "id": "web-c26ca625c4",
@@ -417,7 +445,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BB%8A%E7%94%9F%E7%9A%84%E7%BE%8E%E5%A5%BD-%E9%81%87%E8%A6%8B%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC-0828-CH44-3P-068.jpg",
           "pageUrl": "https://www.richestlife.com/今生的美好-遇見超級生命密碼/",
           "imageLocal": "cards/mirror/web-c26ca625c4.jpg",
-          "readText": "今生的美好 遇見超級生命密碼"
+          "readText": "今生的美好 遇見超級生命密碼",
+          "readTextSource": "filename"
         },
         {
           "id": "web-c22992eb2d",
@@ -430,7 +459,8 @@
           "imageUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1074230729300205",
           "pageUrl": "https://www.facebook.com/suncompetition/photos/a.958798294176783/1074230729300205/",
           "imageLocal": "cards/web-c22992eb2d.png",
-          "readText": "太陽心語箴言甄选 蕅益大師說：「境緣無好醜，好醜起於心。」境是物質環境，緣是人事環境；外面所有的人、事、物，沒有善惡、好壞，好壞在自己的心 ..."
+          "readText": "太陽心語箴言甄选 蕅益大師說：「境緣無好醜，好醜起於心。」境是物質環境，緣是人事環境；外面所有的人、事、物，沒有善惡、好壞，好壞在自己的心 ...",
+          "readTextSource": "filename"
         },
         {
           "id": "web-7ac1486db0",
@@ -443,7 +473,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%B5%B7%E5%BF%83%E5%8B%95%E5%BF%B5%E7%9A%86%E6%88%91%E5%9F%B7%E3%80%80%E4%BA%BA%E7%94%9F%E5%A5%BD%E6%88%B2%E8%AE%8A%E5%A3%9E%E6%88%B2%E3%80%800811-CH143P-158.jpg",
           "pageUrl": "https://www.richestlife.com/起心動念皆我執　人生好戲變壞戲/",
           "imageLocal": "cards/mirror/web-7ac1486db0.jpg",
-          "readText": "起心動念皆我執 人生好戲變壞戲"
+          "readText": "起心動念皆我執 人生好戲變壞戲",
+          "readTextSource": "filename"
         },
         {
           "id": "web-8cc629753e",
@@ -456,7 +487,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC%E5%B8%B6%E9%A0%98%E4%BA%BA%E7%94%9F%E7%99%BC%E5%85%89%E7%99%BC%E7%86%B1-%E5%88%A9%E7%9B%8A%E7%9C%BE%E7%94%9F-0513-CH55-1P-001.jpg",
           "pageUrl": "https://www.richestlife.com/超級生命密碼帶領人生發光發熱-利益眾生/",
           "imageLocal": "cards/mirror/web-8cc629753e.jpg",
-          "readText": "超級生命密碼帶領人生發光發熱 利益眾生"
+          "readText": "超級生命密碼帶領人生發光發熱 利益眾生",
+          "readTextSource": "filename"
         },
         {
           "id": "web-f3bfed4287",
@@ -469,7 +501,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/09/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E6%94%B9%E8%AE%8A%E7%94%9F%E5%91%BD%E5%9C%B0%E5%9C%96-%E6%B4%BB%E5%9C%A8%E7%95%B6%E4%B8%8B-%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC%E5%B0%B1%E6%98%AF%E5%A4%A2%E6%83%B3%E8%88%9E%E5%8F%B00922-CH44-3P-176.jpg",
           "pageUrl": "https://www.richestlife.com/改變生命地圖-超級生命密碼就是夢想舞台/",
           "imageLocal": "cards/mirror/web-f3bfed4287.jpg",
-          "readText": "改變生命地圖 活在當下 超級生命密碼就是夢想舞台"
+          "readText": "改變生命地圖 活在當下 超級生命密碼就是夢想舞台",
+          "readTextSource": "filename"
         },
         {
           "id": "web-ffe428ebe5",
@@ -482,7 +515,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/07/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%83%BD%E9%87%8F%E7%9A%84%E5%B9%BB%E5%8C%96-%E5%8B%BF%E5%BF%98%E5%A4%A9%E5%9C%B0%E7%9A%84%E6%81%A9%E6%83%850719-CH09-3P-124.jpg",
           "pageUrl": "https://www.richestlife.com/一切都是能量的幻化-勿忘天地的恩情/",
           "imageLocal": "cards/mirror/web-ffe428ebe5.jpg",
-          "readText": "能量的幻化 勿忘天地的恩情"
+          "readText": "能量的幻化 勿忘天地的恩情",
+          "readTextSource": "filename"
         },
         {
           "id": "web-8400e2eacd",
@@ -495,7 +529,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/07/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E7%94%9F%E6%B4%BB%E7%9A%84%E8%B1%90%E7%9B%9B%E5%AF%8C%E8%B6%B3%E3%80%80%E7%9B%A1%E5%9C%A8%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC%E7%9A%84%E4%B8%96%E7%95%8C0721-CH33-3P-109.jpg",
           "pageUrl": "https://www.richestlife.com/生活的豐盛富足-盡在超級生命密碼的世界/",
           "imageLocal": "cards/mirror/web-8400e2eacd.jpg",
-          "readText": "生活的豐盛富足 盡在超級生命密碼的世界"
+          "readText": "生活的豐盛富足 盡在超級生命密碼的世界",
+          "readTextSource": "filename"
         },
         {
           "id": "web-2f1c97dcc1",
@@ -508,7 +543,8 @@
           "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%BF%83%E9%96%80%E4%B8%80%E9%96%8B%E7%A6%8F%E5%B0%B1%E4%BE%86-%E7%89%BD%E5%BC%95%E5%A4%A9%E5%9C%B0%E5%96%84%E7%B7%A3-0519-CH-66.jpg",
           "pageUrl": "https://www.richestlife.com/心門一開福就來-牽引天地善緣/",
           "imageLocal": "cards/mirror/web-2f1c97dcc1.jpg",
-          "readText": "心門一開福就來 牽引天地善緣"
+          "readText": "心門一開福就來 牽引天地善緣",
+          "readTextSource": "filename"
         },
         {
           "id": "yt-c1ab81ade2",
@@ -521,7 +557,8 @@
           "imageUrl": "https://i.ytimg.com/vi/Lp33qYYuvpc/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=Lp33qYYuvpc",
           "imageLocal": "cards/mirror/yt-c1ab81ade2.jpg",
-          "readText": "太阳心语 作者: 太阳盛德导师"
+          "readText": "太阳心语 作者: 太阳盛德导师",
+          "readTextSource": "youtube"
         },
         {
           "id": "yt-9093c37309",
@@ -534,7 +571,8 @@
           "imageUrl": "https://i.ytimg.com/vi/P0zy9GV8NBg/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=P0zy9GV8NBg",
           "imageLocal": "cards/mirror/yt-9093c37309.jpg",
-          "readText": "太阳心语 作者: 太阳盛德导师"
+          "readText": "太阳心语 作者: 太阳盛德导师",
+          "readTextSource": "youtube"
         },
         {
           "id": "yt-7466342fee",
@@ -547,7 +585,8 @@
           "imageUrl": "https://i.ytimg.com/vi/ZtXwzJTmrMs/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=ZtXwzJTmrMs",
           "imageLocal": "cards/mirror/yt-7466342fee.jpg",
-          "readText": "太陽盛德導師專訪"
+          "readText": "太陽盛德導師專訪",
+          "readTextSource": "youtube"
         },
         {
           "id": "yt-a6aa1ca0fb",
@@ -560,7 +599,8 @@
           "imageUrl": "https://i.ytimg.com/vi/1neWqbRfoes/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=1neWqbRfoes",
           "imageLocal": "cards/mirror/yt-a6aa1ca0fb.jpg",
-          "readText": "太陽盛德 著 第一集"
+          "readText": "太陽盛德 著 第一集",
+          "readTextSource": "youtube"
         },
         {
           "id": "yt-8b2a096e8d",
@@ -573,7 +613,8 @@
           "imageUrl": "https://i.ytimg.com/vi/bO9TkqrUyvo/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=bO9TkqrUyvo",
           "imageLocal": "cards/mirror/yt-8b2a096e8d.jpg",
-          "readText": "學會聽話的藝術—把每次交談都變成成功的養分"
+          "readText": "學會聽話的藝術—把每次交談都變成成功的養分",
+          "readTextSource": "youtube"
         },
         {
           "id": "yt-8d7b0519ef",
@@ -586,7 +627,8 @@
           "imageUrl": "https://i.ytimg.com/vi/SCSrn6jN-yU/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=SCSrn6jN-yU",
           "imageLocal": "cards/mirror/yt-8d7b0519ef.jpg",
-          "readText": "第一集 太陽心語 太陽盛德 著 輯一 德行篇 人倫之理（第15-24則）"
+          "readText": "第一集 太陽心語 太陽盛德 著 輯一 德行篇 人倫之理（第15-24則）",
+          "readTextSource": "youtube"
         },
         {
           "id": "yt-0aa5caa5ac",
@@ -599,7 +641,8 @@
           "imageUrl": "https://i.ytimg.com/vi/Bpa5qRIR0KE/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=Bpa5qRIR0KE",
           "imageLocal": "cards/mirror/yt-0aa5caa5ac.jpg",
-          "readText": "超級生命密碼系統的絕對性與超然性"
+          "readText": "超級生命密碼系統的絕對性與超然性",
+          "readTextSource": "youtube"
         },
         {
           "id": "art-e5f762d62c",
@@ -612,7 +655,8 @@
           "imageUrl": "https://scontent-ord5-1.xx.fbcdn.net/v/t39.30808-1/451333286_3784349145117189_7396277812000599077_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=106&ccb=1-7&_nc_sid=3ab345&_nc_ohc=3FH2m6CppAsQ7kNvwF4_vVq&_nc_oc=Adr0ksh6bCsX6l5zCmEVhJo-zzIsT3O-UDx5I4hmFjw2RUFGUQ_Gf-3HMnBiuxKaHCI&_nc_zt=24&_nc_ht=scontent-ord5-1.xx&_nc_gid=q3QV02V46qtzrM6bPDMc0g&_nc_ss=7e20f&oh=00_AQIMOfVFBpkzc7xc7nD0gvTF6yUEv-lGmQ_SkixMgiyiUA&oe=6A9A577E",
           "pageUrl": "https://www.facebook.com/photo.aiku/",
           "imageLocal": "cards/mirror/art-e5f762d62c.jpg",
-          "readText": "Photographer AIKU （舞川あいく） (@photo.aiku)"
+          "readText": "Photographer AIKU （舞川あいく） (@photo.aiku)",
+          "readTextSource": "filename"
         }
       ]
     }
@@ -629,7 +673,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-001.png",
-      "readText": "一念轉，境緣轉；心轉，世界轉。修煉不在改變外境，而在當下這一念是否回到愛與感恩"
+      "readText": "一念轉，境緣轉；心轉，世界轉。。修煉不在改變外境，而在當下這一念是否回到愛與感恩。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-002",
@@ -642,7 +687,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-002.png",
-      "readText": "就是開始修正。願意誠實照見自己的慣性，比對外指責更有力量"
+      "readText": "就是開始修正。。願意誠實照見自己的慣性，比對外指責更有力量。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-003",
@@ -655,7 +701,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-003.png",
-      "readText": "找盲點、轉念。念頭一起就覺察位置，立刻調回愛與感恩"
+      "readText": "找盲點、轉念。。念頭一起就覺察位置，立刻調回愛與感恩。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-004",
@@ -668,7 +715,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-004.png",
-      "readText": "福氣自來。在順逆境都能看見可感恩之處，心量自然擴大"
+      "readText": "福氣自來。。在順逆境都能看見可感恩之處，心量自然擴大。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-005",
@@ -681,7 +729,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-005.png",
-      "readText": "去我、去執著，心才鬆綁。少抓「我對他錯」，心就多了空間裝愛"
+      "readText": "去我、去執著，心才鬆綁。。少抓「我對他錯」，心就多了空間裝愛。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-006",
@@ -694,7 +743,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-006.png",
-      "readText": "誠懇懺悔、發願改過。看見過失不遮掩，願心從今天具體改正"
+      "readText": "誠懇懺悔、發願改過。。看見過失不遮掩，願心從今天具體改正。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-007",
@@ -707,7 +757,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-007.png",
-      "readText": "境緣是最好的老師。當下這一念如何轉念、如何愛與感恩，才是真實修煉"
+      "readText": "境緣是最好的老師。。當下這一念如何轉念、如何愛與感恩，才是真實修煉。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-008",
@@ -720,7 +771,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-008.png",
-      "readText": "天地整理，亦是整理我們的心。不在外求理由，先整理自己的念頭與習氣"
+      "readText": "天地整理，亦是整理我們的心。。不在外求理由，先整理自己的念頭與習氣。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-009",
@@ -733,7 +785,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-009.png",
-      "readText": "秒秒參悟空，不執著境相。明白境緣無常，不讓外相牽著鼻子走"
+      "readText": "秒秒參悟空，不執著境相。。明白境緣無常，不讓外相牽著鼻子走。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-010",
@@ -746,7 +799,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-010.png",
-      "readText": "富有不在外求，心豐盛即富有。真正的豐盛來自心念轉換與感恩當下"
+      "readText": "富有不在外求，心豐盛即富有。。真正的豐盛來自心念轉換與感恩當下。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-011",
@@ -759,7 +813,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-011.png",
-      "readText": "把希望帶進生命。以正向願力為自己與他人注入光與希望"
+      "readText": "把希望帶進生命。。以正向願力為自己與他人注入光與希望。",
+      "readTextSource": "seed"
     },
     {
       "id": "xy-012",
@@ -772,7 +827,8 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-012.png",
-      "readText": "愛能遮掩許多的過犯。以愛覆蓋摩擦，不緊抓過錯，關係才有修復空間"
+      "readText": "愛能遮掩許多的過犯。。以愛覆蓋摩擦，不緊抓過錯，關係才有修復空間。",
+      "readTextSource": "seed"
     },
     {
       "id": "web-13dc472c98",
@@ -785,7 +841,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E7%84%A1%E7%A7%81%E5%A5%89%E7%8D%BB%E7%9A%84%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7-%E7%84%A1%E6%80%A8%E7%9C%9F%E5%BF%83%E7%9A%84%E6%88%91-%E6%B0%B8%E8%B7%9F%E9%9A%A8-0507-CH-25-1-P083.jpg",
       "pageUrl": "https://www.richestlife.com/真心跟隨太陽盛德導師-獲得重生的喜悅/",
       "imageLocal": "cards/mirror/web-13dc472c98.jpg",
-      "readText": "無私奉獻的太陽盛德 無怨真心的我 永跟隨"
+      "readText": "無私奉獻的太陽盛德 無怨真心的我 永跟隨",
+      "readTextSource": "filename"
     },
     {
       "id": "web-cf7987641f",
@@ -798,7 +855,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/10/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E7%8F%8D%E6%83%9C%E8%88%87%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB%E7%9A%84%E7%9B%B8%E8%99%95%E6%99%82%E5%85%89-1016-CH10-3P-096.jpg",
       "pageUrl": "https://www.richestlife.com/珍惜與太陽盛德導師的相處時光/",
       "imageLocal": "cards/mirror/web-cf7987641f.jpg",
-      "readText": "珍惜與太陽盛德導師的相處時光"
+      "readText": "珍惜與太陽盛德導師的相處時光",
+      "readTextSource": "filename"
     },
     {
       "id": "web-575559c018",
@@ -811,7 +869,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB%E4%BC%BC%E9%99%BD%E5%85%89-%E5%B8%B8%E7%85%A7%E6%88%91%E5%BF%83%E8%A7%A3%E8%BF%B7%E8%8C%AB-0531-CH-29-1P-138.jpg",
       "pageUrl": "https://www.richestlife.com/太陽盛德導師似陽光　常照我心解迷茫/",
       "imageLocal": "cards/mirror/web-575559c018.jpg",
-      "readText": "太陽盛德導師似陽光 常照我心解迷茫"
+      "readText": "太陽盛德導師似陽光 常照我心解迷茫",
+      "readTextSource": "filename"
     },
     {
       "id": "web-f45d471bb0",
@@ -824,7 +883,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%B0%8B%E6%89%BE%E7%94%9F%E5%91%BD%E5%B0%8E%E5%B8%AB%EF%BC%8D%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB0814-CH41-3P-164.jpg",
       "pageUrl": "https://www.richestlife.com/尋找生命導師-太陽盛德導師/",
       "imageLocal": "cards/mirror/web-f45d471bb0.jpg",
-      "readText": "尋找生命導師－太陽盛德導師"
+      "readText": "尋找生命導師－太陽盛德導師",
+      "readTextSource": "filename"
     },
     {
       "id": "web-c154400a80",
@@ -837,7 +897,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/04/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%A4%8F%E5%A4%A9%E7%9A%84%E8%97%8D%E5%A4%A9%E5%92%8C%E5%BC%B7%E7%83%88%E7%9A%84%E9%99%BD%E5%85%89220404-1-P01-1.jpg",
       "pageUrl": "https://www.richestlife.com/太陽盛德明師法語　通透心靈/",
       "imageLocal": "cards/mirror/web-c154400a80.jpg",
-      "readText": "夏天的藍天和強烈的陽光220404 1 P01 1"
+      "readText": "夏天的藍天和強烈的陽光220404 1 P01 1",
+      "readTextSource": "filename"
     },
     {
       "id": "web-49e1f016a8",
@@ -850,7 +911,8 @@
       "imageUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1300337568562534",
       "pageUrl": "https://www.facebook.com/superlifecodeChanghua/photos/在這一刻能立即找到今生的價值是每個人的當務之急-太陽盛德導師超級生命密碼太陽心語歡迎廣傳/1300337568562534/",
       "imageLocal": "cards/web-49e1f016a8.png",
-      "readText": "超級生命密碼彰化菁英會 在這一刻，能立即找到今生的價值，是每個人的當務之急。 太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ..."
+      "readText": "超級生命密碼彰化菁英會 在這一刻，能立即找到今生的價值，是每個人的當務之急。 太陽盛德導師 #超級生命密碼 #太陽心語 #歡迎廣傳 ...",
+      "readTextSource": "filename"
     },
     {
       "id": "web-a972c84f8d",
@@ -863,7 +925,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E9%81%B5%E5%BE%AA%E5%A4%AA%E9%99%BD%E7%9B%9B%E5%BE%B7%E5%B0%8E%E5%B8%AB%E6%95%99%E8%AA%A8%E3%80%80%E7%B2%BE%E9%80%B2%E4%BF%AE%E8%A1%8C%E6%88%90%E5%A4%A7%E5%99%A80816-CH38-4P-120.jpg",
       "pageUrl": "https://www.richestlife.com/遵循太陽盛德導師教誨-精進修行成大器/",
       "imageLocal": "cards/mirror/web-a972c84f8d.jpg",
-      "readText": "遵循太陽盛德導師教誨 精進修行成大器"
+      "readText": "當大家將，並將「愛與感恩」這兩項重要的密碼發揮得淋漓盡致時，世界和平就不再是天方夜譚，而是大家齊心努力的共同結果。",
+      "readTextSource": "manual"
     },
     {
       "id": "web-f5d63f5a36",
@@ -876,7 +939,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%90%BD%E5%AF%A6%E5%BC%9F%E5%AD%90%E8%A6%8F-%E9%87%8D%E6%BA%AB%E8%A6%AA%E5%AD%90%E4%B9%8B%E6%83%85-0505-CH-14-2-P148.jpg",
       "pageUrl": "https://www.richestlife.com/落實弟子規　重溫親子之情/",
       "imageLocal": "cards/mirror/web-f5d63f5a36.jpg",
-      "readText": "落實弟子規 重溫親子之情"
+      "readText": "落實弟子規 重溫親子之情",
+      "readTextSource": "filename"
     },
     {
       "id": "web-9150d2b7be",
@@ -889,7 +953,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%9C%A8%E6%9C%89%E9%99%90%E7%9A%84%E6%AD%B2%E6%9C%88%E4%B8%AD-%E7%9C%8B%E6%B8%85%E5%9B%A0%E6%9E%9C%E7%9C%9F%E7%9B%B8-0525-CH-44-1P-56.jpg",
       "pageUrl": "https://www.richestlife.com/在有限的歲月中-看清因果真相/",
       "imageLocal": "cards/mirror/web-9150d2b7be.jpg",
-      "readText": "在有限的歲月中 看清因果真相"
+      "readText": "在有限的歲月中 看清因果真相",
+      "readTextSource": "filename"
     },
     {
       "id": "web-7ad3a544ed",
@@ -902,7 +967,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/07/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BA%BA%E6%9C%89%E5%96%84%E9%A1%98-%E5%A4%A9%E5%BF%85%E5%BE%9E%E4%B9%8B-0720-CH163P-104.jpg",
       "pageUrl": "https://www.richestlife.com/感謝超級生命密碼統的家人相助-一切都是最好的安/",
       "imageLocal": "cards/mirror/web-7ad3a544ed.jpg",
-      "readText": "人有善願 天必從之"
+      "readText": "人有善願 天必從之",
+      "readTextSource": "filename"
     },
     {
       "id": "web-c26ca625c4",
@@ -915,7 +981,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BB%8A%E7%94%9F%E7%9A%84%E7%BE%8E%E5%A5%BD-%E9%81%87%E8%A6%8B%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC-0828-CH44-3P-068.jpg",
       "pageUrl": "https://www.richestlife.com/今生的美好-遇見超級生命密碼/",
       "imageLocal": "cards/mirror/web-c26ca625c4.jpg",
-      "readText": "今生的美好 遇見超級生命密碼"
+      "readText": "今生的美好 遇見超級生命密碼",
+      "readTextSource": "filename"
     },
     {
       "id": "web-481de5c22a",
@@ -928,7 +995,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E6%84%9B%E8%88%87%E6%84%9F%E6%81%A9%E5%9C%A8%E8%A1%8C%E4%BD%8F%E5%9D%90%E8%87%A5-%E8%AE%93%E5%BF%83%E9%9D%88%E5%8F%97%E7%9B%8A%E7%84%A1%E7%AA%AE-0507-CH-07-1-P082.jpg",
       "pageUrl": "https://www.richestlife.com/行住坐臥間落實愛與感恩-讓心靈受益無窮/",
       "imageLocal": "cards/mirror/web-481de5c22a.jpg",
-      "readText": "愛與感恩在行住坐臥 讓心靈受益無窮"
+      "readText": "愛與感恩在行住坐臥 讓心靈受益無窮",
+      "readTextSource": "filename"
     },
     {
       "id": "web-c22992eb2d",
@@ -941,7 +1009,8 @@
       "imageUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1074230729300205",
       "pageUrl": "https://www.facebook.com/suncompetition/photos/a.958798294176783/1074230729300205/",
       "imageLocal": "cards/web-c22992eb2d.png",
-      "readText": "太陽心語箴言甄选 蕅益大師說：「境緣無好醜，好醜起於心。」境是物質環境，緣是人事環境；外面所有的人、事、物，沒有善惡、好壞，好壞在自己的心 ..."
+      "readText": "太陽心語箴言甄选 蕅益大師說：「境緣無好醜，好醜起於心。」境是物質環境，緣是人事環境；外面所有的人、事、物，沒有善惡、好壞，好壞在自己的心 ...",
+      "readTextSource": "filename"
     },
     {
       "id": "web-7ac1486db0",
@@ -954,7 +1023,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%B5%B7%E5%BF%83%E5%8B%95%E5%BF%B5%E7%9A%86%E6%88%91%E5%9F%B7%E3%80%80%E4%BA%BA%E7%94%9F%E5%A5%BD%E6%88%B2%E8%AE%8A%E5%A3%9E%E6%88%B2%E3%80%800811-CH143P-158.jpg",
       "pageUrl": "https://www.richestlife.com/起心動念皆我執　人生好戲變壞戲/",
       "imageLocal": "cards/mirror/web-7ac1486db0.jpg",
-      "readText": "起心動念皆我執 人生好戲變壞戲"
+      "readText": "起心動念皆我執 人生好戲變壞戲",
+      "readTextSource": "filename"
     },
     {
       "id": "web-eb636d5010",
@@ -967,7 +1037,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BF%AE%E8%A1%8C%E4%B8%8D%E6%80%95%E8%8B%A6-%E5%8B%87%E6%95%A2%E9%9D%A2%E5%B0%8D%E5%90%84%E7%A8%AE%E9%97%9C%E5%8D%A1-0504-CH-33-2-P184.jpg",
       "pageUrl": "https://www.richestlife.com/修行不怕苦　勇敢面對各種關卡/",
       "imageLocal": "cards/mirror/web-eb636d5010.jpg",
-      "readText": "修行不怕苦 勇敢面對各種關卡"
+      "readText": "在每個當下，將個人可以做到的一一到位，不留下任何遺憾，盡全力給予所有人祝福，這樣才能為自己的生命，累積更多的福德。",
+      "readTextSource": "manual"
     },
     {
       "id": "web-1044932ee9",
@@ -980,7 +1051,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/08/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%8E%AB%E5%BF%98%E4%BF%AE%E8%A1%8C%E5%88%9D%E5%BF%83%EF%BC%8C%E6%87%82%E5%BE%97%E9%A3%B2%E6%B0%B4%E6%80%9D%E6%BA%900818-CH44-4P-105.jpg",
       "pageUrl": "https://www.richestlife.com/莫忘修行初心，懂得飲水思源/",
       "imageLocal": "cards/mirror/web-1044932ee9.jpg",
-      "readText": "莫忘修行初心，懂得飲水思源"
+      "readText": "莫忘修行初心，懂得飲水思源",
+      "readTextSource": "filename"
     },
     {
       "id": "web-8cc629753e",
@@ -993,7 +1065,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC%E5%B8%B6%E9%A0%98%E4%BA%BA%E7%94%9F%E7%99%BC%E5%85%89%E7%99%BC%E7%86%B1-%E5%88%A9%E7%9B%8A%E7%9C%BE%E7%94%9F-0513-CH55-1P-001.jpg",
       "pageUrl": "https://www.richestlife.com/超級生命密碼帶領人生發光發熱-利益眾生/",
       "imageLocal": "cards/mirror/web-8cc629753e.jpg",
-      "readText": "超級生命密碼帶領人生發光發熱 利益眾生"
+      "readText": "超級生命密碼帶領人生發光發熱 利益眾生",
+      "readTextSource": "filename"
     },
     {
       "id": "web-f3bfed4287",
@@ -1006,7 +1079,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/09/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E6%94%B9%E8%AE%8A%E7%94%9F%E5%91%BD%E5%9C%B0%E5%9C%96-%E6%B4%BB%E5%9C%A8%E7%95%B6%E4%B8%8B-%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC%E5%B0%B1%E6%98%AF%E5%A4%A2%E6%83%B3%E8%88%9E%E5%8F%B00922-CH44-3P-176.jpg",
       "pageUrl": "https://www.richestlife.com/改變生命地圖-超級生命密碼就是夢想舞台/",
       "imageLocal": "cards/mirror/web-f3bfed4287.jpg",
-      "readText": "改變生命地圖 活在當下 超級生命密碼就是夢想舞台"
+      "readText": "改變生命地圖 活在當下 超級生命密碼就是夢想舞台",
+      "readTextSource": "filename"
     },
     {
       "id": "web-ffe428ebe5",
@@ -1019,7 +1093,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/07/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E8%83%BD%E9%87%8F%E7%9A%84%E5%B9%BB%E5%8C%96-%E5%8B%BF%E5%BF%98%E5%A4%A9%E5%9C%B0%E7%9A%84%E6%81%A9%E6%83%850719-CH09-3P-124.jpg",
       "pageUrl": "https://www.richestlife.com/一切都是能量的幻化-勿忘天地的恩情/",
       "imageLocal": "cards/mirror/web-ffe428ebe5.jpg",
-      "readText": "能量的幻化 勿忘天地的恩情"
+      "readText": "能量的幻化 勿忘天地的恩情",
+      "readTextSource": "filename"
     },
     {
       "id": "web-8400e2eacd",
@@ -1032,7 +1107,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/07/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E7%94%9F%E6%B4%BB%E7%9A%84%E8%B1%90%E7%9B%9B%E5%AF%8C%E8%B6%B3%E3%80%80%E7%9B%A1%E5%9C%A8%E8%B6%85%E7%B4%9A%E7%94%9F%E5%91%BD%E5%AF%86%E7%A2%BC%E7%9A%84%E4%B8%96%E7%95%8C0721-CH33-3P-109.jpg",
       "pageUrl": "https://www.richestlife.com/生活的豐盛富足-盡在超級生命密碼的世界/",
       "imageLocal": "cards/mirror/web-8400e2eacd.jpg",
-      "readText": "生活的豐盛富足 盡在超級生命密碼的世界"
+      "readText": "生活的豐盛富足 盡在超級生命密碼的世界",
+      "readTextSource": "filename"
     },
     {
       "id": "web-af987b1e77",
@@ -1045,7 +1121,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E4%BF%AE%E8%A1%8C%E8%B2%B4%E6%96%BC%E8%AA%A0-%E4%B8%8D%E8%AA%A0%E5%89%87%E7%84%A1%E7%89%A9-0506-CH-33-2-P143.jpg",
       "pageUrl": "https://www.richestlife.com/修行貴於誠-不誠則無物/",
       "imageLocal": "cards/mirror/web-af987b1e77.jpg",
-      "readText": "修行貴於誠 不誠則無物"
+      "readText": "修行貴於誠 不誠則無物",
+      "readTextSource": "filename"
     },
     {
       "id": "web-2f1c97dcc1",
@@ -1058,7 +1135,8 @@
       "imageUrl": "https://cdn.richestlife.com/wp-content/uploads/2022/05/%E5%A4%AA%E9%99%BD%E5%BF%83%E8%AA%9E-%E5%BF%83%E9%96%80%E4%B8%80%E9%96%8B%E7%A6%8F%E5%B0%B1%E4%BE%86-%E7%89%BD%E5%BC%95%E5%A4%A9%E5%9C%B0%E5%96%84%E7%B7%A3-0519-CH-66.jpg",
       "pageUrl": "https://www.richestlife.com/心門一開福就來-牽引天地善緣/",
       "imageLocal": "cards/mirror/web-2f1c97dcc1.jpg",
-      "readText": "心門一開福就來 牽引天地善緣"
+      "readText": "心門一開福就來 牽引天地善緣",
+      "readTextSource": "filename"
     },
     {
       "id": "yt-c1ab81ade2",
@@ -1071,7 +1149,8 @@
       "imageUrl": "https://i.ytimg.com/vi/Lp33qYYuvpc/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=Lp33qYYuvpc",
       "imageLocal": "cards/mirror/yt-c1ab81ade2.jpg",
-      "readText": "太阳心语 作者: 太阳盛德导师"
+      "readText": "太阳心语 作者: 太阳盛德导师",
+      "readTextSource": "youtube"
     },
     {
       "id": "yt-9093c37309",
@@ -1084,7 +1163,8 @@
       "imageUrl": "https://i.ytimg.com/vi/P0zy9GV8NBg/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=P0zy9GV8NBg",
       "imageLocal": "cards/mirror/yt-9093c37309.jpg",
-      "readText": "太阳心语 作者: 太阳盛德导师"
+      "readText": "太阳心语 作者: 太阳盛德导师",
+      "readTextSource": "youtube"
     },
     {
       "id": "yt-7466342fee",
@@ -1097,7 +1177,8 @@
       "imageUrl": "https://i.ytimg.com/vi/ZtXwzJTmrMs/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=ZtXwzJTmrMs",
       "imageLocal": "cards/mirror/yt-7466342fee.jpg",
-      "readText": "太陽盛德導師專訪"
+      "readText": "太陽盛德導師專訪",
+      "readTextSource": "youtube"
     },
     {
       "id": "yt-d8f2fac2f3",
@@ -1110,7 +1191,8 @@
       "imageUrl": "https://i.ytimg.com/vi/FO9KrHuaZfM/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=FO9KrHuaZfM",
       "imageLocal": "cards/mirror/yt-d8f2fac2f3.jpg",
-      "readText": "太陽盛德導師廣獲好評價的「太陽心法」是什麼？「懺悔心法」真的有用嗎？超級生命密碼系統如何解開人生的真相與由來?"
+      "readText": "太陽盛德導師廣獲好評價的「太陽心法」是什麼？「懺悔心法」真的有用嗎？超級生命密碼系統如何解開人生的真相與由來?",
+      "readTextSource": "youtube"
     },
     {
       "id": "yt-a6aa1ca0fb",
@@ -1123,7 +1205,8 @@
       "imageUrl": "https://i.ytimg.com/vi/1neWqbRfoes/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=1neWqbRfoes",
       "imageLocal": "cards/mirror/yt-a6aa1ca0fb.jpg",
-      "readText": "太陽盛德 著 第一集"
+      "readText": "太陽盛德 著 第一集",
+      "readTextSource": "youtube"
     },
     {
       "id": "yt-87b6efe52d",
@@ -1136,7 +1219,8 @@
       "imageUrl": "https://i.ytimg.com/vi/6wPW4n3tbbA/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=6wPW4n3tbbA",
       "imageLocal": "cards/mirror/yt-87b6efe52d.jpg",
-      "readText": "愛與感恩是翻轉人生的關鍵"
+      "readText": "愛與感恩是翻轉人生的關鍵",
+      "readTextSource": "youtube"
     },
     {
       "id": "yt-8b2a096e8d",
@@ -1149,7 +1233,8 @@
       "imageUrl": "https://i.ytimg.com/vi/bO9TkqrUyvo/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=bO9TkqrUyvo",
       "imageLocal": "cards/mirror/yt-8b2a096e8d.jpg",
-      "readText": "學會聽話的藝術—把每次交談都變成成功的養分"
+      "readText": "學會聽話的藝術—把每次交談都變成成功的養分",
+      "readTextSource": "youtube"
     },
     {
       "id": "yt-8d7b0519ef",
@@ -1162,7 +1247,8 @@
       "imageUrl": "https://i.ytimg.com/vi/SCSrn6jN-yU/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=SCSrn6jN-yU",
       "imageLocal": "cards/mirror/yt-8d7b0519ef.jpg",
-      "readText": "第一集 太陽心語 太陽盛德 著 輯一 德行篇 人倫之理（第15-24則）"
+      "readText": "第一集 太陽心語 太陽盛德 著 輯一 德行篇 人倫之理（第15-24則）",
+      "readTextSource": "youtube"
     },
     {
       "id": "yt-0aa5caa5ac",
@@ -1175,7 +1261,8 @@
       "imageUrl": "https://i.ytimg.com/vi/Bpa5qRIR0KE/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=Bpa5qRIR0KE",
       "imageLocal": "cards/mirror/yt-0aa5caa5ac.jpg",
-      "readText": "超級生命密碼系統的絕對性與超然性"
+      "readText": "超級生命密碼系統的絕對性與超然性",
+      "readTextSource": "youtube"
     },
     {
       "id": "art-e5f762d62c",
@@ -1188,7 +1275,8 @@
       "imageUrl": "https://scontent-ord5-1.xx.fbcdn.net/v/t39.30808-1/451333286_3784349145117189_7396277812000599077_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=106&ccb=1-7&_nc_sid=3ab345&_nc_ohc=3FH2m6CppAsQ7kNvwF4_vVq&_nc_oc=Adr0ksh6bCsX6l5zCmEVhJo-zzIsT3O-UDx5I4hmFjw2RUFGUQ_Gf-3HMnBiuxKaHCI&_nc_zt=24&_nc_ht=scontent-ord5-1.xx&_nc_gid=q3QV02V46qtzrM6bPDMc0g&_nc_ss=7e20f&oh=00_AQIMOfVFBpkzc7xc7nD0gvTF6yUEv-lGmQ_SkixMgiyiUA&oe=6A9A577E",
       "pageUrl": "https://www.facebook.com/photo.aiku/",
       "imageLocal": "cards/mirror/art-e5f762d62c.jpg",
-      "readText": "Photographer AIKU （舞川あいく） (@photo.aiku)"
+      "readText": "Photographer AIKU （舞川あいく） (@photo.aiku)",
+      "readTextSource": "filename"
     }
   ]
 }
