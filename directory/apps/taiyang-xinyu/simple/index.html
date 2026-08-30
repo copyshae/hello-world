@@ -121,6 +121,7 @@
     </div>
   </div>
 
+  <script src="../read-text.js?v=1"></script>
   <script src="../../shared/tts-voices.js?v=2"></script>
   <script>
     const CATALOG_URL = "../catalog.json";
@@ -172,7 +173,15 @@
     }
 
     function speechText(it) {
-      return [it.title, it.text, it.plain].filter(Boolean).join("。");
+      return window.TaiyangReadText ? window.TaiyangReadText.speechText(it) : "";
+    }
+
+    function displayQuote(it) {
+      if (!it) return { title: "太陽心語", text: "", plain: "" };
+      if (it.readText && it.source !== "種子語錄") {
+        return { title: it.title || "太陽心語", text: it.readText, plain: "" };
+      }
+      return { title: it.title || "太陽心語", text: it.text || "", plain: it.plain || "" };
     }
 
     function setReadingUi(on) {
@@ -208,9 +217,10 @@
       stopRead();
       $("lbImg").src = imgSrc(it);
       bindImageFallback($("lbImg"), it);
-      $("lbTitle").textContent = it.title || "太陽心語";
-      $("lbText").textContent = it.text || "";
-      $("lbPlain").textContent = it.plain || "";
+      const dq = displayQuote(it);
+      $("lbTitle").textContent = dq.title;
+      $("lbText").textContent = dq.text;
+      $("lbPlain").textContent = dq.plain;
       updateNavUi();
       $("lightbox").hidden = false;
       document.body.style.overflow = "hidden";
@@ -267,9 +277,10 @@
       const it = filtered[idx];
       $("mainImg").src = imgSrc(it);
       bindImageFallback($("mainImg"), it);
-      $("nowTitle").textContent = it.title || "太陽心語";
-      $("nowText").textContent = it.text || "";
-      $("nowPlain").textContent = it.plain || "";
+      const dq = displayQuote(it);
+      $("nowTitle").textContent = dq.title;
+      $("nowText").textContent = dq.text;
+      $("nowPlain").textContent = dq.plain;
       renderList();
       updateNavUi();
       history.replaceState(null, "", "?item=" + encodeURIComponent(it.id));
