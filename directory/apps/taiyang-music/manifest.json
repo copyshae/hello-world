@@ -2,7 +2,7 @@
   "id": "/-/taiyang-music/",
   "name": "太陽盛德導師｜歌曲連播",
   "short_name": "盛德歌曲",
-  "description": "太陽盛德導師歌曲連播與 KTV：大字幕、伴唱、唱完評分與練唱建議。可加入主畫面。",
+  "description": "太陽盛德導師歌曲連播：選好即播、伴唱切換、連續播放。可加入主畫面。",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

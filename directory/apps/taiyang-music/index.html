@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="盛德歌曲" />
   <meta name="description" content="太陽盛德導師：注入彩虹、富有各連播三次；著作歌曲各一次。可更新 YouTube 曲庫。" />
-  <link rel="manifest" href="manifest.json?v=20260829" />
+  <link rel="manifest" href="manifest.json?v=20260830" />
   <link rel="icon" href="taiyang-icon-192.png?v=20260829" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="taiyang-icon-180.png?v=20260829" sizes="180x180" />
   <link rel="apple-touch-icon" href="taiyang-icon-192.png?v=20260829" sizes="192x192" />
@@ -45,6 +45,28 @@
     }
     .home-icon { width: 3.6rem; height: 3.6rem; border-radius: 0.85rem; flex-shrink: 0; }
     .home-card p { font-size: 0.78rem; color: var(--muted); }
+    .song-picker-top {
+      margin-top: 0.85rem;
+      padding: 0.75rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+    }
+    .picker-label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; font-weight: 500; }
+    .song-select {
+      width: 100%;
+      font: inherit;
+      font-size: 0.88rem;
+      padding: 0.65rem 0.7rem;
+      border: 1px solid var(--line);
+      border-radius: 0.35rem;
+      background: #fff;
+      color: var(--ink);
+      appearance: auto;
+    }
+    .filter-row { margin-top: 0.55rem; display: flex; gap: 0.35rem; }
+    .filter-row button { flex: 1; font-size: 0.78rem; padding: 0.45rem 0.25rem; }
+    .filter-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .player-shell { margin-top: 0.85rem; background: #111; border-radius: 0.5rem; overflow: hidden; aspect-ratio: 16/9; }
     #player { width: 100%; height: 100%; }
     .now { margin-top: 0.7rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.45rem; }
@@ -59,263 +81,27 @@
     }
     button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
     button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.karaoke-on { background: var(--ok); color: #fff; border-color: var(--ok); }
     .toolbar { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
     .toolbar .meta { margin-left: auto; font-size: 0.75rem; color: var(--muted); }
     .hint { margin-top: 0.75rem; font-size: 0.76rem; color: var(--muted); padding: 0.65rem; background: rgba(255,255,255,0.5); border: 1px dashed var(--line); border-radius: 0.35rem; }
-    .section { margin-top: 1rem; font-size: 0.9rem; font-weight: 700; color: var(--accent); }
-    .song-picker { margin-top: 0.45rem; }
-    .song-picker-top {
-      margin-top: 0.85rem;
-      padding: 0.75rem;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 0.5rem;
-    }
-    body.ktv-mode .song-picker-top {
-      margin-top: 0.5rem;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    .play-mode-pick {
-      margin-top: 0.65rem;
-      padding: 0.65rem;
-      background: rgba(196, 90, 16, 0.08);
-      border: 1px dashed var(--accent);
-      border-radius: 0.4rem;
-      display: none;
-    }
-    .play-mode-pick.on { display: block; }
-    .play-mode-pick p { font-size: 0.82rem; color: var(--ink); font-weight: 600; }
-    .play-mode-pick .song-name { color: var(--accent); }
-    .play-mode-actions { margin-top: 0.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
-    .play-mode-actions button { padding: 0.6rem 0.4rem; font-size: 0.82rem; }
-    .play-mode-actions .ktv-pick { background: linear-gradient(135deg, #e8a020, #c45a10); color: #fff; border-color: #c45a10; }
-    .picker-label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; font-weight: 500; }
-    .song-select {
-      width: 100%;
-      font: inherit;
-      font-size: 0.88rem;
-      padding: 0.65rem 0.7rem;
-      border: 1px solid var(--line);
-      border-radius: 0.35rem;
-      background: var(--card);
-      color: var(--ink);
-      appearance: auto;
-    }
-    .filter-row { margin-top: 0.55rem; display: flex; gap: 0.35rem; }
-    .filter-row button { flex: 1; font-size: 0.78rem; padding: 0.45rem 0.25rem; }
-    .filter-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .section { margin-top: 0; font-size: 0.9rem; font-weight: 700; color: var(--accent); }
     .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); }
-    .controls-extra { margin-top: 0.4rem; grid-template-columns: 1fr 1fr; display: grid; gap: 0.35rem; }
-    button.ktv-on { background: linear-gradient(135deg, #e8a020, #c45a10); color: #fff; border-color: #c45a10; }
-    button.karaoke-on { background: #2d6a4f; color: #fff; border-color: #2d6a4f; }
-    .ktv-panel {
-      margin-top: 0.65rem;
-      padding: 1rem 0.85rem 1.1rem;
-      border-radius: 0.55rem;
-      background: linear-gradient(180deg, #1a1208 0%, #2d1f0a 100%);
-      color: #fff8e8;
-      min-height: 9rem;
-      text-align: center;
-      display: none;
-    }
-    .ktv-panel.on { display: block; }
-    .ktv-badge { font-size: 0.72rem; letter-spacing: 0.15em; color: #e8a020; font-weight: 700; }
-    .ktv-sync-dot {
-      display: inline-block; margin-left: 0.45rem; font-size: 0.68rem; font-weight: 600;
-      letter-spacing: 0.02em; vertical-align: middle;
-    }
-    .ktv-sync-dot.youtube { color: #95d5b2; }
-    .ktv-sync-dot.estimated { color: #ffd166; }
-    .ktv-sync-dot.none { color: rgba(255,255,255,0.35); }
-    .ktv-line.sync-flash { animation: ktvLineFlash 0.35s ease-out; }
-    @keyframes ktvLineFlash {
-      from { color: #ffd88a; transform: scale(1.02); }
-      to { color: #fff; transform: scale(1); }
-    }
-    .ktv-title { margin-top: 0.35rem; font-size: clamp(1.1rem, 4.5vw, 1.35rem); font-weight: 700; color: #ffd88a; }
-    .ktv-line {
-      margin-top: 0.85rem;
-      font-size: clamp(1.65rem, 7.5vw, 2.75rem);
-      font-weight: 700;
-      line-height: 1.35;
-      color: #fff;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.45);
-      min-height: 3.2em;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .ktv-next { margin-top: 0.35rem; font-size: clamp(0.95rem, 4vw, 1.15rem); color: rgba(255,248,232,0.45); min-height: 1.4em; }
-    .ktv-hint { margin-top: 0.55rem; font-size: 0.72rem; color: rgba(255,248,232,0.55); }
-    .ktv-caption-mode {
-      margin-top: 0.45rem; padding: 0.35rem 0.65rem; font-size: 0.72rem;
-      background: rgba(255,255,255,0.12); color: rgba(255,248,232,0.85);
-      border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; cursor: pointer;
-    }
-    .ktv-caption-mode.on { background: rgba(45,106,79,0.55); border-color: rgba(149,213,178,0.5); }
-    .ktv-offset-bar {
-      margin-top: 0.45rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.35rem;
-      font-size: 0.72rem; color: rgba(255,248,232,0.75);
-    }
-    .ktv-offset-bar button {
-      padding: 0.25rem 0.55rem; font-size: 0.72rem; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1); color: inherit; cursor: pointer;
-    }
-    .ktv-offset-bar button:active { background: rgba(45,106,79,0.45); }
-    body.ktv-mode .normal-only { display: none !important; }
-    body.ktv-mode .player-shell { margin-top: 0.5rem; }
-    /* KTV 原字幕模式：維持與一般播放相同 16:9 尺寸，避免按 KTV 後視窗突然放大 */
-    body.ktv-mode.native-captions .player-shell {
-      aspect-ratio: 16/9;
-      min-height: 0;
-      margin-top: 0.5rem;
-      margin-bottom: 0;
-      box-shadow: none;
-      border: 1px solid rgba(149,213,178,0.35);
-    }
-    body.ktv-mode.native-captions .ktv-panel { min-height: auto; padding-top: 0.55rem; }
-    body.ktv-mode.native-captions .ktv-line,
-    body.ktv-mode.native-captions .ktv-next,
-    body.ktv-mode.native-captions .ktv-offset-bar { display: none !important; }
-    body.ktv-mode.sync-youtube .player-shell { outline: 1px solid rgba(149,213,178,0.3); }
-    body.ktv-mode.overlay-estimated .ktv-line::before {
-      content: "（估算，僅供參考）";
-      display: block;
-      font-size: 0.42em;
-      font-weight: 600;
-      color: #ffd166;
-      margin-bottom: 0.25em;
-      letter-spacing: 0.05em;
-    }
-    /* KTV 模式不再加寬整頁，避免播放器視覺上突然變大 */
-    .ktv-score {
-      margin-top: 0.75rem;
-      padding: 1rem 0.85rem;
-      border-radius: 0.55rem;
-      background: rgba(255, 248, 232, 0.08);
-      border: 1px solid rgba(232, 160, 32, 0.35);
-      text-align: left;
-      display: none;
-    }
-    .ktv-score.on { display: block; }
-    .ktv-score-head { display: flex; align-items: center; gap: 0.75rem; }
-    .ktv-score-num {
-      font-size: 2.4rem;
-      font-weight: 700;
-      line-height: 1;
-      color: #ffd88a;
-      min-width: 3.2rem;
-      text-align: center;
-    }
-    .ktv-score-num small { font-size: 0.95rem; font-weight: 500; color: rgba(255,248,232,0.6); }
-    .ktv-score-grade { font-size: 1.05rem; font-weight: 700; color: #fff; }
-    .ktv-score-sub { margin-top: 0.15rem; font-size: 0.72rem; color: rgba(255,248,232,0.55); }
-    .ktv-score-stars { margin-top: 0.15rem; font-size: 1rem; letter-spacing: 0.08em; color: #e8a020; }
-    .ktv-score-tips { margin-top: 0.65rem; }
-    .ktv-score-tips h3 { font-size: 0.78rem; color: #e8a020; font-weight: 700; margin-bottom: 0.35rem; }
-    .ktv-score-tips ul { margin: 0; padding-left: 1.1rem; font-size: 0.78rem; color: rgba(255,248,232,0.88); line-height: 1.5; }
-    .ktv-score-tips li + li { margin-top: 0.25rem; }
-    .ktv-score-actions { margin-top: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
-    .ktv-score-actions button {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,248,232,0.25);
-      color: #fff8e8;
-      font-size: 0.82rem;
-      padding: 0.55rem 0.4rem;
-    }
-    .ktv-score-actions button.primary {
-      background: linear-gradient(135deg, #e8a020, #c45a10);
-      border-color: #c45a10;
-      color: #fff;
-    }
-    .ktv-score-history {
-      margin-top: 0.5rem;
-      font-size: 0.74rem;
-      color: rgba(255,248,232,0.7);
-      padding: 0.4rem 0.5rem;
-      background: rgba(0,0,0,0.2);
-      border-radius: 0.35rem;
-    }
-    .ktv-score-history .up { color: #7dffb3; }
-    .ktv-score-history .down { color: #ffb4a2; }
-    .ktv-self-rate { margin-top: 0.55rem; font-size: 0.76rem; color: rgba(255,248,232,0.75); }
-    .self-rate-stars { margin-top: 0.25rem; display: flex; gap: 0.15rem; }
-    .self-rate-stars button {
-      background: none; border: none; font-size: 1.35rem; padding: 0.1rem;
-      color: rgba(255,248,232,0.35); cursor: pointer; line-height: 1;
-    }
-    .self-rate-stars button.on { color: #e8a020; }
-    .ktv-hotspot {
-      margin-top: 0.45rem;
-      font-size: 0.74rem;
-      color: #ffd88a;
-      padding: 0.35rem 0.5rem;
-      background: rgba(232,160,32,0.12);
-      border-radius: 0.35rem;
-      display: none;
-    }
-    .ktv-hotspot.on { display: block; }
-    .ktv-score-actions { grid-template-columns: 1fr 1fr; }
-    .ktv-score-actions .wide { grid-column: 1 / -1; }
-    .ktv-loop-bar {
-      margin-top: 0.55rem;
-      display: none;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-      align-items: center;
-      justify-content: center;
-    }
-    .ktv-loop-bar.on { display: flex; }
-    .ktv-loop-bar button {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,248,232,0.25);
-      color: #fff8e8;
-      font-size: 0.72rem;
-      padding: 0.35rem 0.5rem;
-      border-radius: 0.3rem;
-    }
-    .ktv-loop-bar button.loop-on { background: #2d6a4f; border-color: #2d6a4f; }
-    .ktv-loop-bar span { font-size: 0.68rem; color: rgba(255,248,232,0.55); width: 100%; text-align: center; }
-    .ktv-session {
-      margin-top: 0.75rem;
-      padding: 1rem 0.85rem;
-      border-radius: 0.55rem;
-      background: rgba(45, 106, 79, 0.25);
-      border: 1px solid rgba(125, 255, 179, 0.3);
-      text-align: left;
-      display: none;
-    }
-    .ktv-session.on { display: block; }
-    .ktv-session h3 { font-size: 0.9rem; color: #7dffb3; font-weight: 700; }
-    .ktv-session p { margin-top: 0.35rem; font-size: 0.78rem; color: rgba(255,248,232,0.88); line-height: 1.5; }
-    .ktv-session ul { margin: 0.4rem 0 0; padding-left: 1.1rem; font-size: 0.76rem; color: rgba(255,248,232,0.85); }
-    .ktv-session-actions { margin-top: 0.65rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
-    .ktv-session-actions button {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,248,232,0.25);
-      color: #fff8e8;
-      font-size: 0.82rem;
-      padding: 0.55rem 0.4rem;
-    }
-    .ktv-panel.singing .ktv-line,
-    .ktv-panel.singing .ktv-next,
-    .ktv-panel.singing .ktv-hint { opacity: 0.35; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header class="normal-only">
+    <header>
       <h1 class="brand">太陽盛德導師</h1>
       <p class="sub">注入彩虹、富有各×3 · 導師親唱 · 其他演唱者</p>
       <div class="pill-row">
         <span class="pill">連續播放</span>
-        <span class="pill">可更新曲庫</span>
+        <span class="pill">選好即播</span>
         <span class="pill">加入主畫面</span>
       </div>
     </header>
 
-    <section class="home-card normal-only">
+    <section class="home-card">
       <img class="home-icon" src="taiyang-icon-192.png?v=20260829" width="192" height="192" alt="盛德歌曲圖示" />
       <div>
         <p><strong>主畫面圖示：盛德歌曲</strong></p>
@@ -324,90 +110,24 @@
     </section>
 
     <section class="song-picker-top" aria-label="歌曲選單">
-      <h2 class="section" style="margin-top:0">歌曲選單 <span id="listCount" style="font-weight:400;font-size:0.78rem;color:var(--muted)"></span></h2>
+      <h2 class="section">歌曲選單 <span id="listCount" style="font-weight:400;font-size:0.78rem;color:var(--muted)"></span></h2>
       <div class="filter-row" role="tablist" aria-label="歌曲分類">
         <button type="button" class="active" data-filter="all" role="tab">全部</button>
         <button type="button" data-filter="master" role="tab">導師親唱</button>
         <button type="button" data-filter="other" role="tab">其他演唱者</button>
       </div>
-      <div class="song-picker">
+      <div style="margin-top:0.45rem">
         <label for="songSelect" class="picker-label">選擇歌曲（選好即播）</label>
         <select id="songSelect" class="song-select" aria-label="歌曲選單">
           <option value="">— 請選擇歌曲 —</option>
         </select>
         <button type="button" id="btnPlaySelected" class="primary" style="width:100%;margin-top:0.5rem;font-size:0.95rem;padding:0.65rem;">▶ 播放所選歌曲</button>
       </div>
-      <div id="playModePick" class="play-mode-pick on" aria-live="polite">
-        <p>選好歌曲後會<strong>立即播放</strong>。若要改模式，先按 KTV 再選歌，或選歌後按下方按鈕。</p>
-        <div class="play-mode-actions">
-          <button type="button" id="btnPickKtv" class="ktv-pick">🎤 KTV 模式</button>
-          <button type="button" id="btnPickNormal">▶ 一般播放</button>
-        </div>
-      </div>
     </section>
 
     <div class="player-shell"><div id="player"></div></div>
 
-    <div id="ktvPanel" class="ktv-panel" aria-live="polite">
-      <div class="ktv-badge">KTV 大字幕 <span id="ktvSyncDot" class="ktv-sync-dot none" aria-live="polite"></span></div>
-      <div id="ktvTitle" class="ktv-title">—</div>
-      <div id="ktvLine" class="ktv-line">按下 KTV 後開始播放，字幕會自動顯示</div>
-      <div id="ktvNext" class="ktv-next"></div>
-      <p id="ktvHint" class="ktv-hint">伴唱：有伴奏版時自動切換；也可按「伴唱」切換</p>
-      <button type="button" id="btnSubtitleDisplay" class="ktv-caption-mode">字幕：影片放大（推薦）</button>
-      <div id="ktvOffsetBar" class="ktv-offset-bar" aria-label="字幕時間微調">
-        <span>字幕快慢：</span>
-        <button type="button" id="btnOffsetEarlier" title="字幕提前（唱快時用）">◀ 提前</button>
-        <span id="ktvOffsetLabel">0.0 秒</span>
-        <button type="button" id="btnOffsetLater" title="字幕延後（唱慢時用）">延後 ▶</button>
-        <button type="button" id="btnOffsetReset">重設</button>
-      </div>
-      <div id="ktvLoopBar" class="ktv-loop-bar">
-        <button type="button" id="btnSetA">A 點</button>
-        <button type="button" id="btnSetB">B 點</button>
-        <button type="button" id="btnLoopGo">循環練習</button>
-        <button type="button" id="btnLoopOff">取消循環</button>
-        <span id="loopStatus">A-B 段：練習難句時可設起訖點循環播放</span>
-      </div>
-      <div id="ktvScore" class="ktv-score" aria-live="polite">
-        <div class="ktv-score-head">
-          <div id="scoreNum" class="ktv-score-num">—<small>分</small></div>
-          <div>
-            <div id="scoreGrade" class="ktv-score-grade">—</div>
-            <div id="scoreStars" class="ktv-score-stars" aria-hidden="true">★★★★★</div>
-            <div id="scoreSub" class="ktv-score-sub">—</div>
-          </div>
-        </div>
-        <div id="scoreHistory" class="ktv-score-history"></div>
-        <div class="ktv-self-rate">
-          <span>你覺得這次表現？</span>
-          <div id="selfRateStars" class="self-rate-stars" role="group" aria-label="自評星等"></div>
-        </div>
-        <div id="scoreHotspot" class="ktv-hotspot"></div>
-        <div class="ktv-score-tips">
-          <h3>提升建議</h3>
-          <ul id="scoreTips"></ul>
-        </div>
-        <div class="ktv-score-actions">
-          <button type="button" id="btnScoreLoop">↻ 重練難段</button>
-          <button type="button" id="btnScoreRetry">↺ 再唱一次</button>
-          <button type="button" id="btnScoreShare">📷 成果卡</button>
-          <button type="button" id="btnScoreNext" class="primary">下一首 ▶</button>
-        </div>
-      </div>
-      <div id="ktvSession" class="ktv-session" aria-live="polite">
-        <h3>🎉 本場練唱小結</h3>
-        <p id="sessionSummary"></p>
-        <ul id="sessionList"></ul>
-        <div class="ktv-session-actions">
-          <button type="button" id="btnSessionShare">📷 本場成果卡</button>
-          <button type="button" id="btnSessionClose">關閉</button>
-        </div>
-      </div>
-    </div>
-    <canvas id="shareCanvas" width="600" height="400" hidden aria-hidden="true"></canvas>
-
-    <div class="now normal-only">
+    <div class="now">
       <h2 id="nowTitle">準備播放</h2>
       <p id="nowMeta">載入曲庫中…</p>
       <div class="progress-bar" aria-hidden="true"><i id="progressFill"></i></div>
@@ -419,19 +139,16 @@
       <button type="button" id="btnNext">下一首 ▶</button>
     </div>
 
-    <div class="controls controls-extra">
-      <button type="button" id="btnKtv" title="快捷鍵 K">🎤 KTV 模式</button>
+    <div class="toolbar">
       <button type="button" id="btnKaraoke" title="切換伴唱／原唱">🎵 伴唱</button>
-    </div>
-
-    <div class="toolbar normal-only">
       <button type="button" id="btnRefresh">🔄 更新曲庫</button>
       <button type="button" id="btnRestart">從頭播放</button>
       <span class="meta" id="catalogMeta">—</span>
     </div>
 
-    <p class="hint normal-only">
-      <strong>播放順序：</strong>① 注入彩虹×3 → ② 富有×3 → ③ 導師親唱 → ④ 其他演唱者。KTV 模式含評分、練唱紀錄、A-B 循環與成果卡（快捷鍵 <strong>K</strong>）。
+    <p class="hint">
+      <strong>播放順序：</strong>① 注入彩虹×3 → ② 富有×3 → ③ 導師親唱 → ④ 其他演唱者。選單可篩選分類；播放中改選其他歌曲會<strong>立即切換</strong>。有伴奏版時可按「伴唱」切換。
+      <br /><a href="./simple/" style="color:var(--accent);">→ 分享給朋友？試試簡易版</a>（僅選歌＋播放，介面更精簡）
     </p>
 
     <p class="status" id="statusLine"></p>
@@ -440,10 +157,6 @@
   <script>
     const PRIORITY_IDS = { "hTEv2f-9WIM": 3, "tkYxdmQlhtQ": 3 };
     const CATALOG_URL = "./catalog.json";
-    const PRACTICE_KEY = "taiyang-practice-log";
-    const LYRICS_CACHE_KEY = "taiyang-lyrics-cache";
-    const INNERTUBE_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
-    const MAX_HISTORY = 30;
 
     let catalog = { songs: [] };
     let queue = [];
@@ -452,304 +165,9 @@
     let apiReady = false;
     let autoPlay = false;
     let listFilter = "all";
-    let ktvMode = localStorage.getItem("taiyang-ktv") === "1";
     let useKaraoke = localStorage.getItem("taiyang-karaoke") !== "0";
-    let captionLines = [];
-    let captionTimer = null;
-    let captionRaf = null;
-    let lastCaptionText = "";
-    let captionPlainLines = null;
-    let captionSource = "none";
-    let captionSyncMode = "none"; // youtube | estimated | timed
-    let captionRetimed = false;
-    let preferYoutubeCaptions = localStorage.getItem("taiyang-prefer-yt-captions") !== "0";
-    let subtitleDisplayPref = localStorage.getItem("taiyang-ktv-subtitle-display") || "auto";
-    let captionFetchGen = 0;
-    let captionRetryTimers = [];
-    let lastSyncedLineIndex = -1;
-    let captionOffsetMs = parseInt(localStorage.getItem("taiyang-caption-offset-ms") || "-150", 10);
-    if (Number.isNaN(captionOffsetMs)) captionOffsetMs = -150;
-    let singSession = null;
-    let playTickTimer = null;
-    let pendingAutoNext = false;
-    let scorePanelOpen = false;
-    let practiceLog = { bySong: {} };
-    let currentSelfRating = 0;
-    let lastScoreResult = null;
-    let abLoopStart = null;
-    let abLoopEnd = null;
-    let abLoopActive = false;
-    let ktvSession = null;
-    let pendingSongId = null;
-
-    const SONG_TIPS = {
-      "注入彩虹": [
-        "開頭「注入彩虹」四字要咬字清楚，氣息從丹田穩穩送出",
-        "副歌高音區先以半聲練習，確認音準再逐步放開",
-        "情緒由內而外，想像光能注入時的感恩與喜悅"
-      ],
-      "富有": [
-        "「富有」重在節奏穩定，先跟著伴奏打拍子再開口",
-        "中低音區要放鬆喉嚨，避免擠壓造成音準偏移",
-        "結尾長音可漸弱收束，展現歌曲的寧靜力量"
-      ]
-    };
-
-    const GRADE_LABELS = [
-      { min: 95, label: "完美演繹", stars: 5 },
-      { min: 88, label: "非常出色", stars: 5 },
-      { min: 80, label: "表現良好", stars: 4 },
-      { min: 72, label: "穩步進步", stars: 3 },
-      { min: 65, label: "繼續加油", stars: 2 },
-      { min: 0, label: "多練幾次", stars: 1 }
-    ];
 
     const $ = (id) => document.getElementById(id);
-
-    function loadPracticeLog() {
-      try {
-        const raw = localStorage.getItem(PRACTICE_KEY);
-        if (raw) practiceLog = JSON.parse(raw);
-        if (!practiceLog.bySong) practiceLog = { bySong: {} };
-      } catch (_) {
-        practiceLog = { bySong: {} };
-      }
-    }
-
-    function persistPracticeLog() {
-      localStorage.setItem(PRACTICE_KEY, JSON.stringify(practiceLog));
-    }
-
-    function getSongPractice(name) {
-      return practiceLog.bySong[name] || { bestScore: 0, attempts: 0, history: [] };
-    }
-
-    function formatTime(sec) {
-      if (!sec || sec < 0) return "0:00";
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return m + ":" + String(s).padStart(2, "0");
-    }
-
-    function savePracticeRecord(item, score, stats, selfRating) {
-      const name = item.name || "未知";
-      const entry = getSongPractice(name);
-      const record = {
-        date: new Date().toISOString().slice(0, 10),
-        score,
-        selfRating: selfRating || 0,
-        completionPct: stats.completionPct,
-        pauseCount: stats.pauseCount,
-        usedKaraoke: stats.usedKaraoke
-      };
-      entry.history.unshift(record);
-      if (entry.history.length > MAX_HISTORY) entry.history.length = MAX_HISTORY;
-      entry.attempts = (entry.attempts || 0) + 1;
-      if (score > (entry.bestScore || 0)) entry.bestScore = score;
-      practiceLog.bySong[name] = entry;
-      persistPracticeLog();
-      return record;
-    }
-
-    function renderSelfRateStars(selected) {
-      currentSelfRating = selected || 0;
-      const parts = [];
-      for (let i = 1; i <= 5; i++) {
-        parts.push(
-          '<button type="button" data-v="' + i + '" class="' + (i <= currentSelfRating ? "on" : "") + '" aria-label="' + i + ' 星">★</button>'
-        );
-      }
-      $("selfRateStars").innerHTML = parts.join("");
-      $("selfRateStars").querySelectorAll("button").forEach((btn) => {
-        btn.addEventListener("click", () => renderSelfRateStars(Number(btn.dataset.v)));
-      });
-    }
-
-    function updateScoreHistoryDisplay(item, score) {
-      const pr = getSongPractice(item.name);
-      const el = $("scoreHistory");
-      if (!pr.attempts) {
-        el.textContent = "首次練唱這首歌，繼續加油！";
-        return;
-      }
-      const prev = pr.history[0];
-      const prevScore = prev ? prev.score : 0;
-      const best = pr.bestScore || 0;
-      let diff = "";
-      if (prev && prevScore !== score) {
-        const d = score - prevScore;
-        diff = d > 0
-          ? ' · 較上次 <span class="up">+' + d + "</span>"
-          : ' · 較上次 <span class="down">' + d + "</span>";
-      }
-      if (score > best) {
-        el.innerHTML = '<span class="up">新紀錄！</span> ' + score + " 分 · 已練 " + pr.attempts + " 次" + diff;
-      } else {
-        el.innerHTML = "歷史最佳 " + best + " 分 · 已練 " + pr.attempts + " 次" + diff;
-      }
-    }
-
-    function analyzeHotspot(pausePoints, durationSec) {
-      if (!pausePoints || !pausePoints.length) return null;
-      const sorted = pausePoints.slice().sort((a, b) => a.sec - b.sec);
-      let bestCluster = null;
-      let i = 0;
-      while (i < sorted.length) {
-        const cluster = [sorted[i]];
-        let j = i + 1;
-        while (j < sorted.length && sorted[j].sec - sorted[i].sec <= 12) {
-          cluster.push(sorted[j]);
-          j++;
-        }
-        if (!bestCluster || cluster.length > bestCluster.length) bestCluster = cluster;
-        i = j;
-      }
-      if (!bestCluster || bestCluster.length < 1) return null;
-      const center = bestCluster.reduce((s, p) => s + p.sec, 0) / bestCluster.length;
-      const pad = 8;
-      let start = Math.max(0, center - pad);
-      let end = Math.min(durationSec || center + pad + 15, center + pad);
-      if (end - start < 10) end = start + 12;
-      const caption = bestCluster.find((p) => p.text)?.text || "";
-      return {
-        start,
-        end,
-        center,
-        count: bestCluster.length,
-        caption: caption.slice(0, 24)
-      };
-    }
-
-    function updateLoopStatus() {
-      const el = $("loopStatus");
-      if (abLoopActive && abLoopStart != null && abLoopEnd != null) {
-        el.textContent = "循環中 " + formatTime(abLoopStart) + " → " + formatTime(abLoopEnd);
-        $("btnLoopGo").classList.add("loop-on");
-      } else if (abLoopStart != null && abLoopEnd != null) {
-        el.textContent = "已設 " + formatTime(abLoopStart) + " → " + formatTime(abLoopEnd) + "，按「循環練習」";
-        $("btnLoopGo").classList.remove("loop-on");
-      } else if (abLoopStart != null) {
-        el.textContent = "A 點 " + formatTime(abLoopStart) + "，請設 B 點";
-        $("btnLoopGo").classList.remove("loop-on");
-      } else {
-        el.textContent = "A-B 段：練習難句時可設起訖點循環播放";
-        $("btnLoopGo").classList.remove("loop-on");
-      }
-    }
-
-    function setAbLoop(start, end, activate) {
-      abLoopStart = start;
-      abLoopEnd = end;
-      abLoopActive = !!activate;
-      updateLoopStatus();
-      if (abLoopActive && player && player.seekTo) {
-        try {
-          player.seekTo(abLoopStart, true);
-          player.playVideo();
-        } catch (_) {}
-      }
-    }
-
-    function clearAbLoop() {
-      abLoopStart = null;
-      abLoopEnd = null;
-      abLoopActive = false;
-      updateLoopStatus();
-    }
-
-    function checkAbLoop() {
-      if (!abLoopActive || abLoopStart == null || abLoopEnd == null || !player) return;
-      try {
-        const t = player.getCurrentTime();
-        if (t >= abLoopEnd - 0.25) player.seekTo(abLoopStart, true);
-      } catch (_) {}
-    }
-
-    function ensureKtvSession() {
-      if (!ktvSession) ktvSession = { songs: [], startedAt: Date.now() };
-    }
-
-    function addToKtvSession(item, score, stats, selfRating) {
-      ensureKtvSession();
-      ktvSession.songs.push({
-        name: item.name,
-        score,
-        selfRating: selfRating || 0,
-        completionPct: stats.completionPct,
-        at: Date.now()
-      });
-    }
-
-    function showSessionSummary() {
-      if (!ktvSession || !ktvSession.songs.length) return;
-      const songs = ktvSession.songs;
-      const scores = songs.map((s) => s.score);
-      const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-      const best = songs.reduce((a, b) => (b.score > a.score ? b : a), songs[0]);
-      const names = songs.map((s) => s.name);
-      $("sessionSummary").textContent =
-        "本場共練 " + songs.length + " 首，平均 " + avg + " 分；最高〈" + best.name + "〉" + best.score + " 分。";
-      $("sessionList").innerHTML = songs.map((s) =>
-        "<li>〈" + s.name + "〉 " + s.score + " 分" +
-        (s.selfRating ? " · 自評 " + "★".repeat(s.selfRating) : "") + "</li>"
-      ).join("");
-      $("ktvSession").classList.add("on");
-      $("ktvScore").classList.remove("on");
-      $("ktvPanel").classList.add("singing");
-      updateKtvUI();
-    }
-
-    function hideSessionSummary() {
-      $("ktvSession").classList.remove("on");
-      ktvSession = null;
-      updateKtvUI();
-    }
-
-    function generateShareCard(title, subtitle, score, gradeLabel, extra) {
-      const canvas = $("shareCanvas");
-      const ctx = canvas.getContext("2d");
-      const w = canvas.width;
-      const h = canvas.height;
-      const grd = ctx.createLinearGradient(0, 0, 0, h);
-      grd.addColorStop(0, "#1a1208");
-      grd.addColorStop(1, "#3d2a0a");
-      ctx.fillStyle = grd;
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#e8a020";
-      ctx.font = "bold 22px 'Noto Sans TC', sans-serif";
-      ctx.fillText("太陽盛德導師 · KTV 練唱", 36, 52);
-      ctx.fillStyle = "#ffd88a";
-      ctx.font = "bold 36px 'Noto Sans TC', sans-serif";
-      const titleShort = (title || "").slice(0, 14);
-      ctx.fillText("《" + titleShort + "》", 36, 110);
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 72px 'Noto Sans TC', sans-serif";
-      ctx.fillText(String(score), 36, 210);
-      ctx.fillStyle = "rgba(255,248,232,0.65)";
-      ctx.font="24px 'Noto Sans TC', sans-serif";
-      ctx.fillText("分", 36 + ctx.measureText(String(score)).width + 8, 205);
-      ctx.fillStyle = "#e8a020";
-      ctx.font = "bold 26px 'Noto Sans TC', sans-serif";
-      ctx.fillText(gradeLabel || "", 36, 260);
-      ctx.fillStyle = "rgba(255,248,232,0.55)";
-      ctx.font = "18px 'Noto Sans TC', sans-serif";
-      ctx.fillText(subtitle || "", 36, 300);
-      if (extra) {
-        ctx.font = "16px 'Noto Sans TC', sans-serif";
-        ctx.fillText(extra, 36, 340);
-      }
-      ctx.fillStyle = "rgba(255,248,232,0.35)";
-      ctx.font = "14px 'Noto Sans TC', sans-serif";
-      ctx.fillText(new Date().toLocaleDateString("zh-TW"), 36, h - 28);
-      return canvas.toDataURL("image/png");
-    }
-
-    function downloadShareCard(dataUrl, filename) {
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = filename || "盛德KTV成果.png";
-      a.click();
-    }
 
     function normName(s) {
       return (s || "").replace(/\s/g, "");
@@ -770,1027 +188,11 @@
     }
 
     function resolveVideoId(item) {
-      if (ktvMode && useKaraoke) {
+      if (useKaraoke) {
         const kid = findKaraokeInCatalog(item);
         if (kid) return kid;
       }
       return item.id;
-    }
-
-    function parseVttTime(s) {
-      const p = s.trim().split(":");
-      if (p.length === 3) return parseFloat(p[0]) * 3600 + parseFloat(p[1]) * 60 + parseFloat(p[2]);
-      if (p.length === 2) return parseFloat(p[0]) * 60 + parseFloat(p[1]);
-      return parseFloat(s) || 0;
-    }
-
-    function parseVtt(vtt) {
-      const out = [];
-      if (!vtt || vtt.indexOf("-->") < 0) return out;
-      const blocks = vtt.replace(/\r/g, "").split(/\n\n+/);
-      for (const block of blocks) {
-        const lines = block.split("\n");
-        let i = 0;
-        if (/^\d+$/.test(lines[0])) i = 1;
-        const timeLine = lines[i];
-        if (!timeLine || timeLine.indexOf("-->") < 0) continue;
-        const m = timeLine.match(/([\d:.]+)\s*-->\s*([\d:.]+)/);
-        if (!m) continue;
-        const text = lines.slice(i + 1).join(" ").replace(/<[^>]+>/g, "").trim();
-        if (!text) continue;
-        out.push({ start: parseVttTime(m[1]), end: parseVttTime(m[2]), text });
-      }
-      return out;
-    }
-
-    function parseTrackList(xml) {
-      const tracks = [];
-      if (!xml) return tracks;
-      const re = /<track\b([^>]*)\/?>/gi;
-      let m;
-      while ((m = re.exec(xml))) {
-        const attrs = m[1];
-        const lang = (attrs.match(/lang_code="([^"]+)"/) || [])[1];
-        if (!lang) continue;
-        tracks.push({
-          lang,
-          kind: (attrs.match(/kind="([^"]*)"/) || [])[1] || "",
-          name: (attrs.match(/name="([^"]*)"/) || [])[1] || ""
-        });
-      }
-      return tracks;
-    }
-
-    function mergeTimedSegments(lines) {
-      if (!lines || !lines.length) return [];
-      const merged = [];
-      const gapMax = 0.35;
-      for (const L of lines) {
-        const text = (L.text || "").replace(/\s+/g, " ").trim();
-        if (!text) continue;
-        const prev = merged[merged.length - 1];
-        if (prev && (L.start - prev.end) <= gapMax) {
-          prev.text = (prev.text + " " + text).trim();
-          prev.end = Math.max(prev.end, L.end);
-        } else {
-          merged.push({ start: L.start, end: L.end, text });
-        }
-      }
-      return merged;
-    }
-
-    async function fetchYouTubeCaptionTracks(videoId) {
-      const url = "https://www.youtube.com/api/timedtext?type=list&v=" + encodeURIComponent(videoId);
-      try {
-        const res = await fetch(url);
-        if (!res.ok) return [];
-        return parseTrackList(await res.text());
-      } catch (_) {
-        return [];
-      }
-    }
-
-    async function fetchTimedTextUrl(videoId, opts) {
-      const params = new URLSearchParams({ v: videoId, fmt: opts.fmt || "vtt" });
-      if (opts.lang) params.set("lang", opts.lang);
-      if (opts.kind) params.set("kind", opts.kind);
-      if (opts.name) params.set("name", opts.name);
-      const url = "https://www.youtube.com/api/timedtext?" + params.toString();
-      try {
-        const res = await fetch(url);
-        if (!res.ok) return null;
-        const text = await res.text();
-        return text && text.trim() ? text : null;
-      } catch (_) {
-        return null;
-      }
-    }
-
-    async function fetchYouTubeCaptions(videoId) {
-      const tracks = await fetchYouTubeCaptionTracks(videoId);
-      const langPref = ["zh-Hant", "zh-TW", "zh-Hans", "zh", "en"];
-      const tried = new Set();
-      const tryFetch = async (lang, kind, name) => {
-        const key = lang + "|" + (kind || "") + "|" + (name || "");
-        if (tried.has(key)) return [];
-        tried.add(key);
-        for (const fmt of ["vtt", "json3"]) {
-          const raw = await fetchTimedTextUrl(videoId, { lang, kind, name, fmt });
-          if (!raw) continue;
-          let lines = fmt === "vtt" ? parseVtt(raw) : parseJson3Captions(raw);
-          lines = mergeTimedSegments(lines);
-          if (lines.length) return lines;
-        }
-        return [];
-      };
-
-      const sortedTracks = tracks.slice().sort((a, b) => {
-        const ia = langPref.indexOf(a.lang);
-        const ib = langPref.indexOf(b.lang);
-        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
-      });
-      for (const tr of sortedTracks) {
-        const lines = await tryFetch(tr.lang, tr.kind, tr.name);
-        if (lines.length) return lines;
-      }
-      for (const lang of langPref) {
-        for (const kind of ["", "asr"]) {
-          const lines = await tryFetch(lang, kind, "");
-          if (lines.length) return lines;
-        }
-      }
-      return fetchYouTubeCaptionsViaInnertube(videoId);
-    }
-
-    async function fetchInnertubePlayer(videoId) {
-      const clients = [
-        { clientName: "WEB", clientVersion: "2.20250201.01.00" },
-        { clientName: "ANDROID", clientVersion: "19.09.37", androidSdkVersion: 30 },
-        { clientName: "IOS", clientVersion: "19.09.3", deviceModel: "iPhone14,3" }
-      ];
-      for (const client of clients) {
-        try {
-          const res = await fetch(
-            "https://www.youtube.com/youtubei/v1/player?key=" + INNERTUBE_KEY,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                videoId,
-                context: { client: Object.assign({}, client, { hl: "zh-TW" }) }
-              })
-            }
-          );
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (data && data.videoDetails) return data;
-        } catch (_) {}
-      }
-      return null;
-    }
-
-    async function fetchYouTubeCaptionsViaInnertube(videoId) {
-      const data = await fetchInnertubePlayer(videoId);
-      const tracks = (data && data.captions && data.captions.playerCaptionsTracklistRenderer
-        && data.captions.playerCaptionsTracklistRenderer.captionTracks) || [];
-      if (!tracks.length) return [];
-      const langPref = ["zh-Hant", "zh-TW", "zh-Hans", "zh", "en"];
-      const sorted = tracks.slice().sort((a, b) => {
-        const ia = langPref.indexOf(a.languageCode);
-        const ib = langPref.indexOf(b.languageCode);
-        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
-      });
-      for (const tr of sorted) {
-        const base = tr.baseUrl;
-        if (!base) continue;
-        for (const fmt of ["vtt", "json3"]) {
-          const url = base + (base.indexOf("?") >= 0 ? "&" : "?") + "fmt=" + fmt;
-          try {
-            const res = await fetch(url);
-            if (!res.ok) continue;
-            const raw = await res.text();
-            let lines = fmt === "vtt" ? parseVtt(raw) : parseJson3Captions(raw);
-            lines = mergeTimedSegments(lines);
-            if (lines.length) return lines;
-          } catch (_) {}
-        }
-      }
-      return [];
-    }
-
-    async function fetchYouTubeCaptionsForItem(item, playingVideoId) {
-      const ids = [];
-      if (playingVideoId) ids.push(playingVideoId);
-      if (item && item.id && ids.indexOf(item.id) < 0) ids.push(item.id);
-      if (item && item.karaokeId && ids.indexOf(item.karaokeId) < 0) ids.push(item.karaokeId);
-      for (const id of ids) {
-        const lines = await fetchYouTubeCaptions(id);
-        if (lines.length) return { lines, fromVideoId: id };
-      }
-      return { lines: [], fromVideoId: null };
-    }
-
-    function parseJson3Captions(raw) {
-      const out = [];
-      try {
-        const data = JSON.parse(raw);
-        const events = data.events || [];
-        for (const ev of events) {
-          if (!ev.segs) continue;
-          const text = ev.segs.map((s) => s.utf8 || "").join("").replace(/\n/g, " ").trim();
-          if (!text) continue;
-          const start = (ev.tStartMs || 0) / 1000;
-          const dur = (ev.dDurationMs || 2000) / 1000;
-          out.push({ start, end: start + dur, text });
-        }
-      } catch (_) {}
-      return out;
-    }
-
-    function getLyricsCache() {
-      try {
-        const raw = localStorage.getItem(LYRICS_CACHE_KEY);
-        return raw ? JSON.parse(raw) : {};
-      } catch (_) {
-        return {};
-      }
-    }
-
-    function saveLyricsCache(videoId, data) {
-      try {
-        const cache = getLyricsCache();
-        cache[videoId] = { ...data, savedAt: Date.now() };
-        localStorage.setItem(LYRICS_CACHE_KEY, JSON.stringify(cache));
-      } catch (_) {}
-    }
-
-    function buildTimedFromPlainLines(lines, durationSec) {
-      if (!lines || !lines.length) return [];
-      const dur = Math.max(60, durationSec || 300);
-      const intro = Math.min(10, dur * 0.04);
-      const outro = Math.min(8, dur * 0.03);
-      const usable = dur - intro - outro;
-      const weights = lines.map((l) => Math.max(4, (l || "").replace(/\s/g, "").length));
-      const totalWeight = weights.reduce((a, b) => a + b, 0);
-      let t = intro;
-      const out = [];
-      for (let i = 0; i < lines.length; i++) {
-        const seg = (weights[i] / totalWeight) * usable;
-        const text = (lines[i] || "").trim();
-        if (!text) continue;
-        out.push({ start: t, end: t + seg, text });
-        t += seg;
-      }
-      if (out.length) out[out.length - 1].end = dur - outro;
-      return out;
-    }
-
-    function packLyricsResult(data, durationSec) {
-      if (!data) return { lines: [], source: "none", plain: null };
-      if (data.timed && data.timed.length) {
-        return { lines: data.timed, source: data.source || "timed", plain: null };
-      }
-      const plain = data.lines || [];
-      if (!plain.length) return { lines: [], source: "none", plain: null };
-      const dur = durationSec || data.duration || 300;
-      return {
-        lines: buildTimedFromPlainLines(plain, dur),
-        source: data.source || "plain",
-        plain: plain.slice()
-      };
-    }
-
-    async function fetchBundledLyrics(videoId, item) {
-      const urls = [
-        "./lyrics/" + videoId + ".json",
-        "./lyrics/" + encodeURIComponent(item.name) + ".json"
-      ];
-      for (const url of urls) {
-        try {
-          const res = await fetch(url + "?t=" + Date.now(), { cache: "no-store" });
-          if (!res.ok) continue;
-          return await res.json();
-        } catch (_) {}
-      }
-      try {
-        const idx = await fetch("./lyrics/index.json?t=" + Date.now());
-        if (idx.ok) {
-          const meta = await idx.json();
-          const file = (meta.byVideoId || {})[videoId];
-          if (file) {
-            const res = await fetch("./lyrics/" + file + "?t=" + Date.now());
-            if (res.ok) return await res.json();
-          }
-        }
-      } catch (_) {}
-      return null;
-    }
-
-    async function resolveLyrics(videoId, item, options) {
-      const opts = options || {};
-      const liveFirst = opts.live !== false && preferYoutubeCaptions;
-
-      if (liveFirst) {
-        const ytHit = await fetchYouTubeCaptionsForItem(item, videoId);
-        if (ytHit.lines.length) {
-          saveLyricsCache(videoId, {
-            source: "youtube",
-            timed: ytHit.lines,
-            name: item.name,
-            fromVideoId: ytHit.fromVideoId,
-            fetchedAt: Date.now()
-          });
-          return {
-            lines: ytHit.lines,
-            source: "youtube",
-            plain: null,
-            syncMode: "youtube",
-            live: true
-          };
-        }
-      }
-
-      if (!opts.skipCache) {
-        const cache = getLyricsCache();
-        if (cache[videoId] && cache[videoId].timed && cache[videoId].timed.length) {
-          return {
-            lines: cache[videoId].timed,
-            source: cache[videoId].source || "cache",
-            plain: null,
-            syncMode: cache[videoId].source === "youtube" ? "youtube" : "timed"
-          };
-        }
-      }
-
-      if (!liveFirst) {
-        const ytHit = await fetchYouTubeCaptionsForItem(item, videoId);
-        if (ytHit.lines.length) {
-          saveLyricsCache(videoId, {
-            source: "youtube",
-            timed: ytHit.lines,
-            name: item.name,
-            fromVideoId: ytHit.fromVideoId
-          });
-          return { lines: ytHit.lines, source: "youtube", plain: null, syncMode: "youtube", live: true };
-        }
-      }
-
-      const bundled = await fetchBundledLyrics(videoId, item);
-      if (bundled && bundled.timed && bundled.timed.length) {
-        saveLyricsCache(videoId, bundled);
-        return { lines: bundled.timed, source: bundled.source || "timed", plain: null, syncMode: "timed" };
-      }
-      if (bundled && bundled.lines && bundled.lines.length) {
-        saveLyricsCache(videoId, bundled);
-        const r = packLyricsResult(bundled, bundled.duration);
-        if (r.lines.length) return { ...r, syncMode: "estimated" };
-      }
-
-      const cache = getLyricsCache();
-      if (cache[videoId]) {
-        const r = packLyricsResult(cache[videoId], cache[videoId].duration);
-        if (r.lines.length) {
-          return {
-            ...r,
-            syncMode: cache[videoId].source === "youtube" ? "youtube" : (r.plain ? "estimated" : "timed")
-          };
-        }
-      }
-
-      return { lines: [], source: "none", plain: null, syncMode: "none" };
-    }
-
-    function maybeRetimeCaptions() {
-      if (!captionPlainLines || !captionPlainLines.length || !player || captionRetimed) return;
-      try {
-        const d = player.getDuration();
-        if (d && d > 30) {
-          captionLines = buildTimedFromPlainLines(captionPlainLines, d);
-          captionRetimed = true;
-          if (ktvMode && captionLines.length) {
-            $("ktvHint").textContent = "內建歌詞已依片長 " + formatTime(d) + " 重新估算（非 YouTube 原字幕）";
-          }
-        }
-      } catch (_) {}
-    }
-
-    function captionModeHint(result) {
-      if (result.syncMode === "youtube") {
-        return result.live ? "即時抓取 YouTube 原字幕（跟旋律同步）" : "YouTube 原字幕同步";
-      }
-      if (result.syncMode === "timed") {
-        return "內建時間軸字幕（已對時）";
-      }
-      if (result.syncMode === "estimated") {
-        return "內建歌詞（無 CC 時依片長估算）";
-      }
-      return "此曲暫無字幕";
-    }
-
-    function captionQualityRank(mode) {
-      return { youtube: 3, timed: 2, estimated: 1, none: 0 }[mode] || 0;
-    }
-
-    function applyLyricsResultIfBetter(result, item) {
-      if (!result) return;
-      const cur = captionQualityRank(captionSyncMode);
-      const next = captionQualityRank(result.syncMode);
-      if (next < cur && captionLines.length) return;
-      if (next === cur && result.lines.length <= captionLines.length) return;
-      applyLyricsResult(result, item);
-    }
-
-    function clearCaptionRetries() {
-      captionRetryTimers.forEach(clearTimeout);
-      captionRetryTimers = [];
-    }
-
-    function scheduleLiveCaptionRetries(vid, item) {
-      clearCaptionRetries();
-      if (!ktvMode || !preferYoutubeCaptions) return;
-      [1200, 3500, 7000].forEach((ms) => {
-        captionRetryTimers.push(setTimeout(() => {
-          if (captionSyncMode === "youtube") return;
-          if (ktvMode) $("ktvHint").textContent = "正在即時抓取字幕…";
-          fetchCaptions(vid, item, { live: true, skipCache: true }).then((r) => {
-            if (r) applyLyricsResultIfBetter(r, item);
-          });
-        }, ms));
-      });
-    }
-
-    function applyLyricsResult(result, item) {
-      captionLines = result.lines || [];
-      captionPlainLines = result.plain;
-      captionSource = result.source;
-      captionSyncMode = result.syncMode || (result.plain ? "estimated" : (result.source === "youtube" ? "youtube" : "none"));
-      captionRetimed = captionSyncMode === "estimated" && !!result.plain;
-      updateSyncIndicator(captionSyncMode);
-      if (ktvMode) {
-        if (captionLines.length) {
-          maybeRetimeCaptions();
-          updateSubtitleDisplayMode();
-        } else {
-          document.body.classList.remove("native-captions", "overlay-estimated");
-          $("ktvLine").textContent = item.name;
-          $("ktvLine").style.display = "";
-          $("ktvHint").textContent = "此曲暫無字幕；可切換原唱／伴唱再試";
-          updateSubtitleDisplayBtn();
-        }
-      }
-    }
-
-    function shouldUseNativeCaptions() {
-      if (subtitleDisplayPref === "native") return true;
-      if (subtitleDisplayPref === "overlay") return false;
-      return captionSyncMode === "youtube" || captionSyncMode === "timed";
-    }
-
-    function updateSubtitleDisplayMode() {
-      const useNative = ktvMode && shouldUseNativeCaptions() && captionLines.length > 0;
-      const useOverlay = ktvMode && !useNative && captionLines.length > 0;
-      document.body.classList.toggle("native-captions", useNative);
-      document.body.classList.toggle("overlay-estimated", useOverlay && captionSyncMode === "estimated");
-      const lineEl = $("ktvLine");
-      const nextEl = $("ktvNext");
-      const offBar = $("ktvOffsetBar");
-      if (useNative) {
-        stopCaptionSync();
-        enablePlayerCaptions(true);
-        if (lineEl) lineEl.style.display = "none";
-        if (nextEl) nextEl.style.display = "none";
-        if (offBar) offBar.style.display = "none";
-        if ($("ktvHint")) {
-          $("ktvHint").textContent = "字幕在影片中（YouTube 原字幕、最大字級，與旋律同步）";
-        }
-      } else if (useOverlay) {
-        if (lineEl) lineEl.style.display = "";
-        if (nextEl) nextEl.style.display = "";
-        if (offBar) offBar.style.display = "flex";
-        startCaptionSync();
-        if ($("ktvHint")) {
-          $("ktvHint").textContent = captionSyncMode === "estimated"
-            ? "無原字幕，下方大字僅估算；有 CC 的片會自動改「影片放大」"
-            : captionModeHint({ syncMode: captionSyncMode }) + "（自訂大字幕）";
-        }
-      } else {
-        document.body.classList.remove("native-captions", "overlay-estimated");
-        if (lineEl) lineEl.style.display = "";
-        if (nextEl) nextEl.style.display = "";
-        if (offBar) offBar.style.display = "none";
-      }
-      updateSubtitleDisplayBtn();
-    }
-
-    function updateSubtitleDisplayBtn() {
-      const btn = $("btnSubtitleDisplay");
-      if (!btn) return;
-      if (subtitleDisplayPref === "overlay") {
-        btn.textContent = "字幕：自訂大字（可能不同步）";
-        btn.classList.remove("on");
-      } else if (subtitleDisplayPref === "native") {
-        btn.textContent = "字幕：影片放大（推薦）";
-        btn.classList.add("on");
-      } else {
-        btn.textContent = shouldUseNativeCaptions()
-          ? "字幕：影片放大（推薦）"
-          : "字幕：自訂大字（估算）";
-        btn.classList.toggle("on", shouldUseNativeCaptions());
-      }
-    }
-
-    function toggleSubtitleDisplay() {
-      if (subtitleDisplayPref === "overlay") {
-        subtitleDisplayPref = "native";
-      } else if (subtitleDisplayPref === "native") {
-        subtitleDisplayPref = "overlay";
-      } else {
-        subtitleDisplayPref = shouldUseNativeCaptions() ? "overlay" : "native";
-      }
-      localStorage.setItem("taiyang-ktv-subtitle-display", subtitleDisplayPref);
-      updateSubtitleDisplayMode();
-    }
-
-    async function fetchCaptions(videoId, item, options) {
-      const gen = ++captionFetchGen;
-      const result = await resolveLyrics(videoId, item, options);
-      if (gen !== captionFetchGen) return null;
-      return result;
-    }
-
-    function stopPlayTick() {
-      if (playTickTimer) {
-        clearInterval(playTickTimer);
-        playTickTimer = null;
-      }
-    }
-
-    function resetSingSession(item) {
-      singSession = {
-        item: item,
-        startedAt: Date.now(),
-        playedMs: 0,
-        pauseCount: 0,
-        pausePoints: [],
-        lastTickAt: null,
-        durationSec: 0,
-        hadCaptions: false,
-        usedKaraoke: false,
-        hasPlayed: false
-      };
-      if (ktvMode) ensureKtvSession();
-    }
-
-    function startPlayTick() {
-      stopPlayTick();
-      if (!singSession) return;
-      singSession.lastTickAt = Date.now();
-      playTickTimer = setInterval(() => {
-        if (!player || !singSession) return;
-        let st = -1;
-        try { st = player.getPlayerState(); } catch (_) { return; }
-        if (st !== YT.PlayerState.PLAYING) return;
-        const now = Date.now();
-        if (singSession.lastTickAt) singSession.playedMs += now - singSession.lastTickAt;
-        singSession.lastTickAt = now;
-        try {
-          const d = player.getDuration();
-          if (d && d > 0) singSession.durationSec = d;
-        } catch (_) {}
-        checkAbLoop();
-        maybeRetimeCaptions();
-      }, 500);
-    }
-
-    function pausePlayTick() {
-      if (singSession && singSession.lastTickAt) {
-        singSession.playedMs += Date.now() - singSession.lastTickAt;
-        singSession.lastTickAt = null;
-      }
-    }
-
-    function hideScorePanel() {
-      scorePanelOpen = false;
-      $("ktvScore").classList.remove("on");
-      if (!$("ktvSession").classList.contains("on")) {
-        $("ktvPanel").classList.remove("singing");
-      }
-    }
-
-    function showScorePanel(item, stats) {
-      const score = computeScore(stats);
-      const grade = GRADE_LABELS.find((g) => score >= g.min) || GRADE_LABELS[GRADE_LABELS.length - 1];
-      const hotspot = analyzeHotspot(stats.pausePoints, stats.durationSec);
-      stats.hotspot = hotspot;
-      const tips = buildTips(item, stats, score);
-
-      $("scoreNum").innerHTML = score + "<small>分</small>";
-      $("scoreGrade").textContent = grade.label;
-      $("scoreStars").textContent = "★".repeat(grade.stars) + "☆".repeat(5 - grade.stars);
-      $("scoreSub").textContent = buildScoreSummary(stats, score);
-      updateScoreHistoryDisplay(item, score);
-      renderSelfRateStars(0);
-      $("scoreTips").innerHTML = tips.map((t) => "<li>" + t + "</li>").join("");
-
-      const hotEl = $("scoreHotspot");
-      if (hotspot && hotspot.count >= 1) {
-        hotEl.classList.add("on");
-        hotEl.textContent = "暫停熱點：約 " + formatTime(hotspot.center) +
-          (hotspot.caption ? "（" + hotspot.caption + "…）" : "") +
-          " · 可按「重練難段」循環此段";
-        $("btnScoreLoop").disabled = false;
-      } else {
-        hotEl.classList.remove("on");
-        $("btnScoreLoop").disabled = true;
-      }
-
-      const isLast = qIndex >= queue.length - 1;
-      $("btnScoreNext").textContent = isLast ? "完成 ✓" : "下一首 ▶";
-
-      lastScoreResult = { item, stats, score, grade: grade.label };
-
-      $("ktvLine").textContent = "本首演唱結束";
-      $("ktvNext").textContent = item.name;
-      $("ktvScore").classList.add("on");
-      $("ktvSession").classList.remove("on");
-      $("ktvPanel").classList.add("singing");
-      scorePanelOpen = true;
-      stopCaptionSync();
-      stopPlayTick();
-      updateKtvUI();
-    }
-
-    function buildScoreSummary(stats, score) {
-      const pct = stats.completionPct;
-      const parts = ["完成度 " + pct + "%"];
-      if (stats.usedKaraoke) parts.push("伴唱模式");
-      if (stats.pauseCount > 0) parts.push("暫停 " + stats.pauseCount + " 次");
-      parts.push("綜合 " + score + " 分");
-      return parts.join(" · ");
-    }
-
-    function computeScore(stats) {
-      let score = 62 + stats.completionPct * 0.33;
-      if (stats.usedKaraoke) score += 4;
-      if (stats.hadCaptions) score += 3;
-      if (stats.completionPct >= 92) score += 5;
-      if (stats.pauseCount <= 1) score += 2;
-      else score -= Math.min(8, (stats.pauseCount - 1) * 2);
-      if (stats.completionPct < 50) score -= 6;
-      score = Math.round(Math.max(58, Math.min(98, score)));
-      return score;
-    }
-
-    function buildTips(item, stats, score) {
-      const tips = [];
-      const name = item.name || "";
-      const songTips = SONG_TIPS[name];
-      if (songTips) tips.push(songTips[Math.floor(Math.random() * songTips.length)]);
-
-      if (stats.usedKaraoke) {
-        tips.push("伴唱練熟後，可切換「原唱」對照導師咬字與情感處理");
-      } else {
-        tips.push("建議開啟「伴唱」多練幾遍，熟悉後再對照原唱調整細節");
-      }
-
-      if (!stats.hadCaptions) {
-        tips.push("此曲字幕較少，可先聽導師親唱熟悉歌詞與旋律節奏");
-      } else if (stats.completionPct < 85) {
-        tips.push("跟著大字幕練唱時，盡量唱完整句再換氣，培養語句連貫感");
-      }
-
-      if (stats.hotspot && stats.hotspot.count >= 2) {
-        tips.push("約 " + formatTime(stats.hotspot.center) + " 附近較常停頓，建議用 A-B 循環單練此段");
-      } else if (stats.pauseCount >= 3) {
-        tips.push("暫停次數較多，可先分段練副歌或難句，再串連整首");
-      } else if (score >= 88) {
-        tips.push("表現穩定！可挑戰下一首或錄音回放，微調音準與共鳴位置");
-      } else {
-        tips.push("每天固定練同一首 2～3 遍，比一次唱很多首更有感");
-      }
-
-      if (item.performer === "master" && name !== "注入彩虹" && name !== "富有") {
-        tips.push("對照導師親唱版，留意重音與停頓位置，學習情感表達");
-      }
-
-      return tips.slice(0, 4);
-    }
-
-    function finalizeSingSession() {
-      if (!singSession || !ktvMode) return null;
-      pausePlayTick();
-      const stats = {
-        playedMs: singSession.playedMs,
-        durationSec: singSession.durationSec,
-        pauseCount: singSession.pauseCount,
-        pausePoints: singSession.pausePoints || [],
-        hadCaptions: captionLines.length > 0,
-        usedKaraoke: !!(ktvMode && useKaraoke && findKaraokeInCatalog(singSession.item)),
-        completionPct: 0
-      };
-      if (stats.durationSec > 0) {
-        stats.completionPct = Math.min(100, Math.round((stats.playedMs / 1000 / stats.durationSec) * 100));
-      } else if (singSession.playedMs > 60000) {
-        stats.completionPct = 85;
-      } else {
-        stats.completionPct = Math.min(100, Math.round(singSession.playedMs / 600));
-      }
-      return { item: singSession.item, stats };
-    }
-
-    function commitScoreAndProceed(replay, showSummary) {
-      if (lastScoreResult) {
-        const { item, stats, score } = lastScoreResult;
-        savePracticeRecord(item, score, stats, currentSelfRating);
-        addToKtvSession(item, score, stats, currentSelfRating);
-        lastScoreResult = null;
-      }
-      hideScorePanel();
-      pendingAutoNext = false;
-      if (replay) {
-        loadVideo(queue[qIndex], true);
-        return;
-      }
-      if (showSummary) {
-        showSessionSummary();
-        autoPlay = false;
-        return;
-      }
-      if (qIndex < queue.length - 1) {
-        qIndex += 1;
-        autoPlay = true;
-        loadVideo(queue[qIndex], true);
-      } else {
-        if (ktvSession && ktvSession.songs.length) {
-          showSessionSummary();
-        } else {
-          $("statusLine").textContent = "全部播放完畢";
-        }
-        autoPlay = false;
-        $("ktvLine").textContent = "全部唱完，辛苦了！";
-        $("ktvNext").textContent = "";
-      }
-    }
-
-    function proceedAfterScore(replay) {
-      const isLast = qIndex >= queue.length - 1;
-      commitScoreAndProceed(replay, !replay && isLast);
-    }
-
-    function startHotspotLoop() {
-      if (!lastScoreResult || !lastScoreResult.stats.hotspot) return;
-      const h = lastScoreResult.stats.hotspot;
-      const { item, stats, score } = lastScoreResult;
-      savePracticeRecord(item, score, stats, currentSelfRating);
-      addToKtvSession(item, score, stats, currentSelfRating);
-      lastScoreResult = null;
-      hideScorePanel();
-      $("ktvPanel").classList.remove("singing");
-      setAbLoop(h.start, h.end, true);
-      $("ktvLine").textContent = "重練難段中…";
-      $("ktvNext").textContent = formatTime(h.start) + " → " + formatTime(h.end);
-      updateKtvUI();
-    }
-
-    function shareCurrentScore() {
-      if (!lastScoreResult) return;
-      const { item, score, grade } = lastScoreResult;
-      const pr = getSongPractice(item.name);
-      const extra = "歷史最佳 " + (pr.bestScore || score) + " 分";
-      const url = generateShareCard(item.name, grade, score, grade, extra);
-      downloadShareCard(url, "盛德KTV-" + item.name + ".png");
-    }
-
-    function shareSessionCard() {
-      if (!ktvSession || !ktvSession.songs.length) return;
-      const songs = ktvSession.songs;
-      const avg = Math.round(songs.reduce((s, x) => s + x.score, 0) / songs.length);
-      const best = songs.reduce((a, b) => (b.score > a.score ? b : a), songs[0]);
-      const url = generateShareCard(
-        "本場 " + songs.length + " 首",
-        "平均 " + avg + " 分",
-        best.score,
-        "最高〈" + best.name + "〉",
-        songs.map((s) => s.name).slice(0, 3).join("、")
-      );
-      downloadShareCard(url, "盛德KTV本場小結.png");
-    }
-
-    function getPlaybackTimeSec() {
-      if (!player || !player.getCurrentTime) return 0;
-      try {
-        // 預設 -150ms：大字幕略提前，補 API／網路延遲（負值＝字幕提前出現）
-        return player.getCurrentTime() + captionOffsetMs / 1000;
-      } catch (_) {
-        return 0;
-      }
-    }
-
-    function updateOffsetLabel() {
-      const el = $("ktvOffsetLabel");
-      if (!el) return;
-      const sec = captionOffsetMs / 1000;
-      const sign = sec > 0 ? "+" : "";
-      el.textContent = sign + sec.toFixed(1) + " 秒";
-    }
-
-    function setCaptionOffset(deltaMs) {
-      captionOffsetMs = Math.max(-2000, Math.min(2000, captionOffsetMs + deltaMs));
-      localStorage.setItem("taiyang-caption-offset-ms", String(captionOffsetMs));
-      updateOffsetLabel();
-    }
-
-    function resetCaptionOffset() {
-      captionOffsetMs = -150;
-      localStorage.setItem("taiyang-caption-offset-ms", String(captionOffsetMs));
-      updateOffsetLabel();
-    }
-
-    function tickCaptionSync() {
-      if (!ktvMode || !captionLines.length) return;
-      const t = getPlaybackTimeSec();
-      let line = null;
-      let lineIndex = -1;
-      let next = null;
-      for (let i = 0; i < captionLines.length; i++) {
-        const L = captionLines[i];
-        if (t >= L.start && t < L.end) {
-          line = L;
-          lineIndex = i;
-          next = captionLines[i + 1] || null;
-          break;
-        }
-        if (t < L.start) {
-          next = L;
-          break;
-        }
-      }
-      const lineEl = $("ktvLine");
-      if (line) {
-        if (lineIndex !== lastSyncedLineIndex) {
-          lastSyncedLineIndex = lineIndex;
-          lineEl.classList.remove("sync-flash");
-          void lineEl.offsetWidth;
-          lineEl.classList.add("sync-flash");
-        }
-        lastCaptionText = line.text;
-        lineEl.textContent = line.text;
-        $("ktvNext").textContent = next && next !== line ? next.text : "";
-      } else if (next) {
-        lineEl.textContent = next.text;
-        const ni = captionLines.indexOf(next);
-        $("ktvNext").textContent = ni >= 0 && captionLines[ni + 1] ? captionLines[ni + 1].text : "";
-      } else if (captionLines.length) {
-        lineEl.textContent = captionLines[captionLines.length - 1].text;
-        $("ktvNext").textContent = "";
-      }
-    }
-
-    function stopCaptionSync() {
-      clearCaptionRetries();
-      if (captionTimer) {
-        clearInterval(captionTimer);
-        captionTimer = null;
-      }
-      if (captionRaf) {
-        cancelAnimationFrame(captionRaf);
-        captionRaf = null;
-      }
-    }
-
-    function startCaptionSync() {
-      stopCaptionSync();
-      if (!ktvMode || !captionLines.length) return;
-      lastSyncedLineIndex = -1;
-      const loop = () => {
-        if (!ktvMode || !captionLines.length) return;
-        let st = -1;
-        try { st = player && player.getPlayerState ? player.getPlayerState() : -1; } catch (_) {}
-        if (st === YT.PlayerState.PLAYING) tickCaptionSync();
-        captionRaf = requestAnimationFrame(loop);
-      };
-      captionRaf = requestAnimationFrame(loop);
-      // 暫停時仍偶爾更新（seek 後對位）
-      captionTimer = setInterval(() => {
-        if (!player) return;
-        try {
-          if (player.getPlayerState() !== YT.PlayerState.PLAYING) tickCaptionSync();
-        } catch (_) {}
-      }, 200);
-    }
-
-    function updateSyncIndicator(mode) {
-      const dot = $("ktvSyncDot");
-      if (!dot) return;
-      document.body.classList.toggle("sync-youtube", mode === "youtube");
-      if (mode === "youtube") {
-        dot.className = "ktv-sync-dot youtube";
-        dot.textContent = "● 原字幕同步（可微調快慢）";
-      } else if (mode === "estimated") {
-        dot.className = "ktv-sync-dot estimated";
-        dot.textContent = "● 估算同步（難以零差距）";
-      } else if (mode === "timed") {
-        dot.className = "ktv-sync-dot youtube";
-        dot.textContent = "● 時間軸同步";
-      } else {
-        dot.className = "ktv-sync-dot none";
-        dot.textContent = "○ 尚無字幕";
-      }
-    }
-
-    function enablePlayerCaptions(forceMax) {
-      if (!player || !player.loadModule) return;
-      try {
-        player.loadModule("captions");
-        player.setOption("captions", "track", { languageCode: "zh-Hant" });
-        player.setOption("captions", "fontSize", forceMax ? 3 : 3);
-        player.setOption("captions", "reload", true);
-        try { player.setOption("captions", "display", 1); } catch (_) {}
-      } catch (_) {}
-    }
-
-    function updateKtvUI() {
-      const sessionOpen = $("ktvSession").classList.contains("on");
-      document.body.classList.toggle("ktv-mode", ktvMode || sessionOpen);
-      $("ktvPanel").classList.toggle("on", ktvMode || sessionOpen);
-      $("btnKtv").classList.toggle("ktv-on", ktvMode);
-      $("btnKtv").textContent = ktvMode ? "🎤 KTV 開" : "🎤 KTV 模式";
-      updateSubtitleDisplayBtn();
-      const btnSub = $("btnSubtitleDisplay");
-      if (btnSub) btnSub.style.display = ktvMode ? "inline-block" : "none";
-      updateOffsetLabel();
-      const item = queue[qIndex];
-      const hasK = item && findKaraokeInCatalog(item);
-      $("btnKaraoke").disabled = !ktvMode;
-      $("btnKaraoke").classList.toggle("karaoke-on", ktvMode && useKaraoke && !!hasK);
-      $("btnKaraoke").textContent = useKaraoke ? "🎵 伴唱中" : "🎵 原唱";
-      const showLoop = ktvMode && !scorePanelOpen && !$("ktvSession").classList.contains("on");
-      $("ktvLoopBar").classList.toggle("on", showLoop);
-      if (item && ktvMode) {
-        $("ktvTitle").textContent = item.name + (useKaraoke && hasK ? " · 伴唱" : " · 原唱");
-        if (!captionLines.length) {
-          $("ktvLine").textContent = item.name;
-          $("ktvHint").textContent = hasK
-            ? "此曲暫無字幕；可切換原唱／伴唱，或按下方改「原字幕優先」"
-            : "此曲暫無字幕；可改「原字幕優先」或開播放器 CC";
-        }
-      }
-    }
-
-    function applyKtvMode(useKtv, options) {
-      const opts = options || {};
-      if (!useKtv && ktvSession && ktvSession.songs.length && opts.showSummary !== false) {
-        showSessionSummary();
-      }
-      ktvMode = !!useKtv;
-      localStorage.setItem("taiyang-ktv", ktvMode ? "1" : "0");
-      if (!ktvMode) {
-        clearAbLoop();
-        hideScorePanel();
-      } else {
-        hideSessionSummary();
-      }
-      stopPlayTick();
-      updateKtvUI();
-      if (opts.reload && ktvMode && queue[qIndex]) {
-        loadVideo(queue[qIndex], autoPlay || false);
-      } else if (!ktvMode) {
-        stopCaptionSync();
-      }
-    }
-
-    function setKtvMode(on) {
-      applyKtvMode(on, { reload: true, showSummary: true });
-    }
-
-    function hidePlayModePick() {
-      $("playModePick").classList.remove("on");
-      pendingSongId = null;
-    }
-
-    function showPlayModePick(songId) {
-      const song = (catalog.songs || []).find((s) => s.id === songId);
-      pendingSongId = songId;
-      $("playModeSongName").textContent = song ? song.name : "—";
-      $("playModePick").classList.add("on");
-    }
-
-    function queueItemFromSong(s) {
-      return {
-        id: s.id,
-        name: s.name,
-        title: s.title,
-        performer: s.performer || "master",
-        performerLabel: s.performerLabel || "太陽盛德導師",
-        karaokeId: s.karaokeId || null,
-        karaokeTitle: s.karaokeTitle || null,
-        pass: 1,
-        total: s.repeat === 3 ? 3 : 1
-      };
-    }
-
-    function playSongWithMode(songId, useKtv) {
-      const song = (catalog.songs || []).find((s) => s.id === songId);
-      if (!song) return;
-      const i = queue.findIndex((q) => q.id === songId);
-      if (i >= 0) qIndex = i;
-      hidePlayModePick();
-      pendingSongId = null;
-      applyKtvMode(useKtv, { reload: false, showSummary: false });
-      autoPlay = true;
-      pendingAutoNext = false;
-      const item = i >= 0 ? queue[qIndex] : queueItemFromSong(song);
-      loadVideo(item, true);
-      const sel = $("songSelect");
-      if (sel) sel.value = songId;
-    }
-
-    function toggleKaraoke() {
-      if (!ktvMode) return;
-      useKaraoke = !useKaraoke;
-      localStorage.setItem("taiyang-karaoke", useKaraoke ? "1" : "0");
-      updateKtvUI();
-      if (queue[qIndex]) loadVideo(queue[qIndex], true);
     }
 
     function buildQueue(songs) {
@@ -1843,12 +245,11 @@
       const map = new Map();
       (local.songs || []).forEach((s) => map.set(s.id, s));
       (remote.songs || []).forEach((s) => map.set(s.id, s));
-      const songs = sortSongs([...map.values()]);
       return {
         updatedAt: remote.updatedAt || local.updatedAt,
         artist: remote.artist || "太陽盛德導師",
         counts: remote.counts || local.counts,
-        songs
+        songs: sortSongs([...map.values()])
       };
     }
 
@@ -1902,10 +303,8 @@
         if (!g.items.length) return;
         html += '<optgroup label="' + g.label + '">';
         g.items.forEach((s) => {
-          const pr = getSongPractice(s.name);
-          const extra = pr.bestScore ? " · 最佳 " + pr.bestScore + " 分" : "";
           const who = s.performer === "master" ? "導師" : (s.performerLabel || "其他");
-          html += '<option value="' + s.id + '">' + s.name + "（" + who + "）" + extra + "</option>";
+          html += '<option value="' + s.id + '">' + s.name + "（" + who + "）</option>";
         });
         html += "</optgroup>";
       });
@@ -1914,9 +313,8 @@
       sel.innerHTML = html;
 
       const playingId = queue[qIndex] && queue[qIndex].id;
-      const preferId = pendingSongId || playingId;
-      if (preferId && filtered.some((s) => s.id === preferId)) {
-        sel.value = preferId;
+      if (playingId && filtered.some((s) => s.id === playingId)) {
+        sel.value = playingId;
       } else if (filtered.length) {
         sel.value = "";
       }
@@ -1930,6 +328,14 @@
       updateNow();
     }
 
+    function updateKaraokeBtn() {
+      const item = queue[qIndex];
+      const hasK = item && findKaraokeInCatalog(item);
+      $("btnKaraoke").disabled = !hasK;
+      $("btnKaraoke").classList.toggle("karaoke-on", useKaraoke && !!hasK);
+      $("btnKaraoke").textContent = useKaraoke && hasK ? "🎵 伴唱中" : "🎵 伴唱";
+    }
+
     function updateNow() {
       const item = queue[qIndex];
       const total = queue.length;
@@ -1941,18 +347,28 @@
       }
       const rep = item.total > 1 ? "（第 " + item.pass + " 次／共 " + item.total + " 次）" : "";
       const who = item.performer === "master" ? "導師親唱" : ("演唱：" + (item.performerLabel || "其他"));
+      const mode = useKaraoke && findKaraokeInCatalog(item) ? " · 伴唱" : "";
       $("nowTitle").textContent = item.name + rep;
-      $("nowMeta").textContent = "第 " + (qIndex + 1) + "／" + total + " 段 · " + who + " · " + item.title.slice(0, 36);
+      $("nowMeta").textContent = "第 " + (qIndex + 1) + "／" + total + " 段 · " + who + mode + " · " + item.title.slice(0, 32);
       $("progressFill").style.width = total ? ((qIndex + 1) / total * 100) + "%" : "0%";
       $("btnPrev").disabled = qIndex <= 0;
       $("btnNext").disabled = qIndex >= total - 1;
+      updateKaraokeBtn();
       renderSongMenu();
     }
 
-    function jumpToSongId(songId) {
-      if (!songId) return;
-      const i = queue.findIndex((q) => q.id === songId);
-      if (i >= 0) jumpTo(i, true);
+    function queueItemFromSong(s) {
+      return {
+        id: s.id,
+        name: s.name,
+        title: s.title,
+        performer: s.performer || "master",
+        performerLabel: s.performerLabel || "太陽盛德導師",
+        karaokeId: s.karaokeId || null,
+        karaokeTitle: s.karaokeTitle || null,
+        pass: 1,
+        total: s.repeat === 3 ? 3 : 1
+      };
     }
 
     function loadVideoByIdSafe(vid, startSeconds) {
@@ -1967,72 +383,22 @@
 
     function loadVideo(item, play) {
       if (!item) return;
-      hideScorePanel();
-      $("ktvSession").classList.remove("on");
       const vid = resolveVideoId(item);
-      const hasK = findKaraokeInCatalog(item);
-      if (ktvMode) {
-        $("ktvTitle").textContent = item.name + (useKaraoke && hasK ? " · 伴唱" : " · 原唱");
-      }
-      captionLines = [];
-      captionPlainLines = null;
-      captionSource = "none";
-      captionSyncMode = "none";
-      captionRetimed = false;
-      lastSyncedLineIndex = -1;
-      updateSyncIndicator("none");
-      lastCaptionText = item.name;
-      stopCaptionSync();
-      stopPlayTick();
-      if (ktvMode) {
-        $("ktvLine").textContent = item.name;
-        $("ktvHint").textContent = preferYoutubeCaptions
-          ? "正在即時抓取字幕…"
-          : "載入內建歌詞…";
-      }
-      if (ktvMode) resetSingSession(item);
       if (player && player.loadVideoById) {
         loadVideoByIdSafe(vid, 0);
-        if (play) setTimeout(() => {
-          if (player.playVideo) player.playVideo();
-          enablePlayerCaptions();
-        }, 400);
+        if (play) setTimeout(() => { if (player.playVideo) player.playVideo(); }, 400);
       } else if (apiReady) {
         createPlayer(vid, play);
       }
-      fetchCaptions(vid, item, { live: true }).then((result) => {
-        if (result) applyLyricsResultIfBetter(result, item);
-        updateKtvUI();
-        if (ktvMode && preferYoutubeCaptions && captionSyncMode !== "youtube") {
-          scheduleLiveCaptionRetries(vid, item);
-        }
-      });
       updateNow();
-      updateKtvUI();
     }
 
     function createPlayer(videoId, play) {
       player = new YT.Player("player", {
         height: "100%", width: "100%", videoId,
-        playerVars: {
-          playsinline: 1, rel: 0, modestbranding: 1, enablejsapi: 1,
-          cc_load_policy: ktvMode ? 1 : 0,
-          cc_lang_pref: "zh-Hant",
-          origin: location.origin
-        },
+        playerVars: { playsinline: 1, rel: 0, modestbranding: 1, enablejsapi: 1, origin: location.origin },
         events: {
-          onReady: () => {
-            enablePlayerCaptions();
-            if (play) player.playVideo();
-            maybeRetimeCaptions();
-            if (ktvMode) {
-              startCaptionSync();
-              const item = queue[qIndex];
-              if (item && preferYoutubeCaptions && captionSyncMode !== "youtube") {
-                scheduleLiveCaptionRetries(resolveVideoId(item), item);
-              }
-            }
-          },
+          onReady: () => { if (play) player.playVideo(); },
           onStateChange: onStateChange
         }
       });
@@ -2041,35 +407,10 @@
     function onStateChange(e) {
       if (e.data === YT.PlayerState.PLAYING) {
         $("btnPlay").textContent = "⏸ 暫停";
-        if (ktvMode) {
-          if (singSession) singSession.hasPlayed = true;
-          maybeRetimeCaptions();
-          if (shouldUseNativeCaptions()) enablePlayerCaptions(true);
-          else startCaptionSync();
-          startPlayTick();
-        }
       } else if (e.data === YT.PlayerState.PAUSED) {
         $("btnPlay").textContent = "▶ 播放";
-        if (ktvMode && singSession && singSession.hasPlayed) {
-          singSession.pauseCount += 1;
-          pausePlayTick();
-          try {
-            const sec = player.getCurrentTime();
-            singSession.pausePoints.push({ sec, text: lastCaptionText || "" });
-          } catch (_) {}
-        }
       } else if (e.data === YT.PlayerState.ENDED) {
         $("btnPlay").textContent = "▶ 播放";
-        pausePlayTick();
-        if (ktvMode) {
-          const result = finalizeSingSession();
-          if (result) {
-            showScorePanel(result.item, result.stats);
-            pendingAutoNext = autoPlay;
-            autoPlay = false;
-            return;
-          }
-        }
         if (autoPlay && qIndex < queue.length - 1) {
           qIndex += 1;
           loadVideo(queue[qIndex], true);
@@ -2087,6 +428,25 @@
       loadVideo(queue[qIndex], play);
     }
 
+    function playSong(songId) {
+      const song = (catalog.songs || []).find((s) => s.id === songId);
+      if (!song) return;
+      const i = queue.findIndex((q) => q.id === songId);
+      if (i >= 0) qIndex = i;
+      autoPlay = true;
+      const item = i >= 0 ? queue[qIndex] : queueItemFromSong(song);
+      loadVideo(item, true);
+      const sel = $("songSelect");
+      if (sel) sel.value = songId;
+    }
+
+    function toggleKaraoke() {
+      useKaraoke = !useKaraoke;
+      localStorage.setItem("taiyang-karaoke", useKaraoke ? "1" : "0");
+      updateKaraokeBtn();
+      if (queue[qIndex]) loadVideo(queue[qIndex], true);
+    }
+
     $("btnPlay").addEventListener("click", () => {
       if (!queue.length) return;
       if (!player) { autoPlay = true; loadVideo(queue[qIndex], true); return; }
@@ -2098,51 +458,7 @@
     $("btnNext").addEventListener("click", () => jumpTo(qIndex + 1, true));
     $("btnRestart").addEventListener("click", () => jumpTo(0, true));
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
-    $("btnKtv").addEventListener("click", () => setKtvMode(!ktvMode));
     $("btnKaraoke").addEventListener("click", toggleKaraoke);
-    $("btnSubtitleDisplay").addEventListener("click", toggleSubtitleDisplay);
-    $("btnOffsetEarlier").addEventListener("click", () => setCaptionOffset(-100));
-    $("btnOffsetLater").addEventListener("click", () => setCaptionOffset(100));
-    $("btnOffsetReset").addEventListener("click", resetCaptionOffset);
-    updateOffsetLabel();
-    $("btnScoreRetry").addEventListener("click", () => proceedAfterScore(true));
-    $("btnScoreNext").addEventListener("click", () => proceedAfterScore(false));
-    $("btnScoreLoop").addEventListener("click", startHotspotLoop);
-    $("btnScoreShare").addEventListener("click", shareCurrentScore);
-    $("btnSessionShare").addEventListener("click", shareSessionCard);
-    $("btnSessionClose").addEventListener("click", hideSessionSummary);
-
-    $("btnSetA").addEventListener("click", () => {
-      if (!player) return;
-      try {
-        abLoopStart = player.getCurrentTime();
-        if (abLoopEnd != null && abLoopEnd <= abLoopStart) abLoopEnd = null;
-        abLoopActive = false;
-        updateLoopStatus();
-      } catch (_) {}
-    });
-    $("btnSetB").addEventListener("click", () => {
-      if (!player) return;
-      try {
-        const t = player.getCurrentTime();
-        if (abLoopStart == null || t > abLoopStart) abLoopEnd = t;
-        else { abLoopEnd = abLoopStart; abLoopStart = t; }
-        abLoopActive = false;
-        updateLoopStatus();
-      } catch (_) {}
-    });
-    $("btnLoopGo").addEventListener("click", () => {
-      if (abLoopStart != null && abLoopEnd != null) setAbLoop(abLoopStart, abLoopEnd, true);
-    });
-    $("btnLoopOff").addEventListener("click", clearAbLoop);
-
-    document.addEventListener("keydown", (e) => {
-      if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
-      if (e.key === "k" || e.key === "K") {
-        e.preventDefault();
-        setKtvMode(!ktvMode);
-      }
-    });
 
     document.querySelectorAll(".filter-row button").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -2155,29 +471,14 @@
 
     function onSongSelect() {
       const id = $("songSelect").value;
-      if (!id) {
-        hidePlayModePick();
-        return;
-      }
-      // 選歌即播（含其他演唱者）；模式依目前是否 KTV
-      playSongWithMode(id, ktvMode);
+      if (id) playSong(id);
     }
 
     $("songSelect").addEventListener("change", onSongSelect);
     $("songSelect").addEventListener("input", onSongSelect);
-
     $("btnPlaySelected").addEventListener("click", () => {
       const id = $("songSelect").value;
-      if (id) playSongWithMode(id, ktvMode);
-    });
-
-    $("btnPickKtv").addEventListener("click", () => {
-      const id = $("songSelect").value;
-      if (id) playSongWithMode(id, true);
-    });
-    $("btnPickNormal").addEventListener("click", () => {
-      const id = $("songSelect").value;
-      if (id) playSongWithMode(id, false);
+      if (id) playSong(id);
     });
 
     window.onYouTubeIframeAPIReady = function () {
@@ -2185,14 +486,12 @@
       if (queue.length && autoPlay) loadVideo(queue[qIndex], true);
     };
 
-    loadPracticeLog();
     loadCatalog(false).then(() => {
-      updateKtvUI();
-      if (queue.length) $("nowMeta").textContent = "共 " + queue.length + " 段連播 · 按「開始連播」或 KTV";
+      if (queue.length) $("nowMeta").textContent = "共 " + queue.length + " 段連播 · 按「開始連播」或從選單選歌";
     });
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=20260830b").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=20260830c").catch(() => {});
     }
   </script>
   <script src="https://www.youtube.com/iframe_api" async></script>

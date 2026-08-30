@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c45a10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="盛德簡易" />
+  <meta name="description" content="太陽盛德導師歌曲簡易播放：選歌即播，介面精簡。" />
+  <link rel="icon" href="../taiyang-icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="../taiyang-icon-180.png" />
+  <title>盛德歌曲｜簡易版</title>
+  <style>
+    :root { --accent: #c45a10; --muted: #7a5c3a; --line: rgba(196,90,16,0.2); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      color: #3a2208; line-height: 1.55;
+      background: linear-gradient(180deg, #fffbf0, #ffe8c4);
+      padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+    }
+    .wrap { max-width: 24rem; margin: 0 auto; padding-bottom: 2rem; }
+    h1 { text-align: center; font-size: 1.35rem; color: var(--accent); margin-top: 0.5rem; }
+    .sub { text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.25rem 0 0.85rem; }
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; }
+    select, button {
+      width: 100%; font: inherit; font-size: 16px;
+      padding: 0.65rem; border: 1px solid var(--line); border-radius: 0.35rem;
+    }
+    select { background: #fff; margin-bottom: 0.45rem; }
+    button.primary {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+      font-weight: 700; cursor: pointer;
+    }
+    .player { margin-top: 0.85rem; background: #111; border-radius: 0.45rem; overflow: hidden; aspect-ratio: 16/9; }
+    #player { width: 100%; height: 100%; }
+    .now {
+      margin-top: 0.65rem; padding: 0.65rem 0.75rem;
+      background: rgba(255,255,255,0.75); border: 1px solid var(--line); border-radius: 0.35rem;
+      font-size: 0.88rem;
+    }
+    .now strong { color: var(--accent); }
+    .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); text-align: center; min-height: 1.1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>盛德歌曲·簡易版</h1>
+    <p class="sub">選歌即播 · 介面精簡 · 適合分享</p>
+
+    <label for="songSelect">選擇歌曲</label>
+    <select id="songSelect" aria-label="歌曲選單">
+      <option value="">— 載入中 —</option>
+    </select>
+    <button type="button" id="btnPlay" class="primary">▶ 播放</button>
+
+    <div class="player"><div id="player"></div></div>
+    <p class="now" id="nowLine">尚未播放</p>
+    <p class="status" id="statusLine"></p>
+
+    <p class="foot">
+      需要連播、伴唱、分類篩選？→
+      <a href="../index.html">開啟完整版</a>
+      · <a href="./share.html">加入主畫面</a>
+    </p>
+  </div>
+
+  <script>
+    const CATALOG_URL = "../catalog.json";
+    let catalog = { songs: [] };
+    let player = null;
+    let apiReady = false;
+    let pendingId = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function sortSongs(songs) {
+      const pri = songs.filter((s) => s.repeat === 3);
+      const masters = songs.filter((s) => s.repeat !== 3 && s.performer === "master");
+      const others = songs.filter((s) => s.repeat !== 3 && s.performer === "other");
+      pri.sort((a, b) => {
+        if (a.id === "hTEv2f-9WIM") return -1;
+        if (b.id === "hTEv2f-9WIM") return 1;
+        if (a.id === "tkYxdmQlhtQ") return -1;
+        if (b.id === "tkYxdmQlhtQ") return 1;
+        return 0;
+      });
+      masters.sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+      others.sort((a, b) => {
+        const c = (a.name || "").localeCompare(b.name || "", "zh-Hant");
+        return c !== 0 ? c : (a.performerLabel || "").localeCompare(b.performerLabel || "", "zh-Hant");
+      });
+      return [...pri, ...masters, ...others];
+    }
+
+    function renderMenu() {
+      const songs = sortSongs(catalog.songs || []);
+      const groups = [
+        { label: "優先", items: songs.filter((s) => s.repeat === 3) },
+        { label: "導師親唱", items: songs.filter((s) => s.repeat !== 3 && s.performer === "master") },
+        { label: "其他演唱者", items: songs.filter((s) => s.repeat !== 3 && s.performer === "other") }
+      ];
+      let html = '<option value="">— 請選擇 —</option>';
+      groups.forEach((g) => {
+        if (!g.items.length) return;
+        html += '<optgroup label="' + g.label + '">';
+        g.items.forEach((s) => {
+          const who = s.performer === "master" ? "導師" : (s.performerLabel || "其他");
+          html += '<option value="' + s.id + '">' + s.name + "（" + who + "）</option>";
+        });
+        html += "</optgroup>";
+      });
+      $("songSelect").innerHTML = html;
+      try {
+        const last = localStorage.getItem("taiyang-simple-last");
+        if (last && songs.some((s) => s.id === last)) $("songSelect").value = last;
+      } catch (_) {}
+    }
+
+    async function loadCatalog() {
+      $("statusLine").textContent = "載入曲庫…";
+      try {
+        const res = await fetch(CATALOG_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (res.ok) catalog = await res.json();
+      } catch (_) {
+        try {
+          const res = await fetch(CATALOG_URL);
+          if (res.ok) catalog = await res.json();
+        } catch (__) {}
+      }
+      renderMenu();
+      $("statusLine").textContent = catalog.songs && catalog.songs.length
+        ? "共 " + catalog.songs.length + " 首"
+        : "無法載入曲庫";
+    }
+
+    function playId(videoId, song) {
+      if (!videoId) return;
+      pendingId = videoId;
+      localStorage.setItem("taiyang-simple-last", videoId);
+      const who = song && song.performer === "master" ? "導師" : (song && song.performerLabel) || "";
+      $("nowLine").innerHTML = "<strong>" + (song ? song.name : "—") + "</strong>" + (who ? " · " + who : "");
+      if (player && player.loadVideoById) {
+        try { player.loadVideoById({ videoId: videoId, startSeconds: 0 }); }
+        catch (_) { player.loadVideoById(videoId, 0); }
+        setTimeout(() => player.playVideo && player.playVideo(), 350);
+      } else if (apiReady) {
+        createPlayer(videoId, true);
+      }
+    }
+
+    function playSelected() {
+      const id = $("songSelect").value;
+      if (!id) { $("statusLine").textContent = "請先選擇歌曲"; return; }
+      const song = (catalog.songs || []).find((s) => s.id === id);
+      playId(id, song);
+    }
+
+    function createPlayer(videoId, autoplay) {
+      player = new YT.Player("player", {
+        height: "100%", width: "100%", videoId,
+        playerVars: { playsinline: 1, rel: 0, modestbranding: 1, enablejsapi: 1, origin: location.origin },
+        events: {
+          onReady: () => { if (autoplay) player.playVideo(); },
+          onStateChange: (e) => {
+            if (e.data === YT.PlayerState.PLAYING) $("btnPlay").textContent = "⏸ 暫停";
+            else $("btnPlay").textContent = "▶ 播放";
+          }
+        }
+      });
+    }
+
+    $("btnPlay").addEventListener("click", () => {
+      if (!player) { playSelected(); return; }
+      const st = player.getPlayerState();
+      if (st === YT.PlayerState.PLAYING) player.pauseVideo();
+      else if ($("songSelect").value) player.playVideo();
+      else playSelected();
+    });
+
+    $("songSelect").addEventListener("change", playSelected);
+    $("songSelect").addEventListener("input", playSelected);
+
+    window.onYouTubeIframeAPIReady = function () {
+      apiReady = true;
+      if (pendingId) playId(pendingId, (catalog.songs || []).find((s) => s.id === pendingId));
+    };
+
+    loadCatalog();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js?v=1").catch(() => {});
+    }
+  </script>
+  <script src="https://www.youtube.com/iframe_api" async></script>
+</body>
+</html>
