@@ -1,4 +1,4 @@
-const CACHE = "taiyang-xinyu-v10";
+const CACHE = "taiyang-xinyu-v11";
 const ASSETS = [
   "./",
   "./index.html",

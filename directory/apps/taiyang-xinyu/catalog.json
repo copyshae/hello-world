@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-30T20:00:50Z",
+  "updatedAt": "2026-08-30T20:03:00Z",
   "count": 44,
   "categories": [
     {
@@ -17,7 +17,7 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-002.png",
-          "readText": "看見盲點，就是開始修正。願意誠實照見自己的慣性，比對外指責更有力量"
+          "readText": "就是開始修正。願意誠實照見自己的慣性，比對外指責更有力量"
         },
         {
           "id": "xy-005",
@@ -191,7 +191,7 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-003.png",
-          "readText": "秒秒 GPS 定位，找盲點、轉念。念頭一起就覺察位置，立刻調回愛與感恩"
+          "readText": "找盲點、轉念。念頭一起就覺察位置，立刻調回愛與感恩"
         }
       ]
     },
@@ -210,7 +210,7 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-004.png",
-          "readText": "秒秒感恩，福氣自來。在順逆境都能看見可感恩之處，心量自然擴大"
+          "readText": "福氣自來。在順逆境都能看見可感恩之處，心量自然擴大"
         },
         {
           "id": "web-481de5c22a",
@@ -287,7 +287,7 @@
           "imageUrl": "",
           "pageUrl": "",
           "imageLocal": "cards/xy-011.png",
-          "readText": "注入彩虹，把希望帶進生命。以正向願力為自己與他人注入光與希望"
+          "readText": "把希望帶進生命。以正向願力為自己與他人注入光與希望"
         },
         {
           "id": "web-13dc472c98",
@@ -560,7 +560,7 @@
           "imageUrl": "https://i.ytimg.com/vi/1neWqbRfoes/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=1neWqbRfoes",
           "imageLocal": "cards/mirror/yt-a6aa1ca0fb.jpg",
-          "readText": "太陽心語 太陽盛德 著 第一集"
+          "readText": "太陽盛德 著 第一集"
         },
         {
           "id": "yt-8b2a096e8d",
@@ -586,7 +586,7 @@
           "imageUrl": "https://i.ytimg.com/vi/SCSrn6jN-yU/hqdefault.jpg",
           "pageUrl": "https://www.youtube.com/watch?v=SCSrn6jN-yU",
           "imageLocal": "cards/mirror/yt-8d7b0519ef.jpg",
-          "readText": "太陽心語 第一集 太陽心語 太陽盛德 著 輯一 德行篇 人倫之理（第15-24則）"
+          "readText": "第一集 太陽心語 太陽盛德 著 輯一 德行篇 人倫之理（第15-24則）"
         },
         {
           "id": "yt-0aa5caa5ac",
@@ -642,7 +642,7 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-002.png",
-      "readText": "看見盲點，就是開始修正。願意誠實照見自己的慣性，比對外指責更有力量"
+      "readText": "就是開始修正。願意誠實照見自己的慣性，比對外指責更有力量"
     },
     {
       "id": "xy-003",
@@ -655,7 +655,7 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-003.png",
-      "readText": "秒秒 GPS 定位，找盲點、轉念。念頭一起就覺察位置，立刻調回愛與感恩"
+      "readText": "找盲點、轉念。念頭一起就覺察位置，立刻調回愛與感恩"
     },
     {
       "id": "xy-004",
@@ -668,7 +668,7 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-004.png",
-      "readText": "秒秒感恩，福氣自來。在順逆境都能看見可感恩之處，心量自然擴大"
+      "readText": "福氣自來。在順逆境都能看見可感恩之處，心量自然擴大"
     },
     {
       "id": "xy-005",
@@ -759,7 +759,7 @@
       "imageUrl": "",
       "pageUrl": "",
       "imageLocal": "cards/xy-011.png",
-      "readText": "注入彩虹，把希望帶進生命。以正向願力為自己與他人注入光與希望"
+      "readText": "把希望帶進生命。以正向願力為自己與他人注入光與希望"
     },
     {
       "id": "xy-012",
@@ -1123,7 +1123,7 @@
       "imageUrl": "https://i.ytimg.com/vi/1neWqbRfoes/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=1neWqbRfoes",
       "imageLocal": "cards/mirror/yt-a6aa1ca0fb.jpg",
-      "readText": "太陽心語 太陽盛德 著 第一集"
+      "readText": "太陽盛德 著 第一集"
     },
     {
       "id": "yt-87b6efe52d",
@@ -1162,7 +1162,7 @@
       "imageUrl": "https://i.ytimg.com/vi/SCSrn6jN-yU/hqdefault.jpg",
       "pageUrl": "https://www.youtube.com/watch?v=SCSrn6jN-yU",
       "imageLocal": "cards/mirror/yt-8d7b0519ef.jpg",
-      "readText": "太陽心語 第一集 太陽心語 太陽盛德 著 輯一 德行篇 人倫之理（第15-24則）"
+      "readText": "第一集 太陽心語 太陽盛德 著 輯一 德行篇 人倫之理（第15-24則）"
     },
     {
       "id": "yt-0aa5caa5ac",
