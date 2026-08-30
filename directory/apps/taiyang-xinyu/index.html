@@ -141,6 +141,7 @@
     <header>
       <h1 class="brand">太陽心語<br />圖片收錄</h1>
       <p class="sub">直接瀏覽切換 · 點目錄可彈出大圖 · 視窗內可選朗讀</p>
+      <p class="sub" style="margin-top:0.15rem;font-size:0.72rem;">正式網址：<strong>copyshae</strong>.github.io/-/taiyang-xinyu/（請確認有 <strong>co</strong>）</p>
     </header>
 
     <section class="panel" style="display:flex;gap:0.75rem;align-items:center;margin-top:0.75rem;">
@@ -282,11 +283,45 @@
       }
     }
 
+    function encodeImageUrl(url) {
+      if (!url || !/^https?:\/\//i.test(url)) return url;
+      try {
+        const u = new URL(url);
+        u.pathname = u.pathname.split("/").map(function (seg) {
+          if (!seg) return seg;
+          try { seg = decodeURIComponent(seg); } catch (_) {}
+          return encodeURIComponent(seg);
+        }).join("/");
+        return u.href;
+      } catch (_) {
+        return encodeURI(url);
+      }
+    }
+
     function imgSrc(it) {
       if (!it) return "";
-      if (it.imageUrl) return it.imageUrl;
       if (it.imageLocal) return "./" + it.imageLocal;
+      if (it.imageUrl) return encodeImageUrl(it.imageUrl);
       return "";
+    }
+
+    function bindImageFallback(imgEl, it) {
+      if (!imgEl || !it) return;
+      imgEl.onerror = function () {
+        const local = it.imageLocal ? "./" + it.imageLocal : "";
+        const remote = it.imageUrl ? encodeImageUrl(it.imageUrl) : "";
+        const card = "./cards/" + it.id + ".png";
+        const cur = imgEl.src.split("?")[0];
+        if (remote && cur.indexOf(encodeImageUrl(it.imageUrl).split("?")[0]) < 0 && cur.indexOf(it.imageUrl.split("?")[0]) < 0) {
+          imgEl.src = remote;
+        } else if (local && cur.indexOf(local) < 0) {
+          imgEl.src = local;
+        } else if (cur.indexOf(card) < 0) {
+          imgEl.src = card;
+        } else {
+          imgEl.alt = "圖片無法載入";
+        }
+      };
     }
 
     function speechText(it) {
@@ -367,6 +402,7 @@
       idx = Math.max(0, Math.min(i, filtered.length - 1));
       const it = filtered[idx];
       $("mainImg").src = imgSrc(it);
+      bindImageFallback($("mainImg"), it);
       $("mainImg").alt = it.title || "太陽心語";
       $("nowTitle").textContent = it.title || "太陽心語";
       $("nowText").textContent = it.text || "";
@@ -386,6 +422,7 @@
       stopRead();
       const src = imgSrc(it);
       $("lbImg").src = src;
+      bindImageFallback($("lbImg"), it);
       $("lbImg").alt = it.title || "太陽心語";
       $("lbTitle").textContent = it.title || "太陽心語";
       $("lbText").textContent = it.text || "";

@@ -129,10 +129,37 @@
     let idx = 0;
     const $ = (id) => document.getElementById(id);
 
+    function encodeImageUrl(url) {
+      if (!url || !/^https?:\/\//i.test(url)) return url;
+      try {
+        const u = new URL(url);
+        u.pathname = u.pathname.split("/").map(function (seg) {
+          if (!seg) return seg;
+          try { seg = decodeURIComponent(seg); } catch (_) {}
+          return encodeURIComponent(seg);
+        }).join("/");
+        return u.href;
+      } catch (_) { return encodeURI(url); }
+    }
+
     function imgSrc(it) {
-      if (it.imageUrl) return it.imageUrl;
+      if (!it) return "";
       if (it.imageLocal) return "../" + it.imageLocal;
+      if (it.imageUrl) return encodeImageUrl(it.imageUrl);
       return "";
+    }
+
+    function bindImageFallback(imgEl, it) {
+      if (!imgEl || !it) return;
+      imgEl.onerror = function () {
+        const local = it.imageLocal ? "../" + it.imageLocal : "";
+        const remote = it.imageUrl ? encodeImageUrl(it.imageUrl) : "";
+        const card = "../cards/" + it.id + ".png";
+        const cur = imgEl.src.split("?")[0];
+        if (remote && cur.indexOf(encodeImageUrl(it.imageUrl).split("?")[0]) < 0) imgEl.src = remote;
+        else if (local && cur.indexOf(local) < 0) imgEl.src = local;
+        else if (cur.indexOf(card) < 0) imgEl.src = card;
+      };
     }
 
     function speechText(it) {
@@ -171,6 +198,7 @@
       if (!it) return;
       stopRead();
       $("lbImg").src = imgSrc(it);
+      bindImageFallback($("lbImg"), it);
       $("lbTitle").textContent = it.title || "太陽心語";
       $("lbText").textContent = it.text || "";
       $("lbPlain").textContent = it.plain || "";
@@ -229,6 +257,7 @@
       idx = Math.max(0, Math.min(i, filtered.length - 1));
       const it = filtered[idx];
       $("mainImg").src = imgSrc(it);
+      bindImageFallback($("mainImg"), it);
       $("nowTitle").textContent = it.title || "太陽心語";
       $("nowText").textContent = it.text || "";
       $("nowPlain").textContent = it.plain || "";
