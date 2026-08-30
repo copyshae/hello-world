@@ -56,12 +56,16 @@
     .lightbox-nav.prev { left: 0.25rem; }
     .lightbox-nav.next { right: 0.25rem; }
     .lightbox-foot { padding: 0 0.75rem 0.65rem; color: rgba(255,248,240,0.92); font-size: 0.8rem; line-height: 1.5; max-height: 24vh; overflow-y: auto; }
+    .lightbox-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px solid rgba(255,255,255,0.15); }
+    .lightbox-actions button { flex: 1; font: inherit; border: 1px solid rgba(255,255,255,0.28); background: rgba(255,255,255,0.1); color: #fff; border-radius: 0.4rem; padding: 0.6rem; cursor: pointer; font-weight: 700; }
+    .lightbox-actions button.primary { background: var(--accent); border-color: var(--accent); }
+    .lb-hint { margin-top: 0.4rem; font-size: 0.72rem; color: rgba(255,248,240,0.65); text-align: center; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>太陽心語<br /><span style="font-size:0.85em">簡易版</span></h1>
-    <p class="sub">點選切換 · 美聲朗讀或無聲瀏覽</p>
+    <p class="sub">點選彈出大圖 · 視窗內再選是否朗讀</p>
 
     <section class="panel">
       <input type="search" id="searchBox" placeholder="搜尋…" autocomplete="off" />
@@ -103,6 +107,12 @@
     <div class="lightbox-foot">
       <p id="lbText"></p>
       <p id="lbPlain" style="color:rgba(255,248,240,0.72);margin-top:0.2rem;font-size:0.76rem;"></p>
+      <div class="lightbox-actions">
+        <button type="button" class="primary" id="lbReadFoot">🔊 朗讀</button>
+        <button type="button" id="lbStopFoot" hidden>⏹ 停止</button>
+        <button type="button" id="lbCloseFoot">✕ 關閉</button>
+      </div>
+      <p class="lb-hint">彈出後可自行選擇是否朗讀，或直接關閉</p>
     </div>
   </div>
 
@@ -129,6 +139,8 @@
       $("btnRead").classList.toggle("speaking", on);
       $("btnRead").textContent = label;
       if ($("lbRead")) $("lbRead").textContent = on ? "🔊…" : "🔊";
+      if ($("lbReadFoot")) { $("lbReadFoot").textContent = label; $("lbReadFoot").hidden = on; }
+      if ($("lbStopFoot")) $("lbStopFoot").hidden = !on;
     }
 
     function stopRead() {
@@ -152,6 +164,7 @@
 
     function openLightbox(it) {
       if (!it) return;
+      stopRead();
       $("lbImg").src = imgSrc(it);
       $("lbTitle").textContent = it.title || "太陽心語";
       $("lbText").textContent = it.text || "";
@@ -187,7 +200,7 @@
         b.type = "button";
         b.className = "item" + (i === idx ? " active" : "");
         b.innerHTML = "<span class=\"t\">" + (it.title || it.text || "太陽心語") + "</span><span class=\"m\">" + (it.category || "") + "</span>";
-        b.onclick = () => showItem(i, true, true);
+        b.onclick = () => showItem(i, false, true);
         $("itemList").appendChild(b);
       });
     }
@@ -212,17 +225,16 @@
     });
 
     $("searchBox").addEventListener("input", applyFilter);
-    $("btnPrev").onclick = () => showItem(idx - 1, true, true);
-    $("btnNext").onclick = () => showItem(idx + 1, true, true);
-    $("mainImg").onclick = () => {
-      if (!filtered[idx]) return;
-      openLightbox(filtered[idx]);
-      readCurrent(false);
-    };
+    $("btnPrev").onclick = () => showItem(idx - 1, false, true);
+    $("btnNext").onclick = () => showItem(idx + 1, false, true);
+    $("mainImg").onclick = () => { if (filtered[idx]) openLightbox(filtered[idx]); };
     $("lbClose").onclick = closeLightbox;
-    $("lbPrev").onclick = () => showItem(idx - 1, true, true);
-    $("lbNext").onclick = () => showItem(idx + 1, true, true);
+    $("lbCloseFoot").onclick = closeLightbox;
+    $("lbPrev").onclick = () => showItem(idx - 1, false, true);
+    $("lbNext").onclick = () => showItem(idx + 1, false, true);
     $("lbRead").onclick = () => readCurrent(true);
+    $("lbReadFoot").onclick = () => readCurrent(true);
+    $("lbStopFoot").onclick = stopRead;
     $("lightbox").onclick = (e) => { if (e.target === $("lightbox")) closeLightbox(); };
     $("btnRead").onclick = () => readCurrent(true);
     if (window.speechSynthesis) {

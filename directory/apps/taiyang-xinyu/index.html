@@ -119,6 +119,18 @@
     }
     .lightbox-foot .plain { color: rgba(255,248,240,0.72); margin-top: 0.25rem; font-size: 0.78rem; }
     .lightbox-foot .meta { margin-top: 0.25rem; font-size: 0.72rem; color: rgba(255,248,240,0.55); }
+    .lightbox-actions {
+      display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.55rem; padding-top: 0.45rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .lightbox-actions button {
+      flex: 1 1 calc(50% - 0.25rem); font: inherit; border: 1px solid rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.1); color: #fff; border-radius: 0.4rem;
+      padding: 0.65rem 0.75rem; cursor: pointer; font-weight: 700; font-size: 0.88rem;
+    }
+    .lightbox-actions button.primary { background: var(--accent); border-color: var(--accent); }
+    .lightbox-actions button.stop { background: rgba(47,107,58,0.85); border-color: rgba(255,255,255,0.2); }
+    .lb-hint { margin-top: 0.45rem; font-size: 0.74rem; color: rgba(255,248,240,0.65); text-align: center; }
   </style>
 </head>
 <body>
@@ -180,7 +192,7 @@
     </section>
 
     <p class="status" id="statusLine"></p>
-    <p class="hint">點選目錄項目即<strong>彈出大圖</strong>並<strong>美聲朗讀</strong>（無聲模式可關閉）。目錄由網路搜尋與種子語錄合併。</p>
+    <p class="hint">點選目錄即<strong>彈出大圖</strong>；在視窗內再按「朗讀」才出聲，也可直接「關閉」。</p>
     <p class="foot">
       <a href="./share.html">加入主畫面</a>
       · <a href="./simple/">簡易版</a>
@@ -203,6 +215,12 @@
       <p id="lbText"></p>
       <p class="plain" id="lbPlain"></p>
       <p class="meta" id="lbMeta"></p>
+      <div class="lightbox-actions">
+        <button type="button" class="primary" id="lbReadFoot">🔊 朗讀</button>
+        <button type="button" id="lbStopFoot" hidden>⏹ 停止朗讀</button>
+        <button type="button" id="lbCloseFoot">✕ 關閉</button>
+      </div>
+      <p class="lb-hint">彈出後可自行選擇是否朗讀，或直接關閉</p>
     </div>
   </div>
 
@@ -276,6 +294,9 @@
       $("btnRead").classList.toggle("speaking", on);
       $("btnRead").textContent = label;
       if ($("lbRead")) $("lbRead").textContent = label;
+      if ($("lbReadFoot")) $("lbReadFoot").textContent = label;
+      if ($("lbReadFoot")) $("lbReadFoot").hidden = on;
+      if ($("lbStopFoot")) $("lbStopFoot").hidden = !on;
     }
 
     function stopRead() {
@@ -316,6 +337,7 @@
 
     function openLightbox(it) {
       if (!it) return;
+      stopRead();
       const src = imgSrc(it);
       $("lbImg").src = src;
       $("lbImg").alt = it.title || "太陽心語";
@@ -341,7 +363,7 @@
         btn.type = "button";
         btn.className = "item" + (i === idx ? " active" : "");
         btn.innerHTML = "<span class=\"t\">" + escapeHtml(it.title || it.text || "太陽心語") + "</span><span class=\"m\">" + escapeHtml([it.category, it.source].filter(Boolean).join(" · ")) + "</span>";
-        btn.addEventListener("click", () => { showItem(i, true, true); });
+        btn.addEventListener("click", () => showItem(i, false, true));
         list.appendChild(btn);
       });
       $("catalogMeta").textContent = filtered.length + " / " + allItems().length + " 則";
@@ -440,20 +462,19 @@
       searchTimer = setTimeout(applyFilter, 180);
     });
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
-    $("btnPrev").addEventListener("click", () => showItem(idx - 1, true, true));
-    $("btnNext").addEventListener("click", () => showItem(idx + 1, true, true));
+    $("btnPrev").addEventListener("click", () => showItem(idx - 1, false, true));
+    $("btnNext").addEventListener("click", () => showItem(idx + 1, false, true));
     $("btnRead").addEventListener("click", () => readCurrent(true));
     $("silentMode").addEventListener("change", () => savePrefs({ silent: $("silentMode").checked }));
     $("ttsPreview").addEventListener("click", speakPreview);
-    $("mainImg").addEventListener("click", () => {
-      if (!filtered[idx]) return;
-      openLightbox(filtered[idx]);
-      readCurrent(false);
-    });
+    $("mainImg").addEventListener("click", () => { if (filtered[idx]) openLightbox(filtered[idx]); });
     $("lbClose").addEventListener("click", closeLightbox);
-    $("lbPrev").addEventListener("click", () => showItem(idx - 1, true, true));
-    $("lbNext").addEventListener("click", () => showItem(idx + 1, true, true));
+    $("lbCloseFoot").addEventListener("click", closeLightbox);
+    $("lbPrev").addEventListener("click", () => showItem(idx - 1, false, true));
+    $("lbNext").addEventListener("click", () => showItem(idx + 1, false, true));
     $("lbRead").addEventListener("click", () => readCurrent(true));
+    $("lbReadFoot").addEventListener("click", () => readCurrent(true));
+    $("lbStopFoot").addEventListener("click", stopRead);
     $("lightbox").addEventListener("click", (e) => {
       if (e.target === $("lightbox")) closeLightbox();
     });
