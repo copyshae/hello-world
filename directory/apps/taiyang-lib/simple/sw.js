@@ -1,4 +1,4 @@
-const CACHE = "taiyang-lib-simple-v9";
+const CACHE = "taiyang-lib-simple-v11";
 const ASSETS = ["./", "./index.html", "./share.html", "../catalog.json", "../apple-touch-icon.png", "../icon-192.png"];
 
 self.addEventListener("install", (e) => {

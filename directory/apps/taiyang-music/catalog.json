@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-29T05:38:44Z",
+  "updatedAt": "2026-08-31T12:54:02Z",
   "artist": "太陽盛德導師",
   "songs": [
     {
@@ -21,14 +21,6 @@
       "performerLabel": "太陽盛德導師",
       "karaokeId": "nwsjXvl5pUY",
       "karaokeTitle": "〈富 有〉伴奏版"
-    },
-    {
-      "id": "Ob1nEy4kuBY",
-      "name": "#幸福記號",
-      "repeat": 1,
-      "title": "《#幸福記號》 SIGN OF HAPPINESS   演唱：#太陽盛德導師  摄影 ：#张升荣    音樂下載自 #天圓文化",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
     },
     {
       "id": "MRYGH6fjP9w",
@@ -67,6 +59,14 @@
       "name": "一生何求",
       "repeat": 1,
       "title": "〈一生何求〉太陽盛德導師演唱・原創正能量歌曲｜看透無常、養心積德 (官方 MV)",
+      "performer": "master",
+      "performerLabel": "太陽盛德導師"
+    },
+    {
+      "id": "9aTidJWmPBg",
+      "name": "一生為愛守候",
+      "repeat": 1,
+      "title": "超級生命密碼 -〈一生為愛守候〉太陽盛德導師演唱版 （和音版）",
       "performer": "master",
       "performerLabel": "太陽盛德導師"
     },
@@ -111,6 +111,14 @@
       "performerLabel": "太陽盛德導師"
     },
     {
+      "id": "raNw8uo5Yig",
+      "name": "含笑食堂",
+      "repeat": 1,
+      "title": "太陽盛德導師〈就在這一生〉Official Music Video-電視劇-三立台灣台《含笑食堂》片尾曲",
+      "performer": "master",
+      "performerLabel": "太陽盛德導師"
+    },
+    {
       "id": "jRt8z8im90M",
       "name": "唯一解藥",
       "repeat": 1,
@@ -131,6 +139,14 @@
       "name": "因為有太陽",
       "repeat": 1,
       "title": "〈因為有太陽〉太陽盛德導師演唱版",
+      "performer": "master",
+      "performerLabel": "太陽盛德導師"
+    },
+    {
+      "id": "SyBKaXFWMJE",
+      "name": "圓緣",
+      "repeat": 1,
+      "title": "〈圓緣〉太陽盛德導師演唱・原創正能量歌曲｜細品緣分、真心圓滿 (官方 MV)",
       "performer": "master",
       "performerLabel": "太陽盛德導師"
     },
@@ -167,10 +183,26 @@
       "performerLabel": "太陽盛德導師"
     },
     {
+      "id": "eWbfdwJVrjk",
+      "name": "如願圓通",
+      "repeat": 1,
+      "title": "〈如願圓通〉太陽盛德導師演唱・原創正能量歌曲｜勤耕圓夢、如願圓滿 (官方 MV)",
+      "performer": "master",
+      "performerLabel": "太陽盛德導師"
+    },
+    {
       "id": "hXtvIl2YJCU",
       "name": "就在這一生",
       "repeat": 1,
       "title": "〈就在這一生〉太陽盛德導師演唱・原創正能量歌曲｜好事成真、豐盛圓滿今生 (官方 MV)",
+      "performer": "master",
+      "performerLabel": "太陽盛德導師"
+    },
+    {
+      "id": "LH1vtI1mb5c",
+      "name": "弄通",
+      "repeat": 1,
+      "title": "✨弄通✨☀️太陽盛德導師☀️創作歌曲🎶",
       "performer": "master",
       "performerLabel": "太陽盛德導師"
     },
@@ -191,42 +223,10 @@
       "performerLabel": "太陽盛德導師"
     },
     {
-      "id": "hWQB9kSmOL8",
-      "name": "悟紅塵",
-      "repeat": 1,
-      "title": "〈悟紅塵〉太陽盛德導師演唱版*",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
       "id": "JD13GZJMnhE",
       "name": "愛的祈禱",
       "repeat": 1,
       "title": "〈愛的祈禱〉太陽盛德導師演唱・原創正能量歌曲｜獻上祝福、祈願世界美好 (官方 MV)",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
-      "id": "JQMte8ahSzk",
-      "name": "愛的祈禱詞曲:演唱:",
-      "repeat": 1,
-      "title": "愛的祈禱  詞  曲 : 太陽盛德導師  演唱:太陽盛德導師 和音版  摄影:张升荣 音樂下載自  天圓文化",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
-      "id": "04vNRRqJf-o",
-      "name": "感動",
-      "repeat": 1,
-      "title": "〈感動〉太陽盛德導師演唱・原創正能量歌曲｜因為有愛、滿心感動 (官方 MV)",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
-      "id": "YLJWnvRtNDQ",
-      "name": "感動詞曲:",
-      "repeat": 1,
-      "title": "感動    詞  曲 : 太陽盛德導師     演唱 :  李佳潔  和音版   摄影 ：张升荣",
       "performer": "master",
       "performerLabel": "太陽盛德導師"
     },
@@ -239,26 +239,18 @@
       "performerLabel": "太陽盛德導師"
     },
     {
-      "id": "GbVjRCsU3aE",
-      "name": "感恩星空",
-      "repeat": 1,
-      "title": "〈感恩星空〉太陽盛德導師演唱・原創正能量歌曲｜仰望星空、感恩天地與共 (官方 MV)",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
-      "id": "ZeLq8hu99Yw",
-      "name": "感恩星空詞曲:演唱:",
-      "repeat": 1,
-      "title": "感恩星空   詞曲 : 太陽盛德導師  演唱: 楊莉君  摄影 ：张升荣",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
       "id": "B_cNVzJCGQQ",
       "name": "我們的路",
       "repeat": 1,
       "title": "〈我們的路〉Sarah Chia 演唱・太陽盛德導師原創正能量歌曲｜走上光明圓滿之路 (官方 MV)",
+      "performer": "master",
+      "performerLabel": "太陽盛德導師"
+    },
+    {
+      "id": "WFByKR04OHY",
+      "name": "我的太陽",
+      "repeat": 1,
+      "title": "〈我的太陽〉太陽盛德導師演唱版",
       "performer": "master",
       "performerLabel": "太陽盛德導師"
     },
@@ -271,10 +263,10 @@
       "performerLabel": "太陽盛德導師"
     },
     {
-      "id": "2rtLp9pZ_AY",
-      "name": "日月星辰",
+      "id": "Df7_JMMoNMU",
+      "name": "擁抱太陽",
       "repeat": 1,
-      "title": "〈日月星辰〉太陽盛德導師演唱・原創正能量歌曲｜不忘初衷、日月星辰總在心 (官方 MV)",
+      "title": "〈擁抱太陽〉太陽盛德導師演唱版",
       "performer": "master",
       "performerLabel": "太陽盛德導師"
     },
@@ -287,10 +279,10 @@
       "performerLabel": "太陽盛德導師"
     },
     {
-      "id": "_Uywlc9tVyw",
+      "id": "eDG_lLs9jCU",
       "name": "有愛會感動",
       "repeat": 1,
-      "title": "〈有愛會感動〉太陽盛德導師演唱・原創正能量歌曲｜用愛感動、迎向幸福 (官方 MV)",
+      "title": "〈有愛會感動〉太陽盛德導師演唱版",
       "performer": "master",
       "performerLabel": "太陽盛德導師"
     },
@@ -399,30 +391,6 @@
       "performerLabel": "太陽盛德導師"
     },
     {
-      "id": "dlANuCbaD7s",
-      "name": "記得你的好",
-      "repeat": 1,
-      "title": "〈記得你的好〉太陽盛德導師演唱版（和音版）",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
-      "id": "fsUwuuvD0Bo",
-      "name": "記得你的好詞曲演唱:",
-      "repeat": 1,
-      "title": "記得你的好   詞 曲 演唱 : 太陽盛德導師   摄影： 张升荣",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
-      "id": "AR6QkU9Ifqw",
-      "name": "詞曲:演唱:摄影：音樂下載自",
-      "repeat": 1,
-      "title": "#天知道# 詞 曲 : #太陽盛德導師# 演唱 : #李佳潔# 摄影 ：#张升荣#  音樂下載自 天圓文化",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
       "id": "EemPDLQnf4w",
       "name": "選擇吧",
       "repeat": 1,
@@ -439,14 +407,6 @@
       "performerLabel": "太陽盛德導師"
     },
     {
-      "id": "F6mNT3ntrPc",
-      "name": "隨光滿溢詞曲:演唱:杨",
-      "repeat": 1,
-      "title": "隨光滿溢  詞 曲 :太陽盛德導師 演唱 : 杨莉君（和音版） 摄影 ：张升荣",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
-    },
-    {
       "id": "Lsv4fFUdh2s",
       "name": "黃金人生巧安排",
       "repeat": 1,
@@ -455,12 +415,28 @@
       "performerLabel": "太陽盛德導師"
     },
     {
-      "id": "fVvVx_bIydg",
-      "name": "＃生命禮讚＃詞曲::太陽盛德",
+      "id": "gkeoCzxUkFw",
+      "name": "一心向前飛",
       "repeat": 1,
-      "title": "＃生命禮讚＃詞曲: 太陽盛德導師##演唱 : 太陽盛德 導師＃#摄影 ：张升荣##摄于    中國 吉林 雪鄉#音樂下載自 天圓文化",
-      "performer": "master",
-      "performerLabel": "太陽盛德導師"
+      "title": "〈一心向前飛〉李佳潔演唱・太陽盛德導師原創正能量歌曲｜勇敢追夢、向陽而飛 (官方 MV)",
+      "performer": "other",
+      "performerLabel": "一心向前飛〉李佳潔"
+    },
+    {
+      "id": "bQ1dIL2BD8U",
+      "name": "一生为爱守候",
+      "repeat": 1,
+      "title": "Julie 《一生为爱守候》#太阳盛德导师创作​​​​​​ #正能量歌曲​",
+      "performer": "other",
+      "performerLabel": "Julie"
+    },
+    {
+      "id": "JYFL--kdv_U",
+      "name": "三世因果知多少",
+      "repeat": 1,
+      "title": "正能量歌曲：〈三世因果知多少〉太陽盛德導師演唱版",
+      "performer": "other",
+      "performerLabel": "正能量歌曲："
     },
     {
       "id": "w1nI9zADz_8",
@@ -471,12 +447,12 @@
       "performerLabel": "小骐"
     },
     {
-      "id": "kK3DuzvbZ5c",
-      "name": "几句话",
+      "id": "wiZX59m4eeA",
+      "name": "侍者",
       "repeat": 1,
-      "title": "宇婕 《几句话》#太阳盛德导师创作​​​​​​ #正能量歌曲",
+      "title": "演奏者：Jenny     歌曲名: 侍者    #太阳盛德导师创作​​​​​​ #正能量歌曲",
       "performer": "other",
-      "performerLabel": "宇婕"
+      "performerLabel": "Jenny"
     },
     {
       "id": "dxFAARB18PE",
@@ -495,6 +471,14 @@
       "performerLabel": "季泽"
     },
     {
+      "id": "6b7yjBHynRc",
+      "name": "千年之约",
+      "repeat": 1,
+      "title": "衣乔 《千年之约》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "performer": "other",
+      "performerLabel": "衣乔"
+    },
+    {
       "id": "NQvMCBpN9qw",
       "name": "喜樂豐盛的富有詞曲：",
       "repeat": 1,
@@ -511,10 +495,10 @@
       "performerLabel": "衣乔"
     },
     {
-      "id": "xMl01TFDEas",
-      "name": "因為有太陽詞曲:編",
+      "id": "mvCum9ZY8cE",
+      "name": "圆缘",
       "repeat": 1,
-      "title": "因為有太陽   詞曲: 太陽盛德  導師   編曲:太陽盛德 導師/李佳潔   旁白:太陽盛德 導師    演唱 : 嘉玲    摄影：张升荣",
+      "title": "《圆缘》  #太阳盛德导师创作​​​​ #正能量歌曲",
       "performer": "other",
       "performerLabel": "其他演唱者"
     },
@@ -527,20 +511,36 @@
       "performerLabel": "一首為世界而生的歌｜太陽"
     },
     {
-      "id": "-FifV1qEaxM",
-      "name": "大同",
-      "repeat": 1,
-      "title": "〈大同〉御風演唱・太陽盛德導師原創正能量歌曲｜心手相連、共築大同世界 (Official AI Music Video)",
-      "performer": "other",
-      "performerLabel": "大同〉御風"
-    },
-    {
       "id": "TvkXRmZiczM",
       "name": "天地也悠悠佳潔創作歌曲",
       "repeat": 1,
       "title": "💫天地也悠悠💫佳潔🎤☀️太陽盛德導師☀️創作歌曲    #天圓藝術生活#身心靈療癒 #正能量歌曲 #音為你 #太陽盛德導師",
       "performer": "other",
       "performerLabel": "佳潔"
+    },
+    {
+      "id": "Xd01MmK3jOA",
+      "name": "天地恩情",
+      "repeat": 1,
+      "title": "廖洁盈《天地恩情》 #太阳盛德导师创作 #正能量歌曲",
+      "performer": "other",
+      "performerLabel": "廖洁盈"
+    },
+    {
+      "id": "FVkpnHm14Nk",
+      "name": "天地恩情",
+      "repeat": 1,
+      "title": "衣乔 《天地恩情》 #太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "performer": "other",
+      "performerLabel": "衣乔"
+    },
+    {
+      "id": "U2SDsmOGmCE",
+      "name": "天地恩情",
+      "repeat": 1,
+      "title": "陈静 《天地恩情》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "performer": "other",
+      "performerLabel": "陈静"
     },
     {
       "id": "z4mEIAjdS2M",
@@ -551,14 +551,6 @@
       "performerLabel": "天賜活力〉莉君"
     },
     {
-      "id": "2w84-uduP1E",
-      "name": "太陽的祝福詞曲：演唱:",
-      "repeat": 1,
-      "title": "太陽的祝福  詞曲：太陽盛德 導師  演唱 : 嘉玲  摄影 ：张升荣",
-      "performer": "other",
-      "performerLabel": "其他演唱者"
-    },
-    {
       "id": "k3dz0poskyE",
       "name": "夺标",
       "repeat": 1,
@@ -567,38 +559,12 @@
       "performerLabel": "小颖​"
     },
     {
-      "id": "Z3HNXmzsQz4",
-      "name": "寄语",
-      "repeat": 1,
-      "title": "演唱者：季泽     歌曲名: 寄语    #太阳盛德导师创作​​​​​​ #正能量歌曲",
-      "performer": "other",
-      "performerLabel": "季泽"
-    },
-    {
       "id": "ZgHjeJc_0xs",
       "name": "寄语",
       "repeat": 1,
       "title": "陈静 《寄语》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
       "performer": "other",
       "performerLabel": "陈静"
-    },
-    {
-      "id": "8Xkyqe0mMYg",
-      "name": "富有",
-      "repeat": 1,
-      "title": "太陽盛德導師2017春季新歌發表〈富 有〉演唱版",
-      "performer": "other",
-      "performerLabel": "有〉",
-      "karaokeId": "nwsjXvl5pUY",
-      "karaokeTitle": "〈富 有〉伴奏版"
-    },
-    {
-      "id": "0YGsehToJYM",
-      "name": "富有詞曲：演唱：佳潔",
-      "repeat": 1,
-      "title": "富有   詞曲： 太陽盛德 導師  演唱：佳潔   摄影 ：张升荣",
-      "performer": "other",
-      "performerLabel": "其他演唱者"
     },
     {
       "id": "SHuH3XRLhZ4",
@@ -625,12 +591,12 @@
       "performerLabel": "宥弦"
     },
     {
-      "id": "5ZlbZnzBNOQ",
+      "id": "P5hm6C_QU9g",
       "name": "幸福永传",
       "repeat": 1,
-      "title": "郑羽晶 《幸福永传》 #太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "title": "妍妍 《幸福永传》 #太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
       "performer": "other",
-      "performerLabel": "郑羽晶"
+      "performerLabel": "妍妍"
     },
     {
       "id": "pJ78cg20G7k",
@@ -639,22 +605,6 @@
       "title": "〈幸福烙印〉莉君演唱・太陽盛德導師原創正能量歌曲｜經營幸福、勇敢刻畫人生 (官方 MV)",
       "performer": "other",
       "performerLabel": "幸福烙印〉莉君"
-    },
-    {
-      "id": "dfx8R80O6uE",
-      "name": "幸福烙印",
-      "repeat": 1,
-      "title": "郑羽晶 《幸福烙印》 #太阳盛德导师创作​​​​​​ #正能量歌曲",
-      "performer": "other",
-      "performerLabel": "郑羽晶"
-    },
-    {
-      "id": "81c3X6x31Qw",
-      "name": "德香女人花",
-      "repeat": 1,
-      "title": "宇婕 《德香女人花》 #太阳盛德导师创作​​​​​​ #正能量歌曲",
-      "performer": "other",
-      "performerLabel": "宇婕"
     },
     {
       "id": "Sq_vD-Kx2cU",
@@ -681,6 +631,14 @@
       "performerLabel": "宇婕"
     },
     {
+      "id": "GJRq3ZjKP1M",
+      "name": "忠告",
+      "repeat": 1,
+      "title": "演唱者：佳洁     歌曲名: 忠告    #太阳盛德导师创作​​​​​​ #正能量歌曲",
+      "performer": "other",
+      "performerLabel": "佳洁"
+    },
+    {
       "id": "N5mMfD7DVuc",
       "name": "忠告",
       "repeat": 1,
@@ -697,10 +655,26 @@
       "performerLabel": "忠告〉李佳潔"
     },
     {
-      "id": "RmBliYfU-y8",
+      "id": "NhExOPCobLc",
+      "name": "快乐工厂",
+      "repeat": 1,
+      "title": "雀儿 《快乐工厂》 #太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "performer": "other",
+      "performerLabel": "雀儿"
+    },
+    {
+      "id": "ctHS5TQDbbg",
+      "name": "悟红尘",
+      "repeat": 1,
+      "title": "演唱者：Vicky     歌曲名: 悟红尘    #太阳盛德导师创作​​​​​​ #正能量歌曲",
+      "performer": "other",
+      "performerLabel": "Vicky"
+    },
+    {
+      "id": "KBrlMkrmuok",
       "name": "感动",
       "repeat": 1,
-      "title": "《感动》 #太阳盛德导师创作​ #正能量歌曲​",
+      "title": "《感动》 #太阳盛德导师创作 #正能量歌曲",
       "performer": "other",
       "performerLabel": "其他演唱者"
     },
@@ -729,20 +703,20 @@
       "performerLabel": "李佳洁"
     },
     {
+      "id": "sOQHwUjLC5k",
+      "name": "我们的路",
+      "repeat": 1,
+      "title": "Amber《我们的路》 #太阳盛德导师创作​​​ #正能量歌曲",
+      "performer": "other",
+      "performerLabel": "Amber"
+    },
+    {
       "id": "NXr1PpeM12s",
       "name": "我们的路",
       "repeat": 1,
       "title": "Jenny 《我们的路》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
       "performer": "other",
       "performerLabel": "Jenny"
-    },
-    {
-      "id": "E-Ng5O6qrdI",
-      "name": "我们的路",
-      "repeat": 1,
-      "title": "小骐 《我们的路》 #太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
-      "performer": "other",
-      "performerLabel": "小骐"
     },
     {
       "id": "X-66gSoGHhM",
@@ -761,6 +735,30 @@
       "performerLabel": "季澤"
     },
     {
+      "id": "UfwXGOrF7HU",
+      "name": "我的太阳",
+      "repeat": 1,
+      "title": "Freya 《我的太阳》 #太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "performer": "other",
+      "performerLabel": "Freya"
+    },
+    {
+      "id": "6DzP6uv0k0M",
+      "name": "我的太阳",
+      "repeat": 1,
+      "title": "叶丽雯《我的太阳》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "performer": "other",
+      "performerLabel": "叶丽雯"
+    },
+    {
+      "id": "zsBGnRrMSaw",
+      "name": "我的太阳",
+      "repeat": 1,
+      "title": "甲子慧《我的太阳》 #太阳盛德导师创作 #正能量歌曲",
+      "performer": "other",
+      "performerLabel": "甲子慧"
+    },
+    {
       "id": "r8NHeklMevc",
       "name": "月满西楼",
       "repeat": 1,
@@ -769,12 +767,14 @@
       "performerLabel": "Vicky"
     },
     {
-      "id": "qZ1yN2PBKK4",
-      "name": "爱太阳",
+      "id": "6OCwKGzPEME",
+      "name": "注入彩虹",
       "repeat": 1,
-      "title": "Freya 《爱太阳》 #太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "title": "Yuzzin Tam《注入彩虹》#太阳盛德导师创作 #正能量歌曲",
       "performer": "other",
-      "performerLabel": "Freya"
+      "performerLabel": "其他演唱者",
+      "karaokeId": "EOSl5jSDApY",
+      "karaokeTitle": "〈注入彩虹〉伴奏版"
     },
     {
       "id": "k3uZcrPl3Ko",
@@ -785,12 +785,12 @@
       "performerLabel": "Jenny"
     },
     {
-      "id": "zU-mcIIbAO0",
+      "id": "UU9E0JDQ-ac",
       "name": "爱的呼吸",
       "repeat": 1,
-      "title": "叶丽雯《爱的呼吸》 #太阳盛德导师创作 #正能量歌曲",
+      "title": "郑羽晶 《爱的呼吸》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
       "performer": "other",
-      "performerLabel": "叶丽雯"
+      "performerLabel": "郑羽晶"
     },
     {
       "id": "dbeC-COesjw",
@@ -805,6 +805,22 @@
       "name": "爱的祈祷",
       "repeat": 1,
       "title": "郑羽晶 《爱的祈祷》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "performer": "other",
+      "performerLabel": "郑羽晶"
+    },
+    {
+      "id": "Gisx9bU43rM",
+      "name": "珍惜",
+      "repeat": 1,
+      "title": "家家 《珍惜》 #太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "performer": "other",
+      "performerLabel": "家家"
+    },
+    {
+      "id": "-DoH8OQJaaw",
+      "name": "珍惜",
+      "repeat": 1,
+      "title": "郑羽晶 《珍惜》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
       "performer": "other",
       "performerLabel": "郑羽晶"
     },
@@ -825,20 +841,12 @@
       "performerLabel": "又轩"
     },
     {
-      "id": "y0Pw8LoV7q4",
-      "name": "相约",
+      "id": "bHqnGh6BEPs",
+      "name": "真爱永继",
       "repeat": 1,
-      "title": "演唱者：羽晶     歌曲名:  相约  #太阳盛德导师创作​​​​​​ #正能量歌曲",
+      "title": "合唱 《真爱永继》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
       "performer": "other",
-      "performerLabel": "羽晶"
-    },
-    {
-      "id": "kUTLavsOpgE",
-      "name": "荣誉天",
-      "repeat": 1,
-      "title": "演唱者：季泽     歌曲名: 荣誉天    #太阳盛德导师创作​​​​​​ #正能量歌曲",
-      "performer": "other",
-      "performerLabel": "季泽"
+      "performerLabel": "合唱"
     },
     {
       "id": "kAKZiVbc5_Y",
@@ -881,12 +889,12 @@
       "performerLabel": "姿昀"
     },
     {
-      "id": "gWi4a6Jnr0g",
-      "name": "那一年",
+      "id": "ChW6U_yfu4c",
+      "name": "邀你幸福",
       "repeat": 1,
-      "title": "Vicky 《那一年》#太阳盛德导师创作​​​​​​ #正能量歌曲 ​",
+      "title": "李佳洁 《邀你幸福》 #太阳盛德导师创作​​ #正能量歌曲",
       "performer": "other",
-      "performerLabel": "Vicky"
+      "performerLabel": "李佳洁"
     },
     {
       "id": "tmqQ5qAmLf0",
@@ -898,9 +906,9 @@
     }
   ],
   "counts": {
-    "master": 57,
-    "other": 54,
-    "total": 111
+    "master": 51,
+    "other": 61,
+    "total": 112
   },
   "queueNote": "注入彩虹、富有各×3 → 導師親唱各×1 → 其他演唱者各×1"
 }
