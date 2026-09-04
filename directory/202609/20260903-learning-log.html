@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260903 學習日誌・每日14樣功課簡易版（可分享）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+      <a href="../apps/daily-14/simple/">開啟14樣功課簡易版</a>
+    </nav>
+    <article>
+      <h1>20260903 每日14樣功課簡易版（可分享）</h1>
+      <p class="lead">接日誌 <a class="inline" href="./20260902-learning-log.html">0902 新聞虛擬主播</a>。本日補推每日14樣功課簡易版：精簡勾選＋重設今日，可分享網址；與完整版記錄分開、互不覆寫。</p>
+
+      <div class="callout"><strong>手機立刻可開（免開電腦）：</strong><br />
+        <a class="inline" href="https://copyshae.github.io/-/directory/202609/20260903-learning-log.html">https://copyshae.github.io/-/directory/202609/20260903-learning-log.html</a><br />
+        正式 hello-world：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202609/20260903-learning-log.html">https://copyshae.github.io/hello-world/directory/202609/20260903-learning-log.html</a>
+      </div>
+
+      <h2>一｜入口</h2>
+      <ul>
+        <li>簡易版：<a class="inline" href="https://copyshae.github.io/-/daily-14/simple/">https://copyshae.github.io/-/daily-14/simple/</a></li>
+        <li>完整版：<a class="inline" href="https://copyshae.github.io/-/daily-14/">https://copyshae.github.io/-/daily-14/</a></li>
+        <li>鏡像：<a class="inline" href="https://copyshae.github.io/-/directory/apps/daily-14/">https://copyshae.github.io/-/directory/apps/daily-14/</a></li>
+      </ul>
+      <h2>二｜與完整版差異</h2>
+      <ul>
+        <li>簡易版僅 14 項勾選＋重設今日；無七習慣、無匯入匯出、無撤銷。</li>
+        <li>儲存 key <code>daily14-simple-v1</code>，完整版為 <code>daily14-v1</code>，互不覆寫。</li>
+        <li>訪客試用：<code>?guest=1</code>（sessionStorage）。</li>
+      </ul>
+
+      <p class="note">
+        hello-world：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202609/20260903-learning-log.html">https://copyshae.github.io/hello-world/directory/202609/20260903-learning-log.html</a>
+        ｜App：
+        <a class="inline" href="https://copyshae.github.io/-/directory/apps/daily-14/">https://copyshae.github.io/-/directory/apps/daily-14/</a>
+        ｜上一則：
+        <a class="inline" href="./20260902-learning-log.html">0902 Google 新聞虛擬主播</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>

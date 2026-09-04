@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>20260902 學習日誌・Google 新聞虛擬主播</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f1c;
+      --paper: #e8efe6;
+      --accent: #2d6a4f;
+      --muted: #4a5c52;
+      --line: rgba(45, 106, 79, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(149, 213, 178, 0.35), transparent 55%),
+        linear-gradient(160deg, #f4faf6 0%, var(--paper) 50%, #d8e8dc 100%);
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2rem 1.35rem 4rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; font-size: 0.95rem; }
+    .nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .nav a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+    article {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--line);
+      padding: 1.75rem 1.5rem 2.5rem;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(1.45rem, 4.5vw, 2rem);
+      font-weight: 400;
+      color: var(--accent);
+      line-height: 1.35;
+      margin-bottom: 0.75rem;
+    }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--accent);
+      margin: 1.75rem 0 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--line);
+    }
+    ul, ol { margin: 0.5rem 0 0.85rem 1.35rem; }
+    li { margin: 0.3rem 0; }
+    code { font-size: 0.9em; background: rgba(45,106,79,0.1); padding: 0.1em 0.35em; }
+    a.inline { color: var(--accent); word-break: break-all; }
+    .callout {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: rgba(45,106,79,0.08);
+      font-size: 0.95rem;
+    }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a href="../../index.html">← 首頁</a>
+      <a href="../index.html">← 學習日誌</a>
+      <a href="./index.html">← 日誌列表</a>
+      <a href="../../news-anchor/">開啟新聞主播</a>
+    </nav>
+    <article>
+      <h1>20260902 Google 新聞虛擬主播</h1>
+      <p class="lead">接日誌 <a class="inline" href="./20260901-learning-log.html">0901 太陽心語</a>。本日整理 Google 新聞虛擬主播：多分類、多主播風格、口說／文字輸入、可加入主畫面；RSS 與原文摘要播報。</p>
+
+      <div class="callout"><strong>手機立刻可開（免開電腦）：</strong><br />
+        <a class="inline" href="https://copyshae.github.io/-/directory/202609/20260902-learning-log.html">https://copyshae.github.io/-/directory/202609/20260902-learning-log.html</a><br />
+        正式 hello-world：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202609/20260902-learning-log.html">https://copyshae.github.io/hello-world/directory/202609/20260902-learning-log.html</a>
+      </div>
+
+      <h2>一｜入口</h2>
+      <ul>
+        <li>正式：<a class="inline" href="https://copyshae.github.io/-/news-anchor/">https://copyshae.github.io/-/news-anchor/</a></li>
+        <li>加入主畫面：<a class="inline" href="https://copyshae.github.io/-/news-anchor/share.html">https://copyshae.github.io/-/news-anchor/share.html</a></li>
+      </ul>
+      <h2>二｜功能摘要</h2>
+      <ul>
+        <li>分類含國際、台灣、財經、教育、AI 等；口說別名可切換。</li>
+        <li>快取 <code>news-cache.json</code>；腳本 <code>scripts/fetch_google_news.py</code> 更新。</li>
+        <li>播報可含相關報導摘要與媒體原文重點（依快取／即時合併）。</li>
+        <li>路徑 <code>docs/news-anchor/</code>。</li>
+      </ul>
+
+      <p class="note">
+        hello-world：
+        <a class="inline" href="https://copyshae.github.io/hello-world/directory/202609/20260902-learning-log.html">https://copyshae.github.io/hello-world/directory/202609/20260902-learning-log.html</a>
+        ｜App：
+        <a class="inline" href="https://copyshae.github.io/-/news-anchor/">https://copyshae.github.io/-/news-anchor/</a>
+        ｜上一則：
+        <a class="inline" href="./20260901-learning-log.html">0901 太陽心語圖片收錄</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
