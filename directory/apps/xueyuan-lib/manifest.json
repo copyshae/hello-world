@@ -1,0 +1,21 @@
+{
+  "id": "/-/xueyuan-lib/",
+  "name": "學員分享影音圖書館",
+  "short_name": "學員影音庫",
+  "description": "超級生命密碼學員分享影音：先依「解決什麼問題」分類，再依國家／地區分支；可加入主畫面。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f9fc",
+  "theme_color": "#1e5f82",
+  "lang": "zh-Hant",
+  "categories": ["education", "music"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

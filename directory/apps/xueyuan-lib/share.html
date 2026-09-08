@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e5f82" />
+  <meta name="apple-mobile-web-app-title" content="學員影音庫" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260907a" />
+  <link rel="manifest" href="manifest.json" />
+  <title>加入主畫面｜學員分享影音圖書館</title>
+  <style>
+    :root { --accent: #1e5f82; --muted: #4a6a7a; }
+    body { font-family: "PingFang TC", sans-serif; margin: 0; padding: 2rem 1.2rem; background: #f4f9fc; color: #1a3040; line-height: 1.6; }
+    .wrap { max-width: 22rem; margin: 0 auto; text-align: center; }
+    h1 { color: var(--accent); font-size: clamp(1rem, 4.5vw, 1.35rem); line-height: 1.35; }
+    p, ol { text-align: left; color: var(--muted); font-size: 0.92rem; }
+    .icon { width: 5.5rem; height: 5.5rem; border-radius: 1rem; margin: 1rem auto 0; object-fit: cover; }
+    a.btn { display: block; margin-top: 1rem; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; padding: 1rem; border-radius: 0.35rem; }
+    .url { margin-top: 0.75rem; padding: 0.75rem; background: #fff; font-size: 0.8rem; word-break: break-all; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>超級生命密碼<br />學員分享影音圖書館</h1>
+    <img class="icon" src="icon-192.png?v=20260907a" alt="學員影音庫" />
+    <p>收錄超級生命密碼<strong>學員分享</strong>影音。<br />分類兩層：①<strong>解決什麼問題</strong>（轉念、親子、事業…）→ ②<strong>哪個國家</strong>（台灣、馬來西亞、新加坡、中國…）。</p>
+    <div class="url" id="url">https://copyshae.github.io/-/xueyuan-lib/</div>
+    <a class="btn" id="open" href="./index.html">打開影音圖書館</a>
+    <ol>
+      <li>iPhone：Safari → 分享 → <strong>加入主畫面</strong></li>
+      <li>簡易版分享單則：<a id="simple" href="./simple/">simple/?item=…</a></li>
+    </ol>
+  </div>
+  <script>
+    var u = location.href.replace(/share\.html.*$/, "");
+    if (u.indexOf("http") !== 0) u = "https://copyshae.github.io/-/xueyuan-lib/";
+    document.getElementById("url").textContent = u;
+    document.getElementById("open").href = u;
+    document.getElementById("simple").href = u.replace(/\/?$/, "/") + "simple/";
+  </script>
+</body>
+</html>

@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e5f82" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="學員影音庫" />
+  <meta name="description" content="超級生命密碼學員分享影音圖書館：先依「解決什麼問題」分類，再依國家／地區分支。" />
+  <link rel="manifest" href="manifest.json?v=20260907a" />
+  <link rel="icon" href="icon-192.png?v=20260907a" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260907a" sizes="180x180" />
+  <link rel="apple-touch-icon" href="icon-192.png?v=20260907a" sizes="192x192" />
+  <title>超級生命密碼｜學員分享影音圖書館</title>
+  <style>
+    :root {
+      --ink: #1a3040; --muted: #4a6a7a; --paper: #f4f9fc;
+      --accent: #1e5f82; --accent2: #3896b4; --line: rgba(30, 95, 130, 0.22);
+      --card: rgba(255, 255, 255, 0.85);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      color: var(--ink); line-height: 1.55;
+      background: linear-gradient(180deg, #f8fcff 0%, var(--paper) 50%, #d2e8f5 100%);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; }
+    header { text-align: center; }
+    .brand { font-size: clamp(1.05rem, 4.8vw, 1.4rem); font-weight: 700; color: var(--accent); line-height: 1.35; }
+    .sub { margin-top: 0.3rem; font-size: 0.84rem; color: var(--muted); }
+    .home-card {
+      margin-top: 0.85rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line);
+      border-radius: 0.5rem; display: flex; gap: 0.75rem; align-items: center;
+    }
+    .home-icon { width: 3.6rem; height: 3.6rem; border-radius: 0.85rem; object-fit: cover; }
+    .home-card p { font-size: 0.78rem; color: var(--muted); }
+    .cat-row { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .cat-row button {
+      font: inherit; font-size: 0.78rem; padding: 0.35rem 0.65rem; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--card); color: var(--accent); cursor: pointer;
+    }
+    .cat-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .panel { margin-top: 0.65rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; }
+    .section { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 0.35rem; }
+    .cat-desc { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.45rem; }
+    .kw-row, .country-row { margin-top: 0.45rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .kw-row span, .country-row button {
+      font: inherit; font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 999px;
+      border: 1px solid var(--line); background: #fff; color: var(--accent);
+    }
+    .country-row button { cursor: pointer; }
+    .country-row button.active { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+    .layer-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-top: 0.55rem; }
+    .search-panel {
+      margin-top: 0.75rem; padding: 0.75rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem;
+    }
+    .search-panel .section { margin-bottom: 0.35rem; }
+    input[type="search"] {
+      width: 100%; font: inherit; font-size: 16px; padding: 0.65rem 0.75rem;
+      border: 2px solid var(--accent2); border-radius: 0.45rem; margin-bottom: 0.35rem;
+      background: #fff;
+    }
+    input[type="search"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30, 95, 130, 0.12); }
+    .search-hint { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .search-meta { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.35rem; min-height: 1rem; }
+    .search-toolbar { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-bottom: 0.45rem; }
+    .search-toolbar .meta { margin-left: auto; font-size: 0.72rem; color: var(--muted); }
+    .search-toolbar .btn { font-size: 0.78rem; padding: 0.4rem 0.65rem; }
+    .suggest-row { margin: 0.4rem 0 0.15rem; display: flex; flex-wrap: wrap; gap: 0.28rem; }
+    .suggest-row button {
+      font: inherit; font-size: 0.7rem; padding: 0.28rem 0.5rem; border-radius: 999px;
+      border: 1px dashed var(--line); background: #fff; color: var(--accent); cursor: pointer;
+    }
+    .suggest-row button:active { background: rgba(30, 95, 130, 0.1); }
+    .list { max-height: 14rem; overflow-y: auto; border: 1px solid var(--line); border-radius: 0.35rem; background: #fff; }
+    .item {
+      display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line);
+      background: transparent; padding: 0.65rem 0.7rem; cursor: pointer; font: inherit;
+    }
+    .item:last-child { border-bottom: 0; }
+    .item.active { background: rgba(30, 95, 130, 0.08); }
+    .item .t { font-size: 0.86rem; font-weight: 600; line-height: 1.35; }
+    .item .note {
+      margin-top: 0.28rem; font-size: 0.72rem; line-height: 1.4; color: var(--accent);
+      background: rgba(30, 95, 130, 0.08); border-radius: 0.3rem; padding: 0.28rem 0.45rem;
+    }
+    .item .m { font-size: 0.72rem; color: var(--muted); margin-top: 0.18rem; }
+    .item-row {
+      display: flex; gap: 0.45rem; align-items: flex-start;
+      border-bottom: 1px solid var(--line); background: #fff; padding: 0.45rem 0.4rem 0.45rem 0.55rem;
+    }
+    .item-row:last-child { border-bottom: 0; }
+    .item-row .pick {
+      flex: 0 0 auto; margin-top: 0.35rem; width: 1.15rem; height: 1.15rem; accent-color: var(--accent);
+    }
+    .item-row .item { border: 0; border-bottom: 0; padding: 0.2rem 0.35rem 0.2rem 0; flex: 1; }
+    .pick-bar {
+      margin-top: 0.45rem; padding: 0.55rem 0.65rem; background: rgba(30, 95, 130, 0.08);
+      border: 1px solid var(--line); border-radius: 0.4rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;
+    }
+    .pick-bar .count { font-size: 0.78rem; font-weight: 700; color: var(--accent); margin-right: 0.15rem; }
+    .pick-bar .btn { font-size: 0.76rem; padding: 0.4rem 0.6rem; }
+    .feature-pick {
+      margin-top: 0.55rem; padding: 0.65rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem;
+    }
+    .feature-pick label {
+      display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--ink);
+      margin-top: 0.35rem; cursor: pointer;
+    }
+    .feature-pick input { accent-color: var(--accent); width: 1.05rem; height: 1.05rem; }
+    .suggest-row { margin: 0.4rem 0 0.15rem; display: flex; flex-wrap: wrap; gap: 0.28rem; }
+    .suggest-row button {
+      font: inherit; font-size: 0.7rem; padding: 0.28rem 0.5rem; border-radius: 999px;
+      border: 1px dashed var(--line); background: #fff; color: var(--accent); cursor: pointer;
+    }
+    .speed-row { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+    .speed-row .lab { font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-right: 0.15rem; }
+    .speed-row button {
+      font: inherit; font-size: 0.74rem; padding: 0.35rem 0.55rem; border-radius: 0.3rem;
+      border: 1px solid var(--line); background: #fff; color: var(--accent); cursor: pointer; font-weight: 600;
+    }
+    .speed-row button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .player-box { margin-top: 0.85rem; padding: 0.85rem; background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; }
+    .now-title { font-size: 0.92rem; font-weight: 700; color: var(--accent); line-height: 1.4; }
+    .now-meta { margin-top: 0.2rem; font-size: 0.76rem; color: var(--muted); }
+    audio { width: 100%; margin-top: 0.6rem; }
+    .video-shell { margin-top: 0.6rem; background: #111; border-radius: 0.45rem; overflow: hidden; aspect-ratio: 16/9; }
+    .video-shell iframe { width: 100%; height: 100%; border: 0; }
+    .actions { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    button.btn {
+      font: inherit; cursor: pointer; border: 1px solid var(--line); background: var(--card);
+      color: var(--accent); padding: 0.5rem 0.75rem; border-radius: 0.35rem; font-weight: 600; font-size: 0.82rem;
+    }
+    button.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .toolbar { margin-top: 0.55rem; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+    .toolbar .meta { margin-left: auto; font-size: 0.74rem; color: var(--muted); }
+    .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); }
+    .hint { margin-top: 0.75rem; font-size: 0.76rem; color: var(--muted); padding: 0.65rem; background: rgba(255,255,255,0.55); border: 1px dashed var(--line); border-radius: 0.35rem; }
+    .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
+    .foot a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">超級生命密碼<br />學員分享影音圖書館</h1>
+      <p class="sub">①解決什麼問題 → ②哪個國家／地區 · 學員見證與心得</p>
+    </header>
+
+    <section class="home-card">
+      <img class="home-icon" src="icon-192.png?v=20260907a" alt="學員分享影音圖書館" />
+      <div>
+        <p><strong>主畫面圖示：學員影音庫</strong></p>
+        <p><a href="./share.html" style="color:var(--accent);">加入主畫面說明</a></p>
+      </div>
+    </section>
+
+    <section class="search-panel">
+      <h2 class="section">🔍 搜尋（標題／關鍵字／國家／備註）</h2>
+      <p class="search-hint" id="searchHint">輸入關鍵字即搜尋全庫；可點下方建議詞；Enter 播放第一筆</p>
+      <div class="search-toolbar">
+        <button type="button" class="btn" id="btnRefresh">🔄 更新目錄</button>
+        <button type="button" class="btn" id="btnClearSearch">清除搜尋</button>
+        <span class="meta" id="catalogMeta">載入中…</span>
+      </div>
+      <input type="search" id="searchBox" placeholder="搜尋：轉念、親子、台灣、感恩、事業…" enterkeyhint="search" autocomplete="off" />
+      <div class="suggest-row" id="suggestRow" aria-label="搜尋建議"></div>
+      <p class="search-meta" id="searchMeta"></p>
+      <div class="pick-bar" id="pickBar">
+        <span class="count" id="pickCount">已勾選 0 則</span>
+        <button type="button" class="btn" id="btnSelectVisible">全選可見</button>
+        <button type="button" class="btn" id="btnClearPicks">清除勾選</button>
+        <button type="button" class="btn primary" id="btnSharePicks">🔗 分享已勾選</button>
+      </div>
+      <div class="list" id="itemList" role="listbox"></div>
+    </section>
+
+    <section class="feature-pick" id="featurePick">
+      <h2 class="section">📦 勾選要分享的內容（可多選）</h2>
+      <p class="search-hint">勾選後按「一次分享」：會帶上關鍵字備註與連結</p>
+      <label><input type="checkbox" id="featItems" checked /> 已勾選的影音清單</label>
+      <label><input type="checkbox" id="featCat" checked /> 目前問題分類</label>
+      <label><input type="checkbox" id="featCountry" /> 目前國家／地區</label>
+      <label><input type="checkbox" id="featSearch" /> 目前搜尋關鍵字</label>
+      <div class="toolbar" style="margin-top:0.55rem">
+        <button type="button" class="btn primary" id="btnShareBundle">🔗 一次分享勾選內容</button>
+      </div>
+    </section>
+
+    <p class="layer-label">① 解決什麼問題</p>
+    <div class="cat-row" id="catTabs" role="tablist"></div>
+
+    <section class="panel" id="catPanel">
+      <h2 class="section" id="catTitle">—</h2>
+      <p class="cat-desc" id="catDesc"></p>
+      <div class="kw-row" id="kwRow" aria-label="問題關鍵字"></div>
+      <p class="layer-label">② 哪個國家／地區</p>
+      <div class="country-row" id="countryRow" role="tablist"></div>
+      <div class="toolbar" style="margin-top:0.5rem">
+        <button type="button" class="btn" id="btnShareCat">🔗 分享此分類</button>
+      </div>
+    </section>
+
+    <section class="player-box" id="playerBox">
+      <p class="now-title" id="nowTitle">尚未選取</p>
+      <p class="now-meta" id="nowMeta"></p>
+      <div id="audioWrap"><audio id="audio" controls playsinline webkit-playsinline preload="auto"></audio></div>
+      <div class="video-shell" id="videoWrap" hidden><iframe id="ytFrame" title="YouTube 播放" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="actions">
+        <button type="button" class="btn primary" id="btnPlay">▶ 播放</button>
+        <button type="button" class="btn primary" id="btnQueue">▶ 輪播可見清單</button>
+        <button type="button" class="btn" id="btnPrev">⏮ 上一檔</button>
+        <button type="button" class="btn" id="btnNext">下一檔 ⏭</button>
+        <button type="button" class="btn" id="btnStopQueue">停止輪播</button>
+        <button type="button" class="btn" id="btnOpenApp">在專用 App 開啟</button>
+        <button type="button" class="btn" id="btnShare">🔗 分享此則</button>
+        <button type="button" class="btn" id="btnShareSearch">🔗 分享搜尋</button>
+      </div>
+      <div class="speed-row" id="speedRow" aria-label="播放速度">
+        <span class="lab">快轉</span>
+        <button type="button" data-rate="1" class="active">1×</button>
+        <button type="button" data-rate="1.5">1.5×</button>
+        <button type="button" data-rate="1.75">1.75×</button>
+        <button type="button" data-rate="2">2×</button>
+      </div>
+    </section>
+
+    <p class="status" id="statusLine"></p>
+
+    <p class="hint">
+      收錄<strong>超級生命密碼學員</strong>分享影音，依「<strong>解決什麼問題</strong>」關鍵字分類：轉念・境緣、親子・家庭、事業・工作、健康・身心、人際・感情、財務・富足、修行・共修、感恩・愛。<br />
+      點標題即可<strong>直接播放</strong>；左側勾選可多選後一次分享。搜尋後可「輪播」並用<strong>暫停／上一檔／下一檔</strong>。<br />
+      快轉速度：<strong>1×、1.5×、1.75×、2×</strong>（音檔直接生效；YouTube 完整版用內建播放器調速）。<br />
+      分享：單則 <code>?item=</code>、多則 <code>?items=id1,id2</code>、搜尋 <code>?q=</code>、分類 <code>?cat=</code>。<br />
+      個人收聽紀錄只存本機，分享連結不影響您的紀錄。
+    </p>
+    <p class="foot">
+      <a href="./simple/">分享給朋友？試試簡易版</a>
+      · <a href="../">回主選單</a>
+    </p>
+  </div>
+
+  <script>
+    const CATALOG_URL = "./catalog.json";
+    const STORAGE_KEY = "xueyuan-lib-v1";
+    const CATALOG_CACHE_KEY = "xueyuan-lib-catalog";
+    let catalog = { categories: [] };
+    let catId = "zhuanian";
+    let countryId = "all";
+    let filtered = [];
+    let qIndex = 0;
+    let current = null;
+    let globalSearch = false;
+    let searchTimer = null;
+    let lastSearchQ = "";
+    let loadedAudioUrl = "";
+    let selectedIds = new Set();
+    let lastShown = [];
+    let queueMode = false;
+    let queueIndex = -1;
+    let advanceTimer = null;
+    let ytPlayer = null;
+    let ytApiReady = false;
+    let playRate = 1;
+
+    const $ = (id) => document.getElementById(id);
+    const audio = $("audio");
+    const SPEED_OPTIONS = [1, 1.5, 1.75, 2];
+
+    const SUGGEST_WORDS = ["轉念", "親子", "事業", "健康", "人際", "富足", "共修", "感恩", "台灣", "馬來西亞", "新加坡", "中國"];
+
+    window.onYouTubeIframeAPIReady = function () {
+      ytApiReady = true;
+    };
+    (function loadYtApi() {
+      if (window.YT && window.YT.Player) { ytApiReady = true; return; }
+      const s = document.createElement("script");
+      s.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(s);
+    })();
+
+    function setStatus(msg) {
+      if (msg) $("statusLine").textContent = msg;
+    }
+
+    function renderSpeedRow() {
+      const el = $("speedRow");
+      if (!el) return;
+      el.querySelectorAll("button[data-rate]").forEach((b) => {
+        const r = Number(b.getAttribute("data-rate"));
+        b.className = r === playRate ? "active" : "";
+      });
+    }
+
+    function applyPlayRate() {
+      try { audio.playbackRate = playRate; } catch (_) {}
+      try {
+        if (ytPlayer && typeof ytPlayer.setPlaybackRate === "function") {
+          ytPlayer.setPlaybackRate(playRate);
+        }
+      } catch (_) {}
+      renderSpeedRow();
+    }
+
+    function setPlayRate(rate) {
+      const r = Number(rate);
+      if (!SPEED_OPTIONS.includes(r)) return;
+      playRate = r;
+      applyPlayRate();
+      // 輪播依實際速度重算剩餘時間
+      if (queueMode && current && current.type === "video") scheduleDurationAdvance(current);
+      setStatus("播放速度 " + playRate + "×");
+    }
+
+    function updatePlayBtn() {
+      const btn = $("btnPlay");
+      if (!btn) return;
+      if (!current) {
+        btn.textContent = "▶ 播放";
+        return;
+      }
+      if (current.type === "video") {
+        let paused = true;
+        try {
+          if (ytPlayer && typeof ytPlayer.getPlayerState === "function") {
+            const st = ytPlayer.getPlayerState();
+            paused = st !== 1; // 1 = playing
+          }
+        } catch (_) {}
+        btn.textContent = paused ? "▶ 播放" : "⏸ 暫停";
+        return;
+      }
+      btn.textContent = !audio.paused ? "⏸ 暫停" : "▶ 播放";
+    }
+
+    function clearAdvanceTimer() {
+      if (advanceTimer) {
+        clearTimeout(advanceTimer);
+        advanceTimer = null;
+      }
+    }
+
+    function ytVideoId(url) {
+      const m = (url || "").match(/[?&]v=([^&]+)/) || (url || "").match(/youtu\.be\/([^?&]+)/);
+      return m ? m[1] : "";
+    }
+
+    function destroyYtPlayer() {
+      try { if (ytPlayer && ytPlayer.destroy) ytPlayer.destroy(); } catch (_) {}
+      ytPlayer = null;
+    }
+
+    function ensureYtPlayer(videoId, autoplay) {
+      $("audioWrap").hidden = true;
+      $("videoWrap").hidden = false;
+      const mount = function () {
+        destroyYtPlayer();
+        const frame = $("ytFrame");
+        // YT.Player needs an element id; recreate iframe host if needed
+        const wrap = $("videoWrap");
+        wrap.innerHTML = '<div id="ytFrame"></div>';
+        ytPlayer = new YT.Player("ytFrame", {
+          videoId: videoId,
+          playerVars: {
+            rel: 0,
+            modestbranding: 1,
+            playsinline: 1,
+            autoplay: autoplay ? 1 : 0,
+          },
+          events: {
+            onReady: function () {
+              try { ytPlayer.setPlaybackRate(playRate); } catch (_) {}
+              applyPlayRate();
+            },
+            onStateChange: function (e) {
+              updatePlayBtn();
+              if (e.data === 1) applyPlayRate(); // playing
+              if (e.data === 0 && queueMode) { // ended
+                playRelative(1);
+              }
+            },
+            onError: function () {
+              setStatus("影音載入失敗，改播下一檔");
+              if (queueMode) setTimeout(() => playRelative(1), 600);
+            },
+          },
+        });
+      };
+      if (window.YT && window.YT.Player) {
+        mount();
+      } else {
+        // fallback iframe + duration timer
+        const emb = ytEmbed("https://www.youtube.com/watch?v=" + videoId);
+        $("videoWrap").innerHTML = '<iframe id="ytFrame" title="YouTube 播放" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        $("ytFrame").src = autoplay && emb ? emb + "&autoplay=1" : emb;
+        scheduleDurationAdvance(current);
+      }
+    }
+
+    function scheduleDurationAdvance(it) {
+      clearAdvanceTimer();
+      if (!queueMode || !it) return;
+      const sec = Number(it.duration);
+      if (sec > 8) {
+        const wait = ((sec + 1.5) / Math.max(playRate, 0.5)) * 1000;
+        advanceTimer = setTimeout(() => playRelative(1), wait);
+      }
+    }
+
+    function showPlayError() {
+      setStatus("播放失敗：請再按「播放」，或直接點上方播放器");
+    }
+
+    function startAudio(url, autoplay) {
+      if (!url) {
+        setStatus("無音檔網址");
+        return;
+      }
+      clearAdvanceTimer();
+      destroyYtPlayer();
+      $("videoWrap").innerHTML = '<iframe id="ytFrame" title="YouTube 播放" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+      $("audioWrap").hidden = false;
+      $("videoWrap").hidden = true;
+      loadedAudioUrl = url;
+      audio.src = url;
+      audio.playbackRate = playRate;
+      if (autoplay) audio.play().catch(showPlayError);
+    }
+
+    function togglePause() {
+      if (!current) {
+        if (filtered.length) {
+          startQueueFrom(0);
+          return;
+        }
+        setStatus("請先搜尋或點一則播放");
+        return;
+      }
+      if (current.type === "video") {
+        try {
+          if (ytPlayer && ytPlayer.getPlayerState) {
+            const st = ytPlayer.getPlayerState();
+            if (st === 1) {
+              ytPlayer.pauseVideo();
+              clearAdvanceTimer();
+              setStatus("已暫停");
+            } else {
+              ytPlayer.playVideo();
+              setStatus(queueMode ? ("輪播中 " + (queueIndex + 1) + "/" + filtered.length) : "播放中");
+            }
+            updatePlayBtn();
+            return;
+          }
+        } catch (_) {}
+        // fallback：重載並播放
+        selectItem(qIndex, true, queueMode);
+        return;
+      }
+      if (!audio.paused) {
+        audio.pause();
+        clearAdvanceTimer();
+        setStatus("已暫停");
+      } else if (audio.src && loadedAudioUrl === (current.playUrl || "")) {
+        audio.play().catch(showPlayError);
+        setStatus(queueMode ? ("輪播中 " + (queueIndex + 1) + "/" + filtered.length) : "播放中");
+      } else {
+        startAudio(current.playUrl || "", true);
+      }
+      updatePlayBtn();
+    }
+
+    function playRelative(delta) {
+      if (!filtered.length) {
+        setStatus("目前沒有可播清單");
+        return;
+      }
+      let i = qIndex;
+      if (i < 0 && current) i = filtered.findIndex((x) => x.id === current.id);
+      if (i < 0) i = 0;
+      else i = i + delta;
+      if (i < 0) {
+        setStatus("已是第一檔");
+        return;
+      }
+      if (i >= filtered.length) {
+        queueMode = false;
+        clearAdvanceTimer();
+        setStatus("已播完可見清單");
+        updatePlayBtn();
+        return;
+      }
+      if (queueMode || delta !== 0) {
+        // 上一檔／下一檔維持輪播狀態（若原本在輪播）
+        selectItem(i, true, queueMode);
+      }
+    }
+
+    function startQueueFrom(startIdx) {
+      if (!filtered.length) {
+        setStatus("請先搜尋或選分類，再輪播");
+        return;
+      }
+      queueMode = true;
+      const i = Math.max(0, Math.min(startIdx || 0, filtered.length - 1));
+      selectItem(i, true, true);
+      setStatus("輪播中 " + (i + 1) + "/" + filtered.length + "（可暫停／上一檔／下一檔）");
+    }
+
+    function stopQueue() {
+      queueMode = false;
+      clearAdvanceTimer();
+      setStatus("已停止輪播（仍可單則播放）");
+      updatePlayBtn();
+    }
+
+    function updatePickCount() {
+      const el = $("pickCount");
+      if (el) el.textContent = "已勾選 " + selectedIds.size + " 則";
+    }
+
+    function renderSuggest() {
+      const el = $("suggestRow");
+      if (!el) return;
+      el.innerHTML = "";
+      SUGGEST_WORDS.forEach((w) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = w;
+        b.addEventListener("click", () => {
+          $("searchBox").value = w;
+          onSearchInput();
+          if (filtered.length) setStatus("找到 " + filtered.length + " 則 · 可點播或按輪播");
+        });
+        el.appendChild(b);
+      });
+    }
+
+    function urlParams() {
+      return new URLSearchParams(location.search);
+    }
+
+    function tokenize(q) {
+      return (q || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+    }
+
+    function matchItem(it, tokens) {
+      if (!tokens.length) return true;
+      const tags = (it.problemTags || []).join(" ");
+      const hay = (
+        (it.title || "") + " " + (it._catName || "") + " " + (it.problemName || "") + " " +
+        (it.country || "") + " " + tags + " " + (it.note || "") + " " +
+        (it.channel || "") + " " + (it.date || "")
+      ).toLowerCase();
+      return tokens.every((t) => hay.includes(t));
+    }
+
+    function itemNote(it) {
+      if (it && it.note) return it.note;
+      const tags = (it && it.problemTags) || [];
+      const kw = tags.slice(0, 4).join("、") || ((it && it.problemName) || (it && it._catName) || "學員分享");
+      const parts = ["解決問題關鍵字：" + kw];
+      if (it && (it.problemName || it._catName)) parts.push(String(it.problemName || it._catName).replace(/｜.*/, ""));
+      if (it && it.country) parts.push(it.country);
+      return parts.join("｜");
+    }
+
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function allItems() {
+      const out = [];
+      (catalog.categories || []).forEach((c) => {
+        (c.items || []).forEach((it) => out.push(Object.assign({
+          _cat: c.id,
+          _catName: c.name,
+          countryId: it.countryId || "other",
+          country: it.country || "其他／未標",
+        }, it)));
+      });
+      return out;
+    }
+
+    function itemsForCat(id) {
+      const c = (catalog.categories || []).find((x) => x.id === id);
+      return c ? c.items || [] : [];
+    }
+
+    function filterByCountry(list) {
+      if (countryId === "all") return list;
+      return list.filter((it) => (it.countryId || "other") === countryId);
+    }
+
+    function fmtDur(sec) {
+      const s = Number(sec);
+      if (!s || s < 1) return "";
+      const m = Math.floor(s / 60);
+      return m + " 分";
+    }
+
+    function loadPrefs() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (_) { return {}; }
+    }
+
+    function savePrefs(extra) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.assign(loadPrefs(), extra))); } catch (_) {}
+    }
+
+    function ytEmbed(url) {
+      const m = (url || "").match(/[?&]v=([^&]+)/) || (url || "").match(/youtu\.be\/([^?&]+)/);
+      return m ? "https://www.youtube.com/embed/" + m[1] + "?rel=0&modestbranding=1&playsinline=1" : "";
+    }
+
+    async function fetchCatalog(force) {
+      const tryFetch = async (url) => {
+        const res = await fetch(url, { cache: force ? "no-store" : "default" });
+        return res.ok ? res.json() : null;
+      };
+      try {
+        const data = await tryFetch(CATALOG_URL + (force ? "?t=" + Date.now() : ""));
+        if (data) return data;
+      } catch (_) {}
+      if (force) {
+        try {
+          const data = await tryFetch(CATALOG_URL + "?t=" + Date.now());
+          if (data) return data;
+        } catch (_) {}
+      }
+      try {
+        const data = await tryFetch(CATALOG_URL);
+        if (data) return data;
+      } catch (_) {}
+      try {
+        const s = localStorage.getItem(CATALOG_CACHE_KEY);
+        if (s) return JSON.parse(s);
+      } catch (_) {}
+      return null;
+    }
+
+    function saveCatalogCache(data) {
+      try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(data)); } catch (_) {}
+    }
+
+    function updateCatalogMeta() {
+      const n = catalog.count || allItems().length || 0;
+      const d = catalog.updatedAt || "—";
+      $("catalogMeta").textContent = n + " 則 · 更新日 " + d;
+      $("searchHint").textContent = "輸入關鍵字即搜尋全庫 " + n + " 則；Enter 播放第一筆；隨時按「更新目錄」拉最新";
+    }
+
+    async function loadCatalog(force) {
+      $("statusLine").textContent = force ? "更新目錄…" : "載入中…";
+      if (force) $("btnRefresh").disabled = true;
+      let remote = null;
+      try {
+        remote = await fetchCatalog(force);
+      } catch (_) {}
+      if (remote) {
+        catalog = remote;
+        saveCatalogCache(remote);
+      } else {
+        try {
+          const s = localStorage.getItem(CATALOG_CACHE_KEY);
+          if (s) catalog = JSON.parse(s);
+        } catch (_) {}
+      }
+      renderTabs();
+      renderList();
+      updateCatalogMeta();
+      $("statusLine").textContent = remote
+        ? (force ? "目錄已更新" : "已載入最新目錄")
+        : "無法連線，使用本機快取";
+      if (force) $("btnRefresh").disabled = false;
+      applyUrlParams();
+      if (!current) {
+        const prefs = loadPrefs();
+        if (prefs.lastItemId) {
+          const items = allItems();
+          const i = items.findIndex((x) => x.id === prefs.lastItemId);
+          if (i >= 0) {
+            catId = items[i]._cat;
+            renderTabs();
+            renderList();
+            const fi = filtered.findIndex((x) => x.id === prefs.lastItemId);
+            if (fi >= 0) selectItem(fi, false);
+          }
+        }
+      }
+    }
+
+    function applyUrlParams() {
+      const sharedItem = (urlParams().get("item") || "").trim();
+      const sharedItems = (urlParams().get("items") || "").trim();
+      const sharedQ = (urlParams().get("q") || "").trim();
+      const sharedCat = (urlParams().get("cat") || "").trim();
+      const sharedCountry = (urlParams().get("country") || "").trim();
+      if (sharedCat && (catalog.categories || []).some((c) => c.id === sharedCat)) catId = sharedCat;
+      if (sharedCountry) countryId = sharedCountry;
+      if (sharedItems) {
+        sharedItems.split(",").map((x) => x.trim()).filter(Boolean).forEach((id) => selectedIds.add(id));
+        updatePickCount();
+      }
+      if (sharedQ) {
+        $("searchBox").value = sharedQ;
+        globalSearch = true;
+        renderTabs();
+        renderList();
+        setStatus("已從分享連結載入搜尋 · 可按輪播");
+        if (filtered.length) setTimeout(() => playFirstSearchResult(), 300);
+      }
+      if (sharedItem) {
+        const items = allItems();
+        const hit = items.find((x) => x.id === sharedItem);
+        if (hit) {
+          catId = hit._cat;
+          countryId = hit.countryId || "all";
+          $("searchBox").value = "";
+          globalSearch = false;
+          renderTabs();
+          renderList();
+          const fi = filtered.findIndex((x) => x.id === sharedItem);
+          if (fi >= 0) selectItem(fi, true, false);
+          else { filtered = [hit]; selectItem(0, true, false); }
+          setStatus("已從分享連結開啟");
+        }
+      } else if (sharedItems && !sharedQ) {
+        const ids = sharedItems.split(",").map((x) => x.trim()).filter(Boolean);
+        const pack = allItems().filter((x) => ids.includes(x.id));
+        if (pack.length) {
+          filtered = pack;
+          globalSearch = true;
+          $("searchBox").value = "";
+          $("catPanel").hidden = true;
+          renderList();
+          selectItem(0, true, false);
+          setStatus("已開啟分享清單 " + pack.length + " 則 · 可輪播");
+        }
+      } else if (sharedCat && !sharedQ) {
+        renderTabs();
+        renderList();
+        const nm = ((catalog.categories || []).find((c) => c.id === catId) || {}).name || sharedCat;
+        setStatus("已開啟分類：" + nm);
+      }
+    }
+
+    function renderCountryRow(cat) {
+      const el = $("countryRow");
+      if (!el) return;
+      el.innerHTML = "";
+      const countries = (cat && cat.countries) || [];
+      const allBtn = document.createElement("button");
+      allBtn.type = "button";
+      allBtn.textContent = "全部國家 (" + ((cat && cat.items) || []).length + ")";
+      allBtn.className = countryId === "all" ? "active" : "";
+      allBtn.addEventListener("click", () => { countryId = "all"; qIndex = 0; renderTabs(); renderList(); });
+      el.appendChild(allBtn);
+      countries.forEach((co) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = co.name + " (" + (co.count || (co.items || []).length) + ")";
+        b.className = countryId === co.id ? "active" : "";
+        b.addEventListener("click", () => {
+          countryId = co.id; qIndex = 0; globalSearch = false; $("searchBox").value = "";
+          renderTabs(); renderList();
+        });
+        el.appendChild(b);
+      });
+    }
+
+    function renderKeywordRow(cat) {
+      const el = $("kwRow");
+      if (!el) return;
+      el.innerHTML = "";
+      (cat && cat.keywords || []).forEach((kw) => {
+        const s = document.createElement("span");
+        s.textContent = kw;
+        s.style.cursor = "pointer";
+        s.addEventListener("click", () => {
+          $("searchBox").value = kw;
+          renderList();
+          if (filtered.length) playFirstSearchResult();
+        });
+        el.appendChild(s);
+      });
+    }
+
+    function renderTabs() {
+      const el = $("catTabs");
+      el.innerHTML = "";
+      (catalog.categories || []).forEach((c) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = c.name.replace(/｜.*/, "") + " (" + (c.items || []).length + ")";
+        b.className = c.id === catId ? "active" : "";
+        b.addEventListener("click", () => {
+          catId = c.id; countryId = "all"; qIndex = 0; globalSearch = false; $("searchBox").value = "";
+          renderTabs(); renderList();
+        });
+        el.appendChild(b);
+      });
+      const c = (catalog.categories || []).find((x) => x.id === catId);
+      $("catTitle").textContent = c ? c.name : "—";
+      $("catDesc").textContent = c ? (c.desc || "") : "";
+      renderKeywordRow(c);
+      renderCountryRow(c);
+    }
+
+    function renderList() {
+      const rawQ = ($("searchBox").value || "").trim();
+      const tokens = tokenize(rawQ);
+      globalSearch = tokens.length > 0;
+      $("catPanel").hidden = globalSearch;
+      if (globalSearch) {
+        filtered = allItems().filter((it) => matchItem(it, tokens));
+        $("searchMeta").textContent = filtered.length
+          ? "找到 " + filtered.length + " 則 · 點標題即播 · 可輪播"
+          : "找不到符合「" + rawQ + "」的項目";
+      } else {
+        const catName = ((catalog.categories || []).find((x) => x.id === catId) || {}).name || "";
+        filtered = filterByCountry(itemsForCat(catId).map((it) => Object.assign({ _cat: catId, _catName: catName }, it)));
+        $("searchMeta").textContent = filtered.length
+          ? "瀏覽「" + catName + "」" + (countryId !== "all" ? "／" + ((filtered[0] && filtered[0].country) || "") : "") + " 共 " + filtered.length + " 則 · 點標題即播"
+          : "此分類／國家尚無項目";
+      }
+      const list = $("itemList");
+      list.innerHTML = "";
+      if (!filtered.length) {
+        lastShown = [];
+        list.innerHTML = '<p style="padding:0.75rem;font-size:0.85rem;color:var(--muted)">' + (globalSearch ? "無符合項目，換個關鍵字試試" : "此分類／國家尚無項目，可更新目錄或換國家") + "</p>";
+        updatePickCount();
+        return;
+      }
+      const show = filtered.slice(0, globalSearch ? 40 : Math.min(filtered.length, 60));
+      lastShown = show;
+      show.forEach((it, i) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        const pick = document.createElement("input");
+        pick.type = "checkbox";
+        pick.className = "pick";
+        pick.checked = selectedIds.has(it.id);
+        pick.title = "勾選後可一次分享";
+        pick.addEventListener("click", (e) => e.stopPropagation());
+        pick.addEventListener("change", () => {
+          if (pick.checked) selectedIds.add(it.id);
+          else selectedIds.delete(it.id);
+          updatePickCount();
+        });
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "item" + (current && current.id === it.id ? " active" : "");
+        const typ = it.type === "audio" ? "音檔" : "影音";
+        const co = it.country ? it.country + " · " : "";
+        const catLabel = globalSearch && it._catName ? it._catName.replace(/｜.*/, "") + " · " : "";
+        const note = itemNote(it);
+        btn.innerHTML =
+          '<div class="t">' + escapeHtml(it.title) + '</div>' +
+          '<div class="note">備註：' + escapeHtml(note) + '</div>' +
+          '<div class="m">' + escapeHtml(catLabel + co) + typ + (it.date ? " · " + escapeHtml(it.date) : "") + (it.duration ? " · " + fmtDur(it.duration) : "") + " · 點我播放</div>";
+        btn.addEventListener("click", () => {
+          queueMode = false;
+          clearAdvanceTimer();
+          selectItem(i, true, false);
+          setStatus("點擊播放中");
+        });
+        row.appendChild(pick);
+        row.appendChild(btn);
+        list.appendChild(row);
+      });
+      if (filtered.length > show.length) {
+        const more = document.createElement("p");
+        more.style.cssText = "padding:0.55rem 0.7rem;font-size:0.75rem;color:var(--muted)";
+        more.textContent = "還有 " + (filtered.length - show.length) + " 則，請縮小關鍵字或輪播可見清單";
+        list.appendChild(more);
+      }
+      updatePickCount();
+    }
+
+    function playFirstSearchResult() {
+      if (!filtered.length) return;
+      selectItem(0, true, false);
+      const box = document.getElementById("playerBox");
+      if (box) box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function onSearchInput() {
+      qIndex = 0;
+      renderList();
+    }
+
+    function selectItem(i, play, keepQueue) {
+      if (i < 0 || i >= filtered.length) return;
+      if (!keepQueue) {
+        /* 單則點播不強制關輪播：由呼叫端決定 */
+      }
+      clearAdvanceTimer();
+      qIndex = i;
+      queueIndex = i;
+      current = filtered[i];
+      savePrefs({ lastItemId: current.id, catId: catId });
+      const queueHint = queueMode ? (" · 輪播 " + (i + 1) + "/" + filtered.length) : "";
+      $("nowTitle").textContent = current.title;
+      $("nowMeta").textContent =
+        "備註：" + itemNote(current) + " · " +
+        (current.type === "audio" ? "音檔" : "YouTube 影音") +
+        queueHint +
+        (current.date ? " · " + current.date : "");
+      $("btnOpenApp").style.display = current.openUrl ? "" : "none";
+      if (current.type === "audio") {
+        startAudio(current.playUrl || "", play);
+      } else {
+        loadedAudioUrl = "";
+        audio.pause();
+        audio.removeAttribute("src");
+        const vid = ytVideoId(current.playUrl || current.openUrl || "");
+        if (vid) ensureYtPlayer(vid, !!play);
+        else {
+          $("videoWrap").hidden = false;
+          $("audioWrap").hidden = true;
+        }
+        if (queueMode) scheduleDurationAdvance(current);
+      }
+      updatePlayBtn();
+      if (play) {
+        const box = document.getElementById("playerBox");
+        if (box) box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+      setTimeout(() => renderList(), 0);
+    }
+
+    function shareBaseSimple() {
+      return location.origin && location.origin.indexOf("http") === 0
+        ? location.origin + location.pathname.replace(/\/index\.html$/, "").replace(/\/$/, "") + "/simple/"
+        : "https://copyshae.github.io/-/xueyuan-lib/simple/";
+    }
+
+    function selectedItems() {
+      const all = allItems();
+      return all.filter((it) => selectedIds.has(it.id));
+    }
+
+    async function doShare(title, text, url) {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text, url });
+          setStatus("已開啟分享");
+          return;
+        } catch (e) { if (e && e.name === "AbortError") return; }
+      }
+      const payload = (text || title || "") + (url ? ("\n" + url) : "");
+      try {
+        await navigator.clipboard.writeText(payload);
+        setStatus("已複製分享內容");
+      } catch (_) {
+        window.prompt("複製分享：", payload);
+      }
+    }
+
+    async function shareCurrent() {
+      if (!current) { setStatus("請先選取一則"); return; }
+      const url = shareBaseSimple() + "?item=" + encodeURIComponent(current.id);
+      const note = itemNote(current);
+      await doShare(current.title, current.title + "\n備註：" + note + "\n學員分享影音", url);
+    }
+
+    async function shareSearch() {
+      const q = ($("searchBox").value || "").trim();
+      if (!q) { setStatus("請先輸入搜尋關鍵字"); return; }
+      const url = shareBaseSimple() + "?q=" + encodeURIComponent(q);
+      await doShare("搜尋：" + q, "學員分享影音｜搜尋：" + q, url);
+    }
+
+    async function shareCategory() {
+      const c = (catalog.categories || []).find((x) => x.id === catId);
+      if (!c) { setStatus("請先選分類"); return; }
+      let url = shareBaseSimple() + "?cat=" + encodeURIComponent(catId);
+      if (countryId && countryId !== "all") url += "&country=" + encodeURIComponent(countryId);
+      const co = ((c.countries || []).find((x) => x.id === countryId) || {}).name
+        || ({ tw: "台灣", my: "馬來西亞", sg: "新加坡", cn: "中國", hk: "香港", us: "美國", other: "其他／未標" })[countryId]
+        || countryId;
+      const label = c.name + (countryId !== "all" ? "／" + co : "");
+      await doShare(label, "學員分享影音｜" + label + "\n（含問題關鍵字分類）", url);
+    }
+
+    async function sharePicks() {
+      const items = selectedItems();
+      if (!items.length) { setStatus("請先勾選要分享的影音"); return; }
+      const ids = items.map((x) => x.id).slice(0, 30);
+      const url = shareBaseSimple() + "?items=" + encodeURIComponent(ids.join(","));
+      const lines = items.slice(0, 30).map((it, i) =>
+        (i + 1) + ". " + it.title + "\n   備註：" + itemNote(it) + (it.openUrl || it.playUrl ? ("\n   " + (it.openUrl || it.playUrl)) : "")
+      );
+      const text = "學員分享影音（已勾選 " + items.length + " 則）\n\n" + lines.join("\n\n");
+      await doShare("學員分享影音×" + items.length, text, url);
+    }
+
+    async function shareBundle() {
+      const wantItems = $("featItems") && $("featItems").checked;
+      const wantCat = $("featCat") && $("featCat").checked;
+      const wantCountry = $("featCountry") && $("featCountry").checked;
+      const wantSearch = $("featSearch") && $("featSearch").checked;
+      if (!wantItems && !wantCat && !wantCountry && !wantSearch) {
+        setStatus("請至少勾選一項要分享的內容");
+        return;
+      }
+      const parts = [];
+      const params = [];
+      const blocks = [];
+      if (wantItems) {
+        const items = selectedItems();
+        if (!items.length) {
+          setStatus("已勾「影音清單」但尚未勾選任何一則");
+          return;
+        }
+        parts.push("影音" + items.length + "則");
+        params.push("items=" + encodeURIComponent(items.map((x) => x.id).slice(0, 30).join(",")));
+        blocks.push(items.slice(0, 30).map((it, i) =>
+          (i + 1) + ". " + it.title + "\n   備註：" + itemNote(it)
+        ).join("\n"));
+      }
+      if (wantCat) {
+        const c = (catalog.categories || []).find((x) => x.id === catId);
+        if (c) {
+          parts.push("分類：" + c.name);
+          params.push("cat=" + encodeURIComponent(catId));
+          blocks.push("問題分類：" + c.name + "｜關鍵字：" + (c.keywords || []).join("、"));
+        }
+      }
+      if (wantCountry && countryId !== "all") {
+        const names = { tw: "台灣", my: "馬來西亞", sg: "新加坡", cn: "中國", hk: "香港", us: "美國", other: "其他／未標" };
+        parts.push("國家：" + (names[countryId] || countryId));
+        params.push("country=" + encodeURIComponent(countryId));
+        blocks.push("國家／地區：" + (names[countryId] || countryId));
+      }
+      if (wantSearch) {
+        const q = ($("searchBox").value || "").trim();
+        if (!q) {
+          setStatus("已勾「搜尋關鍵字」但搜尋框是空的");
+          return;
+        }
+        parts.push("搜尋：" + q);
+        params.push("q=" + encodeURIComponent(q));
+        blocks.push("搜尋關鍵字：" + q);
+      }
+      const url = shareBaseSimple() + "?" + params.join("&");
+      const text = "學員分享影音｜" + parts.join("＋") + "\n\n" + blocks.join("\n\n");
+      await doShare("學員分享｜" + parts.join("＋"), text, url);
+    }
+
+    $("searchBox").addEventListener("input", onSearchInput);
+    $("searchBox").addEventListener("search", () => {
+      if (($("searchBox").value || "").trim() && filtered.length) playFirstSearchResult();
+    });
+    $("searchBox").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && filtered.length) {
+        e.preventDefault();
+        playFirstSearchResult();
+      }
+    });
+    $("btnPlay").addEventListener("click", togglePause);
+    if ($("btnQueue")) $("btnQueue").addEventListener("click", () => startQueueFrom(Math.max(0, qIndex)));
+    if ($("btnPrev")) $("btnPrev").addEventListener("click", () => {
+      if (!queueMode && current) queueMode = false;
+      playRelative(-1);
+      setStatus("上一檔");
+    });
+    if ($("btnNext")) $("btnNext").addEventListener("click", () => {
+      playRelative(1);
+      setStatus("下一檔");
+    });
+    if ($("btnStopQueue")) $("btnStopQueue").addEventListener("click", stopQueue);
+    if ($("btnClearSearch")) $("btnClearSearch").addEventListener("click", () => {
+      $("searchBox").value = "";
+      onSearchInput();
+      setStatus("已清除搜尋");
+    });
+    if ($("btnSelectVisible")) $("btnSelectVisible").addEventListener("click", () => {
+      lastShown.forEach((it) => selectedIds.add(it.id));
+      renderList();
+      setStatus("已全選可見 " + lastShown.length + " 則");
+    });
+    if ($("btnClearPicks")) $("btnClearPicks").addEventListener("click", () => {
+      selectedIds.clear();
+      renderList();
+      setStatus("已清除勾選");
+    });
+    if ($("btnSharePicks")) $("btnSharePicks").addEventListener("click", sharePicks);
+    if ($("btnShareBundle")) $("btnShareBundle").addEventListener("click", shareBundle);
+    const speedRow = $("speedRow");
+    if (speedRow) {
+      speedRow.addEventListener("click", (e) => {
+        const b = e.target && e.target.closest ? e.target.closest("button[data-rate]") : null;
+        if (!b) return;
+        setPlayRate(b.getAttribute("data-rate"));
+      });
+    }
+    audio.addEventListener("play", () => { applyPlayRate(); updatePlayBtn(); });
+    audio.addEventListener("ratechange", renderSpeedRow);
+    audio.addEventListener("pause", updatePlayBtn);
+    audio.addEventListener("ended", () => {
+      updatePlayBtn();
+      if (queueMode) playRelative(1);
+    });
+    audio.addEventListener("error", () => setStatus("音檔載入失敗，請按「更新目錄」或換一則"));
+    $("btnOpenApp").addEventListener("click", () => { if (current && current.openUrl) location.href = current.openUrl; });
+    $("btnShare").addEventListener("click", shareCurrent);
+    $("btnShareSearch").addEventListener("click", shareSearch);
+    if ($("btnShareCat")) $("btnShareCat").addEventListener("click", shareCategory);
+    $("btnRefresh").addEventListener("click", () => loadCatalog(true));
+
+    // 按鈕文案：暫停／上一檔／下一檔
+    if ($("btnPrev")) $("btnPrev").textContent = "⏮ 上一檔";
+    if ($("btnNext")) $("btnNext").textContent = "下一檔 ⏭";
+    if ($("btnPlay")) $("btnPlay").textContent = "▶ 播放／⏸ 暫停";
+
+    const prefs = loadPrefs();
+    if (prefs.catId) catId = prefs.catId;
+    renderSuggest();
+    loadCatalog(false);
+
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=9").catch(() => {});
+  </script>
+</body>
+</html>
