@@ -73,6 +73,7 @@
     let player = null;
     let apiReady = false;
     let pendingId = null;
+    let currentId = null;
 
     const $ = (id) => document.getElementById(id);
 
@@ -132,23 +133,47 @@
       }
       renderMenu();
       $("statusLine").textContent = catalog.songs && catalog.songs.length
-        ? "共 " + catalog.songs.length + " 首"
+        ? "共 " + catalog.songs.length + " 首 · 選歌即播"
         : "無法載入曲庫";
+    }
+
+    function ensurePlayerHost() {
+      const box = document.querySelector(".player");
+      if (!box) return;
+      const host = document.getElementById("player");
+      if (!host || host.tagName === "IFRAME") {
+        box.innerHTML = '<div id="player"></div>';
+      }
     }
 
     function playId(videoId, song) {
       if (!videoId) return;
       pendingId = videoId;
-      localStorage.setItem("taiyang-simple-last", videoId);
+      currentId = videoId;
+      try { localStorage.setItem("taiyang-simple-last", videoId); } catch (_) {}
       const who = song && song.performer === "master" ? "導師" : (song && song.performerLabel) || "";
       $("nowLine").innerHTML = "<strong>" + (song ? song.name : "—") + "</strong>" + (who ? " · " + who : "");
-      if (player && player.loadVideoById) {
-        try { player.loadVideoById({ videoId: videoId, startSeconds: 0 }); }
-        catch (_) { player.loadVideoById(videoId, 0); }
-        setTimeout(() => player.playVideo && player.playVideo(), 350);
-      } else if (apiReady) {
-        createPlayer(videoId, true);
+      $("statusLine").textContent = "切換：" + (song ? song.name : videoId);
+
+      if (player && (typeof player.loadVideoById === "function" || typeof player.cueVideoById === "function")) {
+        try { if (player.stopVideo) player.stopVideo(); } catch (_) {}
+        let ok = false;
+        try {
+          player.loadVideoById({ videoId: videoId, startSeconds: 0 });
+          ok = true;
+        } catch (_) {
+          try { player.cueVideoById({ videoId: videoId, startSeconds: 0 }); ok = true; } catch (__) {}
+        }
+        if (ok) {
+          setTimeout(() => { try { player.playVideo && player.playVideo(); } catch (_) {} }, 350);
+          return;
+        }
+        try { if (player.destroy) player.destroy(); } catch (_) {}
+        player = null;
       }
+
+      if (apiReady) createPlayer(videoId, true);
+      else $("statusLine").textContent = "YouTube 載入中…";
     }
 
     function playSelected() {
@@ -159,29 +184,39 @@
     }
 
     function createPlayer(videoId, autoplay) {
+      if (player) {
+        try { if (player.destroy) player.destroy(); } catch (_) {}
+        player = null;
+      }
+      ensurePlayerHost();
       player = new YT.Player("player", {
         height: "100%", width: "100%", videoId,
         playerVars: { playsinline: 1, rel: 0, modestbranding: 1, enablejsapi: 1, origin: location.origin },
         events: {
-          onReady: () => { if (autoplay) player.playVideo(); },
+          onReady: () => { if (autoplay) try { player.playVideo(); } catch (_) {} },
           onStateChange: (e) => {
             if (e.data === YT.PlayerState.PLAYING) $("btnPlay").textContent = "⏸ 暫停";
             else $("btnPlay").textContent = "▶ 播放";
-          }
+          },
+          onError: () => { $("statusLine").textContent = "無法播放，請換另一首"; }
         }
       });
     }
 
     $("btnPlay").addEventListener("click", () => {
       if (!player) { playSelected(); return; }
-      const st = player.getPlayerState();
+      let st = -1;
+      try { st = player.getPlayerState(); } catch (_) {}
       if (st === YT.PlayerState.PLAYING) player.pauseVideo();
-      else if ($("songSelect").value) player.playVideo();
-      else playSelected();
+      else if ($("songSelect").value) {
+        // 若選單已換成別首，按播放應播選單那首
+        const id = $("songSelect").value;
+        if (id && id !== currentId) playSelected();
+        else try { player.playVideo(); } catch (_) { playSelected(); }
+      } else playSelected();
     });
 
     $("songSelect").addEventListener("change", playSelected);
-    $("songSelect").addEventListener("input", playSelected);
 
     window.onYouTubeIframeAPIReady = function () {
       apiReady = true;
@@ -191,7 +226,7 @@
     loadCatalog();
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=1").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=20260909a").catch(() => {});
     }
   </script>
   <script src="https://www.youtube.com/iframe_api" async></script>

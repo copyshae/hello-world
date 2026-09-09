@@ -165,7 +165,10 @@
     let apiReady = false;
     let autoPlay = false;
     let listFilter = "all";
-    let useKaraoke = localStorage.getItem("taiyang-karaoke") !== "0";
+    // 預設原唱；避免伴唱模糊比對誤判成同一支影片
+    let useKaraoke = localStorage.getItem("taiyang-karaoke") === "1";
+    let switching = false;
+    let lastLoadedVid = "";
 
     const $ = (id) => document.getElementById(id);
 
@@ -176,13 +179,14 @@
     function findKaraokeInCatalog(item) {
       if (item.karaokeId) return item.karaokeId;
       const n = normName(item.name);
+      if (!n) return null;
+      // 只接受歌名完全相同的伴奏，避免短歌名誤配到同一支
       for (const s of catalog.songs || []) {
         if (s.id === item.id) continue;
         const t = s.title || "";
         if (!/伴奏|演奏版|伴奏版/.test(t)) continue;
         if (/導師演唱版|导师演唱版/.test(t) && !/伴奏/.test(t)) continue;
-        const sn = normName(s.name);
-        if (sn === n || sn.includes(n) || n.includes(sn)) return s.id;
+        if (normName(s.name) === n) return s.id;
       }
       return null;
     }
@@ -193,6 +197,24 @@
         if (kid) return kid;
       }
       return item.id;
+    }
+
+    function ensurePlayerHost() {
+      const shell = document.querySelector(".player-shell");
+      if (!shell) return;
+      const host = document.getElementById("player");
+      if (!host || host.tagName === "IFRAME") {
+        shell.innerHTML = '<div id="player"></div>';
+      }
+    }
+
+    function destroyPlayer() {
+      try {
+        if (player && typeof player.destroy === "function") player.destroy();
+      } catch (_) {}
+      player = null;
+      lastLoadedVid = "";
+      ensurePlayerHost();
     }
 
     function buildQueue(songs) {
@@ -276,6 +298,8 @@
         } catch (_) {}
       }
       rebuildQueue();
+      renderSongMenu();
+      syncSongSelectValue(queue[qIndex] && queue[qIndex].id);
       const c = catalog.counts || {};
       const mc = c.master || catalog.songs.filter((s) => s.performer === "master").length;
       const oc = c.other || catalog.songs.filter((s) => s.performer === "other").length;
@@ -354,7 +378,16 @@
       $("btnPrev").disabled = qIndex <= 0;
       $("btnNext").disabled = qIndex >= total - 1;
       updateKaraokeBtn();
-      renderSongMenu();
+      // 只同步選單目前選取值，勿重繪整個 <select>（iOS 會卡住換歌）
+      syncSongSelectValue(item.id);
+    }
+
+    function syncSongSelectValue(songId) {
+      const sel = $("songSelect");
+      if (!sel || !songId) return;
+      if ([].some.call(sel.options, (o) => o.value === songId)) {
+        if (sel.value !== songId) sel.value = songId;
+      }
     }
 
     function queueItemFromSong(s) {
@@ -372,34 +405,88 @@
     }
 
     function loadVideoByIdSafe(vid, startSeconds) {
-      if (!player || !player.loadVideoById) return;
+      if (!player) return false;
       const start = startSeconds || 0;
       try {
-        player.loadVideoById({ videoId: vid, startSeconds: start });
-      } catch (_) {
-        try { player.loadVideoById(vid, start); } catch (__) {}
-      }
+        if (typeof player.stopVideo === "function") player.stopVideo();
+      } catch (_) {}
+      try {
+        if (typeof player.loadVideoById === "function") {
+          player.loadVideoById({ videoId: vid, startSeconds: start });
+          return true;
+        }
+      } catch (_) {}
+      try {
+        if (typeof player.cueVideoById === "function") {
+          player.cueVideoById({ videoId: vid, startSeconds: start });
+          return true;
+        }
+      } catch (_) {}
+      return false;
     }
 
     function loadVideo(item, play) {
       if (!item) return;
       const vid = resolveVideoId(item);
-      if (player && player.loadVideoById) {
-        loadVideoByIdSafe(vid, 0);
-        if (play) setTimeout(() => { if (player.playVideo) player.playVideo(); }, 400);
-      } else if (apiReady) {
-        createPlayer(vid, play);
+      if (!vid) {
+        $("statusLine").textContent = "此曲無影片編號";
+        return;
       }
+      switching = true;
+      autoPlay = !!play;
+      $("statusLine").textContent = "切換：" + item.name + (useKaraoke && findKaraokeInCatalog(item) ? "（伴唱）" : "");
       updateNow();
+
+      const finishSwitch = () => {
+        switching = false;
+        lastLoadedVid = vid;
+      };
+
+      if (player && (typeof player.loadVideoById === "function" || typeof player.cueVideoById === "function")) {
+        // 同一支影片也強制從頭播，避免「點了沒反應」
+        const ok = loadVideoByIdSafe(vid, 0);
+        if (ok) {
+          if (play) {
+            setTimeout(() => {
+              try { if (player && player.playVideo) player.playVideo(); } catch (_) {}
+              finishSwitch();
+            }, 350);
+          } else finishSwitch();
+          return;
+        }
+        destroyPlayer();
+      }
+
+      if (apiReady) {
+        createPlayer(vid, play);
+        finishSwitch();
+      } else {
+        lastLoadedVid = vid;
+        $("statusLine").textContent = "YouTube 載入中，稍後自動播放";
+      }
     }
 
     function createPlayer(videoId, play) {
+      if (player) {
+        try { if (typeof player.destroy === "function") player.destroy(); } catch (_) {}
+        player = null;
+      }
+      ensurePlayerHost();
       player = new YT.Player("player", {
         height: "100%", width: "100%", videoId,
         playerVars: { playsinline: 1, rel: 0, modestbranding: 1, enablejsapi: 1, origin: location.origin },
         events: {
-          onReady: () => { if (play) player.playVideo(); },
-          onStateChange: onStateChange
+          onReady: () => {
+            lastLoadedVid = videoId;
+            if (play) {
+              try { player.playVideo(); } catch (_) {}
+            }
+          },
+          onStateChange: onStateChange,
+          onError: () => {
+            $("statusLine").textContent = "影片無法播放，請換下一首或更新曲庫";
+            switching = false;
+          }
         }
       });
     }
@@ -407,10 +494,12 @@
     function onStateChange(e) {
       if (e.data === YT.PlayerState.PLAYING) {
         $("btnPlay").textContent = "⏸ 暫停";
+        switching = false;
       } else if (e.data === YT.PlayerState.PAUSED) {
         $("btnPlay").textContent = "▶ 播放";
       } else if (e.data === YT.PlayerState.ENDED) {
         $("btnPlay").textContent = "▶ 播放";
+        if (switching) return;
         if (autoPlay && qIndex < queue.length - 1) {
           qIndex += 1;
           loadVideo(queue[qIndex], true);
@@ -424,20 +513,27 @@
     function jumpTo(i, play) {
       if (i < 0 || i >= queue.length) return;
       qIndex = i;
-      autoPlay = !!play;
       loadVideo(queue[qIndex], play);
     }
 
     function playSong(songId) {
+      if (!songId) return;
       const song = (catalog.songs || []).find((s) => s.id === songId);
-      if (!song) return;
-      const i = queue.findIndex((q) => q.id === songId);
-      if (i >= 0) qIndex = i;
+      if (!song) {
+        $("statusLine").textContent = "找不到此歌曲";
+        return;
+      }
+      let i = queue.findIndex((q) => q.id === songId);
+      if (i < 0) {
+        // 不在連播佇列時插入目前位置之後再播
+        const item = queueItemFromSong(song);
+        queue.splice(Math.min(qIndex + 1, queue.length), 0, item);
+        i = Math.min(qIndex + 1, queue.length - 1);
+      }
+      qIndex = i;
       autoPlay = true;
-      const item = i >= 0 ? queue[qIndex] : queueItemFromSong(song);
-      loadVideo(item, true);
-      const sel = $("songSelect");
-      if (sel) sel.value = songId;
+      loadVideo(queue[qIndex], true);
+      syncSongSelectValue(songId);
     }
 
     function toggleKaraoke() {
@@ -450,9 +546,10 @@
     $("btnPlay").addEventListener("click", () => {
       if (!queue.length) return;
       if (!player) { autoPlay = true; loadVideo(queue[qIndex], true); return; }
-      const st = player.getPlayerState();
+      let st = -1;
+      try { st = player.getPlayerState(); } catch (_) {}
       if (st === YT.PlayerState.PLAYING) player.pauseVideo();
-      else { autoPlay = true; player.playVideo(); }
+      else { autoPlay = true; try { player.playVideo(); } catch (_) { loadVideo(queue[qIndex], true); } }
     });
     $("btnPrev").addEventListener("click", () => jumpTo(qIndex - 1, true));
     $("btnNext").addEventListener("click", () => jumpTo(qIndex + 1, true));
@@ -466,24 +563,28 @@
         btn.classList.add("active");
         listFilter = btn.dataset.filter;
         renderSongMenu();
+        syncSongSelectValue(queue[qIndex] && queue[qIndex].id);
       });
     });
 
     function onSongSelect() {
       const id = $("songSelect").value;
-      if (id) playSong(id);
+      if (!id) return;
+      // 正在切換中仍允許改選（以最新為準）
+      playSong(id);
     }
 
     $("songSelect").addEventListener("change", onSongSelect);
-    $("songSelect").addEventListener("input", onSongSelect);
     $("btnPlaySelected").addEventListener("click", () => {
       const id = $("songSelect").value;
       if (id) playSong(id);
+      else $("statusLine").textContent = "請先選擇歌曲";
     });
 
     window.onYouTubeIframeAPIReady = function () {
       apiReady = true;
       if (queue.length && autoPlay) loadVideo(queue[qIndex], true);
+      else if (lastLoadedVid && !player) createPlayer(lastLoadedVid, autoPlay);
     };
 
     loadCatalog(false).then(() => {
@@ -491,7 +592,7 @@
     });
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=20260830d").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=20260909a").catch(() => {});
     }
   </script>
   <script src="https://www.youtube.com/iframe_api" async></script>
