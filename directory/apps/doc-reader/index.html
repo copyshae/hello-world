@@ -215,7 +215,7 @@
       <h2>3. 可選：AI 加強摘要</h2>
       <p class="hint">未填金鑰也會用本機規則節錄重點。若此裝置曾在「習作批改」存過 Gemini 金鑰，可自動帶入。</p>
       <label for="geminiKey">Gemini 金鑰（選填）</label>
-      <input id="geminiKey" type="password" autocomplete="off" placeholder="貼上 AI Studio 金鑰（選填）" />
+      <input id="geminiKey" type="password" autocomplete="off" placeholder="貼上 AI Studio 金鑰（AQ. 或 AIza）（選填）" />
       <div class="actions">
         <button type="button" id="btnSaveKey">記住金鑰（本機）</button>
       </div>
@@ -974,13 +974,13 @@
             const prompt = target === "en"
               ? "Translate the following Traditional Chinese (or mixed) text into natural English only. No commentary.\n\n" + t
               : "Translate the following English into Traditional Chinese only. No commentary.\n\n" + t;
-            const models = ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-flash-latest"];
+            const models = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-flash-latest"];
             for (const model of models) {
               const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
-                encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(key);
+                encodeURIComponent(model) + ":generateContent";
               const res = await fetch(url, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", "x-goog-api-key": (typeof apiKey !== "undefined" ? apiKey : (typeof key !== "undefined" ? key : "")) },
                 body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
               });
               const data = await res.json();
@@ -1436,11 +1436,11 @@
             const prompt =
               "請用繁體中文解釋下列生字或詞句，給正確、精簡的字義／詞義（含注音或拼音若方便），不要廢話：\n" + t;
             const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
-              encodeURIComponent("gemini-2.5-flash-lite") +
-              ":generateContent?key=" + encodeURIComponent(key);
+              encodeURIComponent("gemini-3.6-flash") +
+              ":generateContent";
             const res = await fetch(url, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json", "x-goog-api-key": (typeof apiKey !== "undefined" ? apiKey : (typeof key !== "undefined" ? key : "")) },
               body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
             });
             const data = await res.json();
@@ -1729,15 +1729,15 @@
         const mime = file.type || "image/jpeg";
         const prompt =
           "這是一張照片。請用繁體中文：1) 簡述圖中內容 2) 若有文字請完整抄出 3) 若像招牌／植物／物品請猜測可能是什麼。條列、精簡。";
-        const models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
+        const models = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-latest"];
         for (const model of models) {
           throwIfCancelled(token);
           try {
             const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
-              encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(key);
+              encodeURIComponent(model) + ":generateContent";
             const res = await fetch(url, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json", "x-goog-api-key": (typeof apiKey !== "undefined" ? apiKey : (typeof key !== "undefined" ? key : "")) },
               signal: jobAbort ? jobAbort.signal : undefined,
               body: JSON.stringify({
                 contents: [{
@@ -2097,15 +2097,15 @@
           "語氣務實、可執行，首要宗旨是身心靈提升與靈命持續成長。\n\n【原文】\n" +
           fullText.slice(0, 12000);
 
-        const models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
+        const models = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-latest"];
         let lastErr = null;
         for (const model of models) {
           try {
             const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
-              encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(apiKey);
+              encodeURIComponent(model) + ":generateContent";
             const res = await fetch(url, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json", "x-goog-api-key": (typeof apiKey !== "undefined" ? apiKey : (typeof key !== "undefined" ? key : "")) },
               body: JSON.stringify({
                 contents: [{ role: "user", parts: [{ text: prompt }] }]
               })
