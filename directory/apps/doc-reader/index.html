@@ -43,6 +43,13 @@
     button.danger { color: #fff; background: var(--danger); border-color: var(--danger); }
     button:disabled { opacity: 0.4; cursor: default; }
     input[type="file"] { display: none; }
+    details.more-import {
+      margin-top: 0.65rem; padding: 0.55rem 0.65rem;
+      border: 1px dashed var(--line); background: rgba(255,255,255,0.45);
+    }
+    details.more-import > summary {
+      cursor: pointer; font-weight: 700; color: var(--muted); font-size: 0.88rem;
+    }
     textarea, select, input[type="password"], input[type="text"], input[type="url"] {
       width: 100%; font: inherit; font-size: 16px; padding: 0.55rem 0.6rem;
       border: 1px solid var(--line); background: #fff; line-height: 1.5;
@@ -166,31 +173,39 @@
 <body>
   <div class="wrap">
     <h1>看書／看文件</h1>
-    <p class="sub">首要：身心靈提升｜靈命持續成長<br />拍照／檔案／網址 → 文字辨識或圖搜 → 中英讀誦／翻譯 → 節錄重點</p>
+    <p class="sub">首要：身心靈提升｜靈命持續成長<br />拍照 → Google AI 辨識文字 → 中英讀誦／翻譯 → 節錄重點</p>
 
     <div class="card">
-      <h2>1. 匯入文件</h2>
-      <p class="hint">支援：拍照／相簿、PDF、TXT、MD、網址、貼上文字。英文輸入可選「逐句」或「全文」中文翻譯並朗讀；純圖改走圖搜。</p>
+      <h2>1. 拍照輸入</h2>
+      <p class="hint">以<strong>拍照</strong>為主。有 Gemini 金鑰（AQ. 或 AIza）時，用 Google API 辨識文字；無金鑰或失敗時改本機 OCR。亦可從相簿選圖。</p>
       <div class="actions">
-        <label class="file-btn primary">
-          📷 拍照／選圖
-          <input id="fileImage" type="file" accept="image/*" capture="environment" multiple />
-        </label>
-        <label class="file-btn">
-          📄 選 PDF／文字檔
-          <input id="fileDoc" type="file" accept="application/pdf,.pdf,text/plain,.txt,.md,text/markdown" multiple />
-        </label>
-        <button type="button" id="btnPaste">貼上文字</button>
+        <button type="button" class="primary" id="btnCamera" aria-controls="fileCamera">📷 拍照</button>
+        <input id="fileCamera" type="file" accept="image/*" capture="environment" />
+        <button type="button" id="btnAlbum" aria-controls="fileAlbum">🖼 相簿選圖</button>
+        <input id="fileAlbum" type="file" accept="image/*,.heic,.heif,image/heic,image/heif" multiple />
         <button type="button" class="danger" id="btnCancelInput">⏹ 取消輸入</button>
-        <button type="button" id="btnReinput">🔄 重新輸入其他檔案</button>
+        <button type="button" id="btnReinput">🔄 重新拍照</button>
       </div>
-      <label for="articleUrl">網路文章網址</label>
-      <div class="url-row">
-        <input id="articleUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://… 貼上文章網址" />
-        <button type="button" class="primary" id="btnFetchUrl">讀取網頁</button>
-        <button type="button" class="danger" id="btnCancelUrl" disabled>取消讀取</button>
+      <label for="geminiKey">Gemini 金鑰（辨識用，可選）</label>
+      <input id="geminiKey" type="password" autocomplete="off" placeholder="貼上 AI Studio 金鑰（AQ. 或 AIza）" />
+      <div class="actions">
+        <button type="button" id="btnSaveKey">記住金鑰（本機）</button>
       </div>
-      <p class="hint">可隨時「取消輸入」；要換檔請按「重新輸入其他檔案」（會中止目前處理並清空，再選新檔）。</p>
+      <p class="hint">金鑰只存此裝置；若曾在「習作批改」存過可自動帶入。不上傳 GitHub。</p>
+      <details class="more-import">
+        <summary>其他輸入（PDF／文字／網址／貼上）</summary>
+        <div class="actions">
+          <button type="button" id="btnPickDoc" aria-controls="fileDoc">📄 選 PDF／文字檔</button>
+          <input id="fileDoc" type="file" accept="application/pdf,.pdf,text/plain,.txt,.md,text/markdown" multiple />
+          <button type="button" id="btnPaste">貼上文字</button>
+        </div>
+        <label for="articleUrl">網路文章網址</label>
+        <div class="url-row">
+          <input id="articleUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://… 貼上文章網址" />
+          <button type="button" class="primary" id="btnFetchUrl">讀取網頁</button>
+          <button type="button" class="danger" id="btnCancelUrl" disabled>取消讀取</button>
+        </div>
+      </details>
       <div class="thumb-row" id="thumbRow"></div>
       <p class="status" id="loadStatus"></p>
     </div>
@@ -212,13 +227,8 @@
     </div>
 
     <div class="card">
-      <h2>3. 可選：AI 加強摘要</h2>
-      <p class="hint">未填金鑰也會用本機規則節錄重點。若此裝置曾在「習作批改」存過 Gemini 金鑰，可自動帶入。</p>
-      <label for="geminiKey">Gemini 金鑰（選填）</label>
-      <input id="geminiKey" type="password" autocomplete="off" placeholder="貼上 AI Studio 金鑰（AQ. 或 AIza）（選填）" />
-      <div class="actions">
-        <button type="button" id="btnSaveKey">記住金鑰（本機）</button>
-      </div>
+      <h2>3. AI 加強摘要</h2>
+      <p class="hint">節錄重點時，若上方已填金鑰，會用同一把 Gemini 加強摘要；未填則用本機規則節錄。</p>
     </div>
 
     <div class="card">
@@ -560,7 +570,7 @@
       }
 
       function clearFileInputs() {
-        ["fileImage", "fileDoc"].forEach((id) => {
+        ["fileCamera", "fileAlbum", "fileDoc"].forEach((id) => {
           const el = document.getElementById(id);
           if (el) el.value = "";
         });
@@ -612,17 +622,16 @@
 
       function reinputOtherFiles(kind) {
         // 中止目前工作並清空，讓使用者重新選其他檔案
-        cancelCurrentJob("已取消，可重新輸入其他檔案");
+        cancelCurrentJob("已取消，可重新拍照輸入");
         resetImportedContent();
         clearFileInputs();
         const urlEl = document.getElementById("articleUrl");
         if (urlEl) urlEl.value = "";
-        setStatus("請重新選擇檔案／拍照／網址", "warn");
-        // 打開對應檔案選擇器
+        setStatus("請重新拍照或選圖", "warn");
         setTimeout(() => {
-          const target = kind === "doc"
-            ? document.getElementById("fileDoc")
-            : document.getElementById("fileImage");
+          let target = document.getElementById("fileCamera");
+          if (kind === "album") target = document.getElementById("fileAlbum");
+          else if (kind === "doc") target = document.getElementById("fileDoc");
           if (target) target.click();
         }, 120);
       }
@@ -1638,6 +1647,68 @@
         return ocrWorker;
       }
 
+      async function fileToBase64(file) {
+        const buf = await file.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        let binary = "";
+        const chunk = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunk) {
+          binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+        }
+        return btoa(binary);
+      }
+
+      /** 用 Gemini 辨識照片／掃描文字（Google API） */
+      async function ocrWithGemini(file, token) {
+        const key = getGeminiKey();
+        if (!key || !file) return null;
+        throwIfCancelled(token);
+        setStatus("Google AI 辨識文字中…（可取消）", "warn");
+        const b64 = await fileToBase64(file);
+        throwIfCancelled(token);
+        const mime = file.type || "image/jpeg";
+        const prompt =
+          "這是文件或書本頁面的照片。請完整抄出圖中所有可見文字（保持原有段落與換行），" +
+          "繁體中文維持繁體、英文維持英文。只輸出辨識出的正文，不要加標題、說明或 markdown。若幾乎沒有文字，只回「（無文字）」。";
+        const models = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-latest"];
+        for (const model of models) {
+          throwIfCancelled(token);
+          try {
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/" +
+              encodeURIComponent(model) + ":generateContent";
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+              signal: jobAbort ? jobAbort.signal : undefined,
+              body: JSON.stringify({
+                contents: [{
+                  role: "user",
+                  parts: [
+                    { text: prompt },
+                    { inline_data: { mime_type: mime, data: b64 } }
+                  ]
+                }],
+                generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
+              })
+            });
+            throwIfCancelled(token);
+            const data = await res.json();
+            if (!res.ok) continue;
+            const text = (((data.candidates || [])[0] || {}).content || {}).parts
+              ? data.candidates[0].content.parts.map((p) => p.text || "").join("")
+              : "";
+            const cleaned = String(text || "").trim();
+            if (!cleaned || cleaned === "（無文字）" || cleaned === "(無文字)") {
+              return { text: "", model, empty: true };
+            }
+            return { text: cleaned, model, empty: false };
+          } catch (e) {
+            if (e && (e.cancelled || e.name === "AbortError")) throw e;
+          }
+        }
+        return null;
+      }
+
       async function ocrImageFile(file, token) {
         const url = URL.createObjectURL(file);
         lastImageBlobUrl = url;
@@ -1648,9 +1719,34 @@
           img.src = url;
           img.alt = file.name;
           thumbRow.appendChild(img);
+
+          // 優先：Google Gemini 辨識
+          try {
+            const ai = await ocrWithGemini(file, token);
+            throwIfCancelled(token);
+            if (ai && !ai.empty && ai.text) {
+              lastOcrText = ai.text;
+              setStatus("已用 Google AI 辨識（" + ai.model + "）", "");
+              return ai.text;
+            }
+            if (ai && ai.empty) {
+              lastOcrText = "";
+              return "";
+            }
+          } catch (eAi) {
+            if (eAi && (eAi.cancelled || eAi.name === "AbortError")) throw eAi;
+            console.warn("Gemini OCR 失敗，改本機 OCR", eAi);
+          }
+
+          // 備援：本機 Tesseract
+          if (!getGeminiKey()) {
+            setStatus("未填金鑰，改用本機辨識…", "warn");
+          } else {
+            setStatus("雲端辨識未成功，改用本機辨識…", "warn");
+          }
           const worker = await ensureOcrWorker((p) => {
             if (!isJobActive(token)) return;
-            setStatus(`辨識圖片 ${file.name}… ${p}%（可取消）`, "warn");
+            setStatus(`本機辨識 ${file.name}… ${p}%（可取消）`, "warn");
           });
           throwIfCancelled(token);
           const { data } = await worker.recognize(file);
@@ -1717,15 +1813,8 @@
         const key = getGeminiKey();
         if (!key || !file) return null;
         throwIfCancelled(token);
-        const buf = await file.arrayBuffer();
+        const b64 = await fileToBase64(file);
         throwIfCancelled(token);
-        const bytes = new Uint8Array(buf);
-        let binary = "";
-        const chunk = 0x8000;
-        for (let i = 0; i < bytes.length; i += chunk) {
-          binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
-        }
-        const b64 = btoa(binary);
         const mime = file.type || "image/jpeg";
         const prompt =
           "這是一張照片。請用繁體中文：1) 簡述圖中內容 2) 若有文字請完整抄出 3) 若像招牌／植物／物品請猜測可能是什麼。條列、精簡。";
@@ -1737,7 +1826,7 @@
               encodeURIComponent(model) + ":generateContent";
             const res = await fetch(url, {
               method: "POST",
-              headers: { "Content-Type": "application/json", "x-goog-api-key": (typeof apiKey !== "undefined" ? apiKey : (typeof key !== "undefined" ? key : "")) },
+              headers: { "Content-Type": "application/json", "x-goog-api-key": key },
               signal: jobAbort ? jobAbort.signal : undefined,
               body: JSON.stringify({
                 contents: [{
@@ -1984,10 +2073,10 @@
               openEnToZhChoice(pendingEnSource);
               setStatus("已辨識英文，請選逐句或全文中文翻譯", "");
             } else {
-              setStatus("已就緒（可再按「重新輸入其他檔案」換檔）", "");
+              setStatus("已就緒（可再按「拍照」換頁／換檔）", "");
             }
           } else if (sawPicture) {
-            setStatus("已改走圖搜（幾乎無文字）", "warn");
+            setStatus("幾乎無文字，已改走圖搜說明", "warn");
           } else {
             setStatus("沒有讀到文字", "err");
           }
@@ -2264,14 +2353,22 @@
       }
 
       // events
-      document.getElementById("fileImage").addEventListener("change", (e) => {
-        handleFiles(e.target.files, { replace: true });
-        e.target.value = "";
-      });
-      document.getElementById("fileDoc").addEventListener("change", (e) => {
-        handleFiles(e.target.files, { replace: true });
-        e.target.value = "";
-      });
+      function wireFilePicker(btnId, inputId) {
+        const btn = document.getElementById(btnId);
+        const inp = document.getElementById(inputId);
+        if (!btn || !inp) return;
+        btn.addEventListener("click", () => {
+          if (!guardAction()) return;
+          inp.click();
+        });
+        inp.addEventListener("change", (e) => {
+          handleFiles(e.target.files, { replace: true });
+          e.target.value = "";
+        });
+      }
+      wireFilePicker("btnCamera", "fileCamera");
+      wireFilePicker("btnAlbum", "fileAlbum");
+      wireFilePicker("btnPickDoc", "fileDoc");
       document.getElementById("btnPaste").addEventListener("click", () => {
         if (!guardAction()) return;
         const ta = document.getElementById("pasteTextArea");
@@ -2299,13 +2396,10 @@
       document.getElementById("btnCancelInput").addEventListener("click", () => {
         cancelCurrentJob("已取消輸入／處理");
         clearFileInputs();
-        setStatus("已取消。可按「重新輸入其他檔案」再選。", "warn");
+        setStatus("已取消。可再按「拍照」重新輸入。", "warn");
       });
       document.getElementById("btnReinput").addEventListener("click", () => {
-        const kind = confirm("要選「照片／圖片」嗎？\n\n按「確定」＝拍照／選圖\n按「取消」＝選 PDF／文字檔")
-          ? "image"
-          : "doc";
-        reinputOtherFiles(kind);
+        reinputOtherFiles("camera");
       });
       document.getElementById("btnCancelUrl").addEventListener("click", () => {
         cancelCurrentJob("已取消網頁讀取");
@@ -2328,7 +2422,7 @@
         clearFileInputs();
         const urlEl = document.getElementById("articleUrl");
         if (urlEl) urlEl.value = "";
-        setStatus("已清除，可重新輸入其他檔案", "warn");
+        setStatus("已清除，可重新拍照", "warn");
       });
       document.getElementById("btnCloseReader").addEventListener("click", closeReader);
       document.getElementById("btnPrev").addEventListener("click", () => {
@@ -2545,7 +2639,7 @@
       }
 
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js?v=9").then((reg) => {
+        navigator.serviceWorker.register("./sw.js?v=10").then((reg) => {
           reg.update().catch(() => {});
         }).catch(() => {});
       }
