@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2026-09-29T17:52:00Z",
+  "directories": [
+    {
+      "id": "search",
+      "name": "搜尋曲庫",
+      "type": "catalog",
+      "source": "./catalog.json",
+      "note": "先前網路關鍵字搜尋的歌曲目錄"
+    },
+    {
+      "id": "tianyuan-music",
+      "name": "天圓音樂",
+      "type": "youtube-channel",
+      "source": "./channel-directory.json",
+      "url": "https://www.youtube.com/@supertianyuan168",
+      "handle": "@supertianyuan168",
+      "note": "官方 YouTube 頻道目錄"
+    }
+  ]
+}

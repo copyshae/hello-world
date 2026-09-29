@@ -87,6 +87,55 @@
     .hint { margin-top: 0.75rem; font-size: 0.76rem; color: var(--muted); padding: 0.65rem; background: rgba(255,255,255,0.5); border: 1px dashed var(--line); border-radius: 0.35rem; }
     .section { margin-top: 0; font-size: 0.9rem; font-weight: 700; color: var(--accent); }
     .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); }
+    .dir-strip {
+      margin-top: 0.85rem;
+      display: flex;
+      gap: 0.55rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      padding: 0.15rem 0.1rem 0.35rem;
+    }
+    .dir-strip::-webkit-scrollbar { height: 4px; }
+    .dir-strip::-webkit-scrollbar-thumb { background: rgba(196,90,16,0.35); border-radius: 999px; }
+    .dir-cell {
+      flex: 0 0 min(78%, 16.5rem);
+      scroll-snap-align: start;
+      text-align: left;
+      padding: 0.75rem 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      background: var(--card);
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .dir-cell small {
+      display: block;
+      margin-top: 0.2rem;
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: var(--muted);
+    }
+    .dir-cell.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .dir-cell.active small { color: rgba(255,255,255,0.85); }
+    .channel-panel {
+      margin-top: 0.85rem;
+      padding: 0.85rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      display: none;
+    }
+    .channel-panel h2 { font-size: 0.95rem; color: var(--accent); }
+    .channel-panel p { margin-top: 0.35rem; font-size: 0.8rem; color: var(--muted); }
+    .channel-panel .open-btn { margin-top: 0.65rem; width: 100%; }
+    .search-panel[hidden], .channel-panel[hidden] { display: none !important; }
   </style>
 </head>
 <body>
@@ -109,7 +158,18 @@
       </div>
     </section>
 
-    <section class="song-picker-top" aria-label="歌曲選單">
+    <div class="dir-strip" id="dirStrip" role="tablist" aria-label="曲庫目錄（可左右滑動點選）">
+      <button type="button" class="dir-cell active" role="tab" aria-selected="true" data-dir="search" id="dirSearch">
+        搜尋曲庫
+        <small>先前網路搜尋 · 連播與選歌</small>
+      </button>
+      <button type="button" class="dir-cell" role="tab" aria-selected="false" data-dir="channel" id="dirChannel">
+        天圓音樂
+        <small>官方 YouTube 頻道</small>
+      </button>
+    </div>
+
+    <section class="song-picker-top search-panel" id="searchPanel" aria-label="歌曲選單">
       <h2 class="section">歌曲選單 <span id="listCount" style="font-weight:400;font-size:0.78rem;color:var(--muted)"></span></h2>
       <div class="filter-row" role="tablist" aria-label="歌曲分類">
         <button type="button" class="active" data-filter="all" role="tab">全部</button>
@@ -125,28 +185,35 @@
       </div>
     </section>
 
-    <div class="player-shell"><div id="player"></div></div>
+    <section class="channel-panel" id="channelPanel" hidden aria-label="天圓音樂頻道">
+      <h2 id="channelTitle">天圓音樂</h2>
+      <p id="channelNote">官方 YouTube 頻道目錄（與搜尋曲庫分開）</p>
+      <p id="channelHandle" style="margin-top:0.25rem">@supertianyuan168</p>
+      <a class="primary open-btn" id="channelOpen" href="https://www.youtube.com/@supertianyuan168" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-align:center;text-decoration:none;padding:0.65rem;border-radius:0.35rem;background:var(--accent);color:#fff;font-weight:700;border:1px solid var(--accent);">▶ 開啟天圓音樂頻道</a>
+    </section>
 
-    <div class="now">
+    <div class="player-shell search-panel" id="playerShell"><div id="player"></div></div>
+
+    <div class="now search-panel" id="nowBox">
       <h2 id="nowTitle">準備播放</h2>
       <p id="nowMeta">載入曲庫中…</p>
       <div class="progress-bar" aria-hidden="true"><i id="progressFill"></i></div>
     </div>
 
-    <div class="controls">
+    <div class="controls search-panel" id="controlsBox">
       <button type="button" id="btnPrev" disabled>◀ 上一首</button>
       <button type="button" id="btnPlay" class="primary">▶ 開始連播</button>
       <button type="button" id="btnNext">下一首 ▶</button>
     </div>
 
-    <div class="toolbar">
+    <div class="toolbar search-panel" id="toolbarBox">
       <button type="button" id="btnKaraoke" title="切換伴唱／原唱">🎵 伴唱</button>
       <button type="button" id="btnRefresh">🔄 更新曲庫</button>
       <button type="button" id="btnRestart">從頭播放</button>
       <span class="meta" id="catalogMeta">—</span>
     </div>
 
-    <p class="hint">
+    <p class="hint search-panel" id="hintBox">
       <strong>播放順序：</strong>① 注入彩虹×3 → ② 富有×3 → ③ 導師親唱 → ④ 其他演唱者。選單可篩選分類；播放中改選其他歌曲會<strong>立即切換</strong>。有伴奏版時可按「伴唱」切換。
       <br /><a href="./simple/" style="color:var(--accent);">→ 分享給朋友？試試簡易版</a>（僅選歌＋播放，介面更精簡）
     </p>
@@ -157,8 +224,19 @@
   <script>
     const PRIORITY_IDS = { "hTEv2f-9WIM": 3, "tkYxdmQlhtQ": 3 };
     const CATALOG_URL = "./catalog.json";
+    const DIRECTORIES_URL = "./directories.json";
+    const CHANNEL_DIR_URL = "./channel-directory.json";
 
     let catalog = { songs: [] };
+    let directories = { directories: [] };
+    let channelDir = {
+      id: "tianyuan-music",
+      name: "天圓音樂",
+      url: "https://www.youtube.com/@supertianyuan168",
+      handle: "@supertianyuan168",
+      note: "官方 YouTube 頻道目錄（與關鍵字搜尋曲庫分開）"
+    };
+    let activeDir = localStorage.getItem("taiyang-active-dir") || "search";
     let queue = [];
     let qIndex = 0;
     let player = null;
@@ -275,6 +353,75 @@
       };
     }
 
+    function selectDir(dirId, scrollIntoView) {
+      activeDir = dirId === "channel" ? "channel" : "search";
+      try { localStorage.setItem("taiyang-active-dir", activeDir); } catch (_) {}
+      const isSearch = activeDir === "search";
+      document.querySelectorAll(".dir-cell").forEach((el) => {
+        const on = el.dataset.dir === activeDir;
+        el.classList.toggle("active", on);
+        el.setAttribute("aria-selected", on ? "true" : "false");
+        if (on && scrollIntoView) el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      });
+      document.querySelectorAll(".search-panel").forEach((el) => {
+        if (isSearch) el.removeAttribute("hidden");
+        else el.setAttribute("hidden", "");
+      });
+      const ch = $("channelPanel");
+      if (ch) {
+        if (isSearch) ch.setAttribute("hidden", "");
+        else {
+          ch.removeAttribute("hidden");
+          ch.style.display = "block";
+        }
+      }
+      $("statusLine").textContent = isSearch
+        ? "搜尋曲庫：可連播、選歌、伴唱"
+        : "天圓音樂頻道目錄（點下方開啟）";
+    }
+
+    function applyChannelPanel() {
+      const name = channelDir.name || "天圓音樂";
+      const url = channelDir.url || "https://www.youtube.com/@supertianyuan168";
+      const handle = channelDir.handle || "@supertianyuan168";
+      const note = channelDir.note || "官方 YouTube 頻道目錄";
+      if ($("channelTitle")) $("channelTitle").textContent = name;
+      if ($("channelNote")) $("channelNote").textContent = note;
+      if ($("channelHandle")) $("channelHandle").textContent = handle;
+      if ($("channelOpen")) {
+        $("channelOpen").href = url;
+        $("channelOpen").textContent = "▶ 開啟" + name + "頻道";
+      }
+      const cell = $("dirChannel");
+      if (cell) {
+        cell.innerHTML = name + "<small>官方 YouTube 頻道 · " + handle + "</small>";
+      }
+    }
+
+    async function loadDirectories() {
+      try {
+        const res = await fetch(DIRECTORIES_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (res.ok) directories = await res.json();
+      } catch (_) {}
+      try {
+        const res = await fetch(CHANNEL_DIR_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (res.ok) channelDir = await res.json();
+      } catch (_) {
+        const list = (directories.directories || []).find((d) => d.id === "tianyuan-music" || d.type === "youtube-channel");
+        if (list) {
+          channelDir = {
+            id: list.id,
+            name: list.name,
+            url: list.url,
+            handle: list.handle,
+            note: list.note
+          };
+        }
+      }
+      applyChannelPanel();
+      selectDir(activeDir, false);
+    }
+
     async function loadCatalog(force) {
       $("statusLine").textContent = force ? "正在更新曲庫…" : "載入曲庫…";
       let remote = null;
@@ -304,9 +451,11 @@
       const mc = c.master || catalog.songs.filter((s) => s.performer === "master").length;
       const oc = c.other || catalog.songs.filter((s) => s.performer === "other").length;
       $("catalogMeta").textContent = "導師 " + mc + " · 其他 " + oc + " · " + (catalog.updatedAt || "").slice(0, 10);
-      $("statusLine").textContent = remote
-        ? "曲庫已更新（導師 " + mc + " 首、其他演唱 " + oc + " 首）"
-        : "使用快取曲庫（導師 " + mc + "、其他 " + oc + "）";
+      if (activeDir === "search") {
+        $("statusLine").textContent = remote
+          ? "曲庫已更新（導師 " + mc + " 首、其他演唱 " + oc + " 首）"
+          : "使用快取曲庫（導師 " + mc + "、其他 " + oc + "）";
+      }
     }
 
     function renderSongMenu() {
@@ -557,6 +706,10 @@
     $("btnRefresh").addEventListener("click", () => loadCatalog(true));
     $("btnKaraoke").addEventListener("click", toggleKaraoke);
 
+    document.querySelectorAll(".dir-cell").forEach((btn) => {
+      btn.addEventListener("click", () => selectDir(btn.dataset.dir, true));
+    });
+
     document.querySelectorAll(".filter-row button").forEach((btn) => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".filter-row button").forEach((b) => b.classList.remove("active"));
@@ -587,12 +740,15 @@
       else if (lastLoadedVid && !player) createPlayer(lastLoadedVid, autoPlay);
     };
 
-    loadCatalog(false).then(() => {
-      if (queue.length) $("nowMeta").textContent = "共 " + queue.length + " 段連播 · 按「開始連播」或從選單選歌";
+    updateKaraokeBtn();
+    loadDirectories().then(() => loadCatalog(false)).then(() => {
+      if (queue.length && activeDir === "search") {
+        $("nowMeta").textContent = "共 " + queue.length + " 段連播 · 按「開始連播」或從選單選歌";
+      }
     });
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=20260909a").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=20260929a").catch(() => {});
     }
   </script>
   <script src="https://www.youtube.com/iframe_api" async></script>

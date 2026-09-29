@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" href="../taiyang-icon-180.png" />
   <title>太陽盛德導師創作歌曲｜簡易版</title>
   <style>
-    :root { --accent: #c45a10; --muted: #7a5c3a; --line: rgba(196,90,16,0.2); }
+    :root { --accent: #c45a10; --muted: #7a5c3a; --line: rgba(196,90,16,0.2); --card: rgba(255,255,255,0.75); }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: "PingFang TC", "Noto Sans TC", sans-serif;
@@ -21,7 +21,7 @@
     }
     .wrap { max-width: 24rem; margin: 0 auto; padding-bottom: 2rem; }
     h1 { text-align: center; font-size: clamp(1rem, 4.5vw, 1.3rem); color: var(--accent); margin-top: 0.5rem; line-height: 1.35; }
-    .sub { text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.25rem 0 0.85rem; }
+    .sub { text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.25rem 0 0.55rem; }
     label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; }
     select, button {
       width: 100%; font: inherit; font-size: 16px;
@@ -36,28 +36,71 @@
     #player { width: 100%; height: 100%; }
     .now {
       margin-top: 0.65rem; padding: 0.65rem 0.75rem;
-      background: rgba(255,255,255,0.75); border: 1px solid var(--line); border-radius: 0.35rem;
+      background: var(--card); border: 1px solid var(--line); border-radius: 0.35rem;
       font-size: 0.88rem;
     }
     .now strong { color: var(--accent); }
     .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); text-align: center; }
     .foot a { color: var(--accent); }
     .status { margin-top: 0.45rem; font-size: 0.75rem; color: var(--muted); text-align: center; min-height: 1.1rem; }
+    .dir-strip {
+      display: flex; gap: 0.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory; margin: 0.45rem 0 0.75rem; padding-bottom: 0.25rem;
+    }
+    .dir-cell {
+      flex: 0 0 78%; scroll-snap-align: start; text-align: left;
+      padding: 0.7rem 0.8rem; border: 1px solid var(--line); border-radius: 0.45rem;
+      background: var(--card); color: #3a2208; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+    }
+    .dir-cell small { display: block; margin-top: 0.15rem; font-size: 0.72rem; font-weight: 400; color: var(--muted); }
+    .dir-cell.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .dir-cell.active small { color: rgba(255,255,255,0.85); }
+    .channel-panel {
+      margin-top: 0.35rem; padding: 0.85rem; background: var(--card);
+      border: 1px solid var(--line); border-radius: 0.45rem;
+    }
+    .channel-panel h2 { font-size: 0.95rem; color: var(--accent); }
+    .channel-panel p { margin-top: 0.3rem; font-size: 0.8rem; color: var(--muted); }
+    .channel-panel a.open {
+      display: block; margin-top: 0.65rem; text-align: center; text-decoration: none;
+      background: var(--accent); color: #fff; font-weight: 700; padding: 0.65rem; border-radius: 0.35rem;
+    }
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>太陽盛德導師創作歌曲<br /><span style="font-size:0.85em;font-weight:600">簡易版</span></h1>
-    <p class="sub">選歌即播 · 介面精簡 · 適合分享</p>
+    <p class="sub">兩目錄可左右滑動點選 · 選歌即播</p>
 
-    <label for="songSelect">選擇歌曲</label>
-    <select id="songSelect" aria-label="歌曲選單">
-      <option value="">— 載入中 —</option>
-    </select>
-    <button type="button" id="btnPlay" class="primary">▶ 播放</button>
+    <div class="dir-strip" id="dirStrip" role="tablist" aria-label="曲庫目錄（可左右滑動點選）">
+      <button type="button" class="dir-cell active" role="tab" data-dir="search" aria-selected="true">
+        搜尋曲庫
+        <small>先前網路搜尋 · 選歌即播</small>
+      </button>
+      <button type="button" class="dir-cell" role="tab" data-dir="channel" aria-selected="false">
+        天圓音樂
+        <small>官方 YouTube 頻道</small>
+      </button>
+    </div>
 
-    <div class="player"><div id="player"></div></div>
-    <p class="now" id="nowLine">尚未播放</p>
+    <div id="searchPanel" class="search-panel">
+      <label for="songSelect">選擇歌曲</label>
+      <select id="songSelect" aria-label="歌曲選單">
+        <option value="">— 載入中 —</option>
+      </select>
+      <button type="button" id="btnPlay" class="primary">▶ 播放</button>
+      <div class="player"><div id="player"></div></div>
+      <p class="now" id="nowLine">尚未播放</p>
+    </div>
+
+    <section class="channel-panel" id="channelPanel" hidden>
+      <h2 id="channelTitle">天圓音樂</h2>
+      <p id="channelNote">官方 YouTube 頻道目錄（與搜尋曲庫分開）</p>
+      <p id="channelHandle">@supertianyuan168</p>
+      <a class="open" id="channelOpen" href="https://www.youtube.com/@supertianyuan168" target="_blank" rel="noopener noreferrer">▶ 開啟天圓音樂頻道</a>
+    </section>
+
     <p class="status" id="statusLine"></p>
 
     <p class="foot">
@@ -69,13 +112,50 @@
 
   <script>
     const CATALOG_URL = "../catalog.json";
+    const CHANNEL_DIR_URL = "../channel-directory.json";
     let catalog = { songs: [] };
+    let channelDir = {
+      name: "天圓音樂",
+      url: "https://www.youtube.com/@supertianyuan168",
+      handle: "@supertianyuan168",
+      note: "官方 YouTube 頻道目錄（與搜尋曲庫分開）"
+    };
+    let activeDir = localStorage.getItem("taiyang-simple-dir") || "search";
     let player = null;
     let apiReady = false;
     let pendingId = null;
     let currentId = null;
 
     const $ = (id) => document.getElementById(id);
+
+    function selectDir(dirId, scrollIntoView) {
+      activeDir = dirId === "channel" ? "channel" : "search";
+      try { localStorage.setItem("taiyang-simple-dir", activeDir); } catch (_) {}
+      const isSearch = activeDir === "search";
+      document.querySelectorAll(".dir-cell").forEach((el) => {
+        const on = el.dataset.dir === activeDir;
+        el.classList.toggle("active", on);
+        el.setAttribute("aria-selected", on ? "true" : "false");
+        if (on && scrollIntoView) el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      });
+      if (isSearch) {
+        $("searchPanel").removeAttribute("hidden");
+        $("channelPanel").setAttribute("hidden", "");
+        $("statusLine").textContent = "搜尋曲庫：選歌即播";
+      } else {
+        $("searchPanel").setAttribute("hidden", "");
+        $("channelPanel").removeAttribute("hidden");
+        $("statusLine").textContent = "天圓音樂頻道目錄";
+      }
+    }
+
+    function applyChannelPanel() {
+      $("channelTitle").textContent = channelDir.name || "天圓音樂";
+      $("channelNote").textContent = channelDir.note || "";
+      $("channelHandle").textContent = channelDir.handle || "";
+      $("channelOpen").href = channelDir.url || "https://www.youtube.com/@supertianyuan168";
+      $("channelOpen").textContent = "▶ 開啟" + (channelDir.name || "天圓音樂") + "頻道";
+    }
 
     function sortSongs(songs) {
       const pri = songs.filter((s) => s.repeat === 3);
@@ -120,6 +200,15 @@
       } catch (_) {}
     }
 
+    async function loadChannelDir() {
+      try {
+        const res = await fetch(CHANNEL_DIR_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (res.ok) channelDir = await res.json();
+      } catch (_) {}
+      applyChannelPanel();
+      selectDir(activeDir, false);
+    }
+
     async function loadCatalog() {
       $("statusLine").textContent = "載入曲庫…";
       try {
@@ -132,9 +221,11 @@
         } catch (__) {}
       }
       renderMenu();
-      $("statusLine").textContent = catalog.songs && catalog.songs.length
-        ? "共 " + catalog.songs.length + " 首 · 選歌即播"
-        : "無法載入曲庫";
+      if (activeDir === "search") {
+        $("statusLine").textContent = catalog.songs && catalog.songs.length
+          ? "共 " + catalog.songs.length + " 首 · 選歌即播"
+          : "無法載入曲庫";
+      }
     }
 
     function ensurePlayerHost() {
@@ -203,13 +294,16 @@
       });
     }
 
+    document.querySelectorAll(".dir-cell").forEach((btn) => {
+      btn.addEventListener("click", () => selectDir(btn.dataset.dir, true));
+    });
+
     $("btnPlay").addEventListener("click", () => {
       if (!player) { playSelected(); return; }
       let st = -1;
       try { st = player.getPlayerState(); } catch (_) {}
       if (st === YT.PlayerState.PLAYING) player.pauseVideo();
       else if ($("songSelect").value) {
-        // 若選單已換成別首，按播放應播選單那首
         const id = $("songSelect").value;
         if (id && id !== currentId) playSelected();
         else try { player.playVideo(); } catch (_) { playSelected(); }
@@ -223,10 +317,10 @@
       if (pendingId) playId(pendingId, (catalog.songs || []).find((s) => s.id === pendingId));
     };
 
-    loadCatalog();
+    loadChannelDir().then(() => loadCatalog());
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js?v=20260909a").catch(() => {});
+      navigator.serviceWorker.register("./sw.js?v=20260929a").catch(() => {});
     }
   </script>
   <script src="https://www.youtube.com/iframe_api" async></script>
